@@ -110,31 +110,31 @@ const hintText = events[guessIndex + 1] || 'No more hints available.';
 **Impact**: Solves localStorage persistence blocking iterative testing workflows
 **Philosophy**: Carmack approach - "Make it work" with minimal complexity
 
-- [ ] **Implement URL parameter parsing utilities**
+- [x] **Implement URL parameter parsing utilities**
   - **File**: `index.html` after line 94 (before closing `</head>`)
   - **Add**: `<script>const URL_PARAMS = new URLSearchParams(window.location.search);</script>`
   - **Context**: Global URL parameter access for debug features
   - **Validation**: `console.log(URL_PARAMS.get('debug'))` should work in browser console
 
-- [ ] **Add debug mode detection flag**
+- [x] **Add debug mode detection flag**
   - **File**: `index.html` around line 456 (before gameState initialization)
   - **Add**: `const DEBUG_MODE = URL_PARAMS.get('debug') === 'true';`
   - **Context**: Single source of truth for debug state throughout application
   - **Validation**: `?debug=true` should set DEBUG_MODE to true, default to false
 
-- [ ] **Implement conditional localStorage bypass in saveProgress()**
+- [x] **Implement conditional localStorage bypass in saveProgress()**
   - **File**: `index.html` find `saveProgress()` function (around line 700-800)
   - **Change**: Add early return `if (DEBUG_MODE) { console.log('Debug mode: skipping localStorage save'); return; }`
   - **Context**: Prevents daily game state persistence during testing
   - **Validation**: Debug mode should not save progress to localStorage
 
-- [ ] **Implement conditional localStorage bypass in loadProgress()**
+- [x] **Implement conditional localStorage bypass in loadProgress()**
   - **File**: `index.html` find `loadProgress()` function
   - **Change**: Add early return `if (DEBUG_MODE) { console.log('Debug mode: skipping localStorage load'); return null; }`
   - **Context**: Forces fresh game state on every debug mode session
   - **Validation**: Debug mode should always start with clean game state
 
-- [ ] **Add debug console utilities object**
+- [x] **Add debug console utilities object**
   - **File**: `index.html` around line 456 (after gameState initialization)
   - **Add**: Debug utilities object with reset, scenario, and state inspection methods
   - **Context**: Provides programmatic control over game state for testing
@@ -151,13 +151,13 @@ const hintText = events[guessIndex + 1] || 'No more hints available.';
     }
     ```
 
-- [ ] **Implement forced year override parameter**
+- [x] **Implement forced year override parameter**
   - **File**: `index.html` in `getDailyYear()` function (around line 329)
   - **Change**: Add early return `const forcedYear = URL_PARAMS.get('year'); if (forcedYear && DEBUG_MODE) { console.log(\`Debug: forcing year to \${forcedYear}\`); return parseInt(forcedYear, 10); }`
   - **Context**: Allows testing specific years via ?year=1969 parameter
   - **Validation**: `?debug=true&year=1969` should force 1969 as daily puzzle
 
-- [ ] **Add scenario pre-loading for 6wrong test case**
+- [x] **Add scenario pre-loading for 6wrong test case**
   - **File**: `index.html` in `init()` function after puzzle initialization
   - **Add**: Scenario detection and pre-loading logic for common test patterns
   - **Context**: Enables rapid setup of specific test scenarios
@@ -179,7 +179,7 @@ const hintText = events[guessIndex + 1] || 'No more hints available.';
     }
     ```
 
-- [ ] **Add debug visual indicator in UI**
+- [x] **Add debug visual indicator in UI**
   - **File**: `index.html` in the header section around line 100-120
   - **Add**: Debug mode banner element that displays when active
   - **Context**: Clear visual indication that debug mode is active
@@ -190,7 +190,7 @@ const hintText = events[guessIndex + 1] || 'No more hints available.';
     </div>
     ```
 
-- [ ] **Implement debug banner display logic**
+- [x] **Implement debug banner display logic**
   - **File**: `index.html` around line 464 (in init function)
   - **Add**: Debug banner visibility and parameter display
   - **Context**: Shows active debug parameters and status
@@ -207,7 +207,7 @@ const hintText = events[guessIndex + 1] || 'No more hints available.';
     }
     ```
 
-- [ ] **Add debug keyboard shortcuts**
+- [x] **Add debug keyboard shortcuts**
   - **File**: `index.html` after event listeners setup (around line 600-700)
   - **Add**: Keyboard shortcuts for common debug operations
   - **Context**: Rapid testing workflow with keyboard shortcuts
@@ -227,32 +227,32 @@ const hintText = events[guessIndex + 1] || 'No more hints available.';
     }
     ```
 
-- [ ] **Test debug mode basic functionality**
+- [x] **Test debug mode basic functionality**
   - **Steps**: Navigate to `http://localhost:8000?debug=true`
   - **Expected**: Debug banner visible, no localStorage persistence, window.chrondle available
   - **Validation**: Multiple page refreshes should start fresh game each time
 
-- [ ] **Test forced year parameter**
+- [x] **Test forced year parameter**
   - **Steps**: Navigate to `http://localhost:8000?debug=true&year=1969`
   - **Expected**: Game loads 1969 puzzle regardless of actual date
   - **Validation**: Primary event should be from 1969, debug banner shows year parameter
 
-- [ ] **Test 6wrong scenario pre-loading**
+- [x] **Test 6wrong scenario pre-loading**
   - **Steps**: Navigate to `http://localhost:8000?debug=true&scenario=6wrong`
   - **Expected**: Game loads with 5 wrong guesses already made, ready for 6th guess
   - **Validation**: 5 guess rows visible, guess counter shows (5/6), ready for final test
 
-- [ ] **Test debug console utilities**
+- [x] **Test debug console utilities**
   - **Steps**: In debug mode, use browser console to test window.chrondle methods
   - **Expected**: All utility methods work correctly (reset, state, clearStorage, setYear)
   - **Validation**: Each method should execute without errors and provide feedback
 
-- [ ] **Test debug keyboard shortcuts**
+- [x] **Test debug keyboard shortcuts**
   - **Steps**: In debug mode, test Ctrl+R, Ctrl+C, Ctrl+D keyboard combinations
   - **Expected**: Shortcuts trigger appropriate debug actions
   - **Validation**: Keyboard shortcuts should work and not interfere with normal game input
 
-- [ ] **Verify production mode unchanged**
+- [x] **Verify production mode unchanged**
   - **Steps**: Test normal URL `http://localhost:8000` without debug parameters
   - **Expected**: No debug features active, normal localStorage behavior
   - **Validation**: Game should behave exactly as before, no debug artifacts visible
@@ -291,13 +291,13 @@ window.chrondle.setYear(1969)  // Force year change
 
 ## ✅ Debug Mode Definition of Done
 
-- [ ] Debug mode accessible via URL parameter
-- [ ] No localStorage persistence in debug mode
-- [ ] Console utilities provide programmatic control
-- [ ] Scenario pre-loading works for common test cases
-- [ ] Forced year parameter overrides daily puzzle
-- [ ] Visual debug indicator shows active status
-- [ ] Keyboard shortcuts enable rapid workflow
-- [ ] Production mode completely unaffected
-- [ ] All debug features work across browsers
-- [ ] Debug code is maintainable and well-documented
+- [x] Debug mode accessible via URL parameter
+- [x] No localStorage persistence in debug mode
+- [x] Console utilities provide programmatic control
+- [x] Scenario pre-loading works for common test cases
+- [x] Forced year parameter overrides daily puzzle
+- [x] Visual debug indicator shows active status
+- [x] Keyboard shortcuts enable rapid workflow
+- [x] Production mode completely unaffected
+- [x] All debug features work across browsers
+- [x] Debug code is maintainable and well-documented

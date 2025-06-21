@@ -91,6 +91,7 @@
             darkMode: 'class',
         }
     </script>
+    <script>const URL_PARAMS = new URLSearchParams(window.location.search);</script>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex flex-col items-center justify-center p-4">
 
@@ -102,6 +103,11 @@
             <h1 class="text-4xl sm:text-5xl font-bold tracking-wider">Chrondle</h1>
             <p class="text-gray-500 dark:text-gray-400 mt-1">Guess the year of the historical event.</p>
         </header>
+
+        <!-- Debug Banner -->
+        <div id="debug-banner" class="hidden bg-yellow-400 dark:bg-yellow-600 text-black p-2 text-center font-bold">
+            🔧 DEBUG MODE ACTIVE - No progress saved | <span id="debug-params"></span>
+        </div>
 
         <!-- Primary Event Display -->
         <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 mb-4 text-center min-h-[80px] flex items-center justify-center">
@@ -327,6 +333,7 @@
 
     // --- DAILY PUZZLE LOGIC ---
     function getDailyYear() {
+        const forcedYear = URL_PARAMS.get('year'); if (forcedYear && DEBUG_MODE) { console.log(`Debug: forcing year to ${forcedYear}`); return parseInt(forcedYear, 10); }
         // Use a fixed start date to ensure deterministic daily puzzles
         // This ensures all players get the same puzzle each day
         const EPOCH_START = new Date('2024-01-01'); // Game launch date
@@ -453,12 +460,23 @@
 
 
         // --- GAME STATE ---
+        const DEBUG_MODE = URL_PARAMS.get('debug') === 'true';
         let gameState = {
             puzzle: null,
             guesses: [],
             maxGuesses: 6,
             isGameOver: false,
         };
+
+        if (DEBUG_MODE) {
+            window.chrondle = {
+                reset: () => location.reload(),
+                state: () => console.log(gameState),
+                clearStorage: () => { Object.keys(localStorage).forEach(k => k.startsWith('chrondle-') && localStorage.removeItem(k)); console.log('Chrondle storage cleared'); },
+                setYear: (year) => { gameState.puzzle.year = year; console.log(`Forced year to ${year}`); }
+            };
+            console.log('🔧 Debug mode active. Use window.chrondle for utilities.');
+        }
 
         // --- INITIALIZATION ---
         async function init() {
@@ -467,6 +485,30 @@
             try {
                 // Fetch puzzle from API
                 gameState.puzzle = await initializePuzzle();
+
+                if (DEBUG_MODE) {
+                    const scenario = URL_PARAMS.get('scenario');
+                    if (scenario === '6wrong') {
+                        // Pre-load 5 wrong guesses, ready for 6th guess testing
+                        const wrongGuesses = [1500, 1800, 1900, 1950, 2000];
+                        wrongGuesses.forEach(guess => {
+                            if (gameState.guesses.length < 5) {
+                                gameState.guesses.push(guess);
+                                renderGuess(guess, gameState.guesses.length - 1);
+                            }
+                        });
+                        console.log('🎯 Scenario: 5 wrong guesses loaded, ready for 6th guess test');
+                    }
+                    
+                    // Show debug banner and populate parameters
+                    const banner = document.getElementById('debug-banner');
+                    const params = document.getElementById('debug-params');
+                    banner.classList.remove('hidden');
+                    const activeParams = [];
+                    if (URL_PARAMS.get('year')) activeParams.push(`year=${URL_PARAMS.get('year')}`);
+                    if (URL_PARAMS.get('scenario')) activeParams.push(`scenario=${URL_PARAMS.get('scenario')}`);
+                    params.textContent = activeParams.length ? activeParams.join(' | ') : 'Basic debug mode';
+                }
 
                 // Enable inputs now that puzzle is loaded
                 guessInput.disabled = false;
@@ -799,6 +841,7 @@
         }
 
         function saveProgress() {
+            if (DEBUG_MODE) { console.log('Debug mode: skipping localStorage save'); return; }
             const progress = {
                 guesses: gameState.guesses,
                 isGameOver: gameState.isGameOver
@@ -807,6 +850,7 @@
         }
 
         function loadProgress() {
+            if (DEBUG_MODE) { console.log('Debug mode: skipping localStorage load'); return null; }
             const savedProgress = localStorage.getItem(getStorageKey());
             if (savedProgress) {
                 const progress = JSON.parse(savedProgress);
@@ -883,6 +927,19 @@
                 if(e.target === modal) hideModal(modal);
             });
         });
+
+        if (DEBUG_MODE) {
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case 'r': e.preventDefault(); location.reload(); break;
+                        case 'c': e.preventDefault(); window.chrondle.clearStorage(); location.reload(); break;
+                        case 'd': e.preventDefault(); window.chrondle.state(); break;
+                    }
+                }
+            });
+            console.log('⌨️  Debug shortcuts: Ctrl+R (reset), Ctrl+C (clear storage), Ctrl+D (dump state)');
+        }
 
         // --- START THE GAME ---
         init();
