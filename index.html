@@ -583,7 +583,7 @@
             const { year, events } = gameState.puzzle;
 
             const directionInfo = getGuessDirectionInfo(guess, year);
-            const hintText = events[guessIndex + 1];
+            const hintText = events[guessIndex + 1] || 'No more hints available.';
 
             let rowHTML;
 
