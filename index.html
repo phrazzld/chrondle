@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrondle - The Daily History Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for the game */
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        h1, h2 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .game-tile {
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-content {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform: scale(0.95);
+            opacity: 0;
+        }
+
+        .modal-content.show {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .guess-row {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading spinner animation */
+        .spinner {
+            border: 2px solid #e5e7eb;
+            border-top: 2px solid #4f46e5;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .dark .spinner {
+            border-color: #374151;
+            border-top-color: #818cf8;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Colorblind mode styles */
+        html.color-blind .bg-red-200 { background-color: #fde047; /* yellow-400 */ }
+        html.color-blind .text-red-800 { color: #854d0e; /* yellow-800 */ }
+        html.color-blind .dark\:bg-red-800 { background-color: #facc15; /* yellow-500 */ }
+        html.color-blind .dark\:text-red-100 { color: #422006; /* yellow-900 */ }
+        html.color-blind .bg-blue-200 { background-color: #a5b4fc; /* indigo-300 */ }
+        html.color-blind .text-blue-800 { color: #3730a3; /* indigo-800 */ }
+        html.color-blind .dark\:bg-blue-800 { background-color: #6366f1; /* indigo-500 */ }
+        html.color-blind .dark\:text-blue-100 { color: #e0e7ff; /* indigo-100 */ }
+
+    </style>
+    <script>
+        // Tailwind dark mode configuration
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Main Game Container -->
+    <div id="game-container" class="w-full max-w-2xl mx-auto">
+
+        <!-- Header -->
+        <header class="text-center mb-4 sm:mb-6">
+            <h1 class="text-4xl sm:text-5xl font-bold tracking-wider">Chrondle</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">Guess the year of the historical event.</p>
+        </header>
+
+        <!-- Primary Event Display -->
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 mb-4 text-center min-h-[80px] flex items-center justify-center">
+            <p class="text-lg sm:text-xl font-semibold" id="primary-event-text">
+                <span class="spinner"></span>Loading today's historical puzzle...
+            </p>
+        </div>
+
+        <!-- Guess Input -->
+        <form id="guess-form" class="flex items-center gap-2 mb-4">
+            <input type="number" id="guess-input" placeholder="Enter a year (e.g. 1969 AD or -776 for 776 BC)..." class="w-full p-3 text-lg bg-gray-200 dark:bg-gray-700 border-2 border-transparent focus:border-indigo-500 focus:ring-0 rounded-lg text-center" required disabled>
+            <button type="submit" id="guess-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200" disabled>
+                Guess
+            </button>
+        </form>
+
+        <!-- Guess History -->
+        <div id="guess-history" class="space-y-3">
+            <!-- Guess rows will be inserted here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Settings and Help Icons -->
+    <div class="absolute top-4 right-4 flex gap-3">
+         <button id="help-button" class="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </button>
+        <button id="settings-button" class="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+        </button>
+    </div>
+
+    <!-- How to Play Modal -->
+    <div id="help-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md w-full p-6 modal-content">
+            <h2 class="text-2xl font-bold mb-4 text-center">How to Play</h2>
+            <div class="space-y-4 text-gray-600 dark:text-gray-300">
+                <p>Guess the year of the historical event in 6 tries. Years can be BC or AD.</p>
+                <p>After each guess, you'll receive two hints:</p>
+                <ul class="list-disc list-inside space-y-2 pl-2">
+                    <li>A directional hint: <span class="font-bold">▲ LATER</span> or <span class="font-bold">▼ EARLIER</span>.</li>
+                    <li>A new historical event that happened in the <span class="font-bold">same target year</span>.</li>
+                </ul>
+                <p>Use the clues to narrow down your next guess and find the correct year!</p>
+                <p class="text-sm bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border-l-4 border-blue-400">
+                    <span class="font-semibold">Daily Puzzle:</span> Everyone gets the same puzzle each day, so you can compare your results with friends!
+                </p>
+            </div>
+            <button id="close-help-button" class="mt-6 w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition">Got it!</button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md w-full p-6 modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Settings</h2>
+                <button id="close-settings-button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <label for="dark-mode-toggle" class="font-semibold">Dark Mode</label>
+                    <button id="dark-mode-toggle" class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors bg-gray-200 dark:bg-gray-600">
+                        <span class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform translate-x-1 dark:translate-x-6"></span>
+                    </button>
+                </div>
+                <div class="flex items-center justify-between">
+                    <label for="color-blind-toggle" class="font-semibold">Color-Blind Mode</label>
+                    <button id="color-blind-toggle" class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors bg-gray-200 dark:bg-gray-600">
+                        <span class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform translate-x-1 dark:translate-x-6"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="game-over-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md w-full p-6 text-center modal-content">
+            <h2 id="game-over-title" class="text-3xl font-bold mb-2"></h2>
+            <p class="text-lg mb-4">The correct year was <strong id="correct-year-text"></strong>.</p>
+
+            <div id="final-events-list" class="text-left bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-4 max-h-48 overflow-y-auto">
+                <h3 class="font-bold mb-2">Events from this year:</h3>
+                <ul class="list-disc list-inside space-y-1">
+                    <!-- Events will be populated here -->
+                </ul>
+            </div>
+
+            <div id="share-block" class="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg mb-4">
+                <p class="font-mono text-center whitespace-pre-wrap" id="share-text"></p>
+            </div>
+
+            <div class="flex gap-4">
+                <div class="flex-1 text-center">
+                     <p class="text-gray-500 dark:text-gray-400 text-sm">NEXT CHRONDLE</p>
+                     <p id="countdown-timer" class="text-2xl font-bold"></p>
+                </div>
+                <button id="share-button" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.368a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" /></svg>
+                    Share
+                </button>
+            </div>
+            <p id="copy-feedback" class="text-sm text-green-600 dark:text-green-400 h-5 mt-2"></p>
+        </div>
+    </div>
+
+
+    <script>
+    // --- API CONFIGURATION ---
+    // Yes, this API key is exposed in client-side code. This is a prototype.
+    // The API has rate limits (50k requests/month) and only provides historical data.
+    // If someone steals this key to make historical event queries, that's their problem.
+    const API_NINJAS_KEY = 'O8VgZplfhWSNdCsgoeVaZg==2bwPJnxstEQPzmvn';
+    
+    // Basic client-side rate limiting and caching
+    const API_CACHE = new Map();
+    let lastApiCall = 0;
+    const MIN_API_INTERVAL = 1000; // 1 second between calls
+
+    function canMakeApiCall() {
+        const now = Date.now();
+        return now - lastApiCall >= MIN_API_INTERVAL;
+    }
+
+    function updateLastApiCall() {
+        lastApiCall = Date.now();
+    }
+
+    // --- API FUNCTIONS ---
+    async function getHistoricalEvents(year) {
+        // Input validation
+        if (!year || typeof year !== 'number') {
+            console.error('getHistoricalEvents: Invalid year parameter:', year);
+            return [];
+        }
+
+        // Check cache first
+        const cacheKey = `events-${year}`;
+        if (API_CACHE.has(cacheKey)) {
+            console.log(`Using cached events for year ${year}`);
+            return API_CACHE.get(cacheKey);
+        }
+
+        // Rate limiting check
+        if (!canMakeApiCall()) {
+            console.warn('Rate limit: too soon since last API call');
+            return [];
+        }
+
+        try {
+            console.log(`Fetching historical events for year ${year}...`);
+            updateLastApiCall();
+
+            const response = await fetch(`https://api.api-ninjas.com/v1/historicalevents?year=${year}`, {
+                headers: {
+                    'X-Api-Key': API_NINJAS_KEY
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`API response not OK: ${response.status} ${response.statusText}`);
+            }
+
+            const events = await response.json();
+            
+            // Validate response
+            if (!Array.isArray(events)) {
+                throw new Error('API response is not an array');
+            }
+
+            // Extract event descriptions and cache the result
+            const eventDescriptions = events.map(event => event.event).filter(Boolean);
+            API_CACHE.set(cacheKey, eventDescriptions);
+            
+            console.log(`Successfully fetched ${eventDescriptions.length} events for year ${year}`);
+            return eventDescriptions;
+
+        } catch (error) {
+            console.error(`Failed to fetch events for year ${year}:`, error);
+            return [];
+        }
+    }
+
+    // --- PUZZLE CONFIGURATION ---
+    // Curated years known to have significant historical events
+    // Selected for variety across eras and likelihood of having 6+ events from API
+    const CURATED_YEARS = [
+        // Ancient/Classical Era
+        -776, -753, -221, -44,  // BC years (negative)
+        
+        // Medieval Era
+        800, 1066, 1215, 1347, 1453,
+        
+        // Renaissance/Early Modern
+        1492, 1517, 1588, 1607, 1620,
+        
+        // Enlightenment/Revolution Era
+        1776, 1789, 1804, 1815, 1848,
+        
+        // Industrial Age
+        1865, 1876, 1885, 1893, 1903,
+        
+        // Early 20th Century
+        1914, 1917, 1918, 1929, 1936,
+        
+        // WWII Era
+        1939, 1941, 1945, 1947, 1948,
+        
+        // Cold War Era
+        1957, 1961, 1963, 1969, 1975,
+        
+        // Late 20th Century
+        1989, 1991, 1994, 1997, 1999,
+        
+        // 21st Century
+        2001, 2003, 2008, 2011, 2016, 2020
+    ];
+
+    // Fallback year when API fails or returns insufficient events
+    // 1969 chosen for reliable event count: Moon landing, Woodstock, Vietnam War events
+    const FALLBACK_YEAR = 1969;
+
+    // --- DAILY PUZZLE LOGIC ---
+    function getDailyYear() {
+        // Use a fixed start date to ensure deterministic daily puzzles
+        // This ensures all players get the same puzzle each day
+        const EPOCH_START = new Date('2024-01-01'); // Game launch date
+        const today = new Date();
+        
+        // Reset time to midnight to ensure consistency across timezones
+        today.setHours(0, 0, 0, 0);
+        EPOCH_START.setHours(0, 0, 0, 0);
+        
+        // Calculate days since epoch
+        const daysSinceEpoch = Math.floor((today - EPOCH_START) / (1000 * 60 * 60 * 24));
+        
+        // Select year from curated array using modulo
+        const yearIndex = daysSinceEpoch % CURATED_YEARS.length;
+        const selectedYear = CURATED_YEARS[yearIndex];
+        
+        console.log(`Daily puzzle: Day ${daysSinceEpoch} since epoch, selected year ${selectedYear} (index ${yearIndex})`);
+        
+        return selectedYear;
+    }
+
+    async function initializePuzzle() {
+        console.log('Initializing daily puzzle...');
+        
+        try {
+            // Get the daily year
+            const targetYear = getDailyYear();
+            console.log(`Target year for today: ${targetYear}`);
+            
+            // Fetch events for the target year
+            let events = await getHistoricalEvents(targetYear);
+            let usedYear = targetYear;
+            
+            // Check if we have enough events (need 6 for the game)
+            if (!events || events.length < 6) {
+                console.warn(`Insufficient events for year ${targetYear} (${events ? events.length : 0} events), using fallback year ${FALLBACK_YEAR}`);
+                
+                // Try fallback year
+                events = await getHistoricalEvents(FALLBACK_YEAR);
+                usedYear = FALLBACK_YEAR;
+                
+                // If fallback also fails, use hardcoded events
+                if (!events || events.length < 6) {
+                    console.error('API completely failed, using hardcoded events');
+                    events = [
+                        'The Boeing 747 makes its first flight',
+                        'The Internet precursor ARPANET is created',
+                        'The Stonewall riots occur in New York',
+                        'Richard Nixon becomes President',
+                        'Woodstock music festival takes place',
+                        'Apollo 11 lands on the Moon'
+                    ];
+                    usedYear = FALLBACK_YEAR;
+                }
+            }
+            
+            // Sort events by recognizability (most obscure first, easiest last)
+            const sortedEvents = sortEventsByRecognizability(events);
+            console.log(`Sorted ${sortedEvents.length} events by difficulty (obscure to obvious) for year ${usedYear}`);
+            
+            // Generate simple puzzle ID for today (just the date)
+            const today = new Date();
+            const dateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
+            
+            // Create puzzle object
+            const puzzle = {
+                year: usedYear,
+                events: sortedEvents.slice(0, 6), // Use sorted events, ensure exactly 6
+                puzzleId: dateString
+            };
+            
+            console.log(`Puzzle initialized successfully:`, puzzle);
+            return puzzle;
+            
+        } catch (error) {
+            console.error('Failed to initialize puzzle:', error);
+            
+            // Last resort: return hardcoded puzzle
+            const today = new Date();
+            const dateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
+            
+            return {
+                year: FALLBACK_YEAR,
+                events: [
+                    'The Boeing 747 makes its first flight',
+                    'The Internet precursor ARPANET is created',
+                    'The Stonewall riots occur in New York',
+                    'Richard Nixon becomes President',
+                    'Woodstock music festival takes place',
+                    'Apollo 11 lands on the Moon'
+                ],
+                puzzleId: dateString
+            };
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- DOM ELEMENTS ---
+        const guessForm = document.getElementById('guess-form');
+        const guessInput = document.getElementById('guess-input');
+        const guessButton = document.getElementById('guess-button');
+        const guessHistory = document.getElementById('guess-history');
+        const primaryEventText = document.getElementById('primary-event-text');
+
+        const helpButton = document.getElementById('help-button');
+        const helpModal = document.getElementById('help-modal');
+        const closeHelpButton = document.getElementById('close-help-button');
+
+        const settingsButton = document.getElementById('settings-button');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettingsButton = document.getElementById('close-settings-button');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const colorBlindToggle = document.getElementById('color-blind-toggle');
+
+        const gameOverModal = document.getElementById('game-over-modal');
+        const gameOverTitle = document.getElementById('game-over-title');
+        const correctYearText = document.getElementById('correct-year-text');
+        const finalEventsList = document.getElementById('final-events-list').querySelector('ul');
+        const shareText = document.getElementById('share-text');
+        const shareButton = document.getElementById('share-button');
+        const copyFeedback = document.getElementById('copy-feedback');
+        const countdownTimer = document.getElementById('countdown-timer');
+
+
+        // --- GAME STATE ---
+        let gameState = {
+            puzzle: null,
+            guesses: [],
+            maxGuesses: 6,
+            isGameOver: false,
+        };
+
+        // --- INITIALIZATION ---
+        async function init() {
+            loadSettings();
+
+            try {
+                // Fetch puzzle from API
+                gameState.puzzle = await initializePuzzle();
+
+                // Enable inputs now that puzzle is loaded
+                guessInput.disabled = false;
+                guessButton.disabled = false;
+
+                loadProgress();
+                setupUI();
+
+                if (!localStorage.getItem('chrondle-has-played')) {
+                    showModal(helpModal);
+                }
+            } catch (error) {
+                // Handle errors
+                console.error('Error during initialization:', error);
+                primaryEventText.innerHTML = `
+                    <div class="text-red-600 dark:text-red-400">
+                        <h3 class="text-xl font-bold mb-2">Unable to Load Puzzle</h3>
+                        <p>Please refresh the page to try again.</p>
+                    </div>
+                `;
+
+                // Keep inputs disabled when there's an error
+                guessInput.disabled = true;
+                guessButton.disabled = true;
+            }
+        }
+
+
+
+
+        function setupUI() {
+            primaryEventText.textContent = gameState.puzzle.events[0];
+            guessHistory.innerHTML = '';
+            gameState.guesses.forEach((guess, index) => renderGuess(guess, index));
+            updateGuessButton();
+
+            if (gameState.isGameOver) {
+                showGameOver();
+            }
+        }
+
+        // --- GAME LOGIC ---
+
+        function handleGuess(e) {
+            e.preventDefault();
+            if (gameState.isGameOver) return;
+
+            const guess = parseInt(guessInput.value, 10);
+            if (isNaN(guess) || guess < -3000 || guess > new Date().getFullYear() || guess === 0) {
+                // simple validation. Using a custom modal/toast would be better than alert.
+                // For this example, we'll keep it simple.
+                 copyFeedback.textContent = 'Please enter a valid year.';
+                 setTimeout(() => copyFeedback.textContent = '', 2000);
+                return;
+            }
+
+            gameState.guesses.push(guess);
+            renderGuess(guess);
+            saveProgress();
+
+            const isCorrect = (guess === gameState.puzzle.year);
+            const isLastGuess = (gameState.guesses.length >= gameState.maxGuesses);
+
+            if (isCorrect || isLastGuess) {
+                gameState.isGameOver = true;
+                saveProgress();
+                // Delay showing the game over screen to allow the last guess animation to play
+                setTimeout(() => showGameOver(isCorrect), 500);
+            }
+
+            guessInput.value = '';
+            guessInput.focus();
+            updateGuessButton();
+        }
+
+        function updateGuessButton() {
+            const remaining = gameState.maxGuesses - gameState.guesses.length;
+            guessButton.textContent = `Guess (${remaining}/${gameState.maxGuesses})`;
+            if(remaining <= 0 || gameState.isGameOver) {
+                guessButton.disabled = true;
+                guessInput.disabled = true;
+                guessButton.classList.add('opacity-50', 'cursor-not-allowed');
+                guessInput.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function showGameOver(isWin = false) {
+             if (gameState.guesses.length > 0 && !gameState.guesses.includes(gameState.puzzle.year)) {
+                 isWin = false;
+             } else if (gameState.guesses.includes(gameState.puzzle.year)) {
+                 isWin = true;
+             }
+
+            gameOverTitle.textContent = isWin ? "You got it!" : "So close!";
+            correctYearText.textContent = formatYear(gameState.puzzle.year);
+
+            finalEventsList.innerHTML = '';
+            gameState.puzzle.events.forEach(event => {
+                const li = document.createElement('li');
+                li.textContent = event;
+                finalEventsList.appendChild(li);
+            });
+
+            generateShareText();
+            startCountdown();
+            showModal(gameOverModal);
+        }
+
+        // --- RENDERING ---
+
+        function renderGuess(guess, index = null) {
+            // Use provided index or calculate for new guess
+            const guessIndex = index !== null ? index : gameState.guesses.length - 1;
+            const { year, events } = gameState.puzzle;
+
+            const directionInfo = getGuessDirectionInfo(guess, year);
+            const hintText = events[guessIndex + 1];
+
+            let rowHTML;
+
+            if (guess === year) {
+                rowHTML = `
+                    <div class="guess-row bg-green-500 text-white p-4 rounded-lg flex items-center justify-between shadow-md">
+                        <span class="font-bold text-lg">${formatYear(guess)}</span>
+                        <span class="font-bold text-lg">CORRECT!</span>
+                    </div>
+                `;
+            } else {
+                 rowHTML = `
+                    <div class="guess-row bg-white dark:bg-gray-800 p-4 rounded-lg flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-md">
+                        <div class="flex items-center gap-3 w-full sm:w-auto">
+                           <div class="flex-shrink-0 text-center font-bold text-sm p-2 rounded-md min-w-32 ${directionInfo.bgColor} ${directionInfo.textColor}">${directionInfo.direction}</div>
+                           <div class="flex flex-col items-center">
+                               <div class="font-bold text-xl">${formatYear(guess)}</div>
+                           </div>
+                        </div>
+                        <div class="border-l-2 border-gray-200 dark:border-gray-600 pl-4 text-gray-600 dark:text-gray-300 flex-1">
+                           <span class="font-semibold text-gray-500 dark:text-gray-400">Hint:</span> ${hintText || 'No more hints available.'}
+                        </div>
+                    </div>
+                `;
+            }
+
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = rowHTML.trim();
+            const guessRowElement = tempDiv.firstChild;
+            guessRowElement.style.animationDelay = `${(gameState.guesses.length-1) * 100}ms`;
+            guessHistory.appendChild(guessRowElement);
+        }
+
+        // --- UTILITIES & HELPERS ---
+
+        function formatYear(year) {
+            if (year < 0) {
+                return `${Math.abs(year)} BC`;
+            } else {
+                return `${year} AD`;
+            }
+        }
+
+        function getProximityFeedback(guess, target) {
+            const difference = Math.abs(guess - target);
+            
+            if (difference === 0) {
+                return { message: 'CORRECT!', class: 'text-green-600 dark:text-green-400' };
+            } else if (difference <= 5) {
+                return { message: 'Within 5 years!', class: 'text-green-500 dark:text-green-400' };
+            } else if (difference <= 10) {
+                return { message: 'Within 10 years!', class: 'text-lime-500 dark:text-lime-400' };
+            } else if (difference <= 25) {
+                return { message: 'Within 25 years!', class: 'text-yellow-500 dark:text-yellow-400' };
+            } else if (difference <= 50) {
+                return { message: 'Within 50 years!', class: 'text-orange-500 dark:text-orange-400' };
+            } else if (difference <= 100) {
+                return { message: 'Within a century!', class: 'text-red-400 dark:text-red-400' };
+            } else if (difference <= 250) {
+                return { message: 'Within 250 years!', class: 'text-red-500 dark:text-red-500' };
+            } else if (difference <= 500) {
+                return { message: 'Within 500 years!', class: 'text-red-600 dark:text-red-600' };
+            } else if (difference <= 1000) {
+                return { message: 'Within a millennium!', class: 'text-red-700 dark:text-red-700' };
+            } else {
+                return { message: `${Math.round(difference/1000)}+ millennia off`, class: 'text-gray-500 dark:text-gray-400' };
+            }
+        }
+
+
+        function getGuessDirectionInfo(guess, target) {
+            const isEarlier = guess < target;
+            const direction = isEarlier ? '▲ LATER' : '▼ EARLIER';
+            
+            return {
+                direction: direction,
+                bgColor: isEarlier ? 'bg-red-200 dark:bg-red-800' : 'bg-blue-200 dark:bg-blue-800',
+                textColor: isEarlier ? 'text-red-800 dark:text-red-100' : 'text-blue-800 dark:text-blue-100'
+            };
+        }
+
+        function scoreEventRecognizability(event) {
+            const text = event.toLowerCase();
+            let score = 0;
+            
+            // High-recognition keywords (famous events, people, places)
+            const highRecognitionTerms = [
+                'moon', 'apollo', 'nasa', 'president', 'war', 'peace', 'treaty', 'independence',
+                'revolution', 'atomic', 'bomb', 'hitler', 'stalin', 'churchill', 'roosevelt',
+                'kennedy', 'lincoln', 'washington', 'napoleon', 'caesar', 'rome', 'paris',
+                'london', 'america', 'united states', 'world war', 'olympics', 'pearl harbor',
+                'berlin wall', 'cold war', 'vietnam', 'titanic', 'earthquake', 'discovery',
+                'invention', 'first', 'assassinated', 'founded', 'empire', 'king', 'queen'
+            ];
+            
+            // Medium-recognition keywords
+            const mediumRecognitionTerms = [
+                'battle', 'siege', 'died', 'born', 'elected', 'crowned', 'signed', 'declared',
+                'defeated', 'conquered', 'expedition', 'voyage', 'constructed', 'completed',
+                'university', 'cathedral', 'castle', 'city', 'established', 'created'
+            ];
+            
+            // Count high-recognition terms (worth 10 points each)
+            highRecognitionTerms.forEach(term => {
+                if (text.includes(term)) score += 10;
+            });
+            
+            // Count medium-recognition terms (worth 5 points each)
+            mediumRecognitionTerms.forEach(term => {
+                if (text.includes(term)) score += 5;
+            });
+            
+            // Bonus for shorter events (more concise = more recognizable)
+            if (text.length < 50) score += 5;
+            if (text.length < 30) score += 5;
+            
+            // Penalty for very long events (likely too detailed/obscure)
+            if (text.length > 100) score -= 5;
+            
+            return score;
+        }
+
+        function sortEventsByRecognizability(events) {
+            // Create array of events with their scores
+            const scoredEvents = events.map(event => ({
+                event: event,
+                score: scoreEventRecognizability(event)
+            }));
+            
+            // Sort by score (lowest first = most obscure first), then by length (longer first) as tiebreaker
+            scoredEvents.sort((a, b) => {
+                if (a.score !== b.score) {
+                    return a.score - b.score; // Ascending = lowest scores first (most obscure)
+                }
+                return b.event.length - a.event.length; // Longer events first as tiebreaker
+            });
+            
+            // Return just the sorted events
+            return scoredEvents.map(item => item.event);
+        }
+
+        function generateShareText() {
+            const isWin = gameState.guesses.includes(gameState.puzzle.year);
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            // Create header with readable date and result
+            const result = isWin ? `${gameState.guesses.length}/6 ⭐` : `X/6 💥`;
+            let shareContent = `Chrondle - ${dateStr}\n`;
+            shareContent += `Target: ${formatYear(gameState.puzzle.year)} - ${result}\n\n`;
+            
+            // Add detailed guess information
+            shareContent += 'My guesses:\n';
+            gameState.guesses.forEach((guess, index) => {
+                const proximity = getProximityFeedback(guess, gameState.puzzle.year);
+                let guessEmoji;
+                
+                if (guess === gameState.puzzle.year) {
+                    guessEmoji = '🟩'; // Correct
+                } else if (guess < gameState.puzzle.year) {
+                    guessEmoji = '🔼'; // Too early, need later
+                } else {
+                    guessEmoji = '🔽'; // Too late, need earlier
+                }
+                
+                shareContent += `${index + 1}. ${formatYear(guess)} ${guessEmoji} ${proximity.message}\n`;
+            });
+            
+            shareContent += '\n#Chrondle #HistoryGame';
+            shareText.textContent = shareContent;
+        }
+
+        function startCountdown() {
+            const interval = setInterval(() => {
+                const now = new Date();
+                const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+                const diff = midnight - now;
+
+                if (diff <= 0) {
+                    countdownTimer.textContent = "00:00:00";
+                    clearInterval(interval);
+                    return;
+                }
+
+                const hours = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
+
+                countdownTimer.textContent = `${hours}:${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function showModal(modal) {
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.firstElementChild.classList.add('show'), 10);
+        }
+
+        function hideModal(modal) {
+            modal.firstElementChild.classList.remove('show');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        // --- LOCAL STORAGE ---
+
+        function getStorageKey() {
+             const today = new Date();
+             const dateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
+            return `chrondle-progress-${dateString}`;
+        }
+
+        function saveProgress() {
+            const progress = {
+                guesses: gameState.guesses,
+                isGameOver: gameState.isGameOver
+            };
+            localStorage.setItem(getStorageKey(), JSON.stringify(progress));
+        }
+
+        function loadProgress() {
+            const savedProgress = localStorage.getItem(getStorageKey());
+            if (savedProgress) {
+                const progress = JSON.parse(savedProgress);
+                // With deterministic daily puzzles, date-based storage key is sufficient
+                gameState.guesses = progress.guesses || [];
+                gameState.isGameOver = progress.isGameOver || false;
+            }
+        }
+
+        function saveSettings() {
+             localStorage.setItem('chrondle-settings', JSON.stringify({
+                darkMode: document.documentElement.classList.contains('dark'),
+                colorBlindMode: document.documentElement.classList.contains('color-blind'),
+            }));
+        }
+
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('chrondle-settings'));
+            if (settings) {
+                if(settings.darkMode) {
+                    document.documentElement.classList.add('dark');
+                    darkModeToggle.querySelector('span').classList.add('dark:translate-x-6');
+                }
+                if(settings.colorBlindMode) {
+                    document.documentElement.classList.add('color-blind');
+                    colorBlindToggle.querySelector('span').classList.add('dark:translate-x-6');
+                }
+            }
+        }
+
+        // --- EVENT LISTENERS ---
+        guessForm.addEventListener('submit', handleGuess);
+
+        helpButton.addEventListener('click', () => showModal(helpModal));
+        closeHelpButton.addEventListener('click', () => {
+            hideModal(helpModal);
+            localStorage.setItem('chrondle-has-played', 'true');
+        });
+
+        settingsButton.addEventListener('click', () => showModal(settingsModal));
+        closeSettingsButton.addEventListener('click', () => hideModal(settingsModal));
+
+        darkModeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            darkModeToggle.querySelector('span').classList.toggle('dark:translate-x-6');
+            saveSettings();
+        });
+
+        colorBlindToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('color-blind');
+            colorBlindToggle.querySelector('span').classList.toggle('dark:translate-x-6');
+            saveSettings();
+        });
+
+        shareButton.addEventListener('click', () => {
+            const textarea = document.createElement('textarea');
+            textarea.value = shareText.textContent;
+            textarea.style.position = 'fixed';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                copyFeedback.textContent = 'Copied to clipboard!';
+                setTimeout(() => copyFeedback.textContent = '', 2000);
+            } catch (err) {
+                copyFeedback.textContent = 'Failed to copy!';
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+            document.body.removeChild(textarea);
+        });
+
+        [helpModal, settingsModal, gameOverModal].forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if(e.target === modal) hideModal(modal);
+            });
+        });
+
+        // --- START THE GAME ---
+        init();
+    });
+    </script>
+
+</body>
+</html>
+
