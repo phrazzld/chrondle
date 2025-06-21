@@ -91,7 +91,10 @@
             darkMode: 'class',
         }
     </script>
-    <script>const URL_PARAMS = new URLSearchParams(window.location.search);</script>
+    <script>
+        const URL_PARAMS = new URLSearchParams(window.location.search);
+        const DEBUG_MODE = URL_PARAMS.get('debug') === 'true';
+    </script>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex flex-col items-center justify-center p-4">
 
@@ -333,7 +336,15 @@
 
     // --- DAILY PUZZLE LOGIC ---
     function getDailyYear() {
-        const forcedYear = URL_PARAMS.get('year'); if (forcedYear && DEBUG_MODE) { console.log(`Debug: forcing year to ${forcedYear}`); return parseInt(forcedYear, 10); }
+        const forcedYear = URL_PARAMS.get('year');
+        if (forcedYear && DEBUG_MODE) {
+            const parsedYear = parseInt(forcedYear, 10);
+            if (!isNaN(parsedYear) && parsedYear >= -3000 && parsedYear <= new Date().getFullYear()) {
+                console.log(`Debug: forcing year to ${parsedYear}`);
+                return parsedYear;
+            }
+            console.warn(`Debug: Invalid year parameter '${forcedYear}' ignored`);
+        }
         // Use a fixed start date to ensure deterministic daily puzzles
         // This ensures all players get the same puzzle each day
         const EPOCH_START = new Date('2024-01-01'); // Game launch date
@@ -460,7 +471,6 @@
 
 
         // --- GAME STATE ---
-        const DEBUG_MODE = URL_PARAMS.get('debug') === 'true';
         let gameState = {
             puzzle: null,
             guesses: [],

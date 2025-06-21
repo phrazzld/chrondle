@@ -301,3 +301,98 @@ window.chrondle.setYear(1969)  // Force year change
 - [x] Production mode completely unaffected
 - [x] All debug features work across browsers
 - [x] Debug code is maintainable and well-documented
+
+---
+
+## 🚨 MERGE BLOCKERS - Fix Before Merge
+
+**Carmack Principle**: Ship working code. These are the only issues that prevent the debug features from working or break the main game.
+
+### BLOCKER-001: DEBUG_MODE Scope Violation Crashes App
+**Impact**: ReferenceError breaks game for ALL users (production + debug)
+**Root Cause**: `DEBUG_MODE` declared inside `DOMContentLoaded` callback but referenced by top-level functions
+**Affected**: `getDailyYear()`, `saveProgress()`, `loadProgress()` functions
+
+- [x] **Move DEBUG_MODE to global scope**
+  - **File**: `index.html` around line 94-95 (immediately after URL_PARAMS declaration)
+  - **Current**: `const DEBUG_MODE = URL_PARAMS.get('debug') === 'true';` inside DOMContentLoaded
+  - **Fix**: Move declaration to global scope:
+    ```javascript
+    <script>
+    const URL_PARAMS = new URLSearchParams(window.location.search);
+    const DEBUG_MODE = URL_PARAMS.get('debug') === 'true';
+    </script>
+    ```
+  - **Context**: Top-level functions need access to DEBUG_MODE constant
+  - **Validation**: `getDailyYear()` should execute without ReferenceError
+
+- [x] **Remove redundant DEBUG_MODE declaration**
+  - **File**: `index.html` around line 460 (inside DOMContentLoaded callback)
+  - **Remove**: `const DEBUG_MODE = URL_PARAMS.get('debug') === 'true';`
+  - **Context**: Prevent duplicate declaration after moving to global scope
+  - **Validation**: Only one DEBUG_MODE declaration should exist
+
+### BLOCKER-002: NaN Injection Breaks Debug Year Forcing
+**Impact**: Invalid year parameters poison game state, break debug functionality
+**Root Cause**: `parseInt()` on invalid input returns `NaN`, no validation
+**Affected**: `getDailyYear()` function forced year logic
+
+- [x] **Add year parameter validation**
+  - **File**: `index.html` in `getDailyYear()` function around line 333
+  - **Current**: `const forcedYear = URL_PARAMS.get('year'); if (forcedYear && DEBUG_MODE) { ... return parseInt(forcedYear, 10); }`
+  - **Fix**: Add validation before parseInt:
+    ```javascript
+    const forcedYear = URL_PARAMS.get('year');
+    if (forcedYear && DEBUG_MODE) {
+        const parsedYear = parseInt(forcedYear, 10);
+        if (!isNaN(parsedYear) && parsedYear >= -3000 && parsedYear <= new Date().getFullYear()) {
+            console.log(`Debug: forcing year to ${parsedYear}`);
+            return parsedYear;
+        }
+        console.warn(`Debug: Invalid year parameter '${forcedYear}' ignored`);
+    }
+    ```
+  - **Context**: Prevent NaN from corrupting game state with invalid year URLs
+  - **Validation**: `?debug=true&year=abc` should log warning and use default year
+
+## 🔧 Post-Merge Improvements - Ship First, Iterate Later
+
+**Carmack Principle**: These work but could be better. Ship the debug features first, optimize later.
+
+### Enhancement: Debug Utility Race Condition
+**Issue**: `window.chrondle.setYear()` can crash if called before puzzle loads
+**Impact**: Debug utility unreliable, but doesn't break main game
+**Priority**: Medium - can be fixed in follow-up PR
+**Reason to defer**: Debug features work, this is polish/robustness
+
+### Enhancement: Keyboard Shortcut Conflicts  
+**Issue**: Ctrl+R/C/D override browser shortcuts in debug mode
+**Impact**: Minor UX annoyance for developers
+**Priority**: Low - can be improved in follow-up PR  
+**Reason to defer**: Shortcuts work, this is UX optimization
+
+### Enhancement: Redundant DOM Operations
+**Issue**: Scenario pre-loading renders guesses that get immediately cleared
+**Impact**: Minor performance inefficiency
+**Priority**: Low - can be optimized later
+**Reason to defer**: Functionality works, this is performance optimization
+
+### Enhancement: Debug Banner Responsive Design
+**Issue**: Banner may overflow on narrow screens
+**Impact**: Cosmetic issue in debug mode only
+**Priority**: Low - can be styled later
+**Reason to defer**: Banner works, this is visual polish
+
+## 🎯 What Would Carmack Do?
+
+**Ship the debug features with 2 critical fixes:**
+1. Fix the scope violation that breaks everyone
+2. Fix the NaN injection that breaks debug year forcing
+
+**Everything else is iteration:**
+- Debug utilities work (even if not perfect)
+- Keyboard shortcuts work (even if conflicting)
+- UI works (even if not perfectly responsive)
+- Performance is acceptable (even if not optimal)
+
+**Philosophy**: "Make it work, make it right, make it fast" - we're at step 1. The debug features solve the core problem (testing workflow), ship them and iterate on the polish.
