@@ -8,8 +8,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair-display);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,8 +19,79 @@
   }
 }
 
+/* Custom styles for Chrondle game */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+h1, h2 {
+  font-family: var(--font-playfair-display), serif;
+}
+
+.game-tile {
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  transition: opacity 0.3s ease;
+}
+
+.modal-content {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform: scale(0.95);
+  opacity: 0;
+}
+
+.modal-content.show {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.guess-row {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeIn 0.5s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading spinner animation */
+.spinner {
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #4f46e5;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.dark .spinner {
+  border-color: #374151;
+  border-top-color: #818cf8;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Colorblind mode styles */
+html.color-blind .bg-red-200 { background-color: #fde047; /* yellow-400 */ }
+html.color-blind .text-red-800 { color: #854d0e; /* yellow-800 */ }
+html.color-blind .dark\:bg-red-800 { background-color: #facc15; /* yellow-500 */ }
+html.color-blind .dark\:text-red-100 { color: #422006; /* yellow-900 */ }
+html.color-blind .bg-blue-200 { background-color: #a5b4fc; /* indigo-300 */ }
+html.color-blind .text-blue-800 { color: #3730a3; /* indigo-800 */ }
+html.color-blind .dark\:bg-blue-800 { background-color: #6366f1; /* indigo-500 */ }
+html.color-blind .dark\:text-blue-100 { color: #e0e7ff; /* indigo-100 */ }
