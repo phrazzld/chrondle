@@ -88,8 +88,7 @@ export function getGuessDirectionInfo(guess: number, target: number): GuessDirec
 
 export function generateShareText(
   guesses: number[], 
-  targetYear: number, 
-  isGameComplete: boolean
+  targetYear: number
 ): string {
   const isWin = guesses.includes(targetYear);
   const today = new Date();
@@ -205,7 +204,7 @@ export function getRandomElement<T>(array: T[]): T | null {
 
 // --- DEBUG UTILITIES ---
 
-export function formatDebugInfo(data: any): string {
+export function formatDebugInfo(data: unknown): string {
   try {
     return JSON.stringify(data, null, 2);
   } catch (error) {
@@ -213,22 +212,22 @@ export function formatDebugInfo(data: any): string {
   }
 }
 
-export function logWithTimestamp(message: string, ...args: any[]): void {
+export function logWithTimestamp(message: string, ...args: unknown[]): void {
   const timestamp = new Date().toISOString();
   console.log(`[${timestamp}] ${message}`, ...args);
 }
 
 // --- TYPE GUARDS ---
 
-export function isString(value: any): value is string {
+export function isString(value: unknown): value is string {
   return typeof value === 'string';
 }
 
-export function isNumber(value: any): value is number {
+export function isNumber(value: unknown): value is number {
   return typeof value === 'number' && !isNaN(value);
 }
 
-export function isValidArrayIndex(array: any[], index: number): boolean {
+export function isValidArrayIndex(array: unknown[], index: number): boolean {
   return isNumber(index) && index >= 0 && index < array.length;
 }
 

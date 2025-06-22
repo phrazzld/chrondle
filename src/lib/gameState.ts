@@ -97,7 +97,7 @@ export function getDailyYear(debugYear?: string, isDebugMode?: boolean): number 
   today.setHours(0, 0, 0, 0);
   
   // Use hash of date for unpredictable but deterministic selection
-  const yearIndex = Math.abs([...today.toISOString().slice(0,10)].reduce((a,b)=>(a<<5)+a+b.charCodeAt(),5381)) % CURATED_YEARS.length;
+  const yearIndex = Math.abs([...today.toISOString().slice(0,10)].reduce((a,b)=>(a<<5)+a+b.charCodeAt(0),5381)) % CURATED_YEARS.length;
   const selectedYear = CURATED_YEARS[yearIndex];
   
   console.log(`🔍 DEBUG: Date: ${today.toISOString().slice(0,10)}, Year index: ${yearIndex}, Selected year: ${selectedYear}`);

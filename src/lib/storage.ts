@@ -66,7 +66,7 @@ export function getProgressKey(): string {
   return `${STORAGE_KEYS.PROGRESS_PREFIX}${dateString}`;
 }
 
-export function saveGameProgress(progress: any, debugMode: boolean = false): void {
+export function saveGameProgress(progress: Record<string, unknown>, debugMode: boolean = false): void {
   if (debugMode) {
     console.log('Debug mode: skipping localStorage save');
     return;
@@ -82,7 +82,7 @@ export function saveGameProgress(progress: any, debugMode: boolean = false): voi
   safeSetItem(key, progressData);
 }
 
-export function loadGameProgress(debugMode: boolean = false): any | null {
+export function loadGameProgress(debugMode: boolean = false): Record<string, unknown> | null {
   if (debugMode) {
     console.log('Debug mode: skipping localStorage load');
     return null;
@@ -107,12 +107,12 @@ export function loadGameProgress(debugMode: boolean = false): any | null {
 }
 
 // Settings storage
-export function saveSettings(settings: any): void {
+export function saveSettings(settings: Record<string, unknown>): void {
   const settingsData = JSON.stringify(settings);
   safeSetItem(STORAGE_KEYS.SETTINGS, settingsData);
 }
 
-export function loadSettings(): any | null {
+export function loadSettings(): Record<string, unknown> | null {
   const settingsData = safeGetItem(STORAGE_KEYS.SETTINGS);
   
   if (settingsData) {

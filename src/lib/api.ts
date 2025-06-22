@@ -91,7 +91,7 @@ export function cleanEventDescription(text: string): string {
   
   try {
     // Remove Wikipedia citation and markup artifacts
-    let cleaned = text
+    const cleaned = text
       // Remove citation needed variants
       .replace(/\[full citation needed\]/gi, '')
       .replace(/\[citation needed\]/gi, '')
@@ -395,11 +395,16 @@ export async function getWikidataEvents(year: number): Promise<string[]> {
 
     // Extract enhanced event data from targeted entity types
     const yearEvents = data.results.bindings
-      .map((item: any) => {
-        const label = item.eventLabel && item.eventLabel.value;
-        const description = item.eventDescription && item.eventDescription.value;
-        const location = item.locationLabel && item.locationLabel.value;
-        const participant = item.participantLabel && item.participantLabel.value;
+      .map((item: Record<string, unknown>) => {
+        const eventLabel = item.eventLabel as Record<string, unknown> | undefined;
+        const eventDescription = item.eventDescription as Record<string, unknown> | undefined;
+        const locationLabel = item.locationLabel as Record<string, unknown> | undefined;
+        const participantLabel = item.participantLabel as Record<string, unknown> | undefined;
+        
+        const label = eventLabel?.value as string | undefined;
+        const description = eventDescription?.value as string | undefined;
+        const location = locationLabel?.value as string | undefined;
+        const participant = participantLabel?.value as string | undefined;
         
         if (label) {
           console.log(`🔍 DEBUG: Enhanced data for "${label}":`, {
@@ -409,7 +414,12 @@ export async function getWikidataEvents(year: number): Promise<string[]> {
           });
           
           // Enhance the event using all available contextual data
-          return enhanceEventDescription(label, description, location, participant);
+          return enhanceEventDescription(
+            label, 
+            description || undefined, 
+            location || undefined, 
+            participant || undefined
+          );
         }
         return null;
       })
@@ -499,7 +509,7 @@ export async function getHistoricalEvents(year: number): Promise<string[]> {
     }
 
     // Extract and clean event descriptions from API Ninjas
-    const apiNinjasEvents = events.map((event: any) => cleanEventDescription(event.event)).filter(Boolean);
+    const apiNinjasEvents = events.map((event: Record<string, unknown>) => cleanEventDescription(event.event as string)).filter(Boolean);
     console.log(`🔍 DEBUG: API Ninjas returned ${apiNinjasEvents.length} events for year ${year}`);
     
     let finalEvents = apiNinjasEvents;

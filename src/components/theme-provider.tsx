@@ -32,9 +32,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   // Load settings from localStorage on mount
   useEffect(() => {
     const settings = loadSettings();
-    if (settings) {
-      setDarkMode(settings.darkMode || false);
-      setColorBlindMode(settings.colorBlindMode || false);
+    if (settings && typeof settings === 'object') {
+      setDarkMode(Boolean(settings.darkMode));
+      setColorBlindMode(Boolean(settings.colorBlindMode));
     }
     setMounted(true);
   }, []);

@@ -234,5 +234,5 @@ export function isCuratedYear(year: number): year is CuratedYear {
 }
 
 export function isDebugYear(year: number): boolean {
-  return DEBUG_CONFIG.SCENARIO_WRONG_GUESSES.includes(year);
+  return DEBUG_CONFIG.SCENARIO_WRONG_GUESSES.includes(year as never);
 }
