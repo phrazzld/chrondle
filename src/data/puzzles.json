@@ -1,10 +1,650 @@
 {
   "meta": {
-    "version": "1.1",
-    "total_puzzles": 20,
-    "date_range": "476-2001"
+    "version": "2.0",
+    "total_puzzles": 100,
+    "date_range": "-776-2008"
   },
   "puzzles": {
+    "-776": [
+      "Coroebus of Elis, a cook, wins first recorded footrace",
+      "Sacred truce allows safe passage for athletes across Greece",
+      "Zeus receives sacrificial offerings at Altis sanctuary",
+      "Stadion race measures exactly 192 meters in length",
+      "Olympiad becomes standard Greek chronological measurement",
+      "First Olympic Games establish athletic competition tradition"
+    ],
+    "-509": [
+      "Sextus Tarquinius rapes noblewoman Lucretia",
+      "Lucretia's public suicide sparks anti-royal uprising",
+      "Lucius Junius Brutus leads aristocratic conspiracy",
+      "Consular system replaces single monarch rule",
+      "Last Etruscan king Tarquin Superbus flees Rome",
+      "Roman Republic established ending monarchical period"
+    ],
+    "-221": [
+      "Qi state falls as final Warring States opponent",
+      "Li Si implements Legalist administrative reforms",
+      "Currency, writing, and measurements standardized nationwide",
+      "Northern walls connected into Great Wall system",
+      "Zheng adopts title Qin Shi Huang meaning First Emperor",
+      "Chinese unification ends 250 years of warfare"
+    ],
+    "-44": [
+      "Marcus Brutus reluctantly joins assassination conspiracy",
+      "Spurinna the soothsayer warns Caesar of March danger",
+      "Senate meets at Theatre of Pompey due to reconstruction",
+      "Et tu, Brute spoken as Brutus delivers fatal blow",
+      "Julius Caesar murdered on Ides of March",
+      "Mark Antony and Octavian pursue civil war revenge"
+    ],
+    "79": [
+      "Pliny the Elder dies investigating volcanic phenomena",
+      "Herculaneum residents asphyxiated by 1000-degree gases",
+      "Emperor Titus organizes massive disaster relief efforts",
+      "Pompeii's brothels and bakeries perfectly preserved",
+      "Mount Vesuvius erupts after centuries of dormancy",
+      "Villa of Papyri library scrolls carbonized but readable"
+    ],
+    "313": [
+      "Constantine defeats Maxentius at Milvian Bridge",
+      "Chi-Rho symbol appears in Constantine's dream vision",
+      "Christian clergy exempted from municipal obligations",
+      "Confiscated church properties ordered returned immediately",
+      "Edict of Milan legalizes Christianity throughout empire",
+      "Licinius and Constantine agree on religious tolerance"
+    ],
+    "732": [
+      "Odo of Aquitaine requests Frankish military assistance",
+      "Umayyad cavalry struggles against Frankish phalanx formation",
+      "Abd al-Rahman al-Ghafiqi dies in combat",
+      "Charles Martel's forces fight uphill battle advantage",
+      "Battle of Tours prevents Umayyad northern expansion",
+      "Muslim army retreats southward after devastating defeat"
+    ],
+    "800": [
+      "Pope Leo III escapes Roman assault and mutilation",
+      "Empress Irene rules Byzantine Empire as sole woman",
+      "Alcuin of York advises Charlemagne on imperial title",
+      "Christmas Mass interrupted by unexpected coronation ceremony",
+      "Charlemagne becomes first Western Emperor since 476",
+      "Carolingian Renaissance promotes learning and literacy"
+    ],
+    "1054": [
+      "Cardinal Humbert delivers papal bull to Hagia Sophia",
+      "Filioque clause disputes Holy Spirit's divine procession",
+      "Michael Cerularius refuses to accept Roman primacy",
+      "Unleavened bread controversy divides Eucharistic practice",
+      "Mutual excommunications issued on July 16th",
+      "Great Schism permanently separates Eastern and Western Christianity"
+    ],
+    "1095": [
+      "Alexius I Komnenos requests mercenaries against Seljuks",
+      "Peter the Hermit preaches popular crusading movement",
+      "Jerusalem pilgrimage routes controlled by Muslim authorities",
+      "Plenary indulgence offered for crusading participation",
+      "Council of Clermont launches First Crusade",
+      "Deus vult battle cry rallies Western Christian knights"
+    ],
+    "1180": [
+      "Louis VII of France dies returning from Second Crusade",
+      "Philip Augustus becomes King of France at age fifteen",
+      "Manuel I Komnenos campaigns against Seljuk Sultanate",
+      "Saladin captures Aleppo from Zengid dynasty",
+      "Crusader states lose unified military leadership",
+      "Ayyubid expansion threatens Frankish territorial control"
+    ],
+    "1271": [
+      "Niccolò and Maffeo Polo return to Khanbaliq",
+      "Seventeen-year-old Marco joins family trading expedition",
+      "Acre falls under final Crusader siege pressure",
+      "Kublai Khan requests hundred Christian scholars from Pope",
+      "Polo family carries papal letters to Mongol court",
+      "Venetian merchants begin twenty-four year Asian journey"
+    ],
+    "1291": [
+      "William of Beaujeu leads final Templar defense",
+      "Mamluk catapults nicknamed Furious and Victorious attack",
+      "Henry II of Cyprus attempts naval relief expedition",
+      "Tyre, Beirut and Sidon evacuated within weeks",
+      "Fall of Acre ends two centuries of Crusader presence",
+      "Hospitaller knights relocate headquarters to Rhodes"
+    ],
+    "1307": [
+      "Guillaume de Nogaret coordinates simultaneous arrests",
+      "Jacques de Molay confesses under torture then recants",
+      "October 13th arrests create Friday superstition",
+      "Templars accused of worshipping Baphomet idol",
+      "Philip IV seizes Templar treasury and properties",
+      "Banking network from London to Jerusalem destroyed"
+    ],
+    "1314": [
+      "Edward II's army trapped in Scottish marshland",
+      "Schiltron formations devastate English heavy cavalry",
+      "Jacques de Molay curses Pope and King before execution",
+      "Robert Bruce's guerrilla tactics prove superior",
+      "Battle of Bannockburn secures Scottish independence",
+      "Templar Grand Master burned alive on Seine island"
+    ],
+    "1337": [
+      "Isabella of France's son claims Capetian inheritance",
+      "Philip VI confiscates Gascony from English crown",
+      "Salic Law prevents female succession in France",
+      "English wool trade with Flanders disrupted",
+      "Hundred Years War begins over dynastic succession",
+      "Battle of Cadzand demonstrates longbow effectiveness"
+    ],
+    "1347": [
+      "Mongol siege of Caffa catapults infected corpses",
+      "Genoese galleys flee Crimea carrying plague rats",
+      "Yersinia pestis bacterium spreads through trade routes",
+      "Messina becomes first European city infected",
+      "Black Death pandemic begins demographic catastrophe",
+      "Flagellant movements blame plague on divine wrath"
+    ],
+    "1378": [
+      "Gregory XI moves papal court from Avignon back to Rome",
+      "Urban VI's harsh reforms alienate College of Cardinals",
+      "French cardinals elect Clement VII as rival pope",
+      "Two papal courts claim universal Christian authority",
+      "Western Schism begins forty-year ecclesiastical crisis",
+      "Europe divides loyalty between Roman and Avignon popes"
+    ],
+    "1381": [
+      "John Ball preaches radical equality at Blackheath",
+      "Poll tax collectors murdered throughout countryside",
+      "Rebels burn Savoy Palace and legal documents",
+      "Richard II promises abolition of serfdom",
+      "Peasants' Revolt challenges feudal social order",
+      "Wat Tyler killed by Mayor William Walworth"
+    ],
+    "1415": [
+      "Henry V leads starving army through Norman countryside",
+      "English archers massacre French nobility in muddy field",
+      "Council of Constance burns Czech reformer Jan Hus",
+      "French heavy cavalry charges fail against stakes",
+      "Battle of Agincourt proves longbow superior to chivalry",
+      "Bohemian Hussite movement begins after Hus execution"
+    ],
+    "1431": [
+      "Pierre Cauchon presides over Joan's heresy trial",
+      "Burgundian allies deliver Joan to English authorities",
+      "Domremy peasant girl claims angelic visions",
+      "Charles VII abandons Joan to political necessity",
+      "Joan of Arc burned alive in Rouen marketplace",
+      "French resistance movement gains martyred symbol"
+    ],
+    "1455": [
+      "Richard Duke of York challenges Henry VI's sanity",
+      "Edmund Beaufort killed at First Battle of St. Albans",
+      "Gutenberg completes forty-two-line Bible printing",
+      "Margaret of Anjou defends Lancastrian royal claims",
+      "Movable type revolutionizes manuscript production",
+      "Wars of the Roses begin thirty-year dynastic conflict"
+    ],
+    "1485": [
+      "Henry Tudor lands at Milford Haven with French mercenaries",
+      "Thomas Stanley's treachery dooms Richard III",
+      "Crown found in hawthorn bush after battle",
+      "Richard III dies fighting as last king in battle",
+      "Battle of Bosworth Field ends Plantagenet dynasty",
+      "Henry VII establishes Tudor royal house"
+    ],
+    "1498": [
+      "Vasco da Gama rounds Cape of Good Hope successfully",
+      "Calicut Zamorin receives Portuguese trade delegation",
+      "Islamic merchants oppose European commercial intrusion",
+      "Monsoon sailing patterns learned from Arab pilots",
+      "Direct sea route to India bypasses Ottoman control",
+      "Portuguese establish Asian maritime trading empire"
+    ],
+    "1503": [
+      "Leonardo da Vinci begins Mona Lisa portrait",
+      "Giuliano della Rovere becomes Pope Julius II",
+      "Cesare Borgia's conquests threaten Italian balance",
+      "Casa de Contratación regulates Spanish colonial trade",
+      "Nostradamus born in Saint-Rémy-de-Provence",
+      "High Renaissance artistic patronage reaches zenith"
+    ],
+    "1508": [
+      "Michelangelo reluctantly accepts Sistine Chapel commission",
+      "League of Cambrai unites against Venetian expansion",
+      "Raphael begins Vatican Palace Room frescoes",
+      "Emperor Maximilian I joins anti-Venetian alliance",
+      "Pope Julius II plans military campaigns against Venice",
+      "High Renaissance transforms papal artistic patronage"
+    ],
+    "1519": [
+      "Habsburg Charles defeats French candidate for empire",
+      "Cortés burns ships to prevent Spanish retreat",
+      "Magellan receives royal charter for westward voyage",
+      "Moctezuma II receives Spanish embassy in Tenochtitlan",
+      "Luther challenges papal authority at Leipzig Disputation",
+      "Charles V inherits largest empire since Charlemagne"
+    ],
+    "1521": [
+      "Martin Luther declared heretic at Diet of Worms",
+      "Tenochtitlan falls after eighty-day siege",
+      "Frederick the Wise secretly protects Luther",
+      "Smallpox pandemic devastates Aztec population",
+      "Protestant Reformation gains imperial protection",
+      "Magellan killed in Philippines by Lapu-Lapu"
+    ],
+    "1534": [
+      "Thomas Cranmer annuls Henry VIII's marriage to Catherine",
+      "Act of Supremacy declares king head of English church",
+      "Thomas More executed for refusing royal supremacy oath",
+      "Jacques Cartier plants cross claiming Canada for France",
+      "Anabaptists seize Münster creating radical Protestant commune",
+      "English Reformation splits from papal authority permanently"
+    ],
+    "1543": [
+      "Portuguese shipwreck survivors land on Tanegashima island",
+      "Nicolaus Copernicus publishes De revolutionibus orbium",
+      "Japanese daimyo purchase European firearms technology",
+      "Heliocentric model challenges geocentric Ptolemaic system",
+      "Jesuit Francis Xavier prepares mission to Asia",
+      "Scientific Revolution begins with astronomical mathematics"
+    ],
+    "1571": [
+      "Don Juan of Austria commands Holy League fleet",
+      "Miguel de Cervantes loses hand fighting Turks",
+      "Ali Pasha's Ottoman navy suffers catastrophic defeat",
+      "Venetian galleys employ superior bronze cannons",
+      "Battle of Lepanto ends Ottoman Mediterranean expansion",
+      "Christian slaves freed from Turkish galley ships"
+    ],
+    "1598": [
+      "Henry IV converts to Catholicism for French crown",
+      "Duke of Mayenne surrenders last Catholic League stronghold",
+      "Huguenots granted fortified cities for protection",
+      "Philip II of Spain dies ending Habsburg expansion",
+      "Edict of Nantes establishes French religious tolerance",
+      "Treaty of Vervins ends Spanish intervention in France"
+    ],
+    "1600": [
+      "Elizabeth I grants charter to East India Company",
+      "Giordano Bruno burned alive for infinite universe theory",
+      "William Shakespeare writes Hamlet tragedy",
+      "Japanese victory at Sekigahara unifies nation",
+      "English merchants receive royal monopoly on Asian trade",
+      "Tokugawa Ieyasu becomes first Edo period shogun"
+    ],
+    "1607": [
+      "John Smith leads Virginia Company expedition",
+      "Pocahontas saves Smith from Powhatan execution",
+      "Jamestown settlers face starvation and disease",
+      "Roanoke Lost Colony mystery remains unsolved",
+      "English establish permanent Chesapeake settlement",
+      "Tobacco cultivation begins colonial cash crop economy"
+    ],
+    "1618": [
+      "Bohemian nobles throw imperial governors from window",
+      "Frederick V accepts crown sparking European war",
+      "Catholic League mobilizes against Protestant states",
+      "Walter Raleigh executed ending Elizabethan era",
+      "Thirty Years War begins with Bohemian revolt",
+      "Johannes Kepler publishes laws of planetary motion"
+    ],
+    "1620": [
+      "Mayflower Compact signed creating colonial government",
+      "Massasoit makes peace treaty with Plymouth settlers",
+      "Pilgrim Separatists flee Anglican persecution",
+      "Battle of White Mountain crushes Bohemian independence",
+      "Squanto teaches colonists corn cultivation techniques",
+      "Winter kills half of Plymouth settlement population"
+    ],
+    "1642": [
+      "Charles I attempts to arrest five members of Parliament",
+      "Oliver Cromwell organizes Ironside cavalry regiment",
+      "Battle of Edgehill ends in tactical stalemate",
+      "Royal standard raised at Nottingham declaring war",
+      "English Civil War divides nation between King and Parliament",
+      "Puritan revolution challenges divine right of kings"
+    ],
+    "1648": [
+      "Cardinal Mazarin negotiates French territorial gains",
+      "Switzerland and Netherlands gain independence recognition",
+      "Cuius regio, eius religio principle confirmed",
+      "Habsburg Austria loses Alsace to France",
+      "Treaty of Westphalia establishes modern state system",
+      "Pride's Purge removes Presbyterian MPs from Parliament"
+    ],
+    "1666": [
+      "Great Fire burns four-fifths of London within walls",
+      "Newton observes apple falling inspiring gravity theory",
+      "Christopher Wren plans fifty-one church rebuildings",
+      "Samuel Pepys documents fire in famous diary",
+      "Plague year kills 100,000 Londoners before fire",
+      "Scientific Revolution advances through mathematical physics"
+    ],
+    "1682": [
+      "William Penn receives royal charter for Pennsylvania",
+      "Peter the Great becomes sole ruler after Ivan's death",
+      "Quaker Holy Experiment promotes religious tolerance",
+      "Edmund Halley observes comet predicting return",
+      "Pennsylvania attracts German and Dutch immigrants",
+      "Moscow Streltsy rebellion challenges Tsarist authority"
+    ],
+    "1688": [
+      "Seven bishops petition against James II's Declaration",
+      "William of Orange lands at Torbay with Dutch army",
+      "James II flees to France abandoning throne",
+      "Mary Stuart accepts joint crown with husband William",
+      "Glorious Revolution establishes parliamentary supremacy",
+      "Bill of Rights limits royal prerogatives permanently"
+    ],
+    "1707": [
+      "Scottish Parliament votes for union with England",
+      "Darien Scheme bankruptcy forces Scottish accommodation",
+      "Anne becomes first Queen of Great Britain",
+      "Jacobite threat influences union negotiations",
+      "Act of Union creates unified British Parliament",
+      "Presbyterian Kirk protected in union settlement"
+    ],
+    "1721": [
+      "Senate proclaims Peter the Great Emperor of All Russias",
+      "Treaty of Nystad ends twenty-one year Northern War",
+      "Sweden cedes Baltic provinces to Russia",
+      "Charles XII dies ending Swedish imperial ambitions",
+      "Russian Empire gains access to European trade routes",
+      "St. Petersburg becomes window to Europe"
+    ],
+    "1740": [
+      "Frederick II invades Silesia without declaration",
+      "Maria Theresa inherits Habsburg lands at age twenty-three",
+      "Pragmatic Sanction challenged by European powers",
+      "French support Bavarian claim to imperial crown",
+      "War of Austrian Succession disrupts European balance",
+      "Prussian army proves superior through disciplined training"
+    ],
+    "1751": [
+      "Denis Diderot and d'Alembert begin Encyclopedia project",
+      "Madame de Pompadour protects philosophes from censorship",
+      "Robert Clive wins Battle of Plassey in India",
+      "Voltaire publishes Age of Louis XIV",
+      "Encyclopedia compiles rational knowledge systematically",
+      "Benjamin Franklin experiments with electricity and lightning"
+    ],
+    "1756": [
+      "Diplomatic Revolution realigns European alliances",
+      "Frederick the Great launches preemptive strike on Saxony",
+      "French and Indian War begins in North America",
+      "Black Hole of Calcutta incident sparks British outrage",
+      "Seven Years War becomes first global conflict",
+      "Mozart born in Salzburg during wartime upheaval"
+    ],
+    "1769": [
+      "James Watt patents separate condenser steam engine",
+      "Captain Cook observes Venus transit from Tahiti",
+      "Dartmouth College chartered in New Hampshire",
+      "Napoleon Bonaparte born on Corsica island",
+      "Industrial Revolution gains momentum with steam power",
+      "Spanish missions established in California"
+    ],
+    "1773": [
+      "Sons of Liberty disguise as Mohawk warriors",
+      "East India Company tea dumped into Boston Harbor",
+      "Samuel Adams organizes colonial resistance movement",
+      "Tea Act grants monopoly triggering merchant opposition",
+      "Boston Tea Party escalates imperial crisis",
+      "Pope Clement XIV suppresses Jesuit order worldwide"
+    ],
+    "1804": [
+      "Napoleon seizes crown from Pope Pius VII",
+      "Lewis and Clark expedition departs St. Louis",
+      "Haiti becomes first black republic under Dessalines",
+      "Code Napoléon establishes civil law system",
+      "French Empire proclaimed with continental ambitions",
+      "Sacagawea guides expedition through Rocky Mountains"
+    ],
+    "1815": [
+      "Wellington and Blücher defeat Napoleon at Waterloo",
+      "Metternich designs conservative European balance",
+      "Napoleon exiled to remote Atlantic island St. Helena",
+      "Holy Alliance promotes Christian conservative values",
+      "Congress of Vienna redraws European boundaries",
+      "Battle of New Orleans fought after peace treaty"
+    ],
+    "1821": [
+      "Alexander Ypsilantis begins Greek independence revolt",
+      "Agustín de Iturbide proclaims Mexican independence",
+      "Simón Bolívar wins Battle of Carabobo",
+      "Napoleon dies in exile on St. Helena island",
+      "Greece declares independence from Ottoman Empire",
+      "Missouri Compromise admits Maine and Missouri as states"
+    ],
+    "1825": [
+      "Stockton and Darlington Railway opens passenger service",
+      "Decembrist officers revolt against Nicholas I",
+      "Erie Canal connects Great Lakes to Atlantic",
+      "George Stephenson's Locomotion pulls first train",
+      "John Quincy Adams wins presidency in House decision",
+      "Russian autocracy crushes liberal military uprising"
+    ],
+    "1833": [
+      "Slavery Abolition Act frees 800,000 colonial slaves",
+      "William Wilberforce dies three days after act passes",
+      "Twenty million pounds compensates slaveholders",
+      "Factory Act limits child labor in textile mills",
+      "British Empire leads global antislavery movement",
+      "Oxford Movement revives High Church Anglicanism"
+    ],
+    "1837": [
+      "Victoria ascends throne at age eighteen",
+      "Samuel Morse patents electromagnetic telegraph",
+      "Financial panic spreads from New York across America",
+      "Papineau Rebellion challenges British rule in Canada",
+      "Victorian era begins sixty-three year reign",
+      "Electric communication revolutionizes information speed"
+    ],
+    "1845": [
+      "Potato blight fungus destroys Irish crop",
+      "Sir Robert Peel repeals Corn Laws",
+      "Texas annexed as twenty-eighth American state",
+      "Franklin expedition disappears in Arctic ice",
+      "Great Famine begins million Irish deaths",
+      "Manifest Destiny ideology drives westward expansion"
+    ],
+    "1859": [
+      "Charles Darwin publishes Origin of Species",
+      "Edwin Drake drills first commercial oil well",
+      "John Brown raids Harpers Ferry federal armory",
+      "Suez Canal construction begins under de Lesseps",
+      "Natural selection theory challenges religious creation",
+      "Petroleum age begins with Pennsylvania drilling"
+    ],
+    "1861": [
+      "Confederate artillery bombards Fort Sumter",
+      "Alexander II emancipates twenty-three million Russian serfs",
+      "Jefferson Davis inaugurated as Confederate president",
+      "Bull Run battlefield shocks Union with Southern victory",
+      "American Civil War begins with secession crisis",
+      "Victor Emmanuel II proclaimed King of Italy"
+    ],
+    "1869": [
+      "Ferdinand de Lesseps opens Suez Canal",
+      "Golden Spike completes transcontinental railroad",
+      "Wyoming Territory grants women voting rights",
+      "Ulysses S. Grant inaugurated as president",
+      "Suez Canal reduces Asia-Europe voyage time",
+      "Central Pacific and Union Pacific railroads meet"
+    ],
+    "1871": [
+      "Wilhelm I proclaimed German Kaiser at Versailles",
+      "Paris Commune seizes control of French capital",
+      "Otto von Bismarck achieves German unification",
+      "Great Chicago Fire destroys downtown area",
+      "Franco-Prussian War ends with Prussian victory",
+      "Henry Stanley finds David Livingstone in Africa"
+    ],
+    "1876": [
+      "Alexander Graham Bell patents telephone invention",
+      "Custer's Seventh Cavalry annihilated by Lakota",
+      "Centennial Exhibition celebrates American industrial progress",
+      "Bulgarian Massacre sparks European diplomatic intervention",
+      "Colorado admitted as thirty-eighth state",
+      "Porfirio Díaz begins Mexican dictatorship"
+    ],
+    "1885": [
+      "Otto von Bismarck hosts Berlin Conference on Africa",
+      "Leopold II gains personal control of Congo",
+      "Louis Pasteur develops rabies vaccine",
+      "Canadian Pacific Railway completed across continent",
+      "Scramble for Africa formalizes colonial boundaries",
+      "Statue of Liberty arrives in New York Harbor"
+    ],
+    "1886": [
+      "Haymarket bomb kills eight Chicago policemen",
+      "Statue of Liberty dedicated on Bedloe's Island",
+      "Coca-Cola invented by Atlanta pharmacist",
+      "Geronimo surrenders ending Apache resistance",
+      "Knights of Labor reach peak membership",
+      "Benz Patent-Motorwagen becomes first automobile"
+    ],
+    "1896": [
+      "Pierre de Coubertin revives Olympics in Athens",
+      "Plessy versus Ferguson upholds separate but equal",
+      "Klondike Gold Rush begins in Canadian Yukon",
+      "Alfred Nobel's will establishes peace prizes",
+      "Ethiopian forces defeat Italians at Adwa",
+      "William McKinley defeats William Jennings Bryan"
+    ],
+    "1898": [
+      "USS Maine explodes in Havana Harbor",
+      "Marie and Pierre Curie discover radium element",
+      "Fashoda Incident nearly triggers Anglo-French war",
+      "Treaty of Paris cedes Philippines to America",
+      "Spanish-American War begins American imperialism",
+      "Empress Elisabeth of Austria assassinated"
+    ],
+    "1899": [
+      "Second Boer War begins with Kruger ultimatum",
+      "Boxer Rebellion begins in Shandong Province",
+      "Dreyfus Affair divides French society",
+      "Aspirin patented by Bayer pharmaceutical company",
+      "British Empire fights Afrikaner republics",
+      "Hague Peace Conference establishes arbitration court"
+    ],
+    "1900": [
+      "Sigmund Freud publishes Interpretation of Dreams",
+      "Eight-Nation Alliance relieves Beijing legation siege",
+      "Paris Universal Exhibition showcases Art Nouveau",
+      "Galveston Hurricane kills 8,000 in Texas",
+      "Quantum theory introduced by Max Planck",
+      "Second Olympics held in Paris"
+    ],
+    "1903": [
+      "Wright brothers achieve twelve-second powered flight",
+      "Henry Ford establishes Motor Company in Detroit",
+      "Panama Canal Zone leased from Colombia",
+      "Marie Curie wins Nobel Prize in Physics",
+      "Great Train Robbery becomes first narrative film",
+      "Russian Social Democrats split into Bolsheviks and Mensheviks"
+    ],
+    "1905": [
+      "Albert Einstein publishes special relativity theory",
+      "Bloody Sunday massacre triggers Russian Revolution",
+      "Japanese victory at Tsushima destroys Russian fleet",
+      "Norway peacefully gains independence from Sweden",
+      "Potemkin mutiny spreads naval rebellion",
+      "October Manifesto promises constitutional monarchy"
+    ],
+    "1911": [
+      "Xinhai Revolution overthrows Qing dynasty",
+      "Roald Amundsen reaches South Pole first",
+      "Agadir Crisis nearly triggers European war",
+      "Triangle Shirtwaist Factory fire kills 146 workers",
+      "Sun Yat-sen proclaimed president of Chinese Republic",
+      "Italy invades Ottoman Libya"
+    ],
+    "1917": [
+      "February Revolution forces Tsar Nicholas II to abdicate",
+      "United States declares war on Germany",
+      "Balfour Declaration promises Jewish homeland in Palestine",
+      "Lenin returns to Russia in sealed German train",
+      "October Revolution brings Bolsheviks to power",
+      "Zimmermann Telegram proposes German-Mexican alliance"
+    ],
+    "1918": [
+      "Armistice signed at 11 AM on November 11th",
+      "Spanish flu pandemic kills fifty million worldwide",
+      "Tsar Nicholas II and family executed by Bolsheviks",
+      "Woodrow Wilson announces Fourteen Points peace plan",
+      "German Spring Offensive fails on Western Front",
+      "Kaiser Wilhelm II abdicates and flees to Netherlands"
+    ],
+    "1922": [
+      "Treaty creates Union of Soviet Socialist Republics",
+      "Benito Mussolini marches on Rome",
+      "Howard Carter discovers Tutankhamun's tomb",
+      "Michael Collins assassinated in Irish Civil War",
+      "Fascist Party gains control of Italian government",
+      "Gandhi sentenced to prison for sedition"
+    ],
+    "1933": [
+      "Adolf Hitler appointed Chancellor by Hindenburg",
+      "Franklin Roosevelt inaugurated with New Deal promise",
+      "Reichstag Fire enables emergency powers",
+      "Prohibition repealed by Twenty-first Amendment",
+      "Nazi Party consolidates dictatorial control",
+      "Civilian Conservation Corps provides jobs for unemployed"
+    ],
+    "1939": [
+      "Germany invades Poland on September 1st",
+      "Britain and France declare war on Germany",
+      "Molotov-Ribbentrop Pact divides Poland",
+      "Einstein writes letter urging atomic bomb research",
+      "World War Two begins with Blitzkrieg tactics",
+      "Gone with the Wind premieres in Atlanta"
+    ],
+    "1941": [
+      "Japanese attack Pearl Harbor on December 7th",
+      "Operation Barbarossa invades Soviet Union",
+      "Siege of Leningrad begins 872-day ordeal",
+      "Rudolf Hess flies to Scotland on peace mission",
+      "United States enters World War Two",
+      "Lend-Lease provides aid to Britain and USSR"
+    ],
+    "1947": [
+      "India and Pakistan gain independence from Britain",
+      "Marshall Plan announced for European reconstruction",
+      "Dead Sea Scrolls discovered in Qumran caves",
+      "Jackie Robinson breaks baseball color barrier",
+      "Partition triggers massive population migration",
+      "CIA established by National Security Act"
+    ],
+    "1948": [
+      "Israel declares independence as Jewish state",
+      "Berlin Airlift supplies blockaded West Berlin",
+      "Mahatma Gandhi assassinated by Hindu extremist",
+      "Universal Declaration of Human Rights adopted",
+      "Arab-Israeli War begins Middle East conflict",
+      "Soviet Union begins nuclear weapons program"
+    ],
+    "1957": [
+      "Soviet Union launches Sputnik I satellite",
+      "Little Rock Nine integrate Arkansas high school",
+      "European Economic Community formed by Treaty of Rome",
+      "Ghana becomes first African colony to gain independence",
+      "Space race begins with Soviet technological achievement",
+      "Federal troops enforce school desegregation"
+    ],
+    "1963": [
+      "John F. Kennedy assassinated in Dallas motorcade",
+      "March on Washington features King's Dream speech",
+      "Nuclear Test Ban Treaty signed by superpowers",
+      "Buddhist monk Thich Quang Duc self-immolates in Saigon",
+      "Lee Harvey Oswald kills president from book depository",
+      "Lyndon Johnson sworn in aboard Air Force One"
+    ],
+    "2008": [
+      "Lehman Brothers bankruptcy triggers financial crisis",
+      "Barack Obama elected first African American president",
+      "Beijing hosts spectacular Summer Olympics",
+      "Subprime mortgage collapse spreads globally",
+      "Russia invades Georgia over South Ossetia",
+      "Large Hadron Collider begins operation in Switzerland"
+    ],
     "476": [
       "Germanic mercenaries demand Italian estates from Orestes",
       "Ticinum battle results in Orestes' capture and execution",
