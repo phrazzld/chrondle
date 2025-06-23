@@ -42,37 +42,51 @@ export const GuessInput: React.FC<GuessInputProps> = ({
   const isSubmitDisabled = disabled || remainingGuesses <= 0;
 
   return (
-    <form onSubmit={handleSubmit} className={`flex items-center gap-2 mb-4 ${className}`}>
-      <input
-        type="number"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        placeholder="Enter a year (e.g. 1969 AD or -776 for 776 BC)..."
-        className={`
-          w-full p-3 text-lg 
-          bg-gray-200 dark:bg-gray-700 
-          border-2 border-transparent 
-          focus:border-indigo-500 focus:ring-0 
-          rounded-lg text-center
-          disabled:opacity-50 disabled:cursor-not-allowed
-        `}
-        required
-        disabled={disabled}
-      />
-      <button
-        type="submit"
-        disabled={isSubmitDisabled}
-        className={`
-          bg-indigo-600 hover:bg-indigo-700 
-          text-white font-bold 
-          py-3 px-6 rounded-lg 
-          transition-colors duration-200
-          disabled:opacity-50 disabled:cursor-not-allowed
-          ${isSubmitDisabled ? 'bg-gray-400 hover:bg-gray-400' : ''}
-        `}
-      >
-        {buttonText}
-      </button>
-    </form>
+    <div className={className}>
+      <div className="text-center mb-4">
+        <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--foreground)' }}>
+          Make Your Guess
+        </h3>
+        <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+          Remaining guesses: <span className="font-medium">{remainingGuesses}/{maxGuesses}</span>
+        </p>
+      </div>
+      
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-3">
+        <input
+          type="number"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="Enter a year (e.g. 1969 AD or -776 for 776 BC)..."
+          className="w-full p-4 text-lg text-center rounded-lg border-2 font-medium transition-all duration-200 focus:outline-none focus:ring-0 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            background: 'var(--input)',
+            borderColor: 'var(--border)',
+            color: 'var(--foreground)'
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = 'var(--primary)';
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = 'var(--border)';
+          }}
+          required
+          disabled={disabled}
+        />
+        <button
+          type="submit"
+          disabled={isSubmitDisabled}
+          className="btn-primary sm:whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+          style={{
+            ...(isSubmitDisabled && {
+              background: 'var(--muted-foreground)',
+              color: 'white'
+            })
+          }}
+        >
+          {buttonText}
+        </button>
+      </form>
+    </div>
   );
 };

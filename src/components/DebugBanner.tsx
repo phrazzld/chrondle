@@ -17,7 +17,13 @@ export const DebugBanner: React.FC<DebugBannerProps> = ({
   if (!isVisible) return null;
 
   return (
-    <div className={`bg-yellow-400 dark:bg-yellow-600 text-black p-2 text-center font-bold ${className}`}>
+    <div 
+      className={`p-3 text-center font-bold rounded-lg ${className}`}
+      style={{ 
+        background: 'var(--warning)', 
+        color: 'white' 
+      }}
+    >
       {DEBUG_CONFIG.BANNER_EMOJI} DEBUG MODE ACTIVE - No progress saved | {debugParams}
     </div>
   );

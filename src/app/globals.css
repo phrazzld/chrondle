@@ -1,21 +1,77 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core brand colors inspired by engineering/professional design */
+  --background: #f5f1eb;
+  --surface: #ffffff;
+  --foreground: #2c3e50;
+  --muted-foreground: #5d6d7e;
+  
+  /* Orange accent system */
+  --primary: #e74c3c;
+  --primary-hover: #c0392b;
+  --primary-light: #f39c12;
+  --accent: #d35400;
+  --accent-light: #e67e22;
+  
+  /* Neutral palette */
+  --border: #bdc3c7;
+  --input: #ecf0f1;
+  --card: #ffffff;
+  --card-foreground: #2c3e50;
+  
+  /* Status colors */
+  --success: #27ae60;
+  --warning: #f39c12;
+  --error: #e74c3c;
+  --info: #3498db;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-light: var(--primary-light);
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
   --font-sans: var(--font-inter);
   --font-serif: var(--font-playfair-display);
 }
 
+/* Dark mode activated by .dark class */
+html.dark {
+  --background: #1a1a1a;
+  --surface: #2c2c2c;
+  --foreground: #ecf0f1;
+  --muted-foreground: #95a5a6;
+  --card: #2c2c2c;
+  --card-foreground: #ecf0f1;
+  --input: #34495e;
+  --border: #34495e;
+}
+
+/* Fallback for system preference when no explicit class is set */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  html:not(.dark):not(.light) {
+    --background: #1a1a1a;
+    --surface: #2c2c2c;
+    --foreground: #ecf0f1;
+    --muted-foreground: #95a5a6;
+    --card: #2c2c2c;
+    --card-foreground: #ecf0f1;
+    --input: #34495e;
+    --border: #34495e;
   }
 }
 
@@ -25,10 +81,79 @@ body {
   color: var(--foreground);
   font-family: var(--font-inter), sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
+  line-height: 1.6;
 }
 
-h1, h2 {
+h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-playfair-display), serif;
+  color: var(--foreground);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: 0.875rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Professional button styles */
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--foreground);
+  border: 2px solid var(--border);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: var(--surface);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* Professional card styling */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
 .game-tile {

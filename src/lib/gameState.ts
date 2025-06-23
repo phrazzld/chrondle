@@ -2,7 +2,6 @@
 // Static puzzle database with pre-curated historical events
 
 import { getPuzzleForYear, SUPPORTED_YEARS } from './puzzleData';
-import { CURATED_HISTORICAL_YEARS } from './curatedYears';
 
 export interface Puzzle {
   year: number;
@@ -46,12 +45,13 @@ export function getDailyYear(debugYear?: string, isDebugMode?: boolean): number 
   if (debugYear && isDebugMode) {
     const parsedYear = parseInt(debugYear, 10);
     if (!isNaN(parsedYear)) {
-      // Check if debug year is in curated years list
-      if (CURATED_HISTORICAL_YEARS.includes(parsedYear)) {
-        console.log(`🔍 DEBUG: Forcing year to ${parsedYear}`);
+      // Check if debug year has a puzzle in the static database
+      if (SUPPORTED_YEARS.includes(parsedYear)) {
+        console.log(`🔍 DEBUG: Forcing year to ${parsedYear} (has puzzle)`);
         return parsedYear;
       } else {
-        console.warn(`🔍 DEBUG: Debug year ${parsedYear} not in curated years, falling back to daily selection`);
+        console.warn(`🔍 DEBUG: Debug year ${parsedYear} not in puzzle database, falling back to daily selection`);
+        console.warn(`🔍 DEBUG: Available years: ${SUPPORTED_YEARS.join(', ')}`);
       }
     } else {
       console.warn(`🔍 DEBUG: Invalid debug year parameter '${debugYear}', falling back to daily selection`);

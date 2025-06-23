@@ -47,14 +47,27 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
       <div className="text-center">
-        <h2 className="text-3xl font-bold mb-2 font-[family-name:var(--font-playfair-display)]">
+        <h2 
+          className="text-3xl font-bold mb-2 font-[family-name:var(--font-playfair-display)]"
+          style={{ color: 'var(--foreground)' }}
+        >
           {hasWon ? "You got it!" : "So close!"}
         </h2>
-        <p className="text-lg mb-4 font-[family-name:var(--font-inter)]">
+        <p 
+          className="text-lg mb-4 font-[family-name:var(--font-inter)]"
+          style={{ color: 'var(--foreground)' }}
+        >
           The correct year was <strong>{formatYear(targetYear)}</strong>.
         </p>
 
-        <div className="text-left bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-4 max-h-48 overflow-y-auto">
+        <div 
+          className="text-left p-4 rounded-lg mb-4 max-h-48 overflow-y-auto"
+          style={{ 
+            background: 'var(--input)', 
+            border: '1px solid var(--border)',
+            color: 'var(--foreground)'
+          }}
+        >
           <h3 className="font-bold mb-2 font-[family-name:var(--font-inter)]">Events from this year:</h3>
           <ul className="list-disc list-inside space-y-1 font-[family-name:var(--font-inter)]">
             {events.map((event, index) => (
@@ -63,22 +76,49 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           </ul>
         </div>
 
-        <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg mb-4">
-          <pre className="font-mono text-center whitespace-pre-wrap text-sm">
+        <div 
+          className="p-3 rounded-lg mb-4"
+          style={{ 
+            background: 'var(--input)', 
+            border: '1px solid var(--border)' 
+          }}
+        >
+          <pre 
+            className="font-mono text-center whitespace-pre-wrap text-sm"
+            style={{ color: 'var(--foreground)' }}
+          >
             {shareText}
           </pre>
         </div>
 
         <div className="flex gap-4">
           <div className="flex-1 text-center">
-            <p className="text-gray-500 dark:text-gray-400 text-sm font-[family-name:var(--font-inter)]">
+            <p 
+              className="text-sm font-[family-name:var(--font-inter)]"
+              style={{ color: 'var(--muted-foreground)' }}
+            >
               NEXT CHRONDLE
             </p>
-            <p className="text-2xl font-bold font-mono">{timeString}</p>
+            <p 
+              className="text-2xl font-bold font-mono"
+              style={{ color: 'var(--foreground)' }}
+            >
+              {timeString}
+            </p>
           </div>
           <button
             onClick={handleShare}
-            className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-[family-name:var(--font-inter)]"
+            className="flex-1 font-bold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-[family-name:var(--font-inter)]"
+            style={{
+              background: 'var(--success)',
+              color: 'white'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--primary)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--success)';
+            }}
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
@@ -98,7 +138,10 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           </button>
         </div>
         
-        <p className="text-sm text-green-600 dark:text-green-400 h-5 mt-2 font-[family-name:var(--font-inter)]">
+        <p 
+          className="text-sm h-5 mt-2 font-[family-name:var(--font-inter)]"
+          style={{ color: 'var(--success)' }}
+        >
           {feedbackMessage}
         </p>
       </div>

@@ -77,10 +77,17 @@ export const BaseModal: React.FC<BaseModalProps> = ({
 
   const modalContent = (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 transition-opacity duration-300"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-300"
+      style={{ background: 'rgba(0, 0, 0, 0.5)' }}
       onClick={handleBackdropClick}
     >
-      <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md w-full p-6 modal-content show-prep transition-all duration-300 transform scale-95 opacity-0 ${className}`}>
+      <div 
+        className={`rounded-lg shadow-2xl max-w-md w-full p-6 modal-content show-prep transition-all duration-300 transform scale-95 opacity-0 ${className}`}
+        style={{ 
+          background: 'var(--card)',
+          color: 'var(--card-foreground)'
+        }}
+      >
         {children}
       </div>
     </div>

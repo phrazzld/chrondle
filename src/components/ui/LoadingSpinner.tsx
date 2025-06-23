@@ -21,13 +21,12 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     <span
       className={`
         ${sizeClasses[size]}
-        border-2 border-gray-300 dark:border-gray-600
-        border-t-indigo-600 dark:border-t-indigo-400
-        rounded-full
-        animate-spin
-        inline-block
-        ${className}
+        border-2 rounded-full animate-spin inline-block ${className}
       `}
+      style={{
+        borderColor: 'rgba(255, 255, 255, 0.3)',
+        borderTopColor: 'white'
+      }}
       aria-label="Loading"
     />
   );

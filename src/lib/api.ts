@@ -4,34 +4,7 @@
 // Removed wikidata import - no longer used in static puzzle system
 
 // --- API CONFIGURATION ---
-// Yes, this API key is exposed in client-side code. This is a prototype.
-// The API has rate limits (50k requests/month) and only provides historical data.
-// If someone steals this key to make historical event queries, that's their problem.
-const API_NINJAS_KEY = 'O8VgZplfhWSNdCsgoeVaZg==2bwPJnxstEQPzmvn';
-
-// Basic client-side rate limiting and caching
-const API_CACHE = new Map<string, string[]>();
-let lastApiCall = 0;
-const MIN_API_INTERVAL = 1000; // 1 second between calls
-
-// Rate limiting utilities
-function canMakeApiCall(): boolean {
-  // Skip rate limiting in debug mode to allow testing
-  const isDebugMode = typeof window !== 'undefined' && 
-    new URLSearchParams(window.location.search).get('debug') === 'true';
-  
-  if (isDebugMode) {
-    console.log('🔍 DEBUG: Skipping rate limit check in debug mode');
-    return true;
-  }
-  
-  const now = Date.now();
-  return now - lastApiCall >= MIN_API_INTERVAL;
-}
-
-function updateLastApiCall(): void {
-  lastApiCall = Date.now();
-}
+// NOTE: API functionality disabled in favor of static puzzle system
 
 // --- EVENT SCORING FUNCTIONS ---
 function scoreEventRecognizability(event: string): number {
@@ -247,90 +220,9 @@ export function enhanceEventDescription(
 // getWikidataEvents function removed - no longer used in static puzzle system
 
 // Main API function to get historical events with fallback system
+// NOTE: This function is deprecated in favor of static puzzle system
 export async function getHistoricalEvents(year: number): Promise<string[]> {
-  // Input validation
-  if (!year || typeof year !== 'number') {
-    console.error('🔍 DEBUG: getHistoricalEvents: Invalid year parameter:', year);
-    return [];
-  }
-
-  // Check cache first
-  const cacheKey = `events-${year}`;
-  if (API_CACHE.has(cacheKey)) {
-    console.log(`🔍 DEBUG: Using cached events for year ${year}`);
-    return API_CACHE.get(cacheKey)!;
-  }
-
-  // Rate limiting check
-  if (!canMakeApiCall()) {
-    console.warn('🔍 DEBUG: Rate limit: too soon since last API call');
-    return [];
-  }
-
-  try {
-    console.log(`🔍 DEBUG: Fetching historical events for year ${year}...`);
-    updateLastApiCall();
-
-    const apiUrl = `https://api.api-ninjas.com/v1/historicalevents?year=${year}`;
-    console.log(`🔍 DEBUG: API URL: ${apiUrl}`);
-    console.log(`🔍 DEBUG: API Key: ${API_NINJAS_KEY.substring(0, 10)}...`);
-
-    const response = await fetch(apiUrl, {
-      headers: {
-        'X-Api-Key': API_NINJAS_KEY
-      }
-    });
-
-    console.log(`🔍 DEBUG: Response status: ${response.status} ${response.statusText}`);
-    console.log(`🔍 DEBUG: Response headers:`, [...response.headers.entries()]);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`🔍 DEBUG: API Error Response Body: ${errorText}`);
-      throw new Error(`API response not OK: ${response.status} ${response.statusText} - ${errorText}`);
-    }
-
-    const events = await response.json();
-    console.log(`🔍 DEBUG: Raw API response:`, events);
-    
-    // Validate response
-    if (!Array.isArray(events)) {
-      console.error(`🔍 DEBUG: API response is not an array:`, typeof events, events);
-      throw new Error('API response is not an array');
-    }
-
-    // Extract and clean event descriptions from API Ninjas
-    const apiNinjasEvents = events.map((event: Record<string, unknown>) => cleanEventDescription(event.event as string)).filter(Boolean);
-    console.log(`🔍 DEBUG: API Ninjas returned ${apiNinjasEvents.length} events for year ${year}`);
-    
-    const finalEvents = apiNinjasEvents;
-    
-    // If we don't have enough events, try Wikidata SPARQL as backup
-    if (finalEvents.length < 6) {
-      console.log(`🔍 DEBUG: Insufficient events from API Ninjas (${finalEvents.length}), trying Wikidata SPARQL...`);
-      
-      try {
-        // Wikidata integration removed - static puzzle system doesn't need fallbacks
-        console.log(`🔍 DEBUG: Wikidata fallback removed in static puzzle system`);
-      } catch {
-        console.warn(`🔍 DEBUG: Fallback system disabled in static puzzle architecture`);
-      }
-    }
-    
-    // Cache the final result
-    API_CACHE.set(cacheKey, finalEvents);
-    
-    console.log(`🔍 DEBUG: Successfully fetched ${finalEvents.length} events for year ${year}:`, finalEvents);
-    return finalEvents;
-
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error(`🔍 DEBUG: Failed to fetch events for year ${year}:`, error);
-    console.error(`🔍 DEBUG: Error details:`, {
-      message: errorMessage,
-      name: error instanceof Error ? error.name : 'Unknown',
-      stack: error instanceof Error ? error.stack : undefined
-    });
-    return [];
-  }
+  console.warn(`🔍 DEBUG: getHistoricalEvents called for year ${year} - this should not happen in static puzzle mode`);
+  console.warn(`🔍 DEBUG: Static puzzle system is active, API calls are disabled`);
+  return [];
 }

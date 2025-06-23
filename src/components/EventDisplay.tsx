@@ -17,21 +17,28 @@ export const EventDisplay: React.FC<EventDisplayProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 mb-4 text-center min-h-[80px] flex items-center justify-center ${className}`}>
+    <div className={`text-center min-h-[120px] flex items-center justify-center ${className}`}>
       {error ? (
-        <div className="text-red-600 dark:text-red-400">
-          <h3 className="text-xl font-bold mb-2">Unable to Load Puzzle</h3>
-          <p>Please refresh the page to try again.</p>
+        <div>
+          <h3 className="text-xl font-bold mb-2 text-white">Unable to Load Puzzle</h3>
+          <p className="text-white opacity-80">Please refresh the page to try again.</p>
         </div>
       ) : isLoading ? (
-        <p className="text-lg sm:text-xl font-semibold">
-          <LoadingSpinner className="mr-2" />
-          Loading today&apos;s historical puzzle...
-        </p>
+        <div className="text-white">
+          <LoadingSpinner className="mr-3" />
+          <span className="text-lg font-medium">Loading today&apos;s historical puzzle...</span>
+        </div>
       ) : (
-        <p className="text-lg sm:text-xl font-semibold">
-          {event || 'No event available'}
-        </p>
+        <div>
+          <h2 className="text-xl md:text-2xl font-bold mb-4 text-white">
+            Historical Event
+          </h2>
+          <p 
+            className="text-lg md:text-xl leading-relaxed max-w-2xl mx-auto text-white opacity-95"
+          >
+            {event || 'No event available'}
+          </p>
+        </div>
       )}
     </div>
   );

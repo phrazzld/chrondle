@@ -29,8 +29,13 @@ const GuessRow: React.FC<GuessRowProps> = React.memo(({
   if (isCorrect) {
     return (
       <div 
-        className="guess-row bg-green-500 text-white p-4 rounded-lg flex items-center justify-between shadow-md"
-        style={{ animationDelay: `${index * 100}ms` }}
+        className="guess-row card p-6 flex items-center justify-between"
+        style={{ 
+          animationDelay: `${index * 100}ms`,
+          background: 'var(--success)',
+          color: 'white',
+          borderColor: 'var(--success)'
+        }}
       >
         <span className="font-bold text-lg">{formatYear(guess)}</span>
         <span className="font-bold text-lg">CORRECT!</span>
@@ -40,19 +45,30 @@ const GuessRow: React.FC<GuessRowProps> = React.memo(({
 
   return (
     <div 
-      className="guess-row bg-white dark:bg-gray-800 p-4 rounded-lg flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-md"
+      className="guess-row card p-6 flex flex-col lg:flex-row items-start lg:items-center gap-4"
       style={{ animationDelay: `${index * 100}ms` }}
     >
-      <div className="flex items-center gap-3 w-full sm:w-auto">
-        <div className={`flex-shrink-0 text-center font-bold text-sm p-2 rounded-md min-w-32 ${directionInfo.bgColor} ${directionInfo.textColor}`}>
+      <div className="flex items-center gap-4 w-full lg:w-auto">
+        <div 
+          className="flex-shrink-0 text-center font-bold text-sm py-2 px-4 rounded-lg min-w-32"
+          style={{
+            background: directionInfo.direction.includes('EARLIER') ? 'var(--info)' : 'var(--warning)',
+            color: 'white'
+          }}
+        >
           {directionInfo.direction}
         </div>
         <div className="flex flex-col items-center">
-          <div className="font-bold text-xl">{formatYear(guess)}</div>
+          <div className="font-bold text-xl" style={{ color: 'var(--foreground)' }}>
+            {formatYear(guess)}
+          </div>
         </div>
       </div>
-      <div className="border-l-2 border-gray-200 dark:border-gray-600 pl-4 text-gray-600 dark:text-gray-300 flex-1">
-        <span className="font-semibold text-gray-500 dark:text-gray-400">Hint:</span> {hint || 'No more hints available.'}
+      <div 
+        className="border-l-2 pl-4 flex-1"
+        style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
+      >
+        <span className="font-semibold" style={{ color: 'var(--foreground)' }}>Hint:</span> {hint || 'No more hints available.'}
       </div>
     </div>
   );
@@ -83,9 +99,24 @@ export const GuessHistory: React.FC<GuessHistoryProps> = ({
     });
   }, [guesses, targetYear, events]);
 
+  if (guesses.length === 0) {
+    return null;
+  }
+
   return (
-    <div className={`space-y-3 ${className}`}>
-      {guessRows}
+    <div className={className}>
+      <div className="mb-6">
+        <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>
+          Your Guesses
+        </h3>
+        <div 
+          className="h-px w-full mb-4"
+          style={{ background: 'var(--border)' }}
+        />
+      </div>
+      <div className="space-y-4">
+        {guessRows}
+      </div>
     </div>
   );
 };

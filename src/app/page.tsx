@@ -9,11 +9,11 @@ import { useGameState } from '@/hooks/useGameState';
 import { HelpModal } from '@/components/modals/HelpModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
 import { GameOverModal } from '@/components/modals/GameOverModal';
-import { GameHeader } from '@/components/GameHeader';
 import { EventDisplay } from '@/components/EventDisplay';
 import { GuessInput } from '@/components/GuessInput';
 import { GuessHistory } from '@/components/GuessHistory';
 import { DebugBanner } from '@/components/DebugBanner';
+import { AppHeader } from '@/components/AppHeader';
 
 // Force dynamic rendering to prevent SSR issues with theme context
 export const dynamic = 'force-dynamic';
@@ -92,83 +92,188 @@ export default function ChronldePage() {
 
   if (gameLogic.isLoading) {
     return (
-      <div className="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-2xl mx-auto">
-          <GameHeader />
-          <EventDisplay 
-            event={null}
-            isLoading={true}
-            error={null}
-          />
-        </div>
+      <div className="min-h-screen" style={{ background: 'var(--background)' }}>
+        <AppHeader 
+          onShowHelp={() => setShowHelpModal(true)}
+          onShowSettings={() => setShowSettingsModal(true)}
+        />
+
+        {/* Loading Content */}
+        <main className="max-w-4xl mx-auto px-6 py-4">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>
+              CHRONDLE
+            </h1>
+            <p className="text-sm md:text-base" style={{ color: 'var(--muted-foreground)' }}>
+              Guess the year of the historical event
+            </p>
+          </div>
+          
+          <div className="w-full max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <div 
+                  className="relative p-8 rounded-lg shadow-lg"
+                  style={{ background: 'var(--primary)' }}
+                >
+                  <div className="absolute top-4 left-4">
+                    <span className="text-2xl font-bold text-white opacity-90">01</span>
+                  </div>
+                  <div className="pt-6">
+                    <EventDisplay 
+                      event={null}
+                      isLoading={true}
+                      error={null}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="lg:col-span-1">
+                <div 
+                  className="relative p-6 rounded-lg shadow-lg h-full flex items-center justify-center"
+                  style={{ background: 'var(--card)', border: '2px solid var(--border)' }}
+                >
+                  <div className="absolute top-4 left-4">
+                    <span 
+                      className="text-xl font-bold opacity-90"
+                      style={{ color: 'var(--primary)' }}
+                    >
+                      02
+                    </span>
+                  </div>
+                  <div className="text-center" style={{ color: 'var(--muted-foreground)' }}>
+                    <p>Loading game interface...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       
-      {/* Settings and Help Icons */}
-      <div className="absolute top-4 right-4 flex gap-3">
-        <button 
-          onClick={() => setShowHelpModal(true)}
-          className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </button>
-        <button 
-          onClick={() => setShowSettingsModal(true)}
-          className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </button>
-      </div>
+      <AppHeader 
+        onShowHelp={() => setShowHelpModal(true)}
+        onShowSettings={() => setShowSettingsModal(true)}
+      />
 
-      {/* Main Game Container */}
-      <div className="w-full max-w-2xl mx-auto">
-        
-        {/* Header */}
-        <GameHeader />
+      {/* Main Content Area */}
+      <main className="max-w-4xl mx-auto px-6 py-4">
+        {/* Compact Title */}
+        <div className="text-center mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>
+            CHRONDLE
+          </h1>
+          <p className="text-sm md:text-base" style={{ color: 'var(--muted-foreground)' }}>
+            Guess the year of the historical event
+          </p>
+        </div>
 
-        {/* Debug Banner */}
-        <DebugBanner 
-          isVisible={debugMode}
-          debugParams={debugParams}
-          className="mb-4"
-        />
+        {/* Industrial Game Layout */}
+        <div className="w-full max-w-6xl mx-auto">
+          
+          {/* Debug Banner */}
+          <DebugBanner 
+            isVisible={debugMode}
+            debugParams={debugParams}
+            className="mb-6"
+          />
 
-        {/* Primary Event Display */}
-        <EventDisplay 
-          event={gameLogic.currentEvent}
-          isLoading={gameLogic.isLoading}
-          error={gameLogic.error}
-        />
+          {/* Main Game Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* Section 01 - Event Display */}
+            <div className="lg:col-span-2">
+              <div 
+                className="relative p-8 rounded-lg shadow-lg"
+                style={{ background: 'var(--primary)' }}
+              >
+                {/* Section Number */}
+                <div className="absolute top-4 left-4">
+                  <span className="text-2xl font-bold text-white opacity-90">01</span>
+                </div>
+                
+                {/* Event Content */}
+                <div className="pt-6">
+                  <EventDisplay 
+                    event={gameLogic.currentEvent}
+                    isLoading={gameLogic.isLoading}
+                    error={gameLogic.error}
+                  />
+                </div>
+              </div>
+            </div>
 
-        {/* Guess Input */}
-        <GuessInput
-          onGuess={gameLogic.makeGuess}
-          disabled={gameLogic.isGameComplete || gameLogic.isLoading}
-          remainingGuesses={gameLogic.remainingGuesses}
-          maxGuesses={6}
-          onValidationError={handleValidationError}
-        />
+            {/* Section 02 - Guess Input */}
+            <div className="lg:col-span-1">
+              <div 
+                className="relative p-6 rounded-lg shadow-lg h-full"
+                style={{ background: 'var(--card)', border: '2px solid var(--border)' }}
+              >
+                {/* Section Number */}
+                <div className="absolute top-4 left-4">
+                  <span 
+                    className="text-xl font-bold opacity-90"
+                    style={{ color: 'var(--primary)' }}
+                  >
+                    02
+                  </span>
+                </div>
+                
+                {/* Input Content */}
+                <div className="pt-8">
+                  <GuessInput
+                    onGuess={gameLogic.makeGuess}
+                    disabled={gameLogic.isGameComplete || gameLogic.isLoading}
+                    remainingGuesses={gameLogic.remainingGuesses}
+                    maxGuesses={6}
+                    onValidationError={handleValidationError}
+                  />
+                </div>
+              </div>
+            </div>
 
-        {/* Guess History */}
-        <GuessHistory
-          guesses={gameLogic.gameState.guesses}
-          targetYear={gameLogic.gameState.puzzle?.year || 0}
-          events={gameLogic.gameState.puzzle?.events || []}
-        />
-      </div>
+            {/* Section 03 - Guess History */}
+            <div className="lg:col-span-3 mt-6">
+              <div 
+                className="relative p-6 rounded-lg shadow-lg"
+                style={{ background: 'var(--card)', border: '2px solid var(--border)' }}
+              >
+                {/* Section Number */}
+                <div className="absolute top-4 left-4">
+                  <span 
+                    className="text-xl font-bold opacity-90"
+                    style={{ color: 'var(--primary)' }}
+                  >
+                    03
+                  </span>
+                </div>
+                
+                {/* History Content */}
+                <div className="pt-8">
+                  <GuessHistory
+                    guesses={gameLogic.gameState.guesses}
+                    targetYear={gameLogic.gameState.puzzle?.year || 0}
+                    events={gameLogic.gameState.puzzle?.events || []}
+                  />
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </main>
 
       {/* Validation Error Feedback */}
       {validationError && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg">
+        <div 
+          className="fixed bottom-6 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg text-white font-medium shadow-lg z-50"
+          style={{ background: 'var(--error)' }}
+        >
           {validationError}
         </div>
       )}
