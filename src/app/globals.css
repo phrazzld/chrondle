@@ -594,6 +594,69 @@ html.color-blind .dark\:text-blue-100 { color: #e0e7ff; /* indigo-100 */ }
   padding: 1.5rem !important;
 }
 
-.card.card-small-padding {
-  padding: 1rem !important;
+/* Professional Header Responsive System */
+.header-responsive {
+  transition: padding 0.3s ease;
+}
+
+.header-content {
+  /* Default mobile-first: compressed header */
+  padding-top: 0.5rem;    /* 8px - saves ~24px vs py-4 */
+  padding-bottom: 0.5rem; /* 8px */
+}
+
+.header-logo {
+  font-size: 1.5rem; /* 24px - compressed from 2xl */
+  transition: font-size 0.3s ease;
+}
+
+/* Mobile icon-only logo below 600px */
+@media (max-width: 599px) {
+  .logo-wordmark {
+    display: none;
+  }
+  
+  .logo-icon {
+    font-size: 1.75rem; /* Slightly larger for icon-only */
+    font-weight: 800;
+  }
+  
+  .header-logo {
+    font-size: 1.75rem;
+  }
+}
+
+/* Above 600px: show full wordmark */
+@media (min-width: 600px) {
+  .logo-icon {
+    display: inline;
+  }
+  
+  .logo-wordmark {
+    display: inline;
+  }
+}
+
+/* Tablet and above: app-bar style with more padding */
+@media (min-width: 769px) {
+  .header-content {
+    padding-top: 1rem;     /* 16px - back to py-4 equivalent */
+    padding-bottom: 1rem;  /* 16px */
+  }
+  
+  .header-logo {
+    font-size: 2rem; /* 32px - back to text-2xl */
+  }
+}
+
+/* Large screens: enhanced spacing */
+@media (min-width: 1024px) {
+  .header-content {
+    padding-top: 1.25rem;  /* 20px */
+    padding-bottom: 1.25rem; /* 20px */
+  }
+  
+  .header-logo {
+    font-size: 2.25rem; /* 36px */
+  }
 }

@@ -106,13 +106,28 @@ export default function ChronldePage() {
             <div className="relative">
               <div className="card border-2 border-primary/20 card-padding-override">
                 <div className="flex items-start gap-4">
-                  <div className="w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-1">
+                  <div className="w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
                     1
                   </div>
                   <div className="flex-1">
-                    <div className="mb-3">
-                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        Hint 1 of 6
+                    <div className="mb-4 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                          Hint 1
+                        </span>
+                        <div className="flex gap-1">
+                          {[...Array(6)].map((_, i) => (
+                            <div
+                              key={i}
+                              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                                i < 1 ? 'bg-primary' : 'bg-border'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        5 more hints available
                       </span>
                     </div>
                     <div className="text-lg leading-relaxed" style={{ color: 'var(--foreground)' }}>
@@ -171,13 +186,28 @@ export default function ChronldePage() {
           <div className="relative">
             <div className="card border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 card-padding-override">
               <div className="flex items-start gap-4">
-                <div className="w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-1">
+                <div className="w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
                   {gameLogic.currentHintIndex + 1}
                 </div>
                 <div className="flex-1">
-                  <div className="mb-3">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Hint {gameLogic.currentHintIndex + 1} of 6
+                  <div className="mb-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Hint {gameLogic.currentHintIndex + 1}
+                      </span>
+                      <div className="flex gap-1">
+                        {[...Array(6)].map((_, i) => (
+                          <div
+                            key={i}
+                            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                              i <= gameLogic.currentHintIndex ? 'bg-primary' : 'bg-border'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {6 - (gameLogic.currentHintIndex + 1)} more hints available
                     </span>
                   </div>
                   <div className="text-lg leading-relaxed" style={{ color: 'var(--foreground)' }}>
@@ -214,26 +244,6 @@ export default function ChronldePage() {
             </div>
           )}
 
-          {/* Upcoming Hints Preview */}
-          {!gameLogic.isGameComplete && gameLogic.gameState.puzzle && (
-            <div className="card bg-surface border-dashed card-small-padding">
-              <div className="mb-3">
-                <h3 className="text-base font-medium text-muted-foreground">Upcoming Hints</h3>
-              </div>
-              <div className="space-y-2">
-                {gameLogic.gameState.puzzle.events.slice(gameLogic.currentHintIndex + 1).map((_, index) => (
-                  <div key={index} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30">
-                    <div className="w-5 h-5 bg-muted text-white rounded-full flex items-center justify-center text-xs font-bold">
-                      🔒
-                    </div>
-                    <span className="text-muted-foreground text-xs">
-                      Hint {gameLogic.currentHintIndex + index + 2} of 6
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
         </div>
       </main>

@@ -12,13 +12,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onShowSettings 
 }) => {
   return (
-    <header className="w-full border-b" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
-      <div className="max-w-6xl mx-auto px-6 py-4">
+    <header className="w-full border-b header-responsive" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
+      <div className="max-w-6xl mx-auto px-6 header-content">
         <div className="flex items-center justify-between">
-          {/* Logo/Brand */}
+          {/* Logo/Brand - Responsive sizing */}
           <div className="flex items-center">
-            <h1 className="text-2xl font-bold m-0" style={{ color: 'var(--primary)' }}>
-              CHRONDLE
+            <h1 className="font-bold m-0 header-logo" style={{ color: 'var(--primary)' }}>
+              <span className="logo-icon">C</span>
+              <span className="logo-wordmark">HRONDLE</span>
             </h1>
           </div>
 
