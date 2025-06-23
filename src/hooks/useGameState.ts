@@ -19,6 +19,7 @@ export interface UseGameStateReturn {
   isGameComplete: boolean;
   hasWon: boolean;
   currentEvent: string | null;
+  currentHintIndex: number;
   nextHint: string | null;
 }
 
@@ -103,17 +104,21 @@ export function useGameState(debugMode: boolean = false): UseGameStateReturn {
     const isGameComplete = gameState.isGameOver;
     const hasWon = gameState.puzzle ? gameState.guesses.includes(gameState.puzzle.year) : false;
     
-    // Current event (always the first event)
-    const currentEvent = gameState.puzzle?.events[0] || null;
+    // Current hint index: start with 0, then add 1 for each guess made
+    const currentHintIndex = Math.min(gameState.guesses.length, 5); // max index is 5 (for 6 hints)
     
-    // Next hint (event corresponding to current guess count)
-    const nextHint = gameState.puzzle?.events[gameState.guesses.length + 1] || null;
+    // Current event: the hint that should be shown now
+    const currentEvent = gameState.puzzle?.events[currentHintIndex] || null;
+    
+    // Next hint (event corresponding to next reveal)
+    const nextHint = gameState.puzzle?.events[currentHintIndex + 1] || null;
 
     return {
       remainingGuesses,
       isGameComplete,
       hasWon,
       currentEvent,
+      currentHintIndex,
       nextHint
     };
   }, [gameState.guesses, gameState.isGameOver, gameState.puzzle]);

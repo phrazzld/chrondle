@@ -505,3 +505,86 @@ html.color-blind .bg-blue-200 { background-color: #a5b4fc; /* indigo-300 */ }
 html.color-blind .text-blue-800 { color: #3730a3; /* indigo-800 */ }
 html.color-blind .dark\:bg-blue-800 { background-color: #6366f1; /* indigo-500 */ }
 html.color-blind .dark\:text-blue-100 { color: #e0e7ff; /* indigo-100 */ }
+
+/* New Layout Utility Classes */
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.bg-surface {
+  background-color: var(--surface);
+}
+
+.bg-muted {
+  background-color: var(--muted-foreground);
+}
+
+.bg-muted\/30 {
+  background-color: rgba(93, 109, 126, 0.3); /* muted-foreground with 30% opacity */
+}
+
+.text-foreground {
+  color: var(--foreground);
+}
+
+.text-muted-foreground {
+  color: var(--muted-foreground);
+}
+
+.border-primary\/20 {
+  border-color: rgba(231, 76, 60, 0.2); /* primary with 20% opacity */
+}
+
+.border-primary\/40 {
+  border-color: rgba(231, 76, 60, 0.4); /* primary with 40% opacity */
+}
+
+.border-dashed {
+  border-style: dashed;
+}
+
+/* Hint progression animations */
+.hint-reveal {
+  animation: hintReveal 0.6s ease-out;
+}
+
+@keyframes hintReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(-5px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Enhanced card hover effects for new layout */
+.card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Number badge styling */
+.hint-number {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+/* Locked hint styling */
+.locked-hint {
+  background: linear-gradient(135deg, var(--muted-foreground) 0%, var(--border) 100%);
+  opacity: 0.6;
+}
+
+.locked-hint:hover {
+  opacity: 0.8;
+}
