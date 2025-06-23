@@ -104,7 +104,7 @@ export default function ChronldePage() {
             
             {/* Loading Hint Display */}
             <div className="relative">
-              <div className="card border-2 border-primary/20 !p-6">
+              <div className="card border-2 border-primary/20 card-padding-override">
                 <div className="flex items-start gap-4">
                   <div className="w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-1">
                     1
@@ -169,7 +169,7 @@ export default function ChronldePage() {
 
           {/* Current Hint Display */}
           <div className="relative">
-            <div className="card border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 !p-6">
+            <div className="card border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 card-padding-override">
               <div className="flex items-start gap-4">
                 <div className="w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-1">
                   {gameLogic.currentHintIndex + 1}
@@ -216,7 +216,7 @@ export default function ChronldePage() {
 
           {/* Upcoming Hints Preview */}
           {!gameLogic.isGameComplete && gameLogic.gameState.puzzle && (
-            <div className="card bg-surface border-dashed !p-4">
+            <div className="card bg-surface border-dashed card-small-padding">
               <div className="mb-3">
                 <h3 className="text-base font-medium text-muted-foreground">Upcoming Hints</h3>
               </div>
