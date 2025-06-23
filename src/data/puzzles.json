@@ -1,0 +1,169 @@
+{
+  "meta": {
+    "version": "1.1",
+    "total_puzzles": 20,
+    "date_range": "476-2001"
+  },
+  "puzzles": {
+    "476": [
+      "Germanic mercenaries demand Italian estates from Orestes",
+      "Ticinum battle results in Orestes' capture and execution",
+      "Last Western imperial regalia sent to Constantinople",
+      "Odoacer establishes first barbarian kingdom in Italy",
+      "Romulus Augustulus deposed as last Western Roman Emperor",
+      "Western Roman Empire collapses ending millennium of world rule"
+    ],
+    "622": [
+      "Muhammad establishes first Muslim community in Medina",
+      "Ansar tribal confederation creates protection alliance",
+      "Islamic calendar begins marking historic Year One",
+      "First Muslim political structure establishes governance",
+      "The Hijra migration from Mecca begins new era",
+      "Islam founded as world religion and political empire"
+    ],
+    "1066": [
+      "Major Battle of Hastings begins Norman conquest",
+      "William the Conqueror launches historic invasion of England",
+      "Last Anglo-Saxon King Harold II falls at Hastings",
+      "Norman conquest establishes new English monarchy",
+      "Bayeux Tapestry created depicting historic invasion",
+      "Saxon kings replaced by Norman royal empire"
+    ],
+    "1215": [
+      "Magna Carta establishes first constitutional limits on monarchy",
+      "English barons create historic rebellion against royal authority",
+      "Foundation of world's first constitutional monarchy begins",
+      "First major limits placed on royal power established",
+      "Archbishop Stephen Langton creates landmark agreement",
+      "First constitutional limits on king established worldwide"
+    ],
+    "1492": [
+      "Christopher Columbus begins European colonization of Americas",
+      "Spanish Reconquista ends with fall of last Moorish kingdom",
+      "Major expulsion of Jews creates European diaspora",
+      "Lorenzo de Medici's death ends Florence's golden age",
+      "First world globe created by Martin Behaim",
+      "First New World discovered changing global empire"
+    ],
+    "1588": [
+      "Spanish Armada collapses ending Spanish naval dominance",
+      "Francis Drake establishes English global naval power",
+      "Mary Queen of Scots execution ends Catholic succession",
+      "William Shakespeare begins creating historic plays",
+      "First Globe Theatre construction begins in London",
+      "Spanish empire defeated establishing English world power"
+    ],
+    "1776": [
+      "Declaration of Independence creates first modern republic",
+      "Continental Congress establishes American independence",
+      "George Washington begins historic Delaware crossing",
+      "Common Sense creates first mass democratic movement",
+      "British empire begins losing major American colonies",
+      "First modern revolution against British empire begins"
+    ],
+    "1789": [
+      "French Revolution begins transforming world politics",
+      "First Declaration of Rights establishes human rights",
+      "George Washington becomes first constitutional president",
+      "Tennis Court Oath creates first revolutionary assembly",
+      "Estates-General ends after historic 175-year absence",
+      "French Revolution begins overthrowing king and monarchy"
+    ],
+    "1865": [
+      "American Civil War ends preserving federal union",
+      "President Lincoln's assassination creates national trauma",
+      "Thirteenth Amendment ends slavery establishing freedom",
+      "First transcontinental telegraph creates instant communication",
+      "Lewis Carroll creates landmark children's literature",
+      "Civil War ends preserving American world power"
+    ],
+    "1914": [
+      "World War One begins ending century of peace",
+      "Germany begins major invasion of Western Europe",
+      "First Battle of Marne ends German advance",
+      "Panama Canal creates major global shipping route",
+      "Federal Reserve establishes modern banking system",
+      "First World War begins ending European peace"
+    ],
+    "1945": [
+      "World War Two ends with historic Allied victory",
+      "First atomic bombs create nuclear age",
+      "United Nations founded establishing global governance",
+      "Adolf Hitler's death ends Nazi regime",
+      "Auschwitz liberation begins Holocaust recognition",
+      "Second World War ends establishing new world order"
+    ],
+    "1969": [
+      "Apollo 11 establishes first human lunar landing",
+      "Woodstock creates landmark counterculture movement",
+      "ARPANET begins global internet revolution",
+      "Boeing 747 creates first jumbo jet era",
+      "Stonewall riots begin modern gay rights movement",
+      "First moon landing establishes American world leadership"
+    ],
+    "1989": [
+      "Berlin Wall collapses ending Cold War division",
+      "Tiananmen Square creates global democracy movement",
+      "Cold War ends between world superpowers",
+      "World Wide Web founded creating digital revolution",
+      "Exxon Valdez creates major environmental disaster",
+      "Communist empire collapses ending Cold War worldwide"
+    ],
+    "1453": [
+      "Hungarian engineer creates first siege artillery",
+      "Ottoman navy establishes historic overland transport",
+      "Last Byzantine defense begins at Golden Horn",
+      "Last Byzantine Emperor Constantine XI falls heroically",
+      "Mehmed II ends Byzantine Empire after 1000 years",
+      "Byzantine Empire ends after thousand-year world rule"
+    ],
+    "1517": [
+      "Johann Tetzel begins controversial indulgence trade",
+      "Albert of Brandenburg creates major church corruption",
+      "University of Wittenberg establishes Protestant theology",
+      "Printing press begins first mass media revolution",
+      "Martin Luther creates landmark 95 Theses",
+      "Protestant Revolution begins against Catholic world empire"
+    ],
+    "1848": [
+      "Frederick William begins German unification movement",
+      "Frankfurt Parliament establishes first German democracy",
+      "Major Hungarian Revolution begins national independence",
+      "Austrian Empire begins granting first autonomy",
+      "February Revolution establishes French Second Republic",
+      "Year of Revolutions transforms European world order"
+    ],
+    "1929": [
+      "Vatican City established as world's smallest state",
+      "Young Plan creates last war reparations agreement",
+      "Saint Valentine's Day Massacre begins gang war era",
+      "Museum of Modern Art establishes modern culture",
+      "Stock Market Crash begins global economic collapse",
+      "World economic collapse creates Great Depression worldwide"
+    ],
+    "1949": [
+      "Geneva Conventions establish global humanitarian law",
+      "Indonesia ends centuries of Dutch colonial rule",
+      "Soviet Union begins nuclear arms race",
+      "People's Republic establishes Communist China",
+      "NATO creates first peacetime military alliance",
+      "Cold War begins dividing world into rival empires"
+    ],
+    "1991": [
+      "Tim Berners-Lee creates public World Wide Web",
+      "Yugoslavia begins violent ethnic dissolution",
+      "Warsaw Pact ends Soviet military dominance",
+      "Boris Yeltsin establishes new Russian state",
+      "Persian Gulf War begins precision warfare era",
+      "Soviet empire collapses ending Cold War worldwide"
+    ],
+    "2001": [
+      "September 11 attacks begin global war on terror",
+      "Wikipedia creates first collaborative encyclopedia",
+      "War in Afghanistan begins longest American conflict",
+      "Apple creates first iPod revolutionizing music",
+      "Anthrax attacks create first bioterrorism panic",
+      "World Trade Center attack begins global war on terror"
+    ]
+  }
+}

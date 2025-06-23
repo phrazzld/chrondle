@@ -1,6 +1,8 @@
 // API Integration for Chrondle
 // Extracted from index.html lines ~244-772
 
+// Removed wikidata import - no longer used in static puzzle system
+
 // --- API CONFIGURATION ---
 // Yes, this API key is exposed in client-side code. This is a prototype.
 // The API has rate limits (50k requests/month) and only provides historical data.
@@ -14,6 +16,15 @@ const MIN_API_INTERVAL = 1000; // 1 second between calls
 
 // Rate limiting utilities
 function canMakeApiCall(): boolean {
+  // Skip rate limiting in debug mode to allow testing
+  const isDebugMode = typeof window !== 'undefined' && 
+    new URLSearchParams(window.location.search).get('debug') === 'true';
+  
+  if (isDebugMode) {
+    console.log('🔍 DEBUG: Skipping rate limit check in debug mode');
+    return true;
+  }
+  
   const now = Date.now();
   return now - lastApiCall >= MIN_API_INTERVAL;
 }
@@ -231,229 +242,9 @@ export function enhanceEventDescription(
   }
 }
 
-// LLM enhancement for creating engaging game hints from enhanced descriptions
-export async function llmEnhanceHint(
-  enhancedDescription: string,
-  urlParams?: URLSearchParams
-): Promise<string> {
-  // Check if LLM enhancement is enabled
-  const llmEnabled = urlParams?.get('llm') === 'true';
-  if (!llmEnabled) {
-    return enhancedDescription; // Return original if LLM not enabled
-  }
-  
-  // Check for API key (user must provide their own for security)
-  if (typeof window === 'undefined') {
-    return enhancedDescription; // Server-side fallback
-  }
-  
-  const apiKey = localStorage.getItem('openai_api_key');
-  if (!apiKey) {
-    console.warn('🔍 DEBUG: LLM enhancement requested but no API key found. Set localStorage.openai_api_key to use LLM features.');
-    return enhancedDescription;
-  }
-  
-  try {
-    // Rate limiting check
-    const lastLlmCall = localStorage.getItem('last_llm_call');
-    const now = Date.now();
-    if (lastLlmCall && (now - parseInt(lastLlmCall)) < 2000) {
-      console.log('🔍 DEBUG: LLM rate limit: too soon since last call');
-      return enhancedDescription;
-    }
-    
-    console.log(`🔍 DEBUG: Enhancing with LLM: "${enhancedDescription}"`);
-    
-    // Create abort controller for timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
-    
-    // Prepare LLM prompt
-    const prompt = `Convert this historical event into a clear, engaging hint for a year-guessing game. Make it informative but don't include the year or obvious time markers. Keep it under 20 words: ${enhancedDescription}`;
-    
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      signal: controller.signal,
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a helpful assistant that creates engaging, concise hints for historical guessing games.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 50
-      })
-    });
-    
-    clearTimeout(timeoutId);
-    localStorage.setItem('last_llm_call', now.toString());
-    
-    if (!response.ok) {
-      const error = await response.text();
-      console.warn(`🔍 DEBUG: LLM API error ${response.status}:`, error);
-      return enhancedDescription;
-    }
-    
-    const data = await response.json();
-    const llmHint = data.choices[0].message.content.trim();
-    
-    console.log(`🔍 DEBUG: LLM enhanced "${enhancedDescription}" → "${llmHint}"`);
-    return llmHint;
-    
-  } catch (error) {
-    console.warn(`🔍 DEBUG: LLM enhancement failed, using fallback:`, error);
-    return enhancedDescription;
-  }
-}
+// LLM enhancement removed - not used in static puzzle system
 
-// Get Wikidata events using SPARQL query
-export async function getWikidataEvents(year: number): Promise<string[]> {
-  // Input validation
-  if (!year || typeof year !== 'number') {
-    console.error('🔍 DEBUG: getWikidataEvents: Invalid year parameter:', year);
-    return [];
-  }
-
-  // Check cache first
-  const cacheKey = `wikidata-events-${year}`;
-  if (API_CACHE.has(cacheKey)) {
-    console.log(`🔍 DEBUG: Using cached Wikidata events for year ${year}`);
-    return API_CACHE.get(cacheKey)!;
-  }
-
-  // Note: No rate limiting for Wikidata SPARQL - different endpoint, no abuse risk
-  try {
-    console.log(`🔍 DEBUG: Fetching Wikidata events for year ${year}...`);
-
-    // Enhanced SPARQL query: Get descriptions, locations, and participants for richer hints
-    // Using automatic label service to get descriptions and context data
-    const sparqlQuery = `
-      SELECT ?event ?eventLabel ?eventDescription ?locationLabel ?participantLabel WHERE {
-        ?event wdt:P585 ?date .                  # Point in time
-        FILTER(YEAR(?date) = ${year})
-        {
-          ?event wdt:P31 wd:Q178561 .          # Battles
-        } UNION {
-          ?event wdt:P31 wd:Q131569 .          # Treaty
-        } UNION {
-          ?event wdt:P31 wd:Q1241715 .         # Abandoned village
-        } UNION {
-          ?event wdt:P31 wd:Q245117 .          # Relief sculpture
-        } UNION {
-          ?event wdt:P31 wd:Q12370 .           # Peace treaty
-        }
-        OPTIONAL { ?event wdt:P276 ?location }   # Location
-        OPTIONAL { ?event wdt:P710 ?participant } # Participant
-        SERVICE wikibase:label { 
-          bd:serviceParam wikibase:language "en" . 
-        }
-      } LIMIT 25
-    `;
-
-    const apiUrl = `https://query.wikidata.org/sparql?query=${encodeURIComponent(sparqlQuery)}`;
-    console.log(`🔍 DEBUG: Wikidata SPARQL URL: ${apiUrl.substring(0, 100)}...`);
-
-    // Create abort controller for timeout handling
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-
-    const response = await fetch(apiUrl, {
-      headers: {
-        'Accept': 'application/sparql-results+json'
-      },
-      signal: controller.signal
-    });
-
-    clearTimeout(timeoutId);
-
-    console.log(`🔍 DEBUG: Wikidata response status: ${response.status} ${response.statusText}`);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`🔍 DEBUG: Wikidata SPARQL Error Response Body: ${errorText}`);
-      throw new Error(`Wikidata SPARQL response not OK: ${response.status} ${response.statusText} - ${errorText}`);
-    }
-
-    const data = await response.json();
-    console.log(`🔍 DEBUG: Raw Wikidata SPARQL response:`, data);
-    
-    // Validate response structure
-    if (!data || !data.results || !Array.isArray(data.results.bindings)) {
-      console.error(`🔍 DEBUG: Wikidata SPARQL response has invalid structure:`, data);
-      throw new Error('Wikidata SPARQL response missing results.bindings array');
-    }
-
-    // Extract enhanced event data from targeted entity types
-    const yearEvents = data.results.bindings
-      .map((item: Record<string, unknown>) => {
-        const eventLabel = item.eventLabel as Record<string, unknown> | undefined;
-        const eventDescription = item.eventDescription as Record<string, unknown> | undefined;
-        const locationLabel = item.locationLabel as Record<string, unknown> | undefined;
-        const participantLabel = item.participantLabel as Record<string, unknown> | undefined;
-        
-        const label = eventLabel?.value as string | undefined;
-        const description = eventDescription?.value as string | undefined;
-        const location = locationLabel?.value as string | undefined;
-        const participant = participantLabel?.value as string | undefined;
-        
-        if (label) {
-          console.log(`🔍 DEBUG: Enhanced data for "${label}":`, {
-            description: description || 'none',
-            location: location || 'none', 
-            participant: participant || 'none'
-          });
-          
-          // Enhance the event using all available contextual data
-          return enhanceEventDescription(
-            label, 
-            description || undefined, 
-            location || undefined, 
-            participant || undefined
-          );
-        }
-        return null;
-      })
-      .filter(Boolean)
-      .slice(0, 20); // Limit to 20 events maximum
-
-    // Cache the result
-    API_CACHE.set(cacheKey, yearEvents);
-    
-    console.log(`🔍 DEBUG: Successfully fetched ${yearEvents.length} Wikidata events for year ${year}:`, yearEvents);
-    return yearEvents;
-
-  } catch (error) {
-    console.error(`🔍 DEBUG: Failed to fetch Wikidata events for year ${year}:`, error);
-    
-    // Log specific error types
-    if (error instanceof Error) {
-      if (error.name === 'AbortError') {
-        console.error(`🔍 DEBUG: Wikidata SPARQL query timeout for year ${year}`);
-      } else if (error.message.includes('NetworkError')) {
-        console.error(`🔍 DEBUG: Network error accessing Wikidata for year ${year}`);
-      } else if (error.message.includes('SyntaxError')) {
-        console.error(`🔍 DEBUG: SPARQL parsing error for year ${year}`);
-      }
-      
-      console.error(`🔍 DEBUG: Error details:`, {
-        message: error.message,
-        name: error.name,
-        stack: error.stack
-      });
-    }
-    return [];
-  }
-}
+// getWikidataEvents function removed - no longer used in static puzzle system
 
 // Main API function to get historical events with fallback system
 export async function getHistoricalEvents(year: number): Promise<string[]> {
@@ -512,39 +303,17 @@ export async function getHistoricalEvents(year: number): Promise<string[]> {
     const apiNinjasEvents = events.map((event: Record<string, unknown>) => cleanEventDescription(event.event as string)).filter(Boolean);
     console.log(`🔍 DEBUG: API Ninjas returned ${apiNinjasEvents.length} events for year ${year}`);
     
-    let finalEvents = apiNinjasEvents;
+    const finalEvents = apiNinjasEvents;
     
     // If we don't have enough events, try Wikidata SPARQL as backup
     if (finalEvents.length < 6) {
       console.log(`🔍 DEBUG: Insufficient events from API Ninjas (${finalEvents.length}), trying Wikidata SPARQL...`);
       
       try {
-        const wikidataEvents = await getWikidataEvents(year);
-        console.log(`🔍 DEBUG: Wikidata returned ${wikidataEvents.length} events for year ${year}`);
-        
-        if (wikidataEvents.length > 0) {
-          // Merge and deduplicate events
-          const mergedEvents = [...finalEvents];
-          
-          for (const wikidataEvent of wikidataEvents) {
-            // Check for duplicates (case-insensitive)
-            const isDuplicate = mergedEvents.some(existingEvent => 
-              existingEvent.toLowerCase().includes(wikidataEvent.toLowerCase().substring(0, 50)) ||
-              wikidataEvent.toLowerCase().includes(existingEvent.toLowerCase().substring(0, 50))
-            );
-            
-            if (!isDuplicate) {
-              mergedEvents.push(wikidataEvent);
-            }
-          }
-          
-          finalEvents = mergedEvents;
-          console.log(`🔍 DEBUG: After merging and deduplication: ${finalEvents.length} total events`);
-        }
-      } catch (wikidataError) {
-        const errorMessage = wikidataError instanceof Error ? wikidataError.message : 'Unknown error';
-        console.warn(`🔍 DEBUG: Wikidata SPARQL fallback failed for year ${year}:`, errorMessage);
-        // Continue with just API Ninjas events
+        // Wikidata integration removed - static puzzle system doesn't need fallbacks
+        console.log(`🔍 DEBUG: Wikidata fallback removed in static puzzle system`);
+      } catch {
+        console.warn(`🔍 DEBUG: Fallback system disabled in static puzzle architecture`);
       }
     }
     

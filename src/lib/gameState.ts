@@ -1,5 +1,8 @@
 // Game State Management for Chrondle
-// Extracted from index.html lines ~150-250, 777-920, 1015-1480
+// Static puzzle database with pre-curated historical events
+
+import { getPuzzleForYear, SUPPORTED_YEARS } from './puzzleData';
+import { CURATED_HISTORICAL_YEARS } from './curatedYears';
 
 export interface Puzzle {
   year: number;
@@ -27,44 +30,6 @@ export interface Settings {
   colorBlindMode: boolean;
 }
 
-// Curated years known to have significant historical events
-// Selected for variety across eras and likelihood of having 6+ events from API
-export const CURATED_YEARS = [
-  // Ancient/Classical Era
-  -776, -753, -221, -44,  // BC years (negative)
-  
-  // Medieval Era
-  800, 1066, 1215, 1347, 1453,
-  
-  // Renaissance/Early Modern
-  1492, 1517, 1588, 1607, 1620,
-  
-  // Enlightenment/Revolution Era
-  1776, 1789, 1804, 1815, 1848,
-  
-  // Industrial Age
-  1865, 1876, 1885, 1893, 1903,
-  
-  // Early 20th Century
-  1914, 1917, 1918, 1929, 1936,
-  
-  // WWII Era
-  1939, 1941, 1945, 1947, 1948,
-  
-  // Cold War Era
-  1957, 1961, 1963, 1969, 1975,
-  
-  // Late 20th Century
-  1989, 1991, 1994, 1997, 1999,
-  
-  // 21st Century
-  2001, 2003, 2008, 2011, 2016, 2020
-];
-
-// Fallback year when API fails or returns insufficient events
-// 1969 chosen for reliable event count: Moon landing, Woodstock, Vietnam War events
-export const FALLBACK_YEAR = 1969;
-
 // Create initial game state
 export function createInitialGameState(): GameState {
   return {
@@ -75,16 +40,22 @@ export function createInitialGameState(): GameState {
   };
 }
 
-// Daily year generation logic
+// Deterministic daily year selection from pre-curated puzzle database
 export function getDailyYear(debugYear?: string, isDebugMode?: boolean): number {
   // Handle debug mode forced year
   if (debugYear && isDebugMode) {
     const parsedYear = parseInt(debugYear, 10);
-    if (!isNaN(parsedYear) && parsedYear >= -3000 && parsedYear <= new Date().getFullYear()) {
-      console.log(`Debug: forcing year to ${parsedYear}`);
-      return parsedYear;
+    if (!isNaN(parsedYear)) {
+      // Check if debug year is in curated years list
+      if (CURATED_HISTORICAL_YEARS.includes(parsedYear)) {
+        console.log(`🔍 DEBUG: Forcing year to ${parsedYear}`);
+        return parsedYear;
+      } else {
+        console.warn(`🔍 DEBUG: Debug year ${parsedYear} not in curated years, falling back to daily selection`);
+      }
+    } else {
+      console.warn(`🔍 DEBUG: Invalid debug year parameter '${debugYear}', falling back to daily selection`);
     }
-    console.warn(`Debug: Invalid year parameter '${debugYear}' ignored`);
   }
 
   const today = new Date();
@@ -96,99 +67,57 @@ export function getDailyYear(debugYear?: string, isDebugMode?: boolean): number 
   // Reset time to midnight to ensure consistency across timezones
   today.setHours(0, 0, 0, 0);
   
-  // Use hash of date for unpredictable but deterministic selection
-  const yearIndex = Math.abs([...today.toISOString().slice(0,10)].reduce((a,b)=>(a<<5)+a+b.charCodeAt(0),5381)) % CURATED_YEARS.length;
-  const selectedYear = CURATED_YEARS[yearIndex];
+  // Generate deterministic hash from date
+  const dateHash = Math.abs([...today.toISOString().slice(0,10)].reduce((a,b)=>(a<<5)+a+b.charCodeAt(0),5381));
   
-  console.log(`🔍 DEBUG: Date: ${today.toISOString().slice(0,10)}, Year index: ${yearIndex}, Selected year: ${selectedYear}`);
+  // Select from years that have puzzles (20 years)
+  const yearIndex = dateHash % SUPPORTED_YEARS.length;
+  const selectedYear = SUPPORTED_YEARS[yearIndex];
+  
+  console.log(`🔍 DEBUG: Date: ${today.toISOString().slice(0,10)}, Hash: ${dateHash}, Index: ${yearIndex}/${SUPPORTED_YEARS.length}, Selected year: ${selectedYear}`);
   
   return selectedYear;
 }
 
-// Initialize daily puzzle
-export async function initializePuzzle(
-  getHistoricalEvents: (year: number) => Promise<string[]>,
-  sortEventsByRecognizability: (events: string[]) => string[]
-): Promise<Puzzle> {
-  console.log('🔍 DEBUG: Initializing daily puzzle...');
+// Initialize daily puzzle from static database
+export function initializePuzzle(
+  sortEventsByRecognizability: (events: string[]) => string[],
+  debugYear?: string,
+  isDebugMode?: boolean
+): Puzzle {
+  console.log('🔍 DEBUG: Initializing daily puzzle from static database...');
   
-  try {
-    // Get the daily year
-    const targetYear = getDailyYear();
-    console.log(`🔍 DEBUG: Target year for today: ${targetYear}`);
-    
-    // Fetch events for the target year
-    let events = await getHistoricalEvents(targetYear);
-    let usedYear = targetYear;
-    
-    console.log(`🔍 DEBUG: Fetched ${events ? events.length : 0} events for year ${targetYear}`);
-    
-    // Check if we have enough events (need 6 for the game)
-    if (!events || events.length < 6) {
-      console.warn(`🔍 DEBUG: Insufficient events for year ${targetYear} (${events ? events.length : 0} events), using fallback year ${FALLBACK_YEAR}`);
-      
-      // Try fallback year
-      events = await getHistoricalEvents(FALLBACK_YEAR);
-      usedYear = FALLBACK_YEAR;
-      
-      console.log(`🔍 DEBUG: Fallback year ${FALLBACK_YEAR} returned ${events ? events.length : 0} events`);
-      
-      // If fallback also fails, use hardcoded events
-      if (!events || events.length < 6) {
-        console.error('🔍 DEBUG: API completely failed, using hardcoded events');
-        events = [
-          'The Boeing 747 makes its first flight',
-          'The Internet precursor ARPANET is created',
-          'The Stonewall riots occur in New York',
-          'Richard Nixon becomes President',
-          'Woodstock music festival takes place',
-          'Apollo 11 lands on the Moon'
-        ];
-        usedYear = FALLBACK_YEAR;
-        console.log(`🔍 DEBUG: Using hardcoded events for year ${usedYear}`);
-      }
-    } else {
-      console.log(`🔍 DEBUG: Successfully got ${events.length} events for year ${targetYear}`);
-    }
-    
-    // Sort events by recognizability (most obscure first, easiest last)
-    const sortedEvents = sortEventsByRecognizability(events);
-    console.log(`Sorted ${sortedEvents.length} events by difficulty (obscure to obvious) for year ${usedYear}`);
-    
-    // Generate simple puzzle ID for today (just the date)
-    const today = new Date();
-    const dateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
-    
-    // Create puzzle object
-    const puzzle: Puzzle = {
-      year: usedYear,
-      events: sortedEvents.slice(0, 6), // Use sorted events, ensure exactly 6
-      puzzleId: dateString
-    };
-    
-    console.log(`Puzzle initialized successfully:`, puzzle);
-    return puzzle;
-    
-  } catch (error) {
-    console.error('Failed to initialize puzzle:', error);
-    
-    // Last resort: return hardcoded puzzle
-    const today = new Date();
-    const dateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
-    
-    return {
-      year: FALLBACK_YEAR,
-      events: [
-        'The Boeing 747 makes its first flight',
-        'The Internet precursor ARPANET is created',
-        'The Stonewall riots occur in New York',
-        'Richard Nixon becomes President',
-        'Woodstock music festival takes place',
-        'Apollo 11 lands on the Moon'
-      ],
-      puzzleId: dateString
-    };
+  // Get the daily year (with debug support)
+  const targetYear = getDailyYear(debugYear, isDebugMode);
+  console.log(`🔍 DEBUG: Target year for today: ${targetYear}`);
+  
+  // Load events from static database
+  const events = getPuzzleForYear(targetYear);
+  
+  if (events.length === 0) {
+    // This should never happen with a properly curated database
+    throw new Error(`No puzzle found for year ${targetYear}. This indicates a bug in the puzzle database or daily selection logic.`);
   }
+  
+  console.log(`🔍 DEBUG: Loaded ${events.length} events for year ${targetYear} from static database`);
+  
+  // Sort events by recognizability (most obscure first, easiest last)
+  const sortedEvents = sortEventsByRecognizability(events);
+  console.log(`🔍 DEBUG: Sorted ${sortedEvents.length} events by difficulty (obscure to obvious) for year ${targetYear}`);
+  
+  // Generate simple puzzle ID for today (just the date)
+  const today = new Date();
+  const dateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
+  
+  // Create puzzle object
+  const puzzle: Puzzle = {
+    year: targetYear,
+    events: sortedEvents, // Already exactly 6 events from database
+    puzzleId: dateString
+  };
+  
+  console.log(`🔍 DEBUG: Puzzle initialized successfully:`, puzzle);
+  return puzzle;
 }
 
 // Local Storage Management

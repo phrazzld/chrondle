@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { GameState, createInitialGameState, initializePuzzle, saveProgress, loadProgress, cleanupOldStorage } from '@/lib/gameState';
-import { getHistoricalEvents, sortEventsByRecognizability } from '@/lib/api';
+import { sortEventsByRecognizability } from '@/lib/api';
 import { GAME_CONFIG } from '@/lib/constants';
 
 export interface UseGameStateReturn {
@@ -29,9 +29,7 @@ export function useGameState(debugMode: boolean = false): UseGameStateReturn {
 
   // Initialize puzzle on mount
   useEffect(() => {
-    let isCancelled = false;
-
-    async function initGame() {
+    function initGame() {
       try {
         setIsLoading(true);
         setError(null);
@@ -39,42 +37,34 @@ export function useGameState(debugMode: boolean = false): UseGameStateReturn {
         // Clean up old storage entries
         cleanupOldStorage();
 
-        // Initialize puzzle
-        const puzzle = await initializePuzzle(getHistoricalEvents, sortEventsByRecognizability);
-        
-        if (isCancelled) return;
+        // Parse URL parameters for debug mode
+        let debugYear: string | undefined;
+        if (typeof window !== 'undefined' && debugMode) {
+          const urlParams = new URLSearchParams(window.location.search);
+          debugYear = urlParams.get('year') || undefined;
+        }
 
-        setGameState(prevState => ({
-          ...prevState,
-          puzzle
-        }));
+        // Initialize puzzle from static database (synchronous)
+        const puzzle = initializePuzzle(sortEventsByRecognizability, debugYear, debugMode);
 
-        // Load progress after puzzle is set
+        // Create new game state with puzzle
         const newGameState = { ...createInitialGameState(), puzzle };
-        loadProgress(newGameState, debugMode);
         
-        if (isCancelled) return;
+        // Load progress after puzzle is set
+        loadProgress(newGameState, debugMode);
         
         setGameState(newGameState);
 
       } catch (err) {
-        if (isCancelled) return;
-        
         const errorMessage = err instanceof Error ? err.message : 'Failed to initialize game';
         console.error('Game initialization error:', err);
         setError(errorMessage);
       } finally {
-        if (!isCancelled) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       }
     }
 
     initGame();
-
-    return () => {
-      isCancelled = true;
-    };
   }, [debugMode]);
 
   // Save progress whenever game state changes

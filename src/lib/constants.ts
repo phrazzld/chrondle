@@ -40,57 +40,6 @@ export const GAME_CONFIG = {
   }
 } as const;
 
-// --- FALLBACK CONFIGURATION ---
-
-// Fallback year when API fails or returns insufficient events
-// 1969 chosen for reliable event count: Moon landing, Woodstock, Vietnam War events
-export const FALLBACK_YEAR = 1969;
-
-// Hardcoded events for ultimate fallback when all APIs fail
-export const HARDCODED_EVENTS = [
-  'The Boeing 747 makes its first flight',
-  'The Internet precursor ARPANET is created',
-  'The Stonewall riots occur in New York',
-  'Richard Nixon becomes President',
-  'Woodstock music festival takes place',
-  'Apollo 11 lands on the Moon'
-] as const;
-
-// --- CURATED YEARS FOR DAILY PUZZLES ---
-
-// Curated years known to have significant historical events
-// Selected for variety across eras and likelihood of having 6+ events from API
-export const CURATED_YEARS = [
-  // Ancient/Classical Era
-  -776, -753, -221, -44,  // BC years (negative)
-  
-  // Medieval Era
-  800, 1066, 1215, 1347, 1453,
-  
-  // Renaissance/Early Modern
-  1492, 1517, 1588, 1607, 1620,
-  
-  // Enlightenment/Revolution Era
-  1776, 1789, 1804, 1815, 1848,
-  
-  // Industrial Age
-  1865, 1876, 1885, 1893, 1903,
-  
-  // Early 20th Century
-  1914, 1917, 1918, 1929, 1936,
-  
-  // WWII Era
-  1939, 1941, 1945, 1947, 1948,
-  
-  // Cold War Era
-  1957, 1961, 1963, 1969, 1975,
-  
-  // Late 20th Century
-  1989, 1991, 1994, 1997, 1999,
-  
-  // 21st Century
-  2001, 2003, 2008, 2011, 2016, 2020
-] as const;
 
 // --- EVENT RECOGNITION SCORING ---
 
@@ -215,8 +164,6 @@ export const HASHTAGS = '#Chrondle #HistoryGame';
 
 // --- TYPE EXPORTS ---
 
-export type CuratedYear = typeof CURATED_YEARS[number];
-export type HardcodedEvent = typeof HARDCODED_EVENTS[number];
 export type HighRecognitionTerm = typeof HIGH_RECOGNITION_TERMS[number];
 export type MediumRecognitionTerm = typeof MEDIUM_RECOGNITION_TERMS[number];
 export type WikidataEntityType = typeof WIKIDATA_ENTITY_TYPES[keyof typeof WIKIDATA_ENTITY_TYPES];
@@ -229,9 +176,6 @@ export function isValidYear(year: number): boolean {
   return year >= GAME_CONFIG.MIN_YEAR && year <= GAME_CONFIG.MAX_YEAR && year !== 0;
 }
 
-export function isCuratedYear(year: number): year is CuratedYear {
-  return CURATED_YEARS.includes(year as CuratedYear);
-}
 
 export function isDebugYear(year: number): boolean {
   return DEBUG_CONFIG.SCENARIO_WRONG_GUESSES.includes(year as never);

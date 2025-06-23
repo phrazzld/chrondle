@@ -6,7 +6,11 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "validate-puzzles": "node scripts/validate-puzzles.js",
+    "test-puzzles": "node scripts/test-puzzle-system.js",
+    "test-debug": "node scripts/test-debug-years.js",
+    "validate-curated-years": "node scripts/validate-curated-years.js"
   },
   "dependencies": {
     "react": "^19.0.0",

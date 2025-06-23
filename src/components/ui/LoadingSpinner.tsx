@@ -18,7 +18,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   };
 
   return (
-    <div
+    <span
       className={`
         ${sizeClasses[size]}
         border-2 border-gray-300 dark:border-gray-600
