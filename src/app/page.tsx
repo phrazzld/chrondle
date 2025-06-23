@@ -14,6 +14,7 @@ import { GuessInput } from '@/components/GuessInput';
 import { GuessHistory } from '@/components/GuessHistory';
 import { DebugBanner } from '@/components/DebugBanner';
 import { AppHeader } from '@/components/AppHeader';
+import { SectionCard } from '@/components/ui/Card';
 
 // Force dynamic rendering to prevent SSR issues with theme context
 export const dynamic = 'force-dynamic';
@@ -99,9 +100,9 @@ export default function ChronldePage() {
         />
 
         {/* Loading Content */}
-        <main className="max-w-4xl mx-auto px-6 py-4">
+        <main className="container-responsive spacing-responsive">
           <div className="text-center mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>
+            <h1 className="text-responsive-xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>
               CHRONDLE
             </h1>
             <p className="text-sm md:text-base" style={{ color: 'var(--muted-foreground)' }}>
@@ -109,42 +110,23 @@ export default function ChronldePage() {
             </p>
           </div>
           
-          <div className="w-full max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <div 
-                  className="relative p-8 rounded-lg shadow-lg"
-                  style={{ background: 'var(--primary)' }}
-                >
-                  <div className="absolute top-4 left-4">
-                    <span className="text-2xl font-bold text-white opacity-90">01</span>
-                  </div>
-                  <div className="pt-6">
-                    <EventDisplay 
-                      event={null}
-                      isLoading={true}
-                      error={null}
-                    />
-                  </div>
-                </div>
+          <div className="w-full">
+            <div className="grid-professional">
+              <div>
+                <SectionCard sectionNumber="1" variant="primary" padding="lg">
+                  <EventDisplay 
+                    event={null}
+                    isLoading={true}
+                    error={null}
+                  />
+                </SectionCard>
               </div>
-              <div className="lg:col-span-1">
-                <div 
-                  className="relative p-6 rounded-lg shadow-lg h-full flex items-center justify-center"
-                  style={{ background: 'var(--card)', border: '2px solid var(--border)' }}
-                >
-                  <div className="absolute top-4 left-4">
-                    <span 
-                      className="text-xl font-bold opacity-90"
-                      style={{ color: 'var(--primary)' }}
-                    >
-                      02
-                    </span>
-                  </div>
+              <div>
+                <SectionCard sectionNumber="2" variant="secondary" className="h-full flex items-center justify-center">
                   <div className="text-center" style={{ color: 'var(--muted-foreground)' }}>
                     <p>Loading game interface...</p>
                   </div>
-                </div>
+                </SectionCard>
               </div>
             </div>
           </div>
@@ -162,10 +144,10 @@ export default function ChronldePage() {
       />
 
       {/* Main Content Area */}
-      <main className="max-w-4xl mx-auto px-6 py-4">
+      <main className="container-responsive spacing-responsive">
         {/* Compact Title */}
         <div className="text-center mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>
+          <h1 className="text-responsive-xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>
             CHRONDLE
           </h1>
           <p className="text-sm md:text-base" style={{ color: 'var(--muted-foreground)' }}>
@@ -174,7 +156,7 @@ export default function ChronldePage() {
         </div>
 
         {/* Industrial Game Layout */}
-        <div className="w-full max-w-6xl mx-auto">
+        <div className="w-full">
           
           {/* Debug Banner */}
           <DebugBanner 
@@ -184,84 +166,41 @@ export default function ChronldePage() {
           />
 
           {/* Main Game Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid-professional">
             
             {/* Section 01 - Event Display */}
-            <div className="lg:col-span-2">
-              <div 
-                className="relative p-8 rounded-lg shadow-lg"
-                style={{ background: 'var(--primary)' }}
-              >
-                {/* Section Number */}
-                <div className="absolute top-4 left-4">
-                  <span className="text-2xl font-bold text-white opacity-90">01</span>
-                </div>
-                
-                {/* Event Content */}
-                <div className="pt-6">
-                  <EventDisplay 
-                    event={gameLogic.currentEvent}
-                    isLoading={gameLogic.isLoading}
-                    error={gameLogic.error}
-                  />
-                </div>
-              </div>
+            <div>
+              <SectionCard sectionNumber="1" variant="primary" padding="lg">
+                <EventDisplay 
+                  event={gameLogic.currentEvent}
+                  isLoading={gameLogic.isLoading}
+                  error={gameLogic.error}
+                />
+              </SectionCard>
             </div>
 
             {/* Section 02 - Guess Input */}
-            <div className="lg:col-span-1">
-              <div 
-                className="relative p-6 rounded-lg shadow-lg h-full"
-                style={{ background: 'var(--card)', border: '2px solid var(--border)' }}
-              >
-                {/* Section Number */}
-                <div className="absolute top-4 left-4">
-                  <span 
-                    className="text-xl font-bold opacity-90"
-                    style={{ color: 'var(--primary)' }}
-                  >
-                    02
-                  </span>
-                </div>
-                
-                {/* Input Content */}
-                <div className="pt-8">
-                  <GuessInput
-                    onGuess={gameLogic.makeGuess}
-                    disabled={gameLogic.isGameComplete || gameLogic.isLoading}
-                    remainingGuesses={gameLogic.remainingGuesses}
-                    maxGuesses={6}
-                    onValidationError={handleValidationError}
-                  />
-                </div>
-              </div>
+            <div>
+              <SectionCard sectionNumber="2" variant="secondary" className="h-full">
+                <GuessInput
+                  onGuess={gameLogic.makeGuess}
+                  disabled={gameLogic.isGameComplete || gameLogic.isLoading}
+                  remainingGuesses={gameLogic.remainingGuesses}
+                  maxGuesses={6}
+                  onValidationError={handleValidationError}
+                />
+              </SectionCard>
             </div>
 
             {/* Section 03 - Guess History */}
-            <div className="lg:col-span-3 mt-6">
-              <div 
-                className="relative p-6 rounded-lg shadow-lg"
-                style={{ background: 'var(--card)', border: '2px solid var(--border)' }}
-              >
-                {/* Section Number */}
-                <div className="absolute top-4 left-4">
-                  <span 
-                    className="text-xl font-bold opacity-90"
-                    style={{ color: 'var(--primary)' }}
-                  >
-                    03
-                  </span>
-                </div>
-                
-                {/* History Content */}
-                <div className="pt-8">
-                  <GuessHistory
-                    guesses={gameLogic.gameState.guesses}
-                    targetYear={gameLogic.gameState.puzzle?.year || 0}
-                    events={gameLogic.gameState.puzzle?.events || []}
-                  />
-                </div>
-              </div>
+            <div className="col-span-full">
+              <SectionCard sectionNumber="3" variant="secondary">
+                <GuessHistory
+                  guesses={gameLogic.gameState.guesses}
+                  targetYear={gameLogic.gameState.puzzle?.year || 0}
+                  events={gameLogic.gameState.puzzle?.events || []}
+                />
+              </SectionCard>
             </div>
 
           </div>

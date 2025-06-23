@@ -126,6 +126,18 @@ export function generateShareText(
 
 // --- UI UTILITIES ---
 
+/**
+ * Utility for conditionally combining CSS class names
+ * Filters out falsy values and joins valid classes with spaces
+ * Handles arrays of classes by flattening them
+ */
+export function cn(...classes: (string | string[] | undefined | null | false)[]): string {
+  return classes
+    .filter(Boolean)
+    .flat()
+    .join(' ');
+}
+
 export function showModal(modal: HTMLElement): void {
   if (!modal) return;
   

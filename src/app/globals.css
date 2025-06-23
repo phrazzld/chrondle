@@ -211,6 +211,291 @@ h3 {
   100% { transform: rotate(360deg); }
 }
 
+/* Professional Responsive Design System */
+
+/* Engineering industry standard breakpoints */
+:root {
+  --breakpoint-xs: 320px;  /* Mobile portrait */
+  --breakpoint-sm: 640px;  /* Mobile landscape */
+  --breakpoint-md: 768px;  /* Tablet portrait */
+  --breakpoint-lg: 1024px; /* Tablet landscape / Small desktop */
+  --breakpoint-xl: 1280px; /* Desktop */
+  --breakpoint-2xl: 1536px; /* Large desktop */
+  
+  /* Container max-widths for professional layouts */
+  --container-xs: 100%;
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1200px;
+  --container-2xl: 1400px;
+  
+  /* Professional spacing scales */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-base: 1rem;    /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  --spacing-3xl: 4rem;     /* 64px */
+}
+
+/* Base responsive container */
+.container-responsive {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--spacing-base);
+  padding-right: var(--spacing-base);
+}
+
+/* Mobile-first responsive containers */
+@media (min-width: 640px) {
+  .container-responsive {
+    max-width: var(--container-sm);
+    padding-left: var(--spacing-lg);
+    padding-right: var(--spacing-lg);
+  }
+}
+
+@media (min-width: 768px) {
+  .container-responsive {
+    max-width: var(--container-md);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-responsive {
+    max-width: var(--container-lg);
+    padding-left: var(--spacing-xl);
+    padding-right: var(--spacing-xl);
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-responsive {
+    max-width: var(--container-xl);
+  }
+}
+
+@media (min-width: 1536px) {
+  .container-responsive {
+    max-width: var(--container-2xl);
+  }
+}
+
+/* Professional Grid System */
+.grid-professional {
+  display: grid;
+  gap: var(--spacing-base);
+}
+
+/* Mobile: Single column */
+@media (max-width: 767px) {
+  .grid-professional {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-base);
+  }
+  
+  /* Stack sections vertically on mobile */
+  .section-number {
+    font-size: 1.25rem;
+  }
+  
+  /* Compact mobile spacing */
+  .card {
+    padding: var(--spacing-base);
+  }
+  
+  /* Mobile typography adjustments */
+  h1 {
+    font-size: 1.875rem; /* 30px */
+  }
+  
+  h2 {
+    font-size: 1.5rem; /* 24px */
+  }
+  
+  h3 {
+    font-size: 1.25rem; /* 20px */
+  }
+}
+
+/* Tablet: Two column layout */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .grid-professional {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+  }
+  
+  /* Tablet-specific adjustments */
+  .section-number {
+    font-size: 1.5rem;
+  }
+  
+  .card {
+    padding: var(--spacing-lg);
+  }
+}
+
+/* Desktop: Three column layout */
+@media (min-width: 1024px) {
+  .grid-professional {
+    grid-template-columns: 2fr 1fr;
+    gap: var(--spacing-xl);
+  }
+  
+  .grid-professional.three-column {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  
+  /* Desktop section styling */
+  .section-number {
+    font-size: 1.75rem;
+  }
+  
+  .card {
+    padding: var(--spacing-xl);
+  }
+}
+
+/* Large desktop: Enhanced spacing */
+@media (min-width: 1280px) {
+  .grid-professional {
+    gap: var(--spacing-2xl);
+  }
+  
+  .card {
+    padding: var(--spacing-2xl);
+  }
+}
+
+/* Professional responsive utilities */
+.hide-mobile {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .hide-mobile {
+    display: block;
+  }
+  
+  .show-mobile-only {
+    display: none;
+  }
+}
+
+.show-mobile-only {
+  display: block;
+}
+
+/* Professional spacing utilities */
+.spacing-responsive {
+  padding: var(--spacing-base);
+}
+
+@media (min-width: 768px) {
+  .spacing-responsive {
+    padding: var(--spacing-lg);
+  }
+}
+
+@media (min-width: 1024px) {
+  .spacing-responsive {
+    padding: var(--spacing-xl);
+  }
+}
+
+/* Professional typography scaling */
+.text-responsive-xl {
+  font-size: 1.5rem;
+  line-height: 1.4;
+}
+
+@media (min-width: 768px) {
+  .text-responsive-xl {
+    font-size: 1.875rem;
+    line-height: 1.3;
+  }
+}
+
+@media (min-width: 1024px) {
+  .text-responsive-xl {
+    font-size: 2.25rem;
+    line-height: 1.2;
+  }
+}
+
+/* Professional button responsive sizing */
+.btn-primary,
+.btn-secondary {
+  padding: var(--spacing-sm) var(--spacing-base);
+  font-size: 0.875rem;
+}
+
+@media (min-width: 768px) {
+  .btn-primary,
+  .btn-secondary {
+    padding: var(--spacing-base) var(--spacing-lg);
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .btn-primary,
+  .btn-secondary {
+    padding: var(--spacing-base) var(--spacing-xl);
+  }
+}
+
+/* Professional form responsive styling */
+input[type="number"],
+input[type="text"] {
+  padding: var(--spacing-sm);
+  font-size: 1rem;
+}
+
+@media (min-width: 768px) {
+  input[type="number"],
+  input[type="text"] {
+    padding: var(--spacing-base);
+    font-size: 1.125rem;
+  }
+}
+
+/* Engineering dashboard responsive animations */
+@media (prefers-reduced-motion: reduce) {
+  .card:hover,
+  .btn-primary:hover,
+  .guess-row {
+    transform: none;
+    transition: none;
+    animation: none;
+  }
+}
+
+/* Professional focus states for accessibility */
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border: #000000;
+    --card: #ffffff;
+    --card-foreground: #000000;
+  }
+  
+  html.dark {
+    --border: #ffffff;
+    --card: #000000;
+    --card-foreground: #ffffff;
+  }
+}
+
 /* Colorblind mode styles */
 html.color-blind .bg-red-200 { background-color: #fde047; /* yellow-400 */ }
 html.color-blind .text-red-800 { color: #854d0e; /* yellow-800 */ }

@@ -82,7 +82,7 @@ export const BaseModal: React.FC<BaseModalProps> = ({
       onClick={handleBackdropClick}
     >
       <div 
-        className={`rounded-lg shadow-2xl max-w-md w-full p-6 modal-content show-prep transition-all duration-300 transform scale-95 opacity-0 ${className}`}
+        className={`rounded-lg shadow-2xl w-full p-6 modal-content show-prep transition-all duration-300 transform scale-95 opacity-0 ${className || 'max-w-md'}`}
         style={{ 
           background: 'var(--card)',
           color: 'var(--card-foreground)'

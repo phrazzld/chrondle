@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { formatYear, getGuessDirectionInfo } from '@/lib/utils';
+import { Card } from '@/components/ui/Card';
 
 interface GuessHistoryProps {
   guesses: number[];
@@ -28,24 +29,23 @@ const GuessRow: React.FC<GuessRowProps> = React.memo(({
 
   if (isCorrect) {
     return (
-      <div 
-        className="guess-row card p-6 flex items-center justify-between"
-        style={{ 
-          animationDelay: `${index * 100}ms`,
-          background: 'var(--success)',
-          color: 'white',
-          borderColor: 'var(--success)'
-        }}
+      <Card
+        variant="success"
+        className="guess-row flex items-center justify-between"
+        hover={false}
+        style={{ animationDelay: `${index * 100}ms` }}
       >
         <span className="font-bold text-lg">{formatYear(guess)}</span>
         <span className="font-bold text-lg">CORRECT!</span>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div 
-      className="guess-row card p-6 flex flex-col lg:flex-row items-start lg:items-center gap-4"
+    <Card
+      variant="secondary"
+      className="guess-row flex flex-col lg:flex-row items-start lg:items-center gap-4"
+      hover={false}
       style={{ animationDelay: `${index * 100}ms` }}
     >
       <div className="flex items-center gap-4 w-full lg:w-auto">
@@ -70,7 +70,7 @@ const GuessRow: React.FC<GuessRowProps> = React.memo(({
       >
         <span className="font-semibold" style={{ color: 'var(--foreground)' }}>Hint:</span> {hint || 'No more hints available.'}
       </div>
-    </div>
+    </Card>
   );
 });
 
