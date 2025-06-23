@@ -100,33 +100,45 @@ export default function ChronldePage() {
 
         {/* Loading Content */}
         <main className="min-h-screen">
-          <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+          <div className="max-w-xl mx-auto px-4 py-6 space-y-5">
             
             {/* Loading Hint Display */}
             <div className="relative">
-              <div className="absolute -top-2 -left-2 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold z-10">
-                1
-              </div>
-              <div className="card border-2 border-primary/20">
-                <div className="mb-2">
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Hint 1 of 6
-                  </span>
-                </div>
-                <div className="text-lg md:text-xl font-medium leading-relaxed" style={{ color: 'var(--foreground)' }}>
-                  <EventDisplay 
-                    event={null}
-                    isLoading={true}
-                    error={null}
-                  />
+              <div className="card border-2 border-primary/20 !p-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-1">
+                    1
+                  </div>
+                  <div className="flex-1">
+                    <div className="mb-3">
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Hint 1 of 6
+                      </span>
+                    </div>
+                    <div className="text-lg leading-relaxed" style={{ color: 'var(--foreground)' }}>
+                      <EventDisplay 
+                        event={null}
+                        isLoading={true}
+                        error={null}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Loading Input Section */}
             <div className="card bg-surface">
-              <div className="text-center" style={{ color: 'var(--muted-foreground)' }}>
-                <p>Loading game interface...</p>
+              <div className="flex gap-3 items-center">
+                <div className="flex-1">
+                  <div className="w-full p-3 text-lg text-center rounded-lg border-2 bg-input border-border opacity-50">
+                    Enter year (e.g., 1969)
+                  </div>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <div className="btn-primary px-6 opacity-50">Submit</div>
+                  <span className="text-xs text-muted-foreground">1/6</span>
+                </div>
               </div>
             </div>
 
@@ -146,7 +158,7 @@ export default function ChronldePage() {
 
       {/* Main Content Area */}
       <main className="min-h-screen">
-        <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+        <div className="max-w-xl mx-auto px-4 py-6 space-y-5">
           
           {/* Debug Banner */}
           <DebugBanner 
@@ -157,21 +169,25 @@ export default function ChronldePage() {
 
           {/* Current Hint Display */}
           <div className="relative">
-            <div className="absolute -top-2 -left-2 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold z-10">
-              {gameLogic.currentHintIndex + 1}
-            </div>
-            <div className="card border-2 border-primary/20 hover:border-primary/40 transition-all duration-300">
-              <div className="mb-2">
-                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Hint {gameLogic.currentHintIndex + 1} of 6
-                </span>
-              </div>
-              <div className="text-lg md:text-xl font-medium leading-relaxed" style={{ color: 'var(--foreground)' }}>
-                <EventDisplay 
-                  event={gameLogic.currentEvent}
-                  isLoading={gameLogic.isLoading}
-                  error={gameLogic.error}
-                />
+            <div className="card border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 !p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-1">
+                  {gameLogic.currentHintIndex + 1}
+                </div>
+                <div className="flex-1">
+                  <div className="mb-3">
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Hint {gameLogic.currentHintIndex + 1} of 6
+                    </span>
+                  </div>
+                  <div className="text-lg leading-relaxed" style={{ color: 'var(--foreground)' }}>
+                    <EventDisplay 
+                      event={gameLogic.currentEvent}
+                      isLoading={gameLogic.isLoading}
+                      error={gameLogic.error}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -190,9 +206,6 @@ export default function ChronldePage() {
           {/* Guess History */}
           {gameLogic.gameState.guesses.length > 0 && (
             <div className="card">
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold text-foreground">Your Guesses</h3>
-              </div>
               <GuessHistory
                 guesses={gameLogic.gameState.guesses}
                 targetYear={gameLogic.gameState.puzzle?.year || 0}
@@ -203,17 +216,17 @@ export default function ChronldePage() {
 
           {/* Upcoming Hints Preview */}
           {!gameLogic.isGameComplete && gameLogic.gameState.puzzle && (
-            <div className="card bg-surface border-dashed">
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold text-muted-foreground">Upcoming Hints</h3>
+            <div className="card bg-surface border-dashed !p-4">
+              <div className="mb-3">
+                <h3 className="text-base font-medium text-muted-foreground">Upcoming Hints</h3>
               </div>
               <div className="space-y-2">
                 {gameLogic.gameState.puzzle.events.slice(gameLogic.currentHintIndex + 1).map((_, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
-                    <div className="w-6 h-6 bg-muted text-muted-foreground rounded-full flex items-center justify-center text-xs font-bold">
+                  <div key={index} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30">
+                    <div className="w-5 h-5 bg-muted text-white rounded-full flex items-center justify-center text-xs font-bold">
                       🔒
                     </div>
-                    <span className="text-muted-foreground text-sm">
+                    <span className="text-muted-foreground text-xs">
                       Hint {gameLogic.currentHintIndex + index + 2} of 6
                     </span>
                   </div>

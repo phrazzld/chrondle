@@ -588,3 +588,8 @@ html.color-blind .dark\:text-blue-100 { color: #e0e7ff; /* indigo-100 */ }
 .locked-hint:hover {
   opacity: 0.8;
 }
+
+/* Utility overrides */
+.card.\\!p-6 {
+  padding: 1.5rem !important;
+}
