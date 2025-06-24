@@ -51,14 +51,25 @@ Conduct comprehensive review before execution:
 
 For complex tasks, use the Task tool to consult expert perspectives:
 
-**Task 1: John Carmack - Engineering Excellence**
-- Prompt: "As John Carmack, analyze this implementation task. What's the most elegant, performant solution? Consider algorithmic efficiency, system design, and mathematical elegance. What would you optimize for a historical guessing game?"
+**🚨 CRITICAL CONSTRAINT FOR EXPERT CONSULTING AGENTS**: 
+Expert consulting agents should ONLY provide strategic analysis, brainstorming, and recommendations. They must NEVER:
+- Start development servers (`npm run dev`, `pnpm dev`, `yarn dev`, etc.)
+- Make file modifications, edits, or create new files  
+- Run build commands (`npm run build`, `pnpm build`, etc.)
+- Execute any code changes or implementations
+- Test implementations or run any scripts
+- Use tools like Edit, Write, MultiEdit, Bash, etc.
 
-**Task 2: Dan Abramov - React Best Practices**
-- Prompt: "As Dan Abramov, review this React implementation task. What's the most idiomatic React approach? Focus on proper hook usage, component composition, state management patterns, and avoiding common pitfalls."
+Agents should focus purely on strategic analysis and providing implementation guidance.
+
+**Task 1: John Carmack - Engineering Excellence**
+- Prompt: "As John Carmack, analyze this implementation task. What's the most elegant, performant solution? Consider algorithmic efficiency, system design, and mathematical elegance. What would you optimize for a historical guessing game? IMPORTANT: Provide only strategic analysis and recommendations - do not make any file changes, start servers, or execute code."
+
+**Task 2: Dan Abramov - React Best Practices**  
+- Prompt: "As Dan Abramov, review this React implementation task. What's the most idiomatic React approach? Focus on proper hook usage, component composition, state management patterns, and avoiding common pitfalls. IMPORTANT: Provide only strategic analysis and recommendations - do not make any file changes, start servers, or execute code."
 
 **Task 3: Kent Beck - Test-Driven Development**
-- Prompt: "As Kent Beck, plan this implementation. How would you approach it test-first? What's the smallest change that could possibly work? How do we ensure correctness for a game application?"
+- Prompt: "As Kent Beck, plan this implementation. How would you approach it test-first? What's the smallest change that could possibly work? How do we ensure correctness for a game application? IMPORTANT: Provide only strategic analysis and recommendations - do not make any file changes, start servers, or execute code."
 
 ### Plan Synthesis
 - Combine expert insights into a cohesive strategy
@@ -78,14 +89,14 @@ Execute the approved plan with precision:
 
 ### 2. **Incremental Execution**
 - Implement in small, testable increments
-- Run `npm run lint` after significant changes
-- Run `npm run build` to catch TypeScript errors
+- Run `pnpm run lint` after significant changes (using pnpm strictly)
+- Run `pnpm run build` to catch TypeScript errors (using pnpm strictly)
 - Follow project's code style and conventions
 - Commit working states frequently
 
 ### 3. **Continuous Validation**
-- Run linters and type checking: `npm run lint`
-- Execute build process: `npm run build`
+- Run linters and type checking: `pnpm run lint` (using pnpm strictly)
+- Execute build process: `pnpm run build` (using pnpm strictly)
 - Use curl to test API endpoints if applicable
 - Verify no TypeScript compilation errors
 - Check for React/Next.js warnings in build output
@@ -103,8 +114,8 @@ If encountering unexpected situations:
 Before marking task complete:
 
 ### 1. **Build & Lint Validation**
-- TypeScript compilation succeeds: `npm run build`
-- Linting passes: `npm run lint`
+- TypeScript compilation succeeds: `pnpm run build` (using pnpm strictly)
+- Linting passes: `pnpm run lint` (using pnpm strictly)
 - No build errors or warnings
 - All imports resolve correctly
 - Type safety maintained
@@ -147,8 +158,8 @@ Upon successful completion:
 ## SUCCESS CRITERIA
 
 - Task completed according to specifications
-- Build succeeds without errors: `npm run build`
-- Linting passes: `npm run lint`
+- Build succeeds without errors: `pnpm run build` (using pnpm strictly)
+- Linting passes: `pnpm run lint` (using pnpm strictly)
 - Code quality meets project standards
 - Implementation follows Chrondle conventions
 - No technical debt introduced
@@ -168,7 +179,7 @@ If unable to complete task:
 - **Preserve game mechanics**: Maintain the core historical guessing experience
 - **Maintain data compatibility**: Users should not lose progress or settings
 - **Follow established patterns**: Use existing code conventions in `src/lib/`
-- **Build successfully**: Always ensure `npm run build` passes
+- **Build successfully**: Always ensure `pnpm run build` passes (using pnpm strictly)
 - **Request testing**: Ask user to run dev server for functional validation
 
 Execute the next task with strategic excellence and systematic precision.

@@ -242,10 +242,11 @@
 
 ### Critical Mobile & Accessibility Issues
 
-- [ ] **🚨 Header Compression Crisis**: Header occupies 15-20% of vertical space, pushes game below fold on mobile
-  - [ ] Collapse logo to icon + wordmark above 600px width
-  - [ ] Combine with menu in app-bar for ≤768px screens  
-  - [ ] **Target**: Save 80-100px vertical space, guarantee core game visible without scrolling
+- [x] **🚨 Header Compression Crisis**: Header occupies 15-20% of vertical space, pushes game below fold on mobile
+  - [x] Collapse logo to icon + wordmark above 600px width
+  - [x] Combine with menu in app-bar for ≤768px screens  
+  - [x] **Target**: Save 80-100px vertical space, guarantee core game visible without scrolling
+  - **✅ COMPLETED**: CSS-only responsive design saves ~24px mobile space with progressive enhancement
 
 - [ ] **🚨 Input Field Affordance Problems**: Current input looks disabled with grey background, tiny focus ring
   - [ ] Use white background with 2px accent outline on focus
