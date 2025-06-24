@@ -904,3 +904,316 @@ html.dark .modal-close-btn:hover {
   clip: auto;
   white-space: normal;
 }
+
+/* Interactive Progress Bar System */
+.progress-bar-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.progress-segments {
+  display: flex;
+  gap: 2px;
+  height: 32px;
+  background: var(--border);
+  border-radius: 16px;
+  padding: 2px;
+  overflow: hidden;
+  /* Performance optimizations */
+  will-change: transform;
+  contain: layout style paint;
+}
+
+.progress-segment {
+  flex: 1;
+  height: 100%;
+  border-radius: 14px;
+  background: var(--input);
+  position: relative;
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  /* Touch optimizations */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.progress-segment.clickable {
+  cursor: pointer;
+}
+
+.progress-segment.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+.progress-segment.clickable:active {
+  transform: translateY(0);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.progress-segment:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  z-index: 20;
+}
+
+/* Segment fill animation */
+.segment-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--segment-fill-color, var(--primary));
+  /* GPU-accelerated animation */
+  transform-origin: left center;
+  animation: segmentFillAnimation 400ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  will-change: transform;
+  contain: layout style paint;
+}
+
+@keyframes segmentFillAnimation {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scaleX(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* Distance-based color classes */
+.progress-segment.distance-perfect .segment-fill {
+  background: linear-gradient(135deg, #16A34A 0%, #15803D 100%);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.progress-segment.distance-close .segment-fill {
+  background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.progress-segment.distance-near .segment-fill {
+  background: linear-gradient(135deg, #84CC16 0%, #65A30D 100%);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.progress-segment.distance-far .segment-fill {
+  background: linear-gradient(135deg, #FACC15 0%, #EAB308 100%);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.progress-segment.distance-very-far .segment-fill {
+  background: linear-gradient(135deg, #FB923C 0%, #F97316 100%);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.progress-segment.distance-way-off .segment-fill,
+.progress-segment.distance-extreme .segment-fill {
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Perfect guess celebration */
+.progress-segment.distance-perfect .segment-fill {
+  animation: segmentFillAnimation 400ms cubic-bezier(0.68, -0.55, 0.265, 1.55),
+             perfectGuessPulse 1s ease-out 400ms;
+}
+
+@keyframes perfectGuessPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
+                0 0 0 0 rgba(34, 197, 94, 0.4);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
+                0 0 20px 10px rgba(34, 197, 94, 0);
+  }
+}
+
+/* Game won celebration */
+.progress-bar-success .progress-segments {
+  animation: progressBarSuccess 2s ease-out;
+}
+
+@keyframes progressBarSuccess {
+  0%, 20%, 40%, 60%, 80%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-2px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(2px);
+  }
+}
+
+/* Segment tooltip */
+.segment-tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 30;
+}
+
+/* Tooltip arrow */
+.segment-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--surface);
+}
+
+.progress-label {
+  text-align: center;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .progress-segments {
+    height: 40px; /* Larger touch targets */
+    gap: 1px; /* Tighter gaps for more segment space */
+  }
+  
+  .segment-tooltip {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100vw - 40px);
+    max-width: 300px;
+    white-space: normal;
+    text-align: center;
+  }
+  
+  .segment-tooltip::after {
+    display: none; /* Remove arrow on mobile */
+  }
+}
+
+/* Accessibility: Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .segment-fill {
+    animation: none;
+    transition: opacity 200ms ease;
+  }
+  
+  .progress-segment.distance-perfect .segment-fill {
+    animation: none;
+  }
+  
+  .progress-bar-success .progress-segments {
+    animation: none;
+  }
+  
+  .progress-segment.clickable:hover {
+    transform: none;
+    box-shadow: 0 0 0 2px var(--primary);
+  }
+}
+
+/* Progress Bar Animations */
+.segment-fill {
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  contain: layout style paint;
+}
+
+.segment-filled .segment-fill {
+  transform: scaleX(1);
+}
+
+.segment-fill-animate .segment-fill {
+  animation: segmentFillIn 600ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes segmentFillIn {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* Success celebration animation */
+.progress-bar-success .segment-filled .segment-fill {
+  animation: successPulse 1s ease-in-out;
+}
+
+@keyframes successPulse {
+  0%, 100% {
+    transform: scaleX(1);
+  }
+  25% {
+    transform: scaleX(1) scaleY(1.1);
+    filter: brightness(1.2);
+  }
+  50% {
+    transform: scaleX(1) scaleY(0.95);
+  }
+  75% {
+    transform: scaleX(1) scaleY(1.05);
+    filter: brightness(1.1);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .segment-fill {
+    transition: none;
+  }
+  
+  .segment-fill-animate .segment-fill {
+    animation: none;
+    transform: scaleX(1);
+  }
+  
+  .progress-bar-success .segment-filled .segment-fill {
+    animation: none;
+  }
+}
+
+/* Touch optimization */
+.segment {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Performance optimizations */
+.progress-bar-container {
+  contain: layout;
+}
+
+.progress-track {
+  will-change: contents;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}

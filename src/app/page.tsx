@@ -10,12 +10,14 @@ import { useGameState } from '@/hooks/useGameState';
 import { HelpModal } from '@/components/modals/HelpModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
 import { GameOverModal } from '@/components/modals/GameOverModal';
+import { HintReviewModal } from '@/components/modals/HintReviewModal';
 import { EventDisplay } from '@/components/EventDisplay';
 import { GuessInput } from '@/components/GuessInput';
 import { GuessHistory } from '@/components/GuessHistory';
 import { DebugBanner } from '@/components/DebugBanner';
 import { AppHeader } from '@/components/AppHeader';
 import { LiveAnnouncer } from '@/components/ui/LiveAnnouncer';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 
 // Force dynamic rendering to prevent SSR issues with theme context
 export const dynamic = 'force-dynamic';
@@ -41,6 +43,14 @@ export default function ChronldePage() {
   // Accessibility announcements
   const [announcement, setAnnouncement] = useState('');
   const [lastGuessCount, setLastGuessCount] = useState(0);
+  
+  // Hint review modal state
+  const [hintReviewModal, setHintReviewModal] = useState<{
+    isOpen: boolean;
+    guessNumber: number;
+    guess: number;
+    hint: string;
+  } | null>(null);
 
   // Handle game over modal trigger
   useEffect(() => {
@@ -107,6 +117,20 @@ export default function ChronldePage() {
     setTimeout(() => setValidationError(''), 2000);
   }, []);
 
+  // Handle progress bar segment clicks
+  const handleSegmentClick = useCallback((index: number, guess: number, hint: string) => {
+    setHintReviewModal({
+      isOpen: true,
+      guessNumber: index + 1,
+      guess,
+      hint
+    });
+  }, []);
+
+  const closeHintReviewModal = useCallback(() => {
+    setHintReviewModal(null);
+  }, []);
+
 
   const closeHelpModal = () => {
     setShowHelpModal(false);
@@ -143,7 +167,7 @@ export default function ChronldePage() {
                         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                           Hint 1
                         </span>
-                        <div className="flex gap-1">
+                        <div className="flex gap-1" aria-hidden="true">
                           {[...Array(6)].map((_, i) => (
                             <div
                               key={i}
@@ -166,6 +190,26 @@ export default function ChronldePage() {
                       />
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Loading Progress Bar */}
+            <div className="progress-bar-container relative w-full opacity-50">
+              <div className="progress-track relative h-12 md:h-14 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+                <div className="absolute inset-0 flex">
+                  {[...Array(6)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="segment relative flex-1 h-full border-r border-white/20 dark:border-black/20 last:border-r-0"
+                    >
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-sm font-bold text-gray-400 dark:text-gray-600">
+                          {i + 1}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -246,21 +290,14 @@ export default function ChronldePage() {
                       <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Hint {gameLogic.currentHintIndex + 1}
                       </span>
-                      <div 
-                        className="flex gap-1"
-                        role="progressbar"
-                        aria-valuenow={gameLogic.currentHintIndex + 1}
-                        aria-valuemin={1}
-                        aria-valuemax={6}
-                        aria-label={`Hint progress: ${gameLogic.currentHintIndex + 1} of 6 hints revealed`}
-                      >
+                      {/* Compact hint progress indicator */}
+                      <div className="flex gap-1" aria-hidden="true">
                         {[...Array(6)].map((_, i) => (
                           <div
                             key={i}
-                            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
                               i <= gameLogic.currentHintIndex ? 'bg-primary' : 'bg-border'
                             }`}
-                            aria-hidden="true"
                           />
                         ))}
                       </div>
@@ -287,6 +324,16 @@ export default function ChronldePage() {
               </div>
             </div>
           </div>
+
+          {/* Interactive Progress Bar */}
+          <ProgressBar
+            guesses={gameLogic.gameState.guesses}
+            targetYear={gameLogic.gameState.puzzle?.year || 0}
+            events={gameLogic.gameState.puzzle?.events || []}
+            maxGuesses={6}
+            onSegmentClick={handleSegmentClick}
+            className="mb-5"
+          />
 
           {/* Guess Input Section */}
           <div className="card bg-surface">
@@ -348,6 +395,18 @@ export default function ChronldePage() {
           targetYear={gameLogic.gameState.puzzle.year}
           guesses={gameLogic.gameState.guesses}
           events={gameLogic.gameState.puzzle.events}
+        />
+      )}
+      
+      {/* Hint Review Modal */}
+      {hintReviewModal && (
+        <HintReviewModal
+          isOpen={hintReviewModal.isOpen}
+          onClose={closeHintReviewModal}
+          guessNumber={hintReviewModal.guessNumber}
+          guess={hintReviewModal.guess}
+          targetYear={gameLogic.gameState.puzzle?.year || 0}
+          hint={hintReviewModal.hint}
         />
       )}
 
