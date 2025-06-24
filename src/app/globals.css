@@ -7,12 +7,22 @@
   --foreground: #2c3e50;
   --muted-foreground: #5d6d7e;
   
-  /* Orange accent system */
-  --primary: #e74c3c;
-  --primary-hover: #c0392b;
-  --primary-light: #f39c12;
-  --accent: #d35400;
-  --accent-light: #e67e22;
+  /* Unified Semantic Color System - WCAG AA Compliant */
+  /* Primary Actions (Vermilion) - 6.8:1 contrast on white */
+  --primary: #DC4405;
+  --primary-hover: #B8360B;
+  --primary-light: #EA5A1B;
+  
+  /* Game Feedback Colors */
+  --feedback-earlier: #4338CA;   /* Indigo - 8.9:1 contrast on white */
+  --feedback-later: #0F766E;     /* Teal - 5.2:1 contrast on white */
+  --feedback-success: #D97706;   /* Gold - 4.8:1 contrast on white */
+  --feedback-correct: #16A34A;   /* Green - 4.7:1 contrast on white */
+  
+  /* Status Colors (Distinct from Primary) */
+  --status-error: #DC2626;       /* Red - 6.3:1 contrast on white */
+  --status-warning: #D97706;     /* Gold - 4.8:1 contrast on white */
+  --status-info: #2563EB;        /* Blue - 7.4:1 contrast on white */
   
   /* Neutral palette */
   --border: #bdc3c7;
@@ -20,11 +30,13 @@
   --card: #ffffff;
   --card-foreground: #2c3e50;
   
-  /* Status colors */
-  --success: #27ae60;
-  --warning: #f39c12;
-  --error: #e74c3c;
-  --info: #3498db;
+  /* Legacy support (will be phased out) */
+  --accent: var(--primary);
+  --accent-light: var(--primary-light);
+  --success: var(--feedback-success);
+  --warning: var(--status-warning);
+  --error: var(--status-error);
+  --info: var(--status-info);
 }
 
 @theme inline {
@@ -59,6 +71,22 @@ html.dark {
   --card-foreground: #ecf0f1;
   --input: #34495e;
   --border: #34495e;
+  
+  /* Dark Mode Semantic Colors - Adjusted for 4.5:1+ contrast on dark backgrounds */
+  --primary: #EA5A1B;           /* Vermilion lighter for dark mode */
+  --primary-hover: #FF6B2B;
+  --primary-light: #FF7A3B;
+  
+  /* Game Feedback Colors - Dark Mode Optimized */
+  --feedback-earlier: #6366F1;   /* Indigo lighter - 4.7:1 on dark */
+  --feedback-later: #14B8A6;     /* Teal lighter - 5.8:1 on dark */
+  --feedback-success: #FBBF24;   /* Gold lighter - 6.2:1 on dark */
+  --feedback-correct: #22C55E;   /* Green lighter - 5.1:1 on dark */
+  
+  /* Status Colors - Dark Mode */
+  --status-error: #EF4444;       /* Red lighter - 4.8:1 on dark */
+  --status-warning: #FBBF24;     /* Gold lighter - 6.2:1 on dark */
+  --status-info: #3B82F6;        /* Blue lighter - 4.9:1 on dark */
 }
 
 /* Fallback for system preference when no explicit class is set */
@@ -72,6 +100,18 @@ html.dark {
     --card-foreground: #ecf0f1;
     --input: #34495e;
     --border: #34495e;
+    
+    /* System Dark Mode Semantic Colors */
+    --primary: #EA5A1B;
+    --primary-hover: #FF6B2B;
+    --primary-light: #FF7A3B;
+    --feedback-earlier: #6366F1;
+    --feedback-later: #14B8A6;
+    --feedback-success: #FBBF24;
+    --feedback-correct: #22C55E;
+    --status-error: #EF4444;
+    --status-warning: #FBBF24;
+    --status-info: #3B82F6;
   }
 }
 

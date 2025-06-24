@@ -52,7 +52,7 @@ const GuessRow: React.FC<GuessRowProps> = React.memo(({
         <div 
           className="flex-shrink-0 text-center font-bold text-sm py-2 px-4 rounded-lg min-w-32"
           style={{
-            background: directionInfo.direction.includes('EARLIER') ? 'var(--info)' : 'var(--warning)',
+            background: directionInfo.direction.includes('EARLIER') ? 'var(--feedback-earlier)' : 'var(--feedback-later)',
             color: 'white'
           }}
         >
