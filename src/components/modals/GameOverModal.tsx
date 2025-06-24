@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { BaseModal } from './BaseModal';
-import { formatYear, generateShareText } from '@/lib/utils';
+import { formatYear } from '@/lib/utils';
 import { useCountdown } from '@/hooks/useCountdown';
-import { useClipboard } from '@/hooks/useClipboard';
+import { useShareGame } from '@/hooks/useShareGame';
+import { Celebration } from '@/components/ui/Celebration';
 
 interface GameOverModalProps {
   isOpen: boolean;
@@ -24,17 +25,22 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   events
 }) => {
   const { timeString } = useCountdown();
-  const { copyToClipboard } = useClipboard();
+  const { shareGame, shareStatus, compactShareText, emojiBarcode } = useShareGame(guesses, targetYear, hasWon);
   const [feedbackMessage, setFeedbackMessage] = useState('');
-
-  // Generate share text
-  const shareText = generateShareText(guesses, targetYear);
 
   // Handle share button click
   const handleShare = async () => {
-    const success = await copyToClipboard(shareText);
-    setFeedbackMessage(success ? 'Copied to clipboard!' : 'Failed to copy!');
+    await shareGame();
   };
+
+  // Update feedback message based on share status
+  useEffect(() => {
+    if (shareStatus === 'success') {
+      setFeedbackMessage('Copied to clipboard!');
+    } else if (shareStatus === 'error') {
+      setFeedbackMessage('Failed to copy!');
+    }
+  }, [shareStatus]);
 
   // Clear feedback message after delay
   useEffect(() => {
@@ -45,8 +51,10 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   }, [feedbackMessage]);
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} className="max-w-5xl max-h-[90vh] overflow-y-auto">
-      <div className="space-y-8">
+    <>
+      <Celebration />
+      <BaseModal isOpen={isOpen} onClose={onClose} className="max-w-5xl max-h-[90vh] overflow-y-auto">
+        <div className="space-y-8">
         
         {/* Header Row */}
         <div className="text-center">
@@ -109,6 +117,25 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
               Share Your Results
             </h3>
             
+            {/* Emoji Barcode Preview */}
+            <div 
+              className="p-4 rounded-lg text-center"
+              style={{ 
+                background: 'var(--input)', 
+                border: '1px solid var(--border)' 
+              }}
+            >
+              <div className="emoji-timeline-large mb-3" title="Your guess progression">
+                {emojiBarcode}
+              </div>
+              <p 
+                className="text-sm"
+                style={{ color: 'var(--muted-foreground)' }}
+              >
+                {hasWon ? `Solved in ${guesses.length} guesses!` : 'Better luck tomorrow!'}
+              </p>
+            </div>
+            
             {/* Share Preview */}
             <div 
               className="p-4 rounded-lg"
@@ -121,7 +148,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
                 className="font-mono whitespace-pre-wrap text-sm leading-relaxed"
                 style={{ color: 'var(--foreground)' }}
               >
-                {shareText}
+                {compactShareText}
               </pre>
             </div>
           </div>
@@ -152,48 +179,40 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           </div>
 
           {/* Share Button */}
-          <button
-            onClick={handleShare}
-            className="font-semibold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 hover:shadow-lg"
-            style={{
-              background: 'var(--success)',
-              color: 'white'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--primary)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--success)';
+          <div 
+            className="p-4 rounded-lg text-center"
+            style={{ 
+              background: 'var(--surface)', 
+              border: '1px solid var(--border)' 
             }}
           >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-5 w-5" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
+            <button
+              onClick={handleShare}
+              disabled={shareStatus === 'copying'}
+              className={`w-full px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                shareStatus === 'success' ? 'share-button-success' :
+                shareStatus === 'error' ? 'share-button-error' :
+                'btn-primary'
+              }`}
+              aria-label="Copy results to clipboard"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.368a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" 
-              />
-            </svg>
-            Copy to Clipboard
-          </button>
+              {shareStatus === 'copying' ? 'Copying...' :
+               shareStatus === 'success' ? '✓ Copied!' :
+               shareStatus === 'error' ? '✗ Failed' :
+               '📋 Share Results'}
+            </button>
+            {feedbackMessage && (
+              <p 
+                className="text-sm mt-2"
+                style={{ color: 'var(--muted-foreground)' }}
+              >
+                {feedbackMessage}
+              </p>
+            )}
+          </div>
         </div>
-        
-        {/* Feedback Message */}
-        {feedbackMessage && (
-          <p 
-            className="text-sm text-center font-medium"
-            style={{ color: 'var(--success)' }}
-          >
-            {feedbackMessage}
-          </p>
-        )}
       </div>
-    </BaseModal>
+      </BaseModal>
+    </>
   );
 };

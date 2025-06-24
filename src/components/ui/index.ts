@@ -10,3 +10,5 @@ export * from './Card';
 
 // Other UI components
 export { LoadingSpinner } from './LoadingSpinner';
+export { ProgressBar } from './ProgressBar';
+export { SwipeProgressBar } from './SwipeProgressBar';

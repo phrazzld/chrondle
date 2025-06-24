@@ -2,12 +2,14 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { loadSettings, saveSettings } from '@/lib/storage';
+import { useNotifications, UseNotificationsReturn } from '@/hooks/useNotifications';
 
 interface ThemeContextType {
   darkMode: boolean;
   colorBlindMode: boolean;
   toggleDarkMode: () => void;
   toggleColorBlindMode: () => void;
+  notifications: UseNotificationsReturn;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -28,6 +30,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [darkMode, setDarkMode] = useState(false);
   const [colorBlindMode, setColorBlindMode] = useState(false);
   const [mounted, setMounted] = useState(false);
+  
+  // Initialize notification hook
+  const notifications = useNotifications();
 
   // Load settings from localStorage on mount
   useEffect(() => {
@@ -79,6 +84,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     colorBlindMode,
     toggleDarkMode,
     toggleColorBlindMode,
+    notifications,
   };
 
   // Prevent flash of unstyled content

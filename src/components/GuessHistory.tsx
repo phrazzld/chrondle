@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { formatYear, getGuessDirectionInfo } from '@/lib/utils';
-import { Card } from '@/components/ui/Card';
+import { getEnhancedProximityFeedback } from '@/lib/enhancedFeedback';
 
 interface GuessHistoryProps {
   guesses: number[];
@@ -16,30 +16,37 @@ interface GuessRowProps {
   targetYear: number;
   hint: string;
   index: number;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
 }
 
 const GuessRow: React.FC<GuessRowProps> = React.memo(({ 
   guess, 
   targetYear, 
   hint, 
-  index 
+  index,
+  isExpanded,
+  onToggleExpand
 }) => {
   const isCorrect = guess === targetYear;
   const directionInfo = getGuessDirectionInfo(guess, targetYear);
 
   if (isCorrect) {
     return (
-      <Card
-        variant="success"
-        className="guess-row flex items-center justify-between"
-        hover={false}
+      <div
+        className="guess-row-compact guess-row-correct"
         style={{ animationDelay: `${index * 100}ms` }}
         role="listitem"
         aria-label={`Guess ${index + 1}: ${formatYear(guess)} - Correct answer!`}
       >
-        <span className="font-bold text-lg">{formatYear(guess)}</span>
-        <span className="font-bold text-lg">CORRECT!</span>
-      </Card>
+        <div className="guess-content-compact">
+          <div className="guess-year-direction">
+            <span className="correct-badge">✓</span>
+            <span className="year-display-compact font-bold">{formatYear(guess)}</span>
+          </div>
+          <span className="correct-text">CORRECT!</span>
+        </div>
+      </div>
     );
   }
 
@@ -47,39 +54,83 @@ const GuessRow: React.FC<GuessRowProps> = React.memo(({
   const distanceText = distance === 1 ? '1 year' : `${distance} years`;
   const cleanDirection = directionInfo.direction.toLowerCase().replace('▲', '').replace('▼', '').trim();
   
+  // Get enhanced feedback for this guess
+  const enhancedFeedback = getEnhancedProximityFeedback(guess, targetYear, {
+    includeHistoricalContext: true,
+    includeProgressiveTracking: false // Individual rows don't need progressive tracking
+  });
+  
+  // Truncate hint for collapsed state
+  const maxHintLength = 60;
+  const truncatedHint = hint && hint.length > maxHintLength 
+    ? `${hint.slice(0, maxHintLength)}...` 
+    : hint;
+  const displayHint = isExpanded ? hint : truncatedHint;
+  const hasLongHint = hint && hint.length > maxHintLength;
+  
   return (
-    <Card
-      variant="secondary"
-      className="guess-row flex flex-col lg:flex-row items-start lg:items-center gap-4"
-      hover={false}
+    <div
+      className="guess-row-compact"
       style={{ animationDelay: `${index * 100}ms` }}
       role="listitem"
-      aria-label={`Guess ${index + 1}: ${formatYear(guess)} is ${cleanDirection}, off by ${distanceText}. Hint: ${hint || 'No more hints available.'}`}
+      aria-label={`Guess ${index + 1}: ${formatYear(guess)} is ${cleanDirection}, off by ${distanceText}. ${isExpanded ? 'Full hint:' : 'Hint preview:'} ${displayHint || 'No more hints available.'}`}
     >
-      <div className="flex items-center gap-4 w-full lg:w-auto">
+      <div className="guess-content-compact">
+        <div className="guess-year-direction">
+          <span 
+            className="direction-badge-compact"
+            style={{
+              background: directionInfo.direction.includes('EARLIER') ? 'var(--feedback-earlier)' : 'var(--feedback-later)',
+              color: 'white'
+            }}
+            aria-hidden="true"
+          >
+            {directionInfo.direction.replace('▲', '').replace('▼', '').trim()}
+          </span>
+          <span className="year-display-compact">{formatYear(guess)}</span>
+        </div>
+        <div className="distance-display-compact">
+          <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
+            {enhancedFeedback.encouragement}
+          </span>
+          {enhancedFeedback.historicalHint && (
+            <div className="text-xs mt-1" style={{ color: 'var(--primary)', opacity: 0.8 }}>
+              {enhancedFeedback.historicalHint}
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {hint && (
         <div 
-          className="flex-shrink-0 text-center font-bold text-sm py-2 px-4 rounded-lg min-w-32"
-          style={{
-            background: directionInfo.direction.includes('EARLIER') ? 'var(--feedback-earlier)' : 'var(--feedback-later)',
-            color: 'white'
-          }}
-          aria-hidden="true"
+          className={`hint-compact ${hasLongHint ? 'hint-expandable' : ''}`}
+          onClick={hasLongHint ? onToggleExpand : undefined}
+          role={hasLongHint ? 'button' : undefined}
+          tabIndex={hasLongHint ? 0 : undefined}
+          onKeyDown={hasLongHint ? (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onToggleExpand();
+            }
+          } : undefined}
+          aria-expanded={hasLongHint ? isExpanded : undefined}
+          aria-label={hasLongHint ? `Hint text. ${isExpanded ? 'Click to collapse' : 'Click to expand full hint'}` : 'Hint text'}
         >
-          {directionInfo.direction}
+          <span style={{ color: 'var(--muted-foreground)' }}>
+            {displayHint || 'No more hints available.'}
+          </span>
+          {hasLongHint && (
+            <span 
+              className="expand-indicator"
+              style={{ color: 'var(--primary)' }}
+              aria-hidden="true"
+            >
+              {isExpanded ? ' [collapse]' : ' [expand]'}
+            </span>
+          )}
         </div>
-        <div className="flex flex-col items-center">
-          <div className="font-bold text-xl" style={{ color: 'var(--foreground)' }}>
-            {formatYear(guess)}
-          </div>
-        </div>
-      </div>
-      <div 
-        className="border-l-2 pl-4 flex-1"
-        style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
-      >
-        <span className="font-semibold" style={{ color: 'var(--foreground)' }}>Hint:</span> {hint || 'No more hints available.'}
-      </div>
-    </Card>
+      )}
+    </div>
   );
 });
 
@@ -91,6 +142,22 @@ export const GuessHistory: React.FC<GuessHistoryProps> = ({
   events,
   className = ''
 }) => {
+  // State management for collapsible hints
+  const [expandedHints, setExpandedHints] = useState(new Set<number>());
+  
+  // Toggle hint expansion
+  const toggleHint = useCallback((index: number) => {
+    setExpandedHints(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  }, []);
+  
   // Memoize the guess rows to prevent unnecessary re-renders
   const guessRows = useMemo(() => {
     return guesses.map((guess, index) => {
@@ -103,10 +170,12 @@ export const GuessHistory: React.FC<GuessHistoryProps> = ({
           targetYear={targetYear}
           hint={hint}
           index={index}
+          isExpanded={expandedHints.has(index)}
+          onToggleExpand={() => toggleHint(index)}
         />
       );
     });
-  }, [guesses, targetYear, events]);
+  }, [guesses, targetYear, events, expandedHints, toggleHint]);
 
   if (guesses.length === 0) {
     return null;
@@ -132,7 +201,7 @@ export const GuessHistory: React.FC<GuessHistoryProps> = ({
         />
       </div>
       <div 
-        className="space-y-4"
+        className="guess-history-grid"
         role="list"
         aria-labelledby="guess-history-heading"
       >

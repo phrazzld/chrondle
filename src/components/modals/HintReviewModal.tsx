@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { BaseModal } from './BaseModal';
-import { formatYear, getProximityFeedback } from '@/lib/utils';
+import { formatYear } from '@/lib/utils';
+import { getEnhancedProximityFeedback } from '@/lib/enhancedFeedback';
 
 interface HintReviewModalProps {
   isOpen: boolean;
@@ -11,6 +12,13 @@ interface HintReviewModalProps {
   guess: number;
   targetYear: number;
   hint: string;
+  totalGuesses?: number;
+  onNavigate?: (direction: 'prev' | 'next') => void;
+  touchHandlers?: {
+    onTouchStart: (e: React.TouchEvent) => void;
+    onTouchMove: (e: React.TouchEvent) => void;
+    onTouchEnd: (e: React.TouchEvent) => void;
+  };
 }
 
 export const HintReviewModal: React.FC<HintReviewModalProps> = ({
@@ -19,23 +27,54 @@ export const HintReviewModal: React.FC<HintReviewModalProps> = ({
   guessNumber,
   guess,
   targetYear,
-  hint
+  hint,
+  totalGuesses = 1,
+  onNavigate,
+  touchHandlers
 }) => {
-  const proximityFeedback = getProximityFeedback(guess, targetYear);
+  const enhancedFeedback = getEnhancedProximityFeedback(guess, targetYear, {
+    includeHistoricalContext: true,
+    includeProgressiveTracking: false
+  });
   const distance = Math.abs(guess - targetYear);
   const isCorrect = guess === targetYear;
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} className="max-w-lg">
-      <div className="text-center">
+      <div className="text-center" {...touchHandlers}>
         {/* Header */}
         <div className="mb-6">
-          <h2 
-            className="text-2xl font-bold mb-2 font-[family-name:var(--font-playfair-display)]"
-            style={{ color: 'var(--foreground)' }}
-          >
-            Guess #{guessNumber} Review
-          </h2>
+          <div className="flex items-center justify-between mb-2">
+            {totalGuesses > 1 && onNavigate && (
+              <button
+                onClick={() => onNavigate('prev')}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Previous guess"
+              >
+                <span className="text-lg">←</span>
+              </button>
+            )}
+            <h2 
+              className="text-2xl font-bold font-[family-name:var(--font-playfair-display)]"
+              style={{ color: 'var(--foreground)' }}
+            >
+              Guess #{guessNumber} Review
+            </h2>
+            {totalGuesses > 1 && onNavigate && (
+              <button
+                onClick={() => onNavigate('next')}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Next guess"
+              >
+                <span className="text-lg">→</span>
+              </button>
+            )}
+          </div>
+          {totalGuesses > 1 && (
+            <div className="text-xs text-center mb-3" style={{ color: 'var(--muted-foreground)' }}>
+              {guessNumber} of {totalGuesses} • Swipe left/right to navigate
+            </div>
+          )}
           <div className="flex items-center justify-center gap-2 text-lg">
             <span 
               className="font-bold"
@@ -78,7 +117,12 @@ export const HintReviewModal: React.FC<HintReviewModalProps> = ({
                 border: '1px solid var(--border)'
               }}
             >
-              {proximityFeedback.message}
+              <div className="mb-2">{enhancedFeedback.encouragement}</div>
+              {enhancedFeedback.historicalHint && (
+                <div className="text-sm font-normal" style={{ color: 'var(--primary)', opacity: 0.9 }}>
+                  {enhancedFeedback.historicalHint}
+                </div>
+              )}
             </div>
           )}
         </div>

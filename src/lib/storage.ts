@@ -1,7 +1,7 @@
 // Comprehensive localStorage integration for Chrondle
 // Ensures 100% compatibility with original HTML localStorage usage patterns
 
-import { STORAGE_KEYS } from './constants';
+import { STORAGE_KEYS, STREAK_CONFIG } from './constants';
 
 export interface StorageEntry {
   key: string;
@@ -150,6 +150,120 @@ export function setLastLLMCall(timestamp: number): void {
   safeSetItem(STORAGE_KEYS.LAST_LLM_CALL, timestamp.toString());
 }
 
+// --- STREAK MANAGEMENT ---
+
+export interface StreakData {
+  currentStreak: number;
+  longestStreak: number;
+  totalGamesPlayed: number;
+  lastPlayedDate: string;
+  playedDates: string[];
+  achievements: string[];
+}
+
+export function loadStreakData(): StreakData {
+  const defaultStreak: StreakData = {
+    currentStreak: 0,
+    longestStreak: 0,
+    totalGamesPlayed: 0,
+    lastPlayedDate: '',
+    playedDates: [],
+    achievements: []
+  };
+
+  const savedData = safeGetItem(STORAGE_KEYS.STREAK_DATA);
+  if (!savedData) return defaultStreak;
+
+  try {
+    const parsed = JSON.parse(savedData);
+    return { ...defaultStreak, ...parsed };
+  } catch {
+    return defaultStreak;
+  }
+}
+
+export function saveStreakData(streakData: StreakData): void {
+  safeSetItem(STORAGE_KEYS.STREAK_DATA, JSON.stringify(streakData));
+}
+
+export function calculateCurrentStreak(playedDates: string[]): number {
+  if (playedDates.length === 0) return 0;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  let streak = 0;
+  const checkDate = new Date(today);
+  
+  // Walk backwards from today until we hit a gap
+  while (streak < STREAK_CONFIG.MAX_STREAK_HISTORY) {
+    const dateString = checkDate.toISOString().slice(0, 10);
+    
+    if (playedDates.includes(dateString)) {
+      streak++;
+    } else {
+      // Gap found - but handle the "haven't played today yet" case
+      if (checkDate.getTime() === today.getTime()) {
+        // Today not played yet - that's OK, keep checking yesterday
+      } else {
+        // Found an actual gap in the past
+        break;
+      }
+    }
+    
+    // Move to previous day
+    checkDate.setDate(checkDate.getDate() - 1);
+  }
+  
+  return streak;
+}
+
+export function recordGamePlayed(hasWon: boolean): StreakData {
+  const today = new Date().toISOString().slice(0, 10);
+  const streakData = loadStreakData();
+  
+  // Don't double-count if already played today
+  if (streakData.playedDates.includes(today)) {
+    return streakData;
+  }
+  
+  // Add today to played dates if won
+  if (hasWon) {
+    streakData.playedDates.push(today);
+    streakData.lastPlayedDate = today;
+    
+    // Recalculate current streak
+    streakData.currentStreak = calculateCurrentStreak(streakData.playedDates);
+    streakData.longestStreak = Math.max(streakData.longestStreak, streakData.currentStreak);
+  } else {
+    // Game played but not won - breaks streak
+    if (streakData.playedDates.length > 0) {
+      streakData.currentStreak = 0;
+    }
+  }
+  
+  streakData.totalGamesPlayed++;
+  
+  // Cleanup old data to prevent unbounded growth
+  cleanupOldStreakData(streakData);
+  
+  saveStreakData(streakData);
+  return streakData;
+}
+
+function cleanupOldStreakData(streakData: StreakData): void {
+  if (streakData.playedDates.length <= STREAK_CONFIG.MAX_STREAK_HISTORY) {
+    return;
+  }
+  
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - STREAK_CONFIG.MAX_STREAK_HISTORY);
+  const cutoffString = cutoffDate.toISOString().slice(0, 10);
+  
+  // Remove dates older than our retention window
+  streakData.playedDates = streakData.playedDates.filter(date => date >= cutoffString);
+}
+
 // --- STORAGE CLEANUP UTILITIES ---
 
 export function getAllChronldeEntries(): StorageEntry[] {
@@ -271,6 +385,70 @@ export function getStorageInfo(): {
     chronldeEntries,
     storageAvailable: true
   };
+}
+
+// --- NOTIFICATION SETTINGS ---
+
+export interface NotificationSettings {
+  enabled: boolean;
+  time: string; // HH:MM format (24-hour)
+  permission: NotificationPermission | 'unknown';
+  lastPermissionRequest: string | null; // ISO date string
+  registrationId: string | null; // Service worker registration ID
+}
+
+export function loadNotificationSettings(): NotificationSettings {
+  const defaultSettings: NotificationSettings = {
+    enabled: false,
+    time: '09:00',
+    permission: 'default',
+    lastPermissionRequest: null,
+    registrationId: null
+  };
+
+  const savedData = safeGetItem(STORAGE_KEYS.NOTIFICATION_SETTINGS);
+  if (!savedData) return defaultSettings;
+
+  try {
+    const parsed = JSON.parse(savedData);
+    return { ...defaultSettings, ...parsed };
+  } catch {
+    return defaultSettings;
+  }
+}
+
+export function saveNotificationSettings(settings: NotificationSettings): void {
+  safeSetItem(STORAGE_KEYS.NOTIFICATION_SETTINGS, JSON.stringify(settings));
+}
+
+export function updateNotificationPermission(permission: NotificationPermission): void {
+  const settings = loadNotificationSettings();
+  settings.permission = permission;
+  if (permission === 'granted') {
+    settings.lastPermissionRequest = new Date().toISOString();
+  }
+  saveNotificationSettings(settings);
+}
+
+export function shouldShowPermissionReminder(): boolean {
+  const settings = loadNotificationSettings();
+  
+  // Don't show if already granted or denied permanently
+  if (settings.permission === 'granted' || settings.permission === 'denied') {
+    return false;
+  }
+  
+  // Show if never asked before
+  if (!settings.lastPermissionRequest) {
+    return true;
+  }
+  
+  // Show if it's been 3+ days since last ask
+  const lastAsk = new Date(settings.lastPermissionRequest);
+  const now = new Date();
+  const daysSinceAsk = (now.getTime() - lastAsk.getTime()) / (1000 * 60 * 60 * 24);
+  
+  return daysSinceAsk >= 3;
 }
 
 // --- VALIDATION UTILITIES ---

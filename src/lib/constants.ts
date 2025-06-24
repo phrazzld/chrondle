@@ -97,7 +97,9 @@ export const STORAGE_KEYS = {
   SETTINGS: 'chrondle-settings',
   HAS_PLAYED: 'chrondle-has-played',
   OPENAI_API_KEY: 'openai_api_key',
-  LAST_LLM_CALL: 'last_llm_call'
+  LAST_LLM_CALL: 'last_llm_call',
+  STREAK_DATA: 'chrondle-streak-data',
+  NOTIFICATION_SETTINGS: 'chrondle-notification-settings'
 } as const;
 
 // --- UI CONSTANTS ---
@@ -147,6 +149,45 @@ export const LLM_CONFIG = {
   MAX_TOKENS: 50,
   SYSTEM_PROMPT: 'You are a helpful assistant that creates engaging, concise hints for historical guessing games.',
   HINT_PROMPT_TEMPLATE: 'Convert this historical event into a clear, engaging hint for a year-guessing game. Make it informative but don\'t include the year or obvious time markers. Keep it under 20 words: {description}'
+} as const;
+
+// --- STREAK CONFIGURATION ---
+
+export const STREAK_CONFIG = {
+  ACHIEVEMENTS: [
+    { threshold: 3, name: 'Time Traveler', emoji: '⏰', description: '3 day streak!' },
+    { threshold: 7, name: 'Week Warrior', emoji: '🗓️', description: '7 day streak!' },
+    { threshold: 30, name: 'Monthly Master', emoji: '📅', description: '30 day streak!' },
+    { threshold: 100, name: 'Century Scholar', emoji: '🏛️', description: '100 day streak!' }
+  ],
+  MAX_STREAK_HISTORY: 365,
+  MIN_STREAK_DISPLAY: 0
+} as const;
+
+// --- NOTIFICATION CONFIGURATION ---
+
+export const NOTIFICATION_CONFIG = {
+  DEFAULT_TIME: '09:00', // 9:00 AM
+  TIME_OPTIONS: [
+    { label: '7:00 AM', value: '07:00' },
+    { label: '8:00 AM', value: '08:00' },
+    { label: '9:00 AM', value: '09:00' },
+    { label: '10:00 AM', value: '10:00' },
+    { label: '12:00 PM', value: '12:00' },
+    { label: '6:00 PM', value: '18:00' },
+    { label: '7:00 PM', value: '19:00' },
+    { label: '8:00 PM', value: '20:00' },
+    { label: '9:00 PM', value: '21:00' }
+  ],
+  MESSAGES: [
+    'Ready for today\'s historical challenge? 🏛️',
+    'Your daily Chrondle puzzle awaits! ⏰',  
+    'Time to test your history knowledge! 📚',
+    'Don\'t break your streak - play Chrondle today! 🔥',
+    'A new historical mystery has arrived! 🔍'
+  ],
+  RETRY_INTERVAL: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
+  PERMISSION_REMINDER_DELAY: 3 * 24 * 60 * 60 * 1000 // 3 days in milliseconds
 } as const;
 
 // --- URL PARAMETERS ---

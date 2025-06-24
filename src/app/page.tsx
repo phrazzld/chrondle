@@ -6,18 +6,27 @@ import {
   hasPlayerPlayedBefore 
 } from '@/lib/storage';
 import { getGuessDirectionInfo, formatYear } from '@/lib/utils';
+import { getEnhancedProximityFeedback } from '@/lib/enhancedFeedback';
 import { useGameState } from '@/hooks/useGameState';
+import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
+import { useStreak } from '@/hooks/useStreak';
 import { HelpModal } from '@/components/modals/HelpModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
+import { StatsModal } from '@/components/modals/StatsModal';
+import { SyncModal } from '@/components/modals/SyncModal';
 import { GameOverModal } from '@/components/modals/GameOverModal';
 import { HintReviewModal } from '@/components/modals/HintReviewModal';
 import { EventDisplay } from '@/components/EventDisplay';
-import { GuessInput } from '@/components/GuessInput';
+import { EnhancedGuessInput } from '@/components/EnhancedGuessInput';
 import { GuessHistory } from '@/components/GuessHistory';
 import { DebugBanner } from '@/components/DebugBanner';
 import { AppHeader } from '@/components/AppHeader';
 import { LiveAnnouncer } from '@/components/ui/LiveAnnouncer';
 import { ProgressBar } from '@/components/ui/ProgressBar';
+import { StickyFooter } from '@/components/ui/StickyFooter';
+import { ViewportDebug } from '@/components/dev/ViewportDebug';
+import { AchievementModal } from '@/components/modals/AchievementModal';
+import { BackgroundAnimation } from '@/components/BackgroundAnimation';
 
 // Force dynamic rendering to prevent SSR issues with theme context
 export const dynamic = 'force-dynamic';
@@ -34,9 +43,20 @@ export default function ChronldePage() {
   // Game state management using custom hook
   const gameLogic = useGameState(debugMode);
   
+  // Streak system
+  const { 
+    streakData, 
+    updateStreak, 
+    hasNewAchievement, 
+    newAchievement, 
+    clearNewAchievement 
+  } = useStreak();
+  
   // UI state
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showStatsModal, setShowStatsModal] = useState(false);
+  const [showSyncModal, setShowSyncModal] = useState(false);
   const [showGameOverModal, setShowGameOverModal] = useState(false);
   const [validationError, setValidationError] = useState('');
   
@@ -52,12 +72,18 @@ export default function ChronldePage() {
     hint: string;
   } | null>(null);
 
-  // Handle game over modal trigger
+  // Handle game over modal trigger and streak update
   useEffect(() => {
     if (gameLogic.isGameComplete && gameLogic.gameState.puzzle) {
+      // Update streak based on game result
+      if (!debugMode) {
+        const hasWon = gameLogic.hasWon;
+        updateStreak(hasWon);
+      }
+      
       setTimeout(() => setShowGameOverModal(true), 500);
     }
-  }, [gameLogic.isGameComplete, gameLogic.gameState.puzzle]);
+  }, [gameLogic.isGameComplete, gameLogic.gameState.puzzle, gameLogic.hasWon, updateStreak, debugMode]);
   
   // Show help modal for first-time players
   useEffect(() => {
@@ -79,9 +105,13 @@ export default function ChronldePage() {
         setAnnouncement(`Correct! The year was ${formatYear(targetYear)}. Congratulations!`);
       } else {
         const directionInfo = getGuessDirectionInfo(latestGuess, targetYear);
-        const distance = Math.abs(latestGuess - targetYear);
-        const distanceText = distance === 1 ? '1 year' : `${distance} years`;
-        setAnnouncement(`${formatYear(latestGuess)} is ${directionInfo.direction.toLowerCase().replace('▲', '').replace('▼', '').trim()}. Off by ${distanceText}.`);
+        const enhancedFeedback = getEnhancedProximityFeedback(latestGuess, targetYear, {
+          previousGuesses: gameLogic.gameState.guesses.slice(0, -1),
+          includeHistoricalContext: true,
+          includeProgressiveTracking: true
+        });
+        const cleanDirection = directionInfo.direction.toLowerCase().replace('▲', '').replace('▼', '').trim();
+        setAnnouncement(`${formatYear(latestGuess)} is ${cleanDirection}. ${enhancedFeedback.encouragement}${enhancedFeedback.historicalHint ? ` ${enhancedFeedback.historicalHint}` : ''}${enhancedFeedback.progressMessage ? ` ${enhancedFeedback.progressMessage}` : ''}`);
       }
       
       setLastGuessCount(currentGuessCount);
@@ -108,6 +138,17 @@ export default function ChronldePage() {
       setDebugParams(activeParams.length ? activeParams.join(' | ') : 'Basic debug mode');
     }
 
+    // Register service worker for notifications
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then((registration) => {
+          console.log('📱 Service Worker registered successfully:', registration);
+        })
+        .catch((error) => {
+          console.log('📱 Service Worker registration failed:', error);
+        });
+    }
+
   }, [mounted]);
 
 
@@ -131,6 +172,53 @@ export default function ChronldePage() {
     setHintReviewModal(null);
   }, []);
 
+  // Gesture navigation for reviewing hints
+  const navigateToHint = useCallback((direction: 'prev' | 'next') => {
+    if (!gameLogic.gameState.puzzle || gameLogic.gameState.guesses.length === 0) return;
+
+    const currentIndex = hintReviewModal?.guessNumber ? hintReviewModal.guessNumber - 1 : 0;
+    const maxIndex = gameLogic.gameState.guesses.length - 1;
+    
+    let newIndex: number;
+    if (direction === 'prev') {
+      newIndex = currentIndex > 0 ? currentIndex - 1 : maxIndex;
+    } else {
+      newIndex = currentIndex < maxIndex ? currentIndex + 1 : 0;
+    }
+
+    const guess = gameLogic.gameState.guesses[newIndex];
+    const hint = gameLogic.gameState.puzzle.events[newIndex + 1] || 'No more hints available.';
+    
+    setHintReviewModal({
+      isOpen: true,
+      guessNumber: newIndex + 1,
+      guess,
+      hint
+    });
+  }, [hintReviewModal?.guessNumber, gameLogic.gameState.guesses, gameLogic.gameState.puzzle]);
+
+  // Swipe navigation for hint review when modal is open
+  const handleSwipeNavigate = useCallback((index: number) => {
+    if (!gameLogic.gameState.puzzle || gameLogic.gameState.guesses.length === 0) return;
+
+    const guess = gameLogic.gameState.guesses[index];
+    const hint = gameLogic.gameState.puzzle.events[index + 1] || 'No more hints available.';
+    
+    setHintReviewModal({
+      isOpen: true,
+      guessNumber: index + 1,
+      guess,
+      hint
+    });
+  }, [gameLogic.gameState.guesses, gameLogic.gameState.puzzle]);
+
+  // Use the sophisticated swipe navigation hook when modal is open
+  const { touchHandlers } = useSwipeNavigation({
+    totalHints: gameLogic.gameState.guesses.length,
+    currentIndex: hintReviewModal ? hintReviewModal.guessNumber - 1 : 0,
+    onNavigate: handleSwipeNavigate,
+    enabled: Boolean(hintReviewModal?.isOpen) && gameLogic.gameState.guesses.length > 1
+  });
 
   const closeHelpModal = () => {
     setShowHelpModal(false);
@@ -148,15 +236,17 @@ export default function ChronldePage() {
         <AppHeader 
           onShowHelp={() => setShowHelpModal(true)}
           onShowSettings={() => setShowSettingsModal(true)}
+          onShowStats={() => setShowStatsModal(true)}
+          onShowSync={() => setShowSyncModal(true)}
         />
 
         {/* Loading Content */}
         <main className="min-h-screen">
-          <div className="max-w-xl mx-auto px-4 py-6 space-y-5">
+          <div className="max-w-xl mx-auto px-4 py-6 space-y-5 main-content-mobile section-spacing-mobile">
             
             {/* Loading Hint Display */}
             <div className="relative">
-              <div className="card border-2 border-primary/20 card-padding-override">
+              <div className="card border-2 border-primary/20 card-padding-override card-mobile-compact hint-display-mobile">
                 <div className="flex items-start gap-4">
                   <div className="w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
                     1
@@ -215,7 +305,7 @@ export default function ChronldePage() {
             </div>
 
             {/* Loading Input Section */}
-            <div className="card bg-surface">
+            <div className="card bg-surface card-mobile-compact input-section-mobile">
               <div className="flex gap-3 items-center">
                 <div className="flex-1">
                   <div className="w-full p-3 text-lg text-center rounded-lg border-2 bg-input border-border opacity-50">
@@ -238,6 +328,13 @@ export default function ChronldePage() {
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       
+      {/* Background Animation */}
+      <BackgroundAnimation
+        guesses={gameLogic.gameState.guesses}
+        targetYear={gameLogic.gameState.puzzle?.year || null}
+        isGameOver={gameLogic.isGameComplete}
+      />
+      
       {/* Skip Navigation Link */}
       <a 
         href="#main-content"
@@ -250,16 +347,19 @@ export default function ChronldePage() {
       <AppHeader 
         onShowHelp={() => setShowHelpModal(true)}
         onShowSettings={() => setShowSettingsModal(true)}
+        onShowStats={() => setShowStatsModal(true)}
+        onShowSync={() => setShowSyncModal(true)}
+        streakData={streakData}
       />
 
       {/* Main Content Area */}
       <main 
         id="main-content"
-        className="min-h-screen"
+        className={`min-h-screen ${gameLogic.gameState.guesses.length > 0 ? 'gesture-enabled' : ''}`}
         role="main"
         aria-label="Historical guessing game"
       >
-        <div className="max-w-xl mx-auto px-4 py-6 space-y-5">
+        <div className="max-w-xl mx-auto px-4 py-6 space-y-5 main-content-mobile section-spacing-mobile vh-optimized">
           
           {/* Debug Banner */}
           <DebugBanner 
@@ -276,7 +376,7 @@ export default function ChronldePage() {
             aria-live="polite"
             aria-atomic="true"
           >
-            <div className="card border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 card-padding-override">
+            <div className="card border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 card-padding-override card-mobile-compact hint-display-mobile">
               <div className="flex items-start gap-4">
                 <div 
                   className="w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5"
@@ -310,7 +410,7 @@ export default function ChronldePage() {
                     </span>
                   </div>
                   <div 
-                    className="text-lg leading-relaxed" 
+                    className="text-lg leading-relaxed text-density-mobile" 
                     style={{ color: 'var(--foreground)' }}
                     aria-label={gameLogic.currentEvent ? `Hint ${gameLogic.currentHintIndex + 1}: ${gameLogic.currentEvent}` : undefined}
                   >
@@ -332,12 +432,19 @@ export default function ChronldePage() {
             events={gameLogic.gameState.puzzle?.events || []}
             maxGuesses={6}
             onSegmentClick={handleSegmentClick}
-            className="mb-5"
+            className="mb-5 progress-bar-mobile"
           />
+          
+          {/* Gesture Navigation Hint */}
+          {gameLogic.gameState.guesses.length > 0 && (
+            <div className="gesture-hint">
+              Swipe left/right to navigate between guesses
+            </div>
+          )}
 
           {/* Guess Input Section */}
-          <div className="card bg-surface">
-            <GuessInput
+          <div className="card bg-surface card-mobile-compact input-section-mobile">
+            <EnhancedGuessInput
               onGuess={gameLogic.makeGuess}
               disabled={gameLogic.isGameComplete || gameLogic.isLoading}
               remainingGuesses={gameLogic.remainingGuesses}
@@ -348,7 +455,7 @@ export default function ChronldePage() {
 
           {/* Guess History */}
           {gameLogic.gameState.guesses.length > 0 && (
-            <div className="card">
+            <div className="card card-mobile-compact">
               <GuessHistory
                 guesses={gameLogic.gameState.guesses}
                 targetYear={gameLogic.gameState.puzzle?.year || 0}
@@ -386,6 +493,19 @@ export default function ChronldePage() {
         onClose={() => setShowSettingsModal(false)}
       />
 
+      {/* Stats Modal */}
+      <StatsModal
+        isOpen={showStatsModal}
+        onClose={() => setShowStatsModal(false)}
+        streakData={streakData}
+      />
+
+      {/* Sync Modal */}
+      <SyncModal
+        isOpen={showSyncModal}
+        onClose={() => setShowSyncModal(false)}
+      />
+
       {/* Game Over Modal */}
       {gameLogic.gameState.puzzle && (
         <GameOverModal
@@ -407,8 +527,29 @@ export default function ChronldePage() {
           guess={hintReviewModal.guess}
           targetYear={gameLogic.gameState.puzzle?.year || 0}
           hint={hintReviewModal.hint}
+          totalGuesses={gameLogic.gameState.guesses.length}
+          onNavigate={navigateToHint}
+          touchHandlers={touchHandlers}
         />
       )}
+
+      {/* Sticky Footer */}
+      <StickyFooter
+        guesses={gameLogic.gameState.guesses}
+        targetYear={gameLogic.gameState.puzzle?.year || 0}
+        isVisible={gameLogic.gameState.guesses.length > 0 && !gameLogic.isLoading}
+        hasOpenModal={showHelpModal || showSettingsModal || showStatsModal || showSyncModal || showGameOverModal || Boolean(hintReviewModal?.isOpen) || hasNewAchievement}
+      />
+
+      {/* Development Viewport Debug Indicator */}
+      <ViewportDebug isVisible={debugMode} />
+
+      {/* Achievement Modal */}
+      <AchievementModal
+        isOpen={hasNewAchievement}
+        onClose={clearNewAchievement}
+        achievement={newAchievement || ''}
+      />
 
     </div>
   );

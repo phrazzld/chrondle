@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../styles/background-animation.css";
 
 :root {
   /* Core brand colors inspired by engineering/professional design */
@@ -115,6 +116,33 @@ html.dark {
   }
 }
 
+/* Enhanced Dark Mode: Smooth Transitions */
+html.smooth-transitions {
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html.smooth-transitions *,
+html.smooth-transitions *::before,
+html.smooth-transitions *::after {
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              fill 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              stroke 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  html.smooth-transitions,
+  html.smooth-transitions *,
+  html.smooth-transitions *::before,
+  html.smooth-transitions *::after {
+    transition: none !important;
+  }
+}
+
 /* Custom styles for Chrondle game */
 body {
   background: var(--background);
@@ -147,6 +175,45 @@ h3 {
 }
 
 /* Professional button styles */
+/* Secondary button style */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  border-radius: 0.375rem;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  touch-action: manipulation;
+  min-height: 44px;
+  background: var(--input);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--border);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .btn-primary {
   background: var(--primary);
   color: white;
@@ -214,6 +281,53 @@ h3 {
     border: 2px solid var(--feedback-correct);
     pointer-events: none;
   }
+}
+
+/* Celebration Animations */
+@keyframes bounce-once {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes scale-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-bounce-once {
+  animation: bounce-once 0.5s ease-in-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.3s ease-out;
 }
 
 /* Mobile and low-DPI optimizations */
@@ -497,8 +611,634 @@ h3 {
   }
 }
 
+/* =================================================================== */
+/* COMPACT GUESS DESIGN - 60% Height Reduction (110px → 44px)         */
+/* =================================================================== */
+
+.guess-row-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  contain: layout style paint;
+  will-change: transform, box-shadow;
+  animation: slideInGuess 300ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
+  transform: translateY(10px);
+  min-height: 44px;
+}
+
+.guess-row-compact:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.guess-row-compact.guess-row-correct {
+  background: var(--feedback-correct);
+  color: white;
+  border-color: var(--feedback-correct);
+}
+
+.guess-content-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 28px;
+}
+
+.guess-year-direction {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.direction-badge-compact {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.correct-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--feedback-correct);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+}
+
+.year-display-compact {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.guess-row-correct .year-display-compact {
+  color: white;
+}
+
+.distance-display-compact {
+  display: flex;
+  align-items: center;
+}
+
+.correct-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hint-compact {
+  font-size: 13px;
+  line-height: 1.4;
+  padding: 6px 8px;
+  background: var(--input);
+  border-radius: 6px;
+  margin-top: 2px;
+  transition: all 150ms ease;
+}
+
+.hint-expandable {
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.hint-expandable:hover {
+  background: var(--border);
+  border-color: var(--primary);
+}
+
+.hint-expandable:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.expand-indicator {
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: underline;
+  margin-left: 4px;
+}
+
+/* 2-Column Grid Layout for Desktop */
+.guess-history-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr;
+}
+
+/* Desktop: 2-column layout for efficiency */
+@media (min-width: 768px) {
+  .guess-history-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  
+  .guess-row-compact {
+    padding: 10px 14px;
+  }
+  
+  .hint-compact {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+}
+
+/* Performance optimizations */
+@keyframes slideInGuess {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode adjustments */
+.dark .guess-row-compact {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.dark .hint-compact {
+  background: var(--input);
+}
+
+.dark .hint-expandable:hover {
+  background: var(--border);
+}
+
+/* =================================================================== */
+/* GESTURE NAVIGATION INDICATORS                                       */
+/* =================================================================== */
+
+.gesture-enabled {
+  position: relative;
+}
+
+.gesture-enabled::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 2px;
+  opacity: 0.3;
+  transition: opacity 200ms ease;
+}
+
+.gesture-enabled:active::after {
+  opacity: 0.6;
+}
+
+/* Mobile gesture hint text */
+.gesture-hint {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  text-align: center;
+  margin-top: 8px;
+  opacity: 0.7;
+}
+
+@media (min-width: 768px) {
+  .gesture-hint {
+    display: none;
+  }
+}
+
+/* =================================================================== */
+/* STICKY FOOTER                                                      */
+/* =================================================================== */
+
+.sticky-footer {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.sticky-footer-spacer {
+  height: 80px;
+}
+
+@media (min-width: 768px) {
+  .sticky-footer-spacer {
+    height: 64px;
+  }
+}
+
+/* iPhone SE specific footer spacing */
+@media (max-width: 375px) and (max-height: 667px) {
+  .sticky-footer-spacer {
+    height: 64px !important; /* Reduced from 80px */
+  }
+  
+  .sticky-footer {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+  
+  .footer-btn {
+    min-height: 36px !important; /* Reduced from 44px */
+    font-size: 0.75rem !important; /* 12px */
+    padding: 0.375rem 0.5rem !important;
+  }
+}
+
+/* Ensure footer doesn't interfere with modals */
+.modal-overlay {
+  z-index: 50;
+}
+
+/* Footer button styles */
+.footer-btn {
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  touch-action: manipulation;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.footer-btn:active {
+  transform: scale(0.98);
+}
+
+.footer-btn-secondary {
+  background: var(--input);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+
+.footer-btn-secondary:hover {
+  background: var(--border);
+  border-color: var(--primary);
+}
+
+.footer-btn-secondary:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* =================================================================== */
+/* RESPONSIVE OPTIMIZATION - iPhone SE (375×667) Support              */
+/* =================================================================== */
+
+/* iPhone SE and similar small screens - critical viewport optimization */
+@media (max-width: 375px) and (max-height: 667px) {
+  /* Minimize main content padding */
+  .main-content-mobile {
+    padding-top: 0.75rem !important;  /* 12px instead of 24px */
+    padding-bottom: 0.75rem !important; /* 12px instead of 24px */
+  }
+  
+  /* Tighter spacing between sections */
+  .section-spacing-mobile {
+    gap: 0.75rem !important; /* 12px instead of 20px */
+  }
+  
+  /* Compact hint display */
+  .hint-display-mobile {
+    padding: 0.75rem !important; /* 12px instead of 24px */
+  }
+  
+  /* Smaller progress bar */
+  .progress-bar-mobile {
+    height: 2.5rem !important; /* 40px instead of 48px+ */
+  }
+  
+  /* Compact input section */
+  .input-section-mobile {
+    padding: 0.75rem !important; /* 12px instead of 24px */
+  }
+  
+  /* Adjust text sizes for better density */
+  .text-density-mobile {
+    font-size: 0.875rem !important; /* 14px instead of 16px */
+    line-height: 1.25 !important; /* tighter line height */
+  }
+}
+
+/* Ultra-compact mode for very constrained height */
+@media (max-width: 375px) and (max-height: 600px) {
+  .main-content-mobile {
+    padding-top: 0.5rem !important;  /* 8px */
+    padding-bottom: 0.5rem !important; /* 8px */
+  }
+  
+  .section-spacing-mobile {
+    gap: 0.5rem !important; /* 8px */
+  }
+  
+  .hint-display-mobile {
+    padding: 0.5rem !important; /* 8px */
+  }
+  
+  .input-section-mobile {
+    padding: 0.5rem !important; /* 8px */
+  }
+}
+
+/* Dynamic height-aware spacing */
+.vh-optimized {
+  min-height: 0;
+  max-height: calc(100vh - 160px); /* Account for header + footer */
+  overflow-y: auto;
+}
+
+/* iPhone SE specific height constraints */
+@media (max-width: 375px) and (max-height: 667px) {
+  .vh-optimized {
+    max-height: calc(100vh - 120px) !important; /* Tighter constraints for SE */
+  }
+}
+
+@media (max-width: 375px) and (max-height: 600px) {
+  .vh-optimized {
+    max-height: calc(100vh - 100px) !important; /* Ultra-tight for very small screens */
+  }
+}
+
+/* Compact card padding for mobile */
+@media (max-width: 375px) {
+  .card-mobile-compact {
+    padding: 0.75rem !important;
+  }
+  
+  .card-mobile-compact .text-lg {
+    font-size: 1rem !important; /* 16px instead of 18px */
+  }
+  
+  .card-mobile-compact .text-xl {
+    font-size: 1.125rem !important; /* 18px instead of 20px */
+  }
+}
+
+/* Optimize gesture hint for mobile */
+@media (max-width: 375px) {
+  .gesture-hint {
+    font-size: 10px;
+    margin-top: 4px;
+    opacity: 0.6;
+  }
+}
+
+/* Development viewport indicator (only visible in debug mode) */
+.viewport-debug {
+  position: fixed;
+  top: 0;
+  right: 0;
+  background: rgba(220, 68, 5, 0.9);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: bold;
+  z-index: 9999;
+  font-family: monospace;
+  border-bottom-left-radius: 0.25rem;
+}
+
+.viewport-debug.iphone-se {
+  background: rgba(34, 197, 94, 0.9); /* Green when iPhone SE detected */
+}
+
+.viewport-debug.height-constrained {
+  background: rgba(239, 68, 68, 0.9); /* Red when height is very constrained */
+}
+
 .show-mobile-only {
   display: block;
+}
+
+/* =================================================================== */
+/* TIMELINE SLIDER                                                    */
+/* =================================================================== */
+
+.timeline-slider-container {
+  position: relative;
+  width: 100%;
+  padding: 1rem 0;
+}
+
+.timeline-value-display {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.timeline-slider-wrapper {
+  position: relative;
+  height: 60px;
+  margin: 0 1rem;
+}
+
+/* Century Markers */
+.timeline-markers {
+  position: absolute;
+  top: 35px;
+  left: 0;
+  right: 0;
+  height: 25px;
+  pointer-events: none;
+}
+
+.timeline-marker {
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+.marker-tick {
+  width: 1px;
+  height: 8px;
+  background: var(--border);
+  margin: 0 auto;
+}
+
+.marker-label {
+  font-size: 10px;
+  color: var(--muted-foreground);
+  text-align: center;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+/* Value Indicator */
+.timeline-value-indicator {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+  transition: left 150ms ease-out;
+}
+
+.value-indicator-line {
+  width: 2px;
+  height: 30px;
+  background: var(--primary);
+  margin: 0 auto;
+}
+
+.value-indicator-dot {
+  width: 12px;
+  height: 12px;
+  background: var(--primary);
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Range Input Styling */
+.timeline-slider {
+  position: absolute;
+  top: 20px;
+  width: 100%;
+  height: 20px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.timeline-slider:focus {
+  outline: none;
+}
+
+/* Webkit browsers (Chrome, Safari) */
+.timeline-slider::-webkit-slider-track {
+  width: 100%;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.timeline-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--primary);
+  border: 3px solid var(--surface);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  transition: all 150ms ease;
+}
+
+.timeline-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+}
+
+.timeline-slider::-webkit-slider-thumb:active {
+  transform: scale(1.05);
+  background: var(--primary-hover);
+}
+
+/* Firefox */
+.timeline-slider::-moz-range-track {
+  width: 100%;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.timeline-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--primary);
+  border: 3px solid var(--surface);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  transition: all 150ms ease;
+}
+
+.timeline-slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+}
+
+.timeline-slider::-moz-range-thumb:active {
+  transform: scale(1.05);
+  background: var(--primary-hover);
+}
+
+/* Disabled state */
+.timeline-slider:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.timeline-slider:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+}
+
+.timeline-slider:disabled::-moz-range-thumb {
+  cursor: not-allowed;
+}
+
+/* Helper text */
+.timeline-helper-text {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* Mobile optimizations */
+@media (max-width: 375px) {
+  .timeline-slider-wrapper {
+    margin: 0 0.5rem;
+  }
+  
+  .marker-label {
+    font-size: 9px;
+  }
+  
+  .timeline-slider::-webkit-slider-thumb {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .timeline-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* Dark mode adjustments */
+.dark .timeline-slider::-webkit-slider-track {
+  background: var(--input);
+}
+
+.dark .timeline-slider::-moz-range-track {
+  background: var(--input);
+}
+
+.dark .marker-tick {
+  background: var(--muted-foreground);
 }
 
 /* Professional spacing utilities */
@@ -1216,4 +1956,583 @@ html.dark .modal-close-btn:hover {
   will-change: contents;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+}
+
+/* =================================================================== */
+/* SWIPE PROGRESS BAR SYSTEM - Mobile-First Gesture Navigation        */
+/* =================================================================== */
+
+.progress-bar-swipe-container {
+  position: relative;
+  width: 100%;
+  /* Optimize for touch interactions */
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Swipe gesture visual feedback */
+.progress-bar-swipe-container .progress-bar-container {
+  /* GPU-accelerated transforms for smooth gestures */
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* Composite layer optimization */
+  contain: layout style paint;
+}
+
+/* Active swipe state styling */
+.progress-bar-swipe-container .select-none {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  /* Prevent context menu during swipe */
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Swipe navigation indicators */
+.swipe-indicators {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.25rem;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.swipe-indicators:hover {
+  opacity: 1;
+}
+
+/* Arrow indicators with subtle animation */
+.swipe-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  color: var(--muted-foreground);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.swipe-arrow.active {
+  color: var(--primary);
+  transform: scale(1.1);
+}
+
+.swipe-arrow.inactive {
+  opacity: 0.3;
+}
+
+/* Progress dots for swipe navigation */
+.swipe-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.swipe-dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: var(--border);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.swipe-dot.active {
+  background: var(--primary);
+  transform: scale(1.25);
+  box-shadow: 0 0 8px rgba(220, 68, 5, 0.3);
+}
+
+.swipe-dot:hover:not(.active) {
+  background: var(--muted-foreground);
+  opacity: 0.7;
+}
+
+/* Swipe gesture feedback animations */
+@keyframes swipeHintLeft {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-10px);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes swipeHintRight {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(10px);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Subtle animation for navigation feedback */
+.swipe-navigation-hint {
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: both;
+}
+
+.swipe-navigation-hint.swipe-left {
+  animation-name: swipeHintLeft;
+}
+
+.swipe-navigation-hint.swipe-right {
+  animation-name: swipeHintRight;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  .progress-bar-swipe-container {
+    /* Larger touch targets on mobile */
+    padding: 0.25rem 0;
+  }
+  
+  .swipe-indicators {
+    margin-top: 0.75rem;
+    gap: 0.75rem;
+  }
+  
+  .swipe-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    /* Larger touch target */
+    padding: 0.25rem;
+    margin: -0.25rem;
+  }
+  
+  .swipe-arrow {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+/* Desktop: Hide swipe indicators by default, show on hover */
+@media (min-width: 769px) {
+  .swipe-indicators {
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+  }
+  
+  .progress-bar-swipe-container:hover .swipe-indicators {
+    opacity: 0.8;
+  }
+  
+  /* Disable touch-specific optimizations on desktop */
+  .progress-bar-swipe-container {
+    touch-action: auto;
+  }
+}
+
+/* Accessibility: Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .swipe-navigation-hint {
+    animation: none;
+  }
+  
+  .swipe-dot,
+  .swipe-arrow {
+    transition: none;
+  }
+  
+  .progress-bar-swipe-container .progress-bar-container {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .swipe-dot {
+    border: 1px solid currentColor;
+  }
+  
+  .swipe-dot.active {
+    border-color: var(--primary);
+    background: var(--primary);
+  }
+  
+  .swipe-arrow {
+    filter: contrast(1.5);
+  }
+}
+
+/* Dark mode adjustments */
+html.dark .swipe-indicators {
+  opacity: 0.9;
+}
+
+html.dark .swipe-dot {
+  background: var(--border);
+}
+
+html.dark .swipe-dot.active {
+  background: var(--primary);
+  box-shadow: 0 0 8px rgba(234, 90, 27, 0.4); /* Adjusted for dark mode primary */
+}
+
+
+/* ========================= */
+/* CELEBRATION ANIMATIONS */
+/* ========================= */
+
+.celebration-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--color, var(--primary));
+  top: 50%;
+  left: 50%;
+  animation: confetti-fall var(--duration, 2s) var(--delay, 0s) ease-out forwards;
+  transform-origin: center;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(0);
+    opacity: 1;
+  }
+  10% {
+    transform: translate(-50%, -50%) rotate(var(--rotation, 180deg)) scale(1);
+  }
+  100% {
+    transform: translate(var(--x, 0), var(--y, 100vh)) rotate(var(--rotation, 180deg)) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* Respect motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .confetti {
+    animation: confetti-fade 0.5s ease-out forwards;
+  }
+  
+  @keyframes confetti-fade {
+    0% { opacity: 0.8; }
+    100% { opacity: 0; }
+  }
+}
+
+/* ========================= */
+/* SHARE BUTTON STYLES */
+/* ========================= */
+
+.share-button-success {
+  background: var(--feedback-correct) \!important;
+  color: white \!important;
+  transform: scale(1.05);
+}
+
+.share-button-error {
+  background: var(--status-error) \!important;
+  color: white \!important;
+  animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Emoji timeline display */
+.emoji-timeline {
+  font-size: 1.5rem;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background: var(--input);
+  display: inline-block;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.emoji-timeline-large {
+  font-size: 2rem;
+  letter-spacing: 0.2em;
+}
+
+/* ========================= */
+/* STATS MODAL ANIMATIONS */
+/* ========================= */
+
+/* Subtle pulse animation for achievements */
+.achievement-pulse {
+  animation: achievement-pulse 2s ease-in-out infinite;
+}
+
+@keyframes achievement-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+  }
+}
+
+/* Respect motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .achievement-pulse {
+    animation: none;
+    color: var(--feedback-correct) !important;
+  }
+}
+
+
+/* ========================= */
+/* STATS MODAL STYLES */
+/* ========================= */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: var(--input);
+  border: 1px solid var(--border);
+  transition: all 0.3s ease-out;
+  text-align: center;
+}
+
+.stat-card:hover {
+  background: var(--surface);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.stat-highlight {
+  background: var(--primary) \!important;
+  color: white \!important;
+  border-color: var(--primary) \!important;
+  box-shadow: 0 4px 12px rgba(220, 68, 5, 0.2);
+}
+
+.stat-highlight .stat-value,
+.stat-highlight .stat-label {
+  color: white \!important;
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stat-emoji {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--foreground);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+  line-height: 1.2;
+}
+
+/* Progress Bar */
+.progress-bar-track {
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease-out;
+  position: relative;
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.2), 
+    transparent
+  );
+  animation: progress-shimmer 2s infinite;
+}
+
+@keyframes progress-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Achievements List */
+.achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.achievement-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--input);
+  border: 1px solid var(--border);
+}
+
+.achievement-emoji {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.achievement-name {
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.achievement-desc {
+  font-size: 0.875rem;
+  margin-left: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .stat-card {
+    padding: 0.75rem;
+  }
+  
+  .stat-value {
+    font-size: 1.25rem;
+  }
+  
+  .achievement-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .achievement-desc {
+    margin-left: 0;
+  }
+}
+
+/* Dark mode optimizations */
+html.dark .stat-card:hover {
+  background: var(--card);
+}
+
+html.dark .progress-bar-fill::after {
+  background: linear-gradient(
+    90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.1), 
+    transparent
+  );
+}
+
+/* ===== TIME PICKER COMPONENT STYLES ===== */
+
+.time-picker {
+  display: inline-block;
+}
+
+.time-picker-select {
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+  padding-right: 32px;
+}
+
+.time-picker-select:hover:not(:disabled) {
+  border-color: var(--primary-light);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.time-picker-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.time-picker-select option {
+  padding: 8px 12px;
+}
+
+/* Dark mode adjustments for time picker */
+html.dark .time-picker-select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ecf0f1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .time-picker-select {
+    font-size: 16px; /* Prevents zoom on iOS */
+    min-width: 140px;
+    padding: 12px 36px 12px 12px;
+  }
+}
+
+/* Touch target compliance */
+.time-picker-select {
+  min-height: 44px;
+  min-width: 44px;
 }
