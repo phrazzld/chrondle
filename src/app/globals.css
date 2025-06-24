@@ -154,14 +154,86 @@ h3 {
   padding: 0.75rem 1.5rem;
   border-radius: 0.375rem;
   font-weight: 600;
-  transition: all 0.2s ease;
+  /* Optimized transitions for performance */
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  /* GPU acceleration and performance optimizations */
+  will-change: transform, background-color;
+  transform: translate3d(0, 0, 0);
+  /* Mobile optimizations */
+  touch-action: manipulation;
+  /* Composite layer optimization */
+  contain: layout style paint;
 }
 
 .btn-primary:hover {
   background: var(--primary-hover);
-  transform: translateY(-1px);
+  transform: translate3d(0, -1px, 0);
   box-shadow: 0 4px 8px rgba(220, 68, 5, 0.3); /* Updated to Vermilion */
+}
+
+/* Submit Animation - 150ms micro-interaction for dopamine feedback */
+.btn-primary.submitting {
+  animation: submitFeedback 150ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes submitFeedback {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    background-color: var(--primary);
+  }
+  50% {
+    transform: translate3d(0, 0, 0) scale(0.96);
+    background-color: var(--feedback-correct);
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    background-color: var(--primary);
+    box-shadow: none;
+  }
+}
+
+/* Accessibility: Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary.submitting {
+    animation: none;
+    /* Provide subtle color feedback instead */
+    background-color: var(--feedback-correct);
+    transition: background-color 150ms ease;
+    position: relative;
+  }
+  
+  .btn-primary.submitting::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 2px solid var(--feedback-correct);
+    pointer-events: none;
+  }
+}
+
+/* Mobile and low-DPI optimizations */
+@media (max-resolution: 150dpi) {
+  .btn-primary.submitting {
+    /* Simpler animation for low-end devices */
+    animation: submitFeedbackSimple 150ms ease-out;
+  }
+  
+  @keyframes submitFeedbackSimple {
+    0% {
+      background-color: var(--primary);
+    }
+    50% {
+      background-color: var(--feedback-correct);
+    }
+    100% {
+      background-color: var(--primary);
+    }
+  }
 }
 
 .btn-secondary {

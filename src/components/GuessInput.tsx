@@ -21,6 +21,7 @@ export const GuessInput: React.FC<GuessInputProps> = ({
   className = ''
 }) => {
   const [inputValue, setInputValue] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-focus on mount and after submission
@@ -64,6 +65,9 @@ export const GuessInput: React.FC<GuessInputProps> = ({
   const handleSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
+    // Prevent double submission during animation
+    if (isSubmitting) return;
+    
     const guess = parseInt(inputValue, 10);
     
     // Validation
@@ -72,10 +76,21 @@ export const GuessInput: React.FC<GuessInputProps> = ({
       return;
     }
 
-    // Make the guess
-    onGuess(guess);
-    setInputValue('');
-  }, [inputValue, onGuess, onValidationError]);
+    // Trigger animation immediately for instant feedback
+    setIsSubmitting(true);
+    
+    // Use requestAnimationFrame for optimal timing
+    requestAnimationFrame(() => {
+      // Make the guess
+      onGuess(guess);
+      setInputValue('');
+      
+      // Remove animation class after animation completes (150ms)
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, 150);
+    });
+  }, [inputValue, onGuess, onValidationError, isSubmitting]);
 
   const buttonText = disabled ? 'Game Over' : 'Submit';
   const isSubmitDisabled = disabled || remainingGuesses <= 0;
@@ -106,7 +121,9 @@ export const GuessInput: React.FC<GuessInputProps> = ({
           <button
             type="submit"
             disabled={isSubmitDisabled}
-            className="btn-primary px-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+            className={`btn-primary px-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none ${
+              isSubmitting ? 'submitting' : ''
+            }`}
             style={{
               ...(isSubmitDisabled && {
                 background: 'var(--muted-foreground)',
