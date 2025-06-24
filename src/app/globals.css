@@ -161,7 +161,7 @@ h3 {
 .btn-primary:hover {
   background: var(--primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+  box-shadow: 0 4px 8px rgba(220, 68, 5, 0.3); /* Updated to Vermilion */
 }
 
 .btn-secondary {
@@ -572,11 +572,11 @@ html.color-blind .dark\:text-blue-100 { color: #e0e7ff; /* indigo-100 */ }
 }
 
 .border-primary\/20 {
-  border-color: rgba(231, 76, 60, 0.2); /* primary with 20% opacity */
+  border-color: rgba(220, 68, 5, 0.2); /* Vermilion with 20% opacity */
 }
 
 .border-primary\/40 {
-  border-color: rgba(231, 76, 60, 0.4); /* primary with 40% opacity */
+  border-color: rgba(220, 68, 5, 0.4); /* Vermilion with 40% opacity */
 }
 
 .border-dashed {
@@ -616,7 +616,7 @@ html.color-blind .dark\:text-blue-100 { color: #e0e7ff; /* indigo-100 */ }
 /* Number badge styling */
 .hint-number {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
-  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+  box-shadow: 0 2px 8px rgba(220, 68, 5, 0.3); /* Updated to Vermilion */
 }
 
 /* Locked hint styling */
