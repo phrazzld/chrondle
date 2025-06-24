@@ -248,11 +248,12 @@
   - [x] **Target**: Save 80-100px vertical space, guarantee core game visible without scrolling
   - **✅ COMPLETED**: CSS-only responsive design saves ~24px mobile space with progressive enhancement
 
-- [ ] **🚨 Input Field Affordance Problems**: Current input looks disabled with grey background, tiny focus ring
-  - [ ] Use white background with 2px accent outline on focus
-  - [ ] Auto-focus on page load & after each submission
-  - [ ] Accept arrow keys (up/down ±1 year, shift+up/down ±10 years)
-  - [ ] **Target**: Remove input friction that directly hurts retention
+- [x] **🚨 Input Field Affordance Problems**: Current input looks disabled with grey background, tiny focus ring
+  - [x] Use white background with 2px accent outline on focus
+  - [x] Auto-focus on page load & after each submission
+  - [x] Accept arrow keys (up/down ±1 year, shift+up/down ±10 years)
+  - [x] **Target**: Remove input friction that directly hurts retention
+  - **✅ COMPLETED**: White background with focus outline, auto-focus behavior, keyboard navigation (±1/±10 years), accessibility features, and bounds checking all implemented
 
 - [ ] **🚨 Touch Target Violations**: Icons <32px, violating mobile accessibility standards
   - [ ] Ensure all tap targets ≥48×48 dp (settings, stats, all buttons)

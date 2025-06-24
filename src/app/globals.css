@@ -660,3 +660,111 @@ html.color-blind .dark\:text-blue-100 { color: #e0e7ff; /* indigo-100 */ }
     font-size: 2.25rem; /* 36px */
   }
 }
+
+/* Touch Target Accessibility System */
+:root {
+  --touch-target-min: 48px;     /* WCAG AA minimum (44px) + safety margin */
+  --touch-target-optimal: 52px; /* Enhanced ergonomics */
+  --touch-target-extended: 56px; /* Critical interactions */
+}
+
+/* Atomic Touch Target Classes */
+.touch-target-min {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.touch-target-optimal {
+  min-height: var(--touch-target-optimal);
+  min-width: var(--touch-target-optimal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.touch-target-extended {
+  min-height: var(--touch-target-extended);
+  min-width: var(--touch-target-extended);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Icon Button Touch Target Enhancement */
+.icon-btn {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.icon-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+.icon-btn:active {
+  transform: translateY(0);
+}
+
+html.dark .icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Touch Target Performance Optimizations */
+.touch-optimized {
+  touch-action: manipulation; /* Eliminate 300ms tap delay */
+  will-change: transform; /* Optimize for interactions */
+}
+
+/* Modal Touch Targets */
+.modal-close-btn {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  margin: -0.5rem; /* Negative margin to maintain visual spacing */
+}
+
+.modal-close-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+html.dark .modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Toggle Switch Touch Target Enhancement */
+.toggle-switch {
+  min-height: var(--touch-target-min);
+  width: 44px; /* Maintain width for toggle visual */
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 24px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+/* Responsive Touch Target Scaling */
+@media (min-width: 768px) and (max-width: 1023px) {
+  :root {
+    --touch-target-min: 52px; /* Enhanced tablet ergonomics */
+  }
+}
