@@ -34,6 +34,8 @@ const GuessRow: React.FC<GuessRowProps> = React.memo(({
         className="guess-row flex items-center justify-between"
         hover={false}
         style={{ animationDelay: `${index * 100}ms` }}
+        role="listitem"
+        aria-label={`Guess ${index + 1}: ${formatYear(guess)} - Correct answer!`}
       >
         <span className="font-bold text-lg">{formatYear(guess)}</span>
         <span className="font-bold text-lg">CORRECT!</span>
@@ -41,12 +43,18 @@ const GuessRow: React.FC<GuessRowProps> = React.memo(({
     );
   }
 
+  const distance = Math.abs(guess - targetYear);
+  const distanceText = distance === 1 ? '1 year' : `${distance} years`;
+  const cleanDirection = directionInfo.direction.toLowerCase().replace('▲', '').replace('▼', '').trim();
+  
   return (
     <Card
       variant="secondary"
       className="guess-row flex flex-col lg:flex-row items-start lg:items-center gap-4"
       hover={false}
       style={{ animationDelay: `${index * 100}ms` }}
+      role="listitem"
+      aria-label={`Guess ${index + 1}: ${formatYear(guess)} is ${cleanDirection}, off by ${distanceText}. Hint: ${hint || 'No more hints available.'}`}
     >
       <div className="flex items-center gap-4 w-full lg:w-auto">
         <div 
@@ -55,6 +63,7 @@ const GuessRow: React.FC<GuessRowProps> = React.memo(({
             background: directionInfo.direction.includes('EARLIER') ? 'var(--feedback-earlier)' : 'var(--feedback-later)',
             color: 'white'
           }}
+          aria-hidden="true"
         >
           {directionInfo.direction}
         </div>
@@ -104,9 +113,17 @@ export const GuessHistory: React.FC<GuessHistoryProps> = ({
   }
 
   return (
-    <div className={className}>
+    <div 
+      className={className}
+      role="region"
+      aria-label={`Your ${guesses.length} previous guess${guesses.length === 1 ? '' : 'es'}`}
+    >
       <div className="mb-6">
-        <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>
+        <h3 
+          className="text-xl font-bold mb-2" 
+          style={{ color: 'var(--foreground)' }}
+          id="guess-history-heading"
+        >
           Your Guesses
         </h3>
         <div 
@@ -114,7 +131,11 @@ export const GuessHistory: React.FC<GuessHistoryProps> = ({
           style={{ background: 'var(--border)' }}
         />
       </div>
-      <div className="space-y-4">
+      <div 
+        className="space-y-4"
+        role="list"
+        aria-labelledby="guess-history-heading"
+      >
         {guessRows}
       </div>
     </div>

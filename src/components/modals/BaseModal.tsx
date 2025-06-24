@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 interface BaseModalProps {
   isOpen: boolean;
@@ -18,6 +19,9 @@ export const BaseModal: React.FC<BaseModalProps> = ({
 }) => {
   const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  
+  // Focus trap
+  const focusTrapRef = useFocusTrap(isOpen && isVisible);
 
   // Handle mounting for portal
   useEffect(() => {
@@ -82,11 +86,15 @@ export const BaseModal: React.FC<BaseModalProps> = ({
       onClick={handleBackdropClick}
     >
       <div 
+        ref={focusTrapRef}
         className={`rounded-lg shadow-2xl w-full p-6 modal-content show-prep transition-all duration-300 transform scale-95 opacity-0 ${className || 'max-w-md'}`}
         style={{ 
           background: 'var(--card)',
           color: 'var(--card-foreground)'
         }}
+        role="dialog"
+        aria-modal="true"
+        tabIndex={-1}
       >
         {children}
       </div>

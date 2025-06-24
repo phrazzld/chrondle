@@ -269,17 +269,18 @@
   - [x] Fix blue "EARLIER" badge low contrast against grey background
   - **✅ COMPLETED**: Comprehensive semantic color system with mathematically validated contrast ratios (6.8:1 to 8.9:1), unified brand identity, and automatic dark mode support
 
-- [ ] **CTA Color Consistency**: Submit button red conflicts with alert badges
-  - [ ] Reserve primary red for actionable CTAs only
-  - [ ] Use distinct colors for status vs action elements
+- [x] **CTA Color Consistency**: Submit button red conflicts with alert badges
+  - [x] Reserve primary red for actionable CTAs only
+  - [x] Use distinct colors for status vs action elements
+  - **✅ COMPLETED**: Updated hardcoded color values, primary actions use Vermilion (--primary), status/error states use distinct Red (--status-error), no visual conflicts between buttons and alerts
 
 ### Accessibility Foundations
 
-- [ ] **Keyboard & Screen Reader Support**:
-  - [ ] ARIA labels for hint region ("Hint 3 of 6: October Manifesto...")
-  - [ ] Live-region polite announcements ("Too Early / Too Late" after submission)
-  - [ ] Proper focus management and keyboard navigation
-  - [ ] Focus trap in modals
+- [x] **Keyboard & Screen Reader Support**:
+  - [x] ARIA labels for hint region ("Hint 3 of 6: October Manifesto...")
+  - [x] Live-region polite announcements ("Too Early / Too Late" after submission)
+  - [x] Proper focus management and keyboard navigation
+  - [x] Focus trap in modals
 
 - [ ] **Feedback Micro-Animations**:
   - [ ] 150ms scale + color flash on submit, anchored to input field

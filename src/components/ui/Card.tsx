@@ -12,6 +12,8 @@ interface CardProps {
   hover?: boolean;
   padding?: 'sm' | 'md' | 'lg';
   style?: React.CSSProperties;
+  role?: string;
+  'aria-label'?: string;
 }
 
 interface SectionCardProps extends CardProps {
@@ -26,7 +28,9 @@ export const Card: React.FC<CardProps> = ({
   className = '',
   hover = true,
   padding = 'md',
-  style
+  style,
+  role,
+  'aria-label': ariaLabel
 }) => {
   const paddingClasses = {
     sm: 'p-4',
@@ -84,6 +88,8 @@ export const Card: React.FC<CardProps> = ({
         ${className}
       `}
       style={{ ...getVariantStyles(), ...style }}
+      role={role}
+      aria-label={ariaLabel}
     >
       {children}
     </div>
