@@ -42,3 +42,4 @@ next-env.d.ts
 
 /docs/leyline
 src/components/dev/
+*.backup
