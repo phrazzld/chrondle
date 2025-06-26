@@ -247,7 +247,7 @@ export default function ChronldePage() {
 
         {/* Loading Content */}
         <main className="min-h-screen">
-          <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="max-w-6xl mx-auto px-6 py-6">
             <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
             
               {/* Left Column - Loading Input and Progress */}
@@ -376,7 +376,7 @@ export default function ChronldePage() {
         role="main"
         aria-label="Historical guessing game"
       >
-        <div className="max-w-4xl mx-auto px-4 py-6">
+        <div className="max-w-6xl mx-auto px-6 py-6">
           
           {/* Debug Banner */}
           <DebugBanner 
