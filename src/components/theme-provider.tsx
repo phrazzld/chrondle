@@ -6,9 +6,7 @@ import { useNotifications, UseNotificationsReturn } from '@/hooks/useNotificatio
 
 interface ThemeContextType {
   darkMode: boolean;
-  colorBlindMode: boolean;
   toggleDarkMode: () => void;
-  toggleColorBlindMode: () => void;
   notifications: UseNotificationsReturn;
 }
 
@@ -28,7 +26,6 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [darkMode, setDarkMode] = useState(false);
-  const [colorBlindMode, setColorBlindMode] = useState(false);
   const [mounted, setMounted] = useState(false);
   
   // Initialize notification hook
@@ -39,7 +36,6 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     const settings = loadSettings();
     if (settings && typeof settings === 'object') {
       setDarkMode(Boolean(settings.darkMode));
-      setColorBlindMode(Boolean(settings.colorBlindMode));
     }
     setMounted(true);
   }, []);
@@ -57,33 +53,19 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       html.classList.remove('dark');
     }
 
-    // Manage color-blind mode class
-    if (colorBlindMode) {
-      html.classList.add('color-blind');
-    } else {
-      html.classList.remove('color-blind');
-    }
-
     // Save settings to localStorage
     saveSettings({
-      darkMode,
-      colorBlindMode
+      darkMode
     });
-  }, [darkMode, colorBlindMode, mounted]);
+  }, [darkMode, mounted]);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
 
-  const toggleColorBlindMode = () => {
-    setColorBlindMode(!colorBlindMode);
-  };
-
   const value = {
     darkMode,
-    colorBlindMode,
     toggleDarkMode,
-    toggleColorBlindMode,
     notifications,
   };
 

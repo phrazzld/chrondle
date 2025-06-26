@@ -1,7 +1,13 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { BaseModal } from './BaseModal';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle 
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { Celebration } from '@/components/ui/Celebration';
 
 interface AchievementModalProps {
@@ -33,32 +39,31 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
   return (
     <>
       <Celebration />
-      <BaseModal isOpen={isOpen} onClose={onClose} className="max-w-md">
-        <div className="text-center space-y-6 p-4">
-          <div className="text-6xl animate-bounce mb-4">
-            🏆
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="sr-only">Achievement Unlocked</DialogTitle>
+          </DialogHeader>
+          <div className="text-center space-y-6 p-4">
+            <div className="text-6xl animate-bounce mb-4">
+              🏆
+            </div>
+            <h2 className="text-2xl font-bold mb-2 text-foreground">
+              Achievement Unlocked!
+            </h2>
+            <p className="text-lg font-medium mb-6 text-primary">
+              {achievement}
+            </p>
+            <Button
+              onClick={onClose}
+              className="px-6 py-3 font-medium transition-all duration-200 hover:scale-105"
+              autoFocus
+            >
+              Awesome! 🎉
+            </Button>
           </div>
-          <h2 
-            className="text-2xl font-bold mb-2"
-            style={{ color: 'var(--foreground)' }}
-          >
-            Achievement Unlocked!
-          </h2>
-          <p 
-            className="text-lg font-medium mb-6"
-            style={{ color: 'var(--primary)' }}
-          >
-            {achievement}
-          </p>
-          <button
-            onClick={onClose}
-            className="btn-primary px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105"
-            autoFocus
-          >
-            Awesome! 🎉
-          </button>
-        </div>
-      </BaseModal>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

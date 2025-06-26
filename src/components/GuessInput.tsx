@@ -2,12 +2,13 @@
 
 import React, { useState, useCallback, FormEvent, useRef, useEffect, KeyboardEvent } from 'react';
 import { isValidYear, GAME_CONFIG } from '@/lib/constants';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 interface GuessInputProps {
   onGuess: (guess: number) => void;
   disabled: boolean;
   remainingGuesses: number;
-  maxGuesses: number;
   onValidationError?: (message: string) => void;
   className?: string;
 }
@@ -16,7 +17,6 @@ export const GuessInput: React.FC<GuessInputProps> = ({
   onGuess,
   disabled,
   remainingGuesses,
-  maxGuesses,
   onValidationError,
   className = ''
 }) => {
@@ -94,49 +94,38 @@ export const GuessInput: React.FC<GuessInputProps> = ({
 
   const buttonText = disabled ? 'Game Over' : 'Submit';
   const isSubmitDisabled = disabled || remainingGuesses <= 0;
-  const currentGuess = maxGuesses - remainingGuesses + 1;
 
   return (
     <div className={className}>      
-      <form onSubmit={handleSubmit} className="flex gap-3 items-center">
-        <div className="flex-1">
-          <input
-            ref={inputRef}
-            type="number"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Enter year (e.g., 1969)"
-            className="w-full p-3 text-lg text-center rounded-lg border-2 font-medium transition-all duration-200 focus:outline-none focus:ring-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white focus:bg-white border-border focus:border-primary focus:shadow-lg focus:shadow-primary/15"
-            style={{
-              color: 'var(--foreground)'
-            }}
-            title="Use ↑↓ arrow keys (±1 year) or Shift+↑↓ (±10 years)"
-            required
-            disabled={disabled}
-            aria-label="Enter your year guess. Use arrow keys to increment or decrement."
-          />
-        </div>
-        <div className="flex flex-col items-center gap-1">
-          <button
-            type="submit"
-            disabled={isSubmitDisabled}
-            className={`btn-primary px-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none ${
-              isSubmitting ? 'submitting' : ''
-            }`}
-            style={{
-              ...(isSubmitDisabled && {
-                background: 'var(--muted-foreground)',
-                color: 'white'
-              })
-            }}
-          >
-            {buttonText}
-          </button>
-          <span className="text-xs text-muted-foreground">
-            {currentGuess}/{maxGuesses}
-          </span>
-        </div>
+      <form onSubmit={handleSubmit} className="space-y-3">
+        {/* Clean Input Field */}
+        <Input
+          ref={inputRef}
+          type="number"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Enter year (e.g., 1914)"
+          className="text-2xl text-center font-bold h-16 bg-background border-2 border-input focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all duration-200 shadow-sm"
+          title="Use ↑↓ arrow keys (±1 year) or Shift+↑↓ (±10 years)"
+          required
+          disabled={disabled}
+          aria-label="Enter your year guess. Use arrow keys to increment or decrement."
+        />
+
+        {/* Clean Submit Button */}
+        <Button
+          type="submit"
+          disabled={isSubmitDisabled}
+          size="lg"
+          className={`w-full h-12 text-lg font-semibold transition-all duration-200 ${
+            isSubmitting 
+              ? 'scale-105 bg-primary/90 shadow-lg animate-pulse' 
+              : 'hover:scale-105 hover:shadow-md'
+          }`}
+        >
+          {buttonText}
+        </Button>
       </form>
     </div>
   );

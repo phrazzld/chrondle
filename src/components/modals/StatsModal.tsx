@@ -1,7 +1,12 @@
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { BaseModal } from './BaseModal';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle 
+} from '@/components/ui/dialog';
 import { StreakData } from '@/lib/storage';
 import { STREAK_CONFIG } from '@/lib/constants';
 
@@ -85,24 +90,22 @@ const StatCard: React.FC<StatCardProps> = ({
 
   return (
     <div 
-      className={`stat-card ${isHighlight ? 'stat-highlight' : ''} ${className}`}
+      className={`flex flex-col items-center p-4 rounded-lg border bg-card text-card-foreground shadow-sm ${isHighlight ? 'border-primary bg-primary/5' : ''} ${className}`}
       style={{
         transform: isHighlight && !hasAnimated ? 'scale(1.02)' : 'scale(1)',
         transition: 'transform 0.3s ease-out'
       }}
     >
-      <div className="stat-content">
-        {emoji && (
-          <div className="stat-emoji" aria-hidden="true">
-            {emoji}
-          </div>
-        )}
-        <div className="stat-value">
-          {value}
+      {emoji && (
+        <div className="text-2xl mb-2" aria-hidden="true">
+          {emoji}
         </div>
-        <div className="stat-label">
-          {label}
-        </div>
+      )}
+      <div className="text-2xl font-bold text-foreground">
+        {value}
+      </div>
+      <div className="text-sm text-muted-foreground text-center">
+        {label}
       </div>
     </div>
   );
@@ -120,29 +123,16 @@ export const StatsModal: React.FC<StatsModalProps> = ({
                    streakData.currentStreak === streakData.longestStreak;
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} className="max-w-lg">
-      <div className="flex justify-between items-center mb-6">
-        <h2 
-          className="text-2xl font-bold font-[family-name:var(--font-playfair-display)]"
-          style={{ color: 'var(--foreground)' }}
-        >
-          Your Statistics
-        </h2>
-        <button 
-          onClick={onClose}
-          className="modal-close-btn touch-optimized"
-          style={{ color: 'var(--muted-foreground)' }}
-          title="Close statistics dialog"
-          aria-label="Close statistics dialog"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-      
-      {/* Main Stats Grid */}
-      <div className="stats-grid">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold font-serif">
+            Your Statistics
+          </DialogTitle>
+        </DialogHeader>
+        
+        {/* Main Stats Grid */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
         {/* Current Streak */}
         <StatCard
           value={streakData.currentStreak}
@@ -189,93 +179,69 @@ export const StatsModal: React.FC<StatsModalProps> = ({
         )}
       </div>
 
-      {/* Achievement Progress Bar */}
-      {insights.nextAchievement && insights.progressToNext < 1 && (
-        <div className="mt-6">
-          <div className="flex justify-between items-center mb-2">
-            <span 
-              className="text-sm font-medium"
-              style={{ color: 'var(--foreground)' }}
-            >
-              Progress to {insights.nextAchievement.name}
-            </span>
-            <span 
-              className="text-sm"
-              style={{ color: 'var(--muted-foreground)' }}
-            >
-              {streakData.currentStreak} / {insights.nextAchievement.threshold}
-            </span>
+        {/* Achievement Progress Bar */}
+        {insights.nextAchievement && insights.progressToNext < 1 && (
+          <div className="mt-6">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-foreground">
+                Progress to {insights.nextAchievement.name}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                {streakData.currentStreak} / {insights.nextAchievement.threshold}
+              </span>
+            </div>
+            <div className="w-full bg-secondary rounded-full h-2 border">
+              <div 
+                className="bg-primary h-2 rounded-full transition-all duration-500"
+                style={{ width: `${insights.progressToNext * 100}%` }}
+              />
+            </div>
           </div>
-          <div 
-            className="progress-bar-track"
-            style={{ 
-              background: 'var(--input)',
-              border: '1px solid var(--border)'
-            }}
-          >
-            <div 
-              className="progress-bar-fill"
-              style={{ 
-                width: `${insights.progressToNext * 100}%`,
-                background: 'var(--primary)'
-              }}
-            />
-          </div>
-        </div>
-      )}
+        )}
 
-      {/* Recent Achievements */}
-      {streakData.achievements.length > 0 && (
-        <div className="mt-6">
-          <h3 
-            className="text-lg font-semibold mb-3"
-            style={{ color: 'var(--foreground)' }}
-          >
-            Achievements Unlocked
-          </h3>
-          <div className="achievements-list">
-            {streakData.achievements.map((achievementName, index) => {
-              const achievement = STREAK_CONFIG.ACHIEVEMENTS.find(a => a.name === achievementName);
-              return achievement ? (
-                <div key={index} className="achievement-item">
-                  <span className="achievement-emoji" aria-hidden="true">
-                    {achievement.emoji}
-                  </span>
-                  <span 
-                    className="achievement-name"
-                    style={{ color: 'var(--foreground)' }}
-                  >
-                    {achievement.name}
-                  </span>
-                  <span 
-                    className="achievement-desc"
-                    style={{ color: 'var(--muted-foreground)' }}
-                  >
-                    {achievement.description}
-                  </span>
-                </div>
-              ) : null;
-            })}
+        {/* Recent Achievements */}
+        {streakData.achievements.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold mb-3 text-foreground">
+              Achievements Unlocked
+            </h3>
+            <div className="space-y-3">
+              {streakData.achievements.map((achievementName, index) => {
+                const achievement = STREAK_CONFIG.ACHIEVEMENTS.find(a => a.name === achievementName);
+                return achievement ? (
+                  <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50">
+                    <span className="text-lg" aria-hidden="true">
+                      {achievement.emoji}
+                    </span>
+                    <div className="flex-1">
+                      <span className="font-medium text-foreground">
+                        {achievement.name}
+                      </span>
+                      <div className="text-sm text-muted-foreground">
+                        {achievement.description}
+                      </div>
+                    </div>
+                  </div>
+                ) : null;
+              })}
+            </div>
           </div>
+        )}
+        
+        {/* Motivational Message */}
+        <div className="mt-6 text-center">
+          <p className="text-sm text-muted-foreground">
+            {insights.recentActivity >= 5 
+              ? "🌟 Great consistency! Keep up the momentum!"
+              : insights.recentActivity >= 3
+              ? "💪 You're building a strong habit!"
+              : streakData.currentStreak > 0
+              ? "🚀 Every day counts - keep your streak alive!"
+              : "🎯 Start your journey through history today!"
+            }
+          </p>
         </div>
-      )}
-      
-      {/* Motivational Message */}
-      <div className="mt-6 text-center">
-        <p 
-          className="text-sm"
-          style={{ color: 'var(--muted-foreground)' }}
-        >
-          {insights.recentActivity >= 5 
-            ? "🌟 Great consistency! Keep up the momentum!"
-            : insights.recentActivity >= 3
-            ? "💪 You're building a strong habit!"
-            : streakData.currentStreak > 0
-            ? "🚀 Every day counts - keep your streak alive!"
-            : "🎯 Start your journey through history today!"
-          }
-        </p>
-      </div>
-    </BaseModal>
+      </DialogContent>
+    </Dialog>
   );
 };
