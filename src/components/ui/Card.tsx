@@ -1,173 +1,92 @@
-'use client';
+import * as React from "react"
 
-import React from 'react';
+import { cn } from "@/lib/utils"
 
-// Card variant types matching the design system
-type CardVariant = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'info';
-
-interface CardProps {
-  children: React.ReactNode;
-  variant?: CardVariant;
-  className?: string;
-  hover?: boolean;
-  padding?: 'sm' | 'md' | 'lg';
-  style?: React.CSSProperties;
-  role?: string;
-  'aria-label'?: string;
-}
-
-interface SectionCardProps extends CardProps {
-  sectionNumber?: string;
-  sectionLabel?: string;
-}
-
-// Base Card Component
-export const Card: React.FC<CardProps> = ({
-  children,
-  variant = 'default',
-  className = '',
-  hover = true,
-  padding = 'md',
-  style,
-  role,
-  'aria-label': ariaLabel
-}) => {
-  const paddingClasses = {
-    sm: 'p-4',
-    md: 'p-6', 
-    lg: 'p-8'
-  };
-
-  const getVariantStyles = () => {
-    switch (variant) {
-      case 'primary':
-        return {
-          background: 'var(--primary)',
-          color: 'white',
-          border: 'none'
-        };
-      case 'secondary':
-        return {
-          background: 'var(--card)',
-          color: 'var(--card-foreground)',
-          border: '2px solid var(--border)'
-        };
-      case 'success':
-        return {
-          background: 'var(--success)',
-          color: 'white',
-          border: 'none'
-        };
-      case 'warning':
-        return {
-          background: 'var(--warning)',
-          color: 'white',
-          border: 'none'
-        };
-      case 'info':
-        return {
-          background: 'var(--info)',
-          color: 'white',
-          border: 'none'
-        };
-      default:
-        return {
-          background: 'var(--card)',
-          color: 'var(--card-foreground)',
-          border: '1px solid var(--border)'
-        };
-    }
-  };
-
+function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      className={`
-        rounded-lg shadow-lg transition-all duration-200
-        ${paddingClasses[padding]}
-        ${hover ? 'hover:shadow-xl hover:-translate-y-1' : ''}
-        ${className}
-      `}
-      style={{ ...getVariantStyles(), ...style }}
-      role={role}
-      aria-label={ariaLabel}
-    >
-      {children}
-    </div>
-  );
-};
-
-// Section Card with numbered badge
-export const SectionCard: React.FC<SectionCardProps> = ({
-  children,
-  sectionNumber,
-  sectionLabel,
-  variant = 'secondary',
-  className = '',
-  ...props
-}) => {
-  return (
-    <Card
-      variant={variant}
-      className={`relative ${className}`}
-      {...props}
-    >
-      {sectionNumber && (
-        <div className="absolute top-4 left-4">
-          <span 
-            className="text-xl font-bold opacity-90"
-            style={{ 
-              color: variant === 'primary' ? 'white' : 'var(--primary)' 
-            }}
-          >
-            {sectionNumber}
-          </span>
-          {sectionLabel && (
-            <div 
-              className="text-xs font-medium mt-1 opacity-75"
-              style={{ 
-                color: variant === 'primary' ? 'white' : 'var(--muted-foreground)' 
-              }}
-            >
-              {sectionLabel}
-            </div>
-          )}
-        </div>
+      data-slot="card"
+      className={cn(
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        className
       )}
-      <div className={sectionNumber ? 'pt-8' : ''}>
-        {children}
-      </div>
-    </Card>
-  );
-};
+      {...props}
+    />
+  )
+}
 
-// Specialized card variants for common use cases
-export const PrimaryCard: React.FC<Omit<CardProps, 'variant'>> = (props) => (
-  <Card variant="primary" {...props} />
-);
+function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-header"
+      className={cn(
+        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6",
+        className
+      )}
+      {...props}
+    />
+  )
+}
 
-export const SecondaryCard: React.FC<Omit<CardProps, 'variant'>> = (props) => (
-  <Card variant="secondary" {...props} />
-);
+function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-title"
+      className={cn("leading-none font-semibold", className)}
+      {...props}
+    />
+  )
+}
 
-export const SuccessCard: React.FC<Omit<CardProps, 'variant'>> = (props) => (
-  <Card variant="success" {...props} />
-);
+function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-description"
+      className={cn("text-muted-foreground text-sm", className)}
+      {...props}
+    />
+  )
+}
 
-// Game-specific card components
-export const GameSection: React.FC<{
-  children: React.ReactNode;
-  number: string;
-  title?: string;
-  variant?: CardVariant;
-  className?: string;
-}> = ({ children, number, title, variant = 'secondary', className = '' }) => (
-  <SectionCard
-    sectionNumber={number}
-    sectionLabel={title}
-    variant={variant}
-    className={className}
-    padding="lg"
-  >
-    {children}
-  </SectionCard>
-);
+function CardAction({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-action"
+      className={cn(
+        "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CardContent({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-content"
+      className={cn("px-6", className)}
+      {...props}
+    />
+  )
+}
+
+function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-footer"
+      className={cn("flex items-center px-6 [.border-t]:pt-6", className)}
+      {...props}
+    />
+  )
+}
+
+export {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardAction,
+  CardDescription,
+  CardContent,
+}

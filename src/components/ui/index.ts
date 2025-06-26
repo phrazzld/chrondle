@@ -8,6 +8,12 @@
 // Card system components
 export * from './Card';
 
+// Core shadcn components
+export { Badge } from './Badge';
+export { Separator } from './Separator';
+export { Progress } from './progress';
+export { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './accordion';
+
 // Other UI components
 export { LoadingSpinner } from './LoadingSpinner';
 export { ProgressBar } from './ProgressBar';
