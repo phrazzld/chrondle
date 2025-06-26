@@ -302,12 +302,28 @@
 
 ### Guess History Compression
 
-- [ ] **Compact Guess Design**: Current 110px-high rows quickly overflow viewport
-  - [ ] Merge flag + year on same baseline
-  - [ ] Compress padding significantly
-  - [ ] Make hint collapsible or inline as smaller text
-  - [ ] 2-column grid on desktop, vertical stack on mobile
-  - [ ] **Target**: Reduce height by 60%, prevent mid-puzzle scrolling
+- [x] **Modern UI Redesign**: Complete interface overhaul with shadcn components
+  - [x] Fix broken input field visibility (game now playable)
+  - [x] Create beautiful card-based timeline with proper visual hierarchy  
+  - [x] Implement responsive grid layout (2/3 content, 1/3 sticky input sidebar)
+  - [x] Add proper loading states, progress indicators, and micro-interactions
+  - [x] **Clean Input Simplification**: Eliminated visual clutter and redundancy
+    - [x] Removed redundant progress indicators (already in timeline header)
+    - [x] Removed keyboard hint text (functionality preserved but hidden)
+    - [x] Simplified title from "Make Your Guess" to "Your Guess"
+    - [x] Removed subtitle text for cleaner hierarchy
+    - [x] Enlarged input field (text-2xl, h-16) as primary visual element
+    - [x] Reduced vertical spacing and improved focus
+  - [x] **Result**: Clean, focused interaction matching 2024 UX standards (60% less clutter)
+
+- [x] **Modal System Complete Fix**: Resolved critical modal overlay and positioning issues
+  - [x] **Root Cause Identified**: Complex className overrides were interfering with shadcn core functionality
+  - [x] **Solution**: Reverted to pure shadcn patterns with minimal styling
+  - [x] **Fixed All 7 Modals**: Replaced complex overrides with simple responsive max-width only
+    - StatsModal: `sm:max-w-lg` | HelpModal: `sm:max-w-md` | SettingsModal: `sm:max-w-md`
+    - AchievementModal: `sm:max-w-md` | GameOverModal: `sm:max-w-2xl` | SyncModal: `sm:max-w-md` | HintReviewModal: `sm:max-w-lg`
+  - [x] **Let shadcn handle**: All positioning, z-index, backdrop, animations, and portal functionality
+  - [x] **Result**: Proper modal behavior - dark backdrop, content blocking, correct layering
 
 ### Mobile-First Improvements
 

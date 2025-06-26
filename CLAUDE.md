@@ -1,70 +1,95 @@
-# CLAUDE.md
+# CLAUDE.md - SuperClaude Cfg
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Legend
+| Symbol | Meaning | | Abbrev | Meaning |
+|--------|---------|---|--------|---------|
+| → | leads to | | cfg | configuration |
+| & | and/with | | docs | documentation |
+| > | greater than | | ops | operations |
 
-## Project Overview
+@RULES.md
+@MCP.md
+@PERSONAS.md
 
-This is **Chrondle**, a daily historical guessing game built with Next.js 15 and TypeScript. Players guess the year when historical events occurred, getting proximity feedback for their guesses. The project was migrated from a vanilla HTML/JavaScript implementation to a modern Next.js architecture.
+## Core Cfg
 
-## Commands
+```yaml
+Philosophy: Code>docs | Simple→complex | Security first
+Communication: Concise format | Symbols: →|&:» | Bullets>prose
+Workflow: TodoRead()→TodoWrite(3+)→Execute | Update immediate
+Stack: React|TS|Vite + Node|Express|PostgreSQL + Git|ESLint|Jest
+Commands: /user:<command> [flags] | /task:<action> | Ex: /user:build --init
+```
 
-- **Development**: `npm run dev --turbopack` - Start development server with Turbo
-- **Build**: `npm run build` - Create production build
-- **Start**: `npm start` - Start production server  
-- **Lint**: `npm run lint` - Run ESLint checks
+## Thinking Modes
 
-## Architecture
+```yaml
+Activation: Natural language OR command flags
+Flags: --think | --think-hard | --ultrathink
+none: Single file|Basic | think: Multi-file|Standard
+think hard: Architecture|Complex | ultrathink: Redesign|Critical
+Examples: /user:analyze --code --think | /user:design --api --ultrathink
+```
 
-### Core Game Logic
-The game logic is organized into separate modules in `src/lib/`:
+## Token Economy
 
-- **Game State** (`gameState.ts`): Core game mechanics, puzzle initialization, daily year selection from curated list, and localStorage management for progress persistence
-- **API Integration** (`api.ts`): Historical events fetching from API Ninjas with Wikidata SPARQL fallback, event enhancement, and LLM hint generation
-- **Constants** (`constants.ts`): All configuration values, API endpoints, scoring rules, and game parameters
-- **Utilities** (`utils.ts`): Helper functions for year formatting, proximity feedback, sharing, countdown timers
-- **Storage** (`storage.ts`): localStorage wrappers for settings and progress
+```yaml
+Targets: Minimal commands | Responses<4 lines | Concise docs
+Symbols: →(leads to) |(separator) &(combine) :(define) »(sequence)
+Remove: the|a|very|really|that|which | "in order to"→to | and→&
+```
 
-### Data Flow
-1. Daily puzzle initialization selects a curated year using deterministic hash
-2. Historical events fetched from API Ninjas, with Wikidata SPARQL as fallback
-3. Events sorted by recognizability (obscure to obvious) using keyword scoring
-4. Game progress auto-saved to localStorage with puzzle validation
-5. Theme and accessibility settings persisted across sessions
+## UltraCompressed Mode
 
-### Key Features
-- **Daily Puzzles**: Deterministic year selection from curated historical years
-- **Multi-API**: Primary API Ninjas with Wikidata SPARQL backup
-- **Event Enhancement**: Context-aware descriptions using location/participant data
-- **LLM Integration**: Optional OpenAI hint enhancement (user-provided API key)
-- **Progressive Difficulty**: Events sorted from obscure to recognizable
-- **Accessibility**: Dark mode and color-blind support via React Context
+```yaml
+Purpose: ~70% token reduction | Telegram-style docs | Symbols & abbrevs
+Activation: --uc flag | Natural language | Auto when context>70%
+Rules: shared/ultracompressed.yml | Remove filler | Use symbols
+Output: Direct info only | No intros/outros | Lists>prose
+Legend: Auto-generate | Used symbols/abbrevs only | Start of docs
+```
 
-### Technology Stack
-- **Framework**: Next.js 15 with App Router and Turbopack
-- **Styling**: Tailwind CSS v4 with PostCSS
-- **TypeScript**: Strict type checking enabled
-- **State Management**: React Context for theme/settings
-- **Storage**: Browser localStorage with validation and cleanup
-- **APIs**: API Ninjas (historical events), Wikidata SPARQL (fallback), OpenAI (optional)
+## Code Economy
 
-### Component Structure
-- Theme management through React Context Provider
-- Modular utility functions with TypeScript interfaces
-- Separation of concerns between game logic, API integration, and UI
+```yaml
+Generation: No comments | Short names | No boilerplate
+Documentation: Only on request | Bullets>prose | Essential facts only
+Patterns: Destructure | Chain | Ternary | Arrow functions
+Output: Code only | No explanation unless asked
+```
 
-## Development Notes
+## Cost Optimization
 
-### Debugging
-The codebase includes extensive debug logging with `🔍 DEBUG:` prefixes. Debug mode can be enabled via URL parameters (`?debug=true&year=1969`).
+```yaml
+Models: Simple→sonnet | Complex→sonnet-4 | Critical→opus-4
+MCP: C7 progressive loading | Seq adaptive thinking | Batch similar
+Efficiency: Min tokens | Cache results | Batch ops
+```
 
-### API Keys
-- API Ninjas key is embedded (acceptable for this historical data API)
-- OpenAI API key must be user-provided via localStorage for LLM features
+## Auto-Activation
 
-### Storage Strategy
-- Daily progress keyed by date with puzzle validation
-- Automatic cleanup of old localStorage entries
-- Settings persistence for theme preferences
+```yaml
+Files: *.tsx→frontend | *.sql→data | Docker→devops | *.test→qa
+Keywords: bug|error→debugger | optimize→performance | secure→security
+Context: TypeError→trace | Module error→deps | Permission→security
+Tasks: Auto-detect complexity→seamless task creation | ./claudedocs/tasks/in-progress→auto-resume
+```
 
-### Event Processing
-Events are enhanced using contextual data (location, participants) and scored for recognizability using keyword matching and length heuristics.
+## Task Management
+
+```yaml
+Mode: Automatic | No user prompts | Seamless activation
+Detection: ≥8 complexity points→auto-create | 5-7→brief notify | <5→normal
+Triggers: "build|create|implement" + "system|feature" + complexity flags
+Flow: requirement→analyze→create→breakdown→implement | Background operation
+Recovery: Auto-resume active tasks | Context preservation | Git integration
+```
+
+## Performance
+
+```yaml
+Ops: Parallel>sequential | Batch similar | One in-progress
+```
+
+---
+*SuperClaude v4.0.0 | Critical load order | Internal Claude cfg*
