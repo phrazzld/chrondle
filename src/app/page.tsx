@@ -10,20 +10,20 @@ import { getEnhancedProximityFeedback } from '@/lib/enhancedFeedback';
 import { useGameState } from '@/hooks/useGameState';
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import { useStreak } from '@/hooks/useStreak';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/button';
 import { HelpModal } from '@/components/modals/HelpModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
 import { StatsModal } from '@/components/modals/StatsModal';
 import { SyncModal } from '@/components/modals/SyncModal';
 import { GameOverModal } from '@/components/modals/GameOverModal';
 import { HintReviewModal } from '@/components/modals/HintReviewModal';
-import { EventDisplay } from '@/components/EventDisplay';
-import { EnhancedGuessInput } from '@/components/EnhancedGuessInput';
-import { GuessHistory } from '@/components/GuessHistory';
+import { GameProgress } from '@/components/GameProgress';
+import { HintsDisplay } from '@/components/HintsDisplay';
+import { GuessInput } from '@/components/GuessInput';
 import { DebugBanner } from '@/components/DebugBanner';
 import { AppHeader } from '@/components/AppHeader';
 import { LiveAnnouncer } from '@/components/ui/LiveAnnouncer';
-import { ProgressBar } from '@/components/ui/ProgressBar';
-import { StickyFooter } from '@/components/ui/StickyFooter';
 import { ViewportDebug } from '@/components/dev/ViewportDebug';
 import { AchievementModal } from '@/components/modals/AchievementModal';
 import { BackgroundAnimation } from '@/components/BackgroundAnimation';
@@ -158,19 +158,24 @@ export default function ChronldePage() {
     setTimeout(() => setValidationError(''), 2000);
   }, []);
 
-  // Handle progress bar segment clicks
-  const handleSegmentClick = useCallback((index: number, guess: number, hint: string) => {
-    setHintReviewModal({
-      isOpen: true,
-      guessNumber: index + 1,
-      guess,
-      hint
-    });
-  }, []);
-
   const closeHintReviewModal = useCallback(() => {
     setHintReviewModal(null);
   }, []);
+
+  // Handle hint click to open review modal
+  const handleHintClick = useCallback((hintIndex: number) => {
+    if (!gameLogic.gameState.puzzle || gameLogic.gameState.guesses.length === 0) return;
+    
+    const guess = gameLogic.gameState.guesses[hintIndex];
+    const hint = gameLogic.gameState.puzzle.events[hintIndex + 1] || 'No more hints available.';
+    
+    setHintReviewModal({
+      isOpen: true,
+      guessNumber: hintIndex + 1,
+      guess,
+      hint
+    });
+  }, [gameLogic.gameState.guesses, gameLogic.gameState.puzzle]);
 
   // Gesture navigation for reviewing hints
   const navigateToHint = useCallback((direction: 'prev' | 'next') => {
@@ -242,83 +247,95 @@ export default function ChronldePage() {
 
         {/* Loading Content */}
         <main className="min-h-screen">
-          <div className="max-w-xl mx-auto px-4 py-6 space-y-5 main-content-mobile section-spacing-mobile">
+          <div className="max-w-4xl mx-auto px-4 py-6">
+            <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
             
-            {/* Loading Hint Display */}
-            <div className="relative">
-              <div className="card border-2 border-primary/20 card-padding-override card-mobile-compact hint-display-mobile">
-                <div className="flex items-start gap-4">
-                  <div className="w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
-                    1
-                  </div>
-                  <div className="flex-1">
-                    <div className="mb-4 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Hint 1
-                        </span>
-                        <div className="flex gap-1" aria-hidden="true">
-                          {[...Array(6)].map((_, i) => (
-                            <div
-                              key={i}
-                              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                                i < 1 ? 'bg-primary' : 'bg-border'
-                              }`}
-                            />
-                          ))}
+              {/* Left Column - Loading Input and Progress */}
+              <div className="lg:col-span-1 space-y-6">
+                {/* Loading Input */}
+                <div className="sticky top-6">
+                  <Card className="shadow-lg border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5">
+                    <div className="p-6">
+                      <h3 className="text-lg font-semibold text-foreground mb-4">Your Guess</h3>
+                      <div className="flex gap-3 items-center">
+                        <div className="flex-1">
+                          <div className="w-full p-3 text-lg text-center rounded-lg border-2 bg-input border-border opacity-50">
+                            Enter year (e.g., 1969)
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-center gap-1">
+                          <Button className="px-6 opacity-50" disabled>Submit</Button>
+                          <span className="text-xs text-muted-foreground">1/6</span>
                         </div>
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        5 more hints available
-                      </span>
                     </div>
-                    <div className="text-lg leading-relaxed" style={{ color: 'var(--foreground)' }}>
-                      <EventDisplay 
-                        event={null}
-                        isLoading={true}
-                        error={null}
-                      />
-                    </div>
-                  </div>
+                  </Card>
                 </div>
-              </div>
-            </div>
-
-            {/* Loading Progress Bar */}
-            <div className="progress-bar-container relative w-full opacity-50">
-              <div className="progress-track relative h-12 md:h-14 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-                <div className="absolute inset-0 flex">
-                  {[...Array(6)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="segment relative flex-1 h-full border-r border-white/20 dark:border-black/20 last:border-r-0"
-                    >
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-sm font-bold text-gray-400 dark:text-gray-600">
-                          {i + 1}
-                        </span>
+                
+                {/* Loading Progress */}
+                <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+                  <div className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h2 className="text-lg font-semibold text-foreground">Game Progress</h2>
+                        <p className="text-sm text-muted-foreground">Preparing puzzle...</p>
+                      </div>
+                      <div className="flex gap-1">
+                        {Array.from({ length: 6 }, (_, i) => (
+                          <div key={i} className="w-3 h-3 rounded-full bg-muted-foreground/30" />
+                        ))}
                       </div>
                     </div>
+                  </div>
+                </Card>
+              </div>
+
+              {/* Right Column - Loading Hints */}
+              <div className="lg:col-span-2">
+                <div className="space-y-4">
+                  <div className="mb-4">
+                    <h2 className="text-xl font-bold text-foreground mb-2">Historical Events</h2>
+                    <div className="h-4 bg-muted animate-pulse rounded w-2/3"></div>
+                  </div>
+                  
+                  {/* Loading Current Hint */}
+                  <Card className="border-2 border-primary/20 shadow-md bg-gradient-to-br from-primary/5 to-primary/10">
+                    <div className="p-4">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
+                          1
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider block">
+                            🎯 Current Hint
+                          </span>
+                          <span className="text-xs text-muted-foreground">Hint 1 of 6</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center text-muted-foreground">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-3"></div>
+                        <span className="text-lg font-medium">Loading puzzle...</span>
+                      </div>
+                    </div>
+                  </Card>
+                  
+                  {/* Loading Placeholder Hints */}
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <Card key={i} className="bg-muted/20 border-dashed border-muted-foreground/30">
+                      <div className="p-4 flex items-center gap-3">
+                        <div className="w-6 h-6 bg-muted rounded-full flex items-center justify-center text-xs font-medium text-muted-foreground">
+                          {i + 2}
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                          Hint {i + 2} will be revealed after your next guess
+                        </span>
+                      </div>
+                    </Card>
                   ))}
                 </div>
               </div>
-            </div>
 
-            {/* Loading Input Section */}
-            <div className="card bg-surface card-mobile-compact input-section-mobile">
-              <div className="flex gap-3 items-center">
-                <div className="flex-1">
-                  <div className="w-full p-3 text-lg text-center rounded-lg border-2 bg-input border-border opacity-50">
-                    Enter year (e.g., 1969)
-                  </div>
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                  <div className="btn-primary px-6 opacity-50">Submit</div>
-                  <span className="text-xs text-muted-foreground">1/6</span>
-                </div>
-              </div>
             </div>
-
           </div>
         </main>
       </div>
@@ -359,7 +376,7 @@ export default function ChronldePage() {
         role="main"
         aria-label="Historical guessing game"
       >
-        <div className="max-w-xl mx-auto px-4 py-6 space-y-5 main-content-mobile section-spacing-mobile vh-optimized">
+        <div className="max-w-4xl mx-auto px-4 py-6">
           
           {/* Debug Banner */}
           <DebugBanner 
@@ -368,102 +385,50 @@ export default function ChronldePage() {
             className="mb-6"
           />
 
-          {/* Current Hint Display */}
-          <div 
-            className="relative"
-            role="region"
-            aria-label={`Historical hint ${gameLogic.currentHintIndex + 1} of 6`}
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            <div className="card border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 card-padding-override card-mobile-compact hint-display-mobile">
-              <div className="flex items-start gap-4">
-                <div 
-                  className="w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5"
-                  aria-hidden="true"
-                >
-                  {gameLogic.currentHintIndex + 1}
-                </div>
-                <div className="flex-1">
-                  <div className="mb-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        Hint {gameLogic.currentHintIndex + 1}
-                      </span>
-                      {/* Compact hint progress indicator */}
-                      <div className="flex gap-1" aria-hidden="true">
-                        {[...Array(6)].map((_, i) => (
-                          <div
-                            key={i}
-                            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                              i <= gameLogic.currentHintIndex ? 'bg-primary' : 'bg-border'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <span 
-                      className="text-xs text-muted-foreground"
-                      aria-label={`${6 - (gameLogic.currentHintIndex + 1)} additional hints remaining`}
-                    >
-                      {6 - (gameLogic.currentHintIndex + 1)} more hints available
-                    </span>
-                  </div>
-                  <div 
-                    className="text-lg leading-relaxed text-density-mobile" 
-                    style={{ color: 'var(--foreground)' }}
-                    aria-label={gameLogic.currentEvent ? `Hint ${gameLogic.currentHintIndex + 1}: ${gameLogic.currentEvent}` : undefined}
-                  >
-                    <EventDisplay 
-                      event={gameLogic.currentEvent}
-                      isLoading={gameLogic.isLoading}
-                      error={gameLogic.error}
+          {/* Modern Game Layout */}
+          <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
+            
+            {/* Left Column - Input and Progress */}
+            <div className="lg:col-span-1 space-y-6">
+              <div className="sticky top-6">
+                <Card className="shadow-lg border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5">
+                  <div className="p-6">
+                    <h3 className="text-lg font-semibold text-foreground mb-4">
+                      Your Guess
+                    </h3>
+                    <GuessInput
+                      onGuess={gameLogic.makeGuess}
+                      disabled={gameLogic.isGameComplete || gameLogic.isLoading}
+                      remainingGuesses={gameLogic.remainingGuesses}
+                      onValidationError={handleValidationError}
                     />
                   </div>
-                </div>
+                </Card>
               </div>
-            </div>
-          </div>
-
-          {/* Interactive Progress Bar */}
-          <ProgressBar
-            guesses={gameLogic.gameState.guesses}
-            targetYear={gameLogic.gameState.puzzle?.year || 0}
-            events={gameLogic.gameState.puzzle?.events || []}
-            maxGuesses={6}
-            onSegmentClick={handleSegmentClick}
-            className="mb-5 progress-bar-mobile"
-          />
-          
-          {/* Gesture Navigation Hint */}
-          {gameLogic.gameState.guesses.length > 0 && (
-            <div className="gesture-hint">
-              Swipe left/right to navigate between guesses
-            </div>
-          )}
-
-          {/* Guess Input Section */}
-          <div className="card bg-surface card-mobile-compact input-section-mobile">
-            <EnhancedGuessInput
-              onGuess={gameLogic.makeGuess}
-              disabled={gameLogic.isGameComplete || gameLogic.isLoading}
-              remainingGuesses={gameLogic.remainingGuesses}
-              maxGuesses={6}
-              onValidationError={handleValidationError}
-            />
-          </div>
-
-          {/* Guess History */}
-          {gameLogic.gameState.guesses.length > 0 && (
-            <div className="card card-mobile-compact">
-              <GuessHistory
-                guesses={gameLogic.gameState.guesses}
-                targetYear={gameLogic.gameState.puzzle?.year || 0}
-                events={gameLogic.gameState.puzzle?.events || []}
+              
+              <GameProgress
+                currentHintIndex={gameLogic.currentHintIndex}
+                isGameWon={gameLogic.hasWon}
               />
             </div>
-          )}
 
+            {/* Right Column - All Hints */}
+            <div className="lg:col-span-2">
+              <HintsDisplay
+                events={gameLogic.gameState.puzzle?.events || []}
+                guesses={gameLogic.gameState.guesses}
+                targetYear={gameLogic.gameState.puzzle?.year || 0}
+                currentHintIndex={gameLogic.currentHintIndex}
+                isLoading={gameLogic.isLoading}
+                error={gameLogic.error}
+                onHintClick={handleHintClick}
+              />
+            </div>
+
+          </div>
+
+          {/* Bottom padding for mobile */}
+          <div className="h-20"></div>
 
         </div>
       </main>
@@ -533,13 +498,6 @@ export default function ChronldePage() {
         />
       )}
 
-      {/* Sticky Footer */}
-      <StickyFooter
-        guesses={gameLogic.gameState.guesses}
-        targetYear={gameLogic.gameState.puzzle?.year || 0}
-        isVisible={gameLogic.gameState.guesses.length > 0 && !gameLogic.isLoading}
-        hasOpenModal={showHelpModal || showSettingsModal || showStatsModal || showSyncModal || showGameOverModal || Boolean(hintReviewModal?.isOpen) || hasNewAchievement}
-      />
 
       {/* Development Viewport Debug Indicator */}
       <ViewportDebug isVisible={debugMode} />
