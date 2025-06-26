@@ -19,13 +19,11 @@ export interface UseEnhancedThemeReturn {
   // Current theme state
   themeMode: ThemeMode;
   resolvedTheme: ResolvedTheme;
-  colorBlindMode: boolean;
   smoothTransitions: boolean;
   
   // Theme actions
   setThemeMode: (mode: ThemeMode) => void;
   toggleTheme: () => void;
-  toggleColorBlindMode: () => void;
   toggleSmoothTransitions: () => void;
   
   // System state
@@ -39,7 +37,6 @@ export interface UseEnhancedThemeReturn {
 export function useEnhancedTheme(): UseEnhancedThemeReturn {
   // State management
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
-  const [colorBlindMode, setColorBlindMode] = useState(false);
   const [smoothTransitions, setSmoothTransitions] = useState(true);
   const [isSystemDark, setIsSystemDark] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -49,10 +46,9 @@ export function useEnhancedTheme(): UseEnhancedThemeReturn {
 
   // Load settings from localStorage on mount
   useEffect(() => {
-    const settings = loadSettings() as { mode?: ThemeMode; colorBlindMode?: boolean; smoothTransitions?: boolean } | null;
+    const settings = loadSettings() as { mode?: ThemeMode; smoothTransitions?: boolean } | null;
     
     setThemeModeState(settings?.mode || 'system');
-    setColorBlindMode(Boolean(settings?.colorBlindMode));
     setSmoothTransitions(Boolean(settings?.smoothTransitions ?? true));
     setIsSystemDark(getSystemTheme() === 'dark');
     setIsMounted(true);
@@ -82,13 +78,6 @@ export function useEnhancedTheme(): UseEnhancedThemeReturn {
       html.classList.add(themeClass);
     }
 
-    // Manage color-blind mode class
-    if (colorBlindMode) {
-      html.classList.add('color-blind');
-    } else {
-      html.classList.remove('color-blind');
-    }
-
     // Manage smooth transitions class
     if (smoothTransitions) {
       html.classList.add('smooth-transitions');
@@ -99,14 +88,13 @@ export function useEnhancedTheme(): UseEnhancedThemeReturn {
     // Maintain backward compatibility with existing settings structure
     const compatibleSettings = {
       darkMode: resolvedTheme === 'dark', // For backward compatibility
-      colorBlindMode,
       // Enhanced settings
       mode: themeMode,
       smoothTransitions,
     };
 
     saveSettings(compatibleSettings);
-  }, [themeMode, resolvedTheme, colorBlindMode, smoothTransitions, isMounted]);
+  }, [themeMode, resolvedTheme, smoothTransitions, isMounted]);
 
   // Theme mode setter with validation
   const setThemeMode = useCallback((mode: ThemeMode) => {
@@ -118,11 +106,6 @@ export function useEnhancedTheme(): UseEnhancedThemeReturn {
     setThemeModeState(current => getNextThemeMode(current));
   }, []);
 
-  // Toggle color blind mode
-  const toggleColorBlindMode = useCallback(() => {
-    setColorBlindMode(current => !current);
-  }, []);
-
   // Toggle smooth transitions
   const toggleSmoothTransitions = useCallback(() => {
     setSmoothTransitions(current => !current);
@@ -131,11 +114,9 @@ export function useEnhancedTheme(): UseEnhancedThemeReturn {
   return {
     themeMode,
     resolvedTheme,
-    colorBlindMode,
     smoothTransitions,
     setThemeMode,
     toggleTheme,
-    toggleColorBlindMode,
     toggleSmoothTransitions,
     isSystemDark,
     isMounted,

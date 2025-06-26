@@ -85,8 +85,7 @@ describe('Sync Storage Integration', () => {
       }));
       
       localStorage.setItem('chrondle-settings', JSON.stringify({
-        darkMode: true,
-        colorBlindMode: false
+        darkMode: true
       }));
 
       const exported = exportGameDataForSync('2024-01-15');
@@ -94,8 +93,7 @@ describe('Sync Storage Integration', () => {
       expect(exported.gameState.guesses).toEqual([1969]);
       expect(exported.gameState.isGameOver).toBe(false);
       expect(exported.settings).toEqual({
-        darkMode: true,
-        colorBlindMode: false
+        darkMode: true
       });
       expect(exported.version).toBe(1);
     });
@@ -117,7 +115,7 @@ describe('Sync Storage Integration', () => {
           isGameOver: true,
           timestamp: '2024-01-15T10:00:00.000Z'
         },
-        settings: { darkMode: true, colorBlindMode: false },
+        settings: { darkMode: true },
         deviceFingerprint: 'test-device'
       };
 
@@ -135,7 +133,6 @@ describe('Sync Storage Integration', () => {
       const settings = JSON.parse(settingsData!);
       
       expect(settings.darkMode).toBe(true);
-      expect(settings.colorBlindMode).toBe(false);
     });
   });
 });
