@@ -15,7 +15,6 @@ import { Button } from '@/components/ui/button';
 import { HelpModal } from '@/components/modals/HelpModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
 import { StatsModal } from '@/components/modals/StatsModal';
-import { SyncModal } from '@/components/modals/SyncModal';
 import { GameOverModal } from '@/components/modals/GameOverModal';
 import { HintReviewModal } from '@/components/modals/HintReviewModal';
 import { GameProgress } from '@/components/GameProgress';
@@ -56,7 +55,6 @@ export default function ChronldePage() {
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
-  const [showSyncModal, setShowSyncModal] = useState(false);
   const [showGameOverModal, setShowGameOverModal] = useState(false);
   const [validationError, setValidationError] = useState('');
   
@@ -242,7 +240,6 @@ export default function ChronldePage() {
           onShowHelp={() => setShowHelpModal(true)}
           onShowSettings={() => setShowSettingsModal(true)}
           onShowStats={() => setShowStatsModal(true)}
-          onShowSync={() => setShowSyncModal(true)}
         />
 
         {/* Loading Content */}
@@ -365,7 +362,6 @@ export default function ChronldePage() {
         onShowHelp={() => setShowHelpModal(true)}
         onShowSettings={() => setShowSettingsModal(true)}
         onShowStats={() => setShowStatsModal(true)}
-        onShowSync={() => setShowSyncModal(true)}
         streakData={streakData}
       />
 
@@ -465,11 +461,6 @@ export default function ChronldePage() {
         streakData={streakData}
       />
 
-      {/* Sync Modal */}
-      <SyncModal
-        isOpen={showSyncModal}
-        onClose={() => setShowSyncModal(false)}
-      />
 
       {/* Game Over Modal */}
       {gameLogic.gameState.puzzle && (

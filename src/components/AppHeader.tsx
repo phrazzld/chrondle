@@ -2,14 +2,13 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { BarChart3, RefreshCw, HelpCircle, Settings } from 'lucide-react';
+import { BarChart3, HelpCircle, Settings } from 'lucide-react';
 import { StreakIndicator } from '@/components/ui/StreakIndicator';
 
 interface AppHeaderProps {
   onShowHelp: () => void;
   onShowSettings: () => void;
   onShowStats: () => void;
-  onShowSync: () => void;
   streakData?: { currentStreak: number; longestStreak: number };
 }
 
@@ -17,7 +16,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onShowHelp, 
   onShowSettings,
   onShowStats,
-  onShowSync,
   streakData
 }) => {
   return (
@@ -49,15 +47,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               aria-label="Show game statistics and achievements"
             >
               <BarChart3 className="h-5 w-5" />
-            </Button>
-            <Button
-              onClick={onShowSync}
-              variant="ghost"
-              size="icon"
-              title="Sync - Sync your progress across devices"
-              aria-label="Show sync options for cross-device progress sharing"
-            >
-              <RefreshCw className="h-5 w-5" />
             </Button>
             <Button
               onClick={onShowHelp}
