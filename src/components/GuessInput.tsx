@@ -101,12 +101,12 @@ export const GuessInput: React.FC<GuessInputProps> = ({
         {/* Clean Input Field */}
         <Input
           ref={inputRef}
-          type="number"
+          type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Enter year (e.g., 1914)"
-          className="text-2xl text-center font-bold h-16 bg-background border-2 border-input focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all duration-200 shadow-sm"
+          placeholder="e.g. 1969, -450"
+          className="text-2xl text-left font-bold h-16 bg-background border-2 border-input focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all duration-200 shadow-sm"
           title="Use ↑↓ arrow keys (±1 year) or Shift+↑↓ (±10 years)"
           required
           disabled={disabled}

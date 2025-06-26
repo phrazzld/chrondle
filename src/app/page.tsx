@@ -256,11 +256,11 @@ export default function ChronldePage() {
                 <div className="sticky top-6">
                   <Card className="shadow-lg border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5">
                     <div className="p-6">
-                      <h3 className="text-lg font-semibold text-foreground mb-4">Your Guess</h3>
+                      <h3 className="text-lg font-semibold text-foreground mb-4">Guess the Year</h3>
                       <div className="flex gap-3 items-center">
                         <div className="flex-1">
                           <div className="w-full p-3 text-lg text-center rounded-lg border-2 bg-input border-border opacity-50">
-                            Enter year (e.g., 1969)
+                            e.g. 1969, -450
                           </div>
                         </div>
                         <div className="flex flex-col items-center gap-1">
@@ -394,7 +394,7 @@ export default function ChronldePage() {
                 <Card className="shadow-lg border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5">
                   <div className="p-6">
                     <h3 className="text-lg font-semibold text-foreground mb-4">
-                      Your Guess
+                      Guess the Year
                     </h3>
                     <GuessInput
                       onGuess={gameLogic.makeGuess}
