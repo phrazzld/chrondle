@@ -59,7 +59,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
     <>
       <Celebration />
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-6xl min-w-[60%] max-h-[85vh] overflow-y-auto px-8">
+        <DialogContent className="w-11/12 sm:min-w-[60%] max-w-6xl max-h-[85vh] overflow-y-auto px-8">
           <div className="space-y-4">
             {/* Celebration Header */}
             <div className="animate-in slide-in-from-top duration-500">

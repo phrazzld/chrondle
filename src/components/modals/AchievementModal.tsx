@@ -40,7 +40,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
     <>
       <Celebration />
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent>
+        <DialogContent className="w-11/12 sm:max-w-md md:max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="sr-only">Achievement Unlocked</DialogTitle>
           </DialogHeader>
