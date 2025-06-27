@@ -24,21 +24,55 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
             How to Play
           </DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <p>Guess the year of the historical event in 6 tries. Years can be BC or AD.</p>
-          <p>After each guess, you&apos;ll receive two hints:</p>
-          <ul className="list-disc list-inside space-y-2 pl-2">
-            <li>A directional hint: <span className="font-bold">▲ LATER</span> or <span className="font-bold">▼ EARLIER</span>.</li>
-            <li>A new historical event that happened in the <span className="font-bold">same target year</span>.</li>
-          </ul>
-          <p>Use the clues to narrow down your next guess and find the correct year!</p>
-          <div className="text-sm p-3 rounded-lg border-l-4 bg-muted border-info">
-            <span className="font-semibold">Daily Puzzle:</span> Everyone gets the same puzzle each day, so you can compare your results with friends!
+        <div className="space-y-5">
+          {/* Game Rules Section */}
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-foreground">Game Rules</h3>
+            <div className="space-y-2 text-muted-foreground">
+              <p>• You have <span className="font-semibold text-foreground">6 guesses</span> to find the correct year</p>
+              <p>• All events shown happened in the <span className="font-semibold text-foreground">same target year</span></p>
+              <p>• Years can be BC (negative) or AD (positive)</p>
+              <p>• The first hint is visible immediately when you start</p>
+            </div>
+          </div>
+
+          {/* How It Works Section */}
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-foreground">How It Works</h3>
+            <div className="space-y-2 text-muted-foreground">
+              <p>After each guess, you get:</p>
+              <div className="ml-4 space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-orange-600 dark:text-orange-400 font-semibold">▲ EARLY</span>
+                  <span>if your guess was too early</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-blue-600 dark:text-blue-400 font-semibold">▼ LATE</span>
+                  <span>if your guess was too late</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-green-600 dark:text-green-400 font-semibold">✓ CORRECT!</span>
+                  <span>if you found the right year!</span>
+                </div>
+              </div>
+              <p className="pt-1">Plus, a <span className="font-semibold text-foreground">new historical event</span> is revealed to help guide your next guess.</p>
+            </div>
+          </div>
+
+          {/* Daily Puzzle Section */}
+          <div className="text-sm p-3 rounded-lg border-l-4 bg-muted border-primary/30">
+            <div className="flex items-start gap-2">
+              <span className="text-primary font-semibold">📅</span>
+              <div>
+                <span className="font-semibold text-foreground">Daily Puzzle:</span>
+                <span className="text-muted-foreground ml-1">Everyone gets the same puzzle each day. Compare your results with friends!</span>
+              </div>
+            </div>
           </div>
         </div>
-        <DialogFooter>
-          <Button onClick={onClose} className="w-full">
-            Got it!
+        <DialogFooter className="flex justify-center">
+          <Button onClick={onClose} className="px-8">
+            Start Playing
           </Button>
         </DialogFooter>
       </DialogContent>
