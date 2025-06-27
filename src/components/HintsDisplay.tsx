@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { formatYear } from '@/lib/utils';
-import { Badge } from '@/components/ui/Badge';
 import { Separator } from '@/components/ui/Separator';
 import { TextAnimate } from '@/components/magicui/text-animate';
 
