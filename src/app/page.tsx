@@ -161,20 +161,6 @@ export default function ChronldePage() {
     setHintReviewModal(null);
   }, []);
 
-  // Handle hint click to open review modal
-  const handleHintClick = useCallback((hintIndex: number) => {
-    if (!gameLogic.gameState.puzzle || gameLogic.gameState.guesses.length === 0) return;
-    
-    const guess = gameLogic.gameState.guesses[hintIndex];
-    const hint = gameLogic.gameState.puzzle.events[hintIndex + 1] || 'No more hints available.';
-    
-    setHintReviewModal({
-      isOpen: true,
-      guessNumber: hintIndex + 1,
-      guess,
-      hint
-    });
-  }, [gameLogic.gameState.guesses, gameLogic.gameState.puzzle]);
 
   // Gesture navigation for reviewing hints
   const navigateToHint = useCallback((direction: 'prev' | 'next') => {
@@ -388,7 +374,6 @@ export default function ChronldePage() {
               currentHintIndex={gameLogic.currentHintIndex}
               isLoading={gameLogic.isLoading}
               error={gameLogic.error}
-              onHintClick={handleHintClick}
             />
 
           </div>
