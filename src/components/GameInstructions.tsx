@@ -85,7 +85,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
   };
 
   const getShareButtonStyles = () => {
-    const baseStyles = "w-full py-3 px-4 font-semibold text-sm transition-all duration-300";
+    const baseStyles = "w-1/3 py-3 px-4 font-semibold text-sm transition-all duration-300 rounded-lg";
     
     switch (shareStatus) {
       case 'success':
@@ -99,15 +99,15 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
 
   return (
     <div className={`text-center mb-8 ${className}`}>
-      {/* Minimal Completion Layout */}
-      <div className="flex flex-col items-center gap-4 max-w-sm mx-auto">
+      {/* Consolidated Single Row Layout */}
+      <div className="w-full flex items-center gap-4 p-6 bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl">
         
-        {/* Countdown with integrated label */}
-        <div className="w-full flex flex-col items-center gap-2 p-6 bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl">
-          <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+        {/* Countdown Section */}
+        <div className="flex flex-col items-start flex-1">
+          <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">
             Next puzzle in
           </div>
-          <div className="text-3xl sm:text-4xl font-mono font-bold text-primary">
+          <div className="text-2xl sm:text-3xl font-mono font-bold text-primary">
             {timeString || '00:00:00'}
           </div>
         </div>
@@ -116,7 +116,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
         <RippleButton
           onClick={() => shareGame()}
           disabled={shareStatus === 'copying'}
-          className={`w-full ${getShareButtonStyles()}`}
+          className={getShareButtonStyles()}
           rippleColor="rgba(255, 255, 255, 0.3)"
           aria-label="Share your results"
         >

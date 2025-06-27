@@ -11,15 +11,15 @@ interface AppHeaderProps {
   currentStreak?: number;
 }
 
-export const AppHeader: React.FC<AppHeaderProps> = ({ 
-  onShowHelp, 
+export const AppHeader: React.FC<AppHeaderProps> = ({
+  onShowHelp,
   onShowSettings,
   currentStreak
 }) => {
   const streakColors = currentStreak ? getStreakColorClasses(currentStreak) : null;
   return (
     <header className="w-full border-b border-border bg-card py-4">
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between">
           {/* Logo/Brand - Responsive sizing */}
           <div className="flex items-center gap-4">
@@ -28,7 +28,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               <span className="hidden sm:inline">CHRONDLE</span>
             </h1>
             {currentStreak !== undefined && currentStreak > 0 && streakColors && (
-              <div 
+              <div
                 className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors duration-300 ${streakColors.backgroundColor}`}
                 title={streakColors.milestone || `${currentStreak} day streak`}
                 aria-label={`Current streak: ${currentStreak} day${currentStreak === 1 ? '' : 's'}`}
