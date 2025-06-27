@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogFooter
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { PulsatingButton } from '@/components/magicui/pulsating-button';
 
 interface HelpModalProps {
   isOpen: boolean;
@@ -71,9 +71,14 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
         <DialogFooter className="flex justify-center">
-          <Button onClick={onClose} className="px-8">
+          <PulsatingButton 
+            onClick={onClose} 
+            className="px-8 py-3 font-semibold text-lg"
+            pulseColor="#ea5a1b"
+            duration="1.2s"
+          >
             Start Playing
-          </Button>
+          </PulsatingButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>
