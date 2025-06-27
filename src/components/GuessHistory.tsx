@@ -32,7 +32,7 @@ const GuessRow: React.FC<GuessRowProps> = React.memo(({
         <div className="flex items-center gap-3">
           <span className="text-sm font-medium text-muted-foreground">#{index + 1}</span>
           <Badge variant="default" className="bg-green-500 hover:bg-green-600">
-            ✓ CORRECT
+            CORRECT
           </Badge>
           <span className="font-bold text-lg">{formatYear(guess)}</span>
         </div>

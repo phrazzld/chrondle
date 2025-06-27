@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogFooter
 } from '@/components/ui/dialog';
-import { PulsatingButton } from '@/components/magicui/pulsating-button';
+import { ShimmerButton } from '@/components/magicui/shimmer-button';
 
 interface HelpModalProps {
   isOpen: boolean;
@@ -62,7 +62,6 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
           {/* Daily Puzzle Section */}
           <div className="text-sm p-3 rounded-lg border-l-4 bg-muted border-primary/30">
             <div className="flex items-start gap-2">
-              <span className="text-primary font-semibold">📅</span>
               <div>
                 <span className="font-semibold text-foreground">Daily Puzzle:</span>
                 <span className="text-muted-foreground ml-1">Everyone gets the same puzzle each day. Compare your results with friends!</span>
@@ -71,14 +70,12 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
         <DialogFooter className="flex justify-center">
-          <PulsatingButton 
+          <ShimmerButton 
             onClick={onClose} 
             className="px-8 py-3 font-semibold text-lg"
-            pulseColor="#ea5a1b"
-            duration="1.2s"
           >
             Start Playing
-          </PulsatingButton>
+          </ShimmerButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

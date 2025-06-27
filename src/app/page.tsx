@@ -10,11 +10,11 @@ import { getEnhancedProximityFeedback } from '@/lib/enhancedFeedback';
 import { useGameState } from '@/hooks/useGameState';
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import { useStreak } from '@/hooks/useStreak';
+import { useCountdown } from '@/hooks/useCountdown';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/button';
 import { HelpModal } from '@/components/modals/HelpModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
-import { GameOverModal } from '@/components/modals/GameOverModal';
 import { HintReviewModal } from '@/components/modals/HintReviewModal';
 import { GameProgress } from '@/components/GameProgress';
 import { HintsDisplay } from '@/components/HintsDisplay';
@@ -51,10 +51,12 @@ export default function ChronldePage() {
     clearNewAchievement 
   } = useStreak();
   
+  // Countdown for next puzzle
+  const { timeString } = useCountdown();
+  
   // UI state
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [showGameOverModal, setShowGameOverModal] = useState(false);
   const [validationError, setValidationError] = useState('');
   
   // Accessibility announcements
@@ -69,7 +71,7 @@ export default function ChronldePage() {
     hint: string;
   } | null>(null);
 
-  // Handle game over modal trigger and streak update
+  // Handle streak update when game completes
   useEffect(() => {
     if (gameLogic.isGameComplete && gameLogic.gameState.puzzle) {
       // Update streak based on game result
@@ -77,8 +79,6 @@ export default function ChronldePage() {
         const hasWon = gameLogic.hasWon;
         updateStreak(hasWon);
       }
-      
-      setTimeout(() => setShowGameOverModal(true), 500);
     }
   }, [gameLogic.isGameComplete, gameLogic.gameState.puzzle, gameLogic.hasWon, updateStreak, debugMode]);
   
@@ -347,20 +347,31 @@ export default function ChronldePage() {
           <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
             
             {/* Game Instructions */}
-            <GameInstructions />
-            
-            {/* Input Section */}
-            <GuessInput
-              onGuess={gameLogic.makeGuess}
-              disabled={gameLogic.isGameComplete || gameLogic.isLoading}
-              remainingGuesses={gameLogic.remainingGuesses}
-              onValidationError={handleValidationError}
+            <GameInstructions 
+              isGameComplete={gameLogic.isGameComplete}
+              hasWon={gameLogic.hasWon}
+              targetYear={gameLogic.gameState.puzzle?.year}
+              guesses={gameLogic.gameState.guesses}
+              timeString={timeString}
+              currentStreak={streakData.currentStreak}
             />
+            
+            {/* Input Section - Hidden when game complete */}
+            {!gameLogic.isGameComplete && (
+              <GuessInput
+                onGuess={gameLogic.makeGuess}
+                disabled={gameLogic.isGameComplete || gameLogic.isLoading}
+                remainingGuesses={gameLogic.remainingGuesses}
+                onValidationError={handleValidationError}
+              />
+            )}
             
             {/* Progress Section */}
             <GameProgress
               currentHintIndex={gameLogic.currentHintIndex}
               isGameWon={gameLogic.hasWon}
+              isGameComplete={gameLogic.isGameComplete}
+              guessCount={gameLogic.gameState.guesses.length}
             />
             
             {/* Hints Section */}
@@ -369,6 +380,7 @@ export default function ChronldePage() {
               guesses={gameLogic.gameState.guesses}
               targetYear={gameLogic.gameState.puzzle?.year || 0}
               currentHintIndex={gameLogic.currentHintIndex}
+              isGameComplete={gameLogic.isGameComplete}
               isLoading={gameLogic.isLoading}
               error={gameLogic.error}
             />
@@ -406,17 +418,6 @@ export default function ChronldePage() {
         onClose={() => setShowSettingsModal(false)}
       />
 
-      {/* Game Over Modal */}
-      {gameLogic.gameState.puzzle && (
-        <GameOverModal
-          isOpen={showGameOverModal}
-          onClose={() => setShowGameOverModal(false)}
-          hasWon={gameLogic.hasWon}
-          targetYear={gameLogic.gameState.puzzle.year}
-          guesses={gameLogic.gameState.guesses}
-          events={gameLogic.gameState.puzzle.events}
-        />
-      )}
       
       {/* Hint Review Modal */}
       {hintReviewModal && (

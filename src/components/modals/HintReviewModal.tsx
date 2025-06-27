@@ -102,7 +102,7 @@ export const HintReviewModal: React.FC<HintReviewModalProps> = ({
           <div className="mb-6">
             {isCorrect ? (
               <div className="text-xl font-bold p-4 rounded-lg bg-green-600 text-white">
-                🎉 CORRECT! 🎉
+                CORRECT!
               </div>
             ) : (
               <div className="text-lg font-semibold p-3 rounded-lg bg-secondary border text-foreground">

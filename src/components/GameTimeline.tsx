@@ -60,7 +60,7 @@ const CompactTimelineItem: React.FC<CompactTimelineItemProps> = ({
           <div className="flex items-center gap-3 mb-2">
             <span className="text-sm font-medium text-muted-foreground">#{hintNumber}</span>
             <Badge className="bg-green-500 hover:bg-green-600 text-white">
-              ✓ CORRECT
+              CORRECT
             </Badge>
             <span className="font-bold text-lg text-green-700 dark:text-green-300">{formatYear(guess)}</span>
           </div>
@@ -229,7 +229,7 @@ export const GameTimeline: React.FC<GameTimelineProps> = ({
               </h2>
               <p className="text-sm text-muted-foreground">
                 {isGameWon 
-                  ? '🎉 Puzzle Complete!' 
+                  ? 'Puzzle Complete!' 
                   : `${currentHintIndex + 1} of 6 hints revealed`
                 }
               </p>
@@ -294,7 +294,7 @@ export const GameTimeline: React.FC<GameTimelineProps> = ({
         <Card className="border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 dark:border-green-800 dark:from-green-950 dark:to-emerald-950">
           <CardContent className="p-6 text-center">
             <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">🎉</span>
+              <span className="text-2xl">✓</span>
             </div>
             <h3 className="text-2xl font-bold text-green-700 dark:text-green-300 mb-2">
               Congratulations!

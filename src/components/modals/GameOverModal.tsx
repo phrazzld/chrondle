@@ -3,7 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { 
   Dialog, 
-  DialogContent 
+  DialogContent,
+  DialogHeader,
+  DialogTitle
 } from '@/components/ui/dialog';
 import { useCountdown } from '@/hooks/useCountdown';
 import { useShareGame } from '@/hooks/useShareGame';
@@ -60,6 +62,9 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
       <Celebration />
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="w-11/12 sm:min-w-[60%] max-w-6xl max-h-[85vh] overflow-y-auto px-8">
+          <DialogHeader>
+            <DialogTitle className="sr-only">Game Over Results</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4">
             {/* Celebration Header */}
             <div className="animate-in slide-in-from-top duration-500">

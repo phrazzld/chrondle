@@ -59,7 +59,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
               className="px-6 py-3 font-medium transition-all duration-200 hover:scale-105"
               autoFocus
             >
-              Awesome! 🎉
+              Awesome!
             </Button>
           </div>
         </DialogContent>

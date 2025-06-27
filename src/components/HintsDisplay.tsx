@@ -10,6 +10,7 @@ interface HintsDisplayProps {
   guesses: number[];
   targetYear: number;
   currentHintIndex: number;
+  isGameComplete?: boolean;
   isLoading: boolean;
   error: string | null;
   className?: string;
@@ -64,7 +65,7 @@ const CompactHintItem: React.FC<CompactHintItemProps> = ({
         <p className="text-lg text-left flex-1">{hintText}</p>
         <div className="flex items-center gap-3">
           <div className={`w-20 text-center font-semibold text-sm whitespace-nowrap ${feedbackColor}`}>
-            {triangleIcon} {feedbackText}{isCorrect ? ' 🎉' : ''}
+            {triangleIcon} {feedbackText}
           </div>
           <div className="w-18 bg-muted/70 rounded-md px-2 py-1 text-center whitespace-nowrap border border-muted/40">
             <span className="font-medium text-foreground text-sm">{formatYear(guess)}</span>
@@ -118,11 +119,31 @@ const PlaceholderHintItem: React.FC<PlaceholderHintItemProps> = ({
   );
 };
 
+interface CompletionHintItemProps {
+  hintNumber: number;
+  hintText: string;
+}
+
+const CompletionHintItem: React.FC<CompletionHintItemProps> = ({
+  hintNumber,
+  hintText
+}) => {
+  return (
+    <div className="py-3 opacity-75">
+      <p className="text-xs text-muted-foreground mb-1 text-left uppercase">Hint #{hintNumber}</p>
+      <p className="text-lg text-muted-foreground text-left">
+        {hintText || 'No hint available'}
+      </p>
+    </div>
+  );
+};
+
 export const HintsDisplay: React.FC<HintsDisplayProps> = ({
   events,
   guesses,
   targetYear,
   currentHintIndex,
+  isGameComplete = false,
   isLoading,
   error,
   className = ''
@@ -189,7 +210,19 @@ export const HintsDisplay: React.FC<HintsDisplayProps> = ({
       );
     }
     
-    // Future hints (placeholders)
+    // Future hints (placeholders or completion hints)
+    if (isGameComplete && hintText) {
+      // Show revealed hint when game is complete
+      return (
+        <CompletionHintItem
+          key={`hint-${hintNumber}`}
+          hintNumber={hintNumber}
+          hintText={hintText}
+        />
+      );
+    }
+    
+    // Show placeholder for future hints
     return (
       <PlaceholderHintItem
         key={`hint-${hintNumber}`}
@@ -207,20 +240,6 @@ export const HintsDisplay: React.FC<HintsDisplayProps> = ({
         </React.Fragment>
       ))}
 
-      {/* Game Won State */}
-      {isGameWon && (
-        <div className="mt-6 p-4 text-center bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
-          <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
-            <span className="text-xl">🎉</span>
-          </div>
-          <h3 className="text-lg font-bold text-green-700 dark:text-green-300 mb-1">
-            Congratulations!
-          </h3>
-          <p className="text-sm text-green-600 dark:text-green-400">
-            You correctly identified the year as {formatYear(targetYear)}!
-          </p>
-        </div>
-      )}
     </div>
   );
 };
