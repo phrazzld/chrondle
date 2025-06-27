@@ -3,20 +3,17 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { BarChart3, HelpCircle, Settings } from 'lucide-react';
-import { StreakIndicator } from '@/components/ui/StreakIndicator';
 
 interface AppHeaderProps {
   onShowHelp: () => void;
   onShowSettings: () => void;
   onShowStats: () => void;
-  streakData?: { currentStreak: number; longestStreak: number };
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({ 
   onShowHelp, 
   onShowSettings,
-  onShowStats,
-  streakData
+  onShowStats
 }) => {
   return (
     <header className="w-full border-b border-border bg-card py-4">
@@ -28,13 +25,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               <span className="sm:hidden">C</span>
               <span className="hidden sm:inline">CHRONDLE</span>
             </h1>
-            {streakData && (
-              <StreakIndicator 
-                current={streakData.currentStreak} 
-                longest={streakData.longestStreak} 
-                className="hidden sm:flex"
-              />
-            )}
           </div>
 
           {/* Action Buttons */}

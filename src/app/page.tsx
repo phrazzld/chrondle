@@ -327,7 +327,6 @@ export default function ChronldePage() {
         onShowHelp={() => setShowHelpModal(true)}
         onShowSettings={() => setShowSettingsModal(true)}
         onShowStats={() => setShowStatsModal(true)}
-        streakData={streakData}
       />
 
       {/* Main Content Area */}
