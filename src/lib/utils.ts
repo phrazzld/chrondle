@@ -41,28 +41,52 @@ export function formatCountdown(milliseconds: number): string {
 
 
 export function generateShareText(guesses: number[], targetYear: number, hasWon: boolean): string {
-  const date = new Date().toISOString().split('T')[0];
-  const emojiTimeline = generateEmojiTimeline(guesses, targetYear);
+  const today = new Date();
+  const dateString = today.toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
   
-  let result = `Chrondle ${date}\n`;
-  result += hasWon ? `Solved in ${guesses.length}/6 🎯\n` : 'Not solved 😔\n';
-  result += '\n';
+  const emojiTimeline = generateEmojiTimeline(guesses, targetYear);
+  const score = hasWon ? `${guesses.length}/6` : 'X/6';
+  
+  let result = `Chrondle: ${dateString} - ${score}\n\n`;
   result += emojiTimeline;
-  result += '\n\nChrondle.com';
+  result += '\n\nhttps://www.chrondle.app';
   
   return result;
 }
 
+export function generateWordleBoxes(guess: number, targetYear: number): string {
+  const distance = Math.abs(guess - targetYear);
+  
+  // Perfect match - all green
+  if (distance === 0) {
+    return '🟩🟩🟩🟩🟩';
+  }
+  
+  // Very close (1-5 years) - 4 green, 1 yellow
+  if (distance <= 5) {
+    return '🟩🟩🟩🟩🟨';
+  }
+  
+  // Close (6-25 years) - 3 green, 2 yellow
+  if (distance <= 25) {
+    return '🟩🟩🟩🟨🟨';
+  }
+  
+  // Warm (26-100 years) - 1 green, 4 yellow
+  if (distance <= 100) {
+    return '🟩🟨🟨🟨🟨';
+  }
+  
+  // Cold (100+ years) - all white
+  return '⬜⬜⬜⬜⬜';
+}
+
 export function generateEmojiTimeline(guesses: number[], targetYear: number): string {
-  return guesses.map(guess => {
-    const distance = Math.abs(guess - targetYear);
-    if (distance === 0) return '🎯'; // Perfect
-    if (distance <= 10) return '🟢'; // Very close
-    if (distance <= 25) return '🟡'; // Close
-    if (distance <= 50) return '🟠'; // Near
-    if (distance <= 100) return '🔴'; // Far
-    return '⚫'; // Very far
-  }).join('');
+  return guesses.map(guess => generateWordleBoxes(guess, targetYear)).join('\n');
 }
 
 export interface StreakColorClasses {

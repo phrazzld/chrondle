@@ -23,8 +23,8 @@ export function useShareGame(
   const [shareStatus, setShareStatus] = useState<ShareStatus>('idle');
   
   // Generate both compact and detailed share text
-  const compactShareText = generateShareText(guesses, targetYear, false);
-  const detailedShareText = generateShareText(guesses, targetYear, true);
+  const compactShareText = generateShareText(guesses, targetYear, hasWon);
+  const detailedShareText = generateShareText(guesses, targetYear, hasWon);
   const emojiBarcode = generateEmojiTimeline(guesses, targetYear);
   
   // Reset status after delay

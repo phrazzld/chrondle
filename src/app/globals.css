@@ -7,64 +7,64 @@
 :root {
   /* Core brand colors inspired by engineering/professional design */
   --surface: #ffffff;
-  --muted-foreground: oklch(0.5510 0.0234 264.3637);
+  --muted-foreground: oklch(0.551 0.0234 264.3637);
 
   /* Unified Semantic Color System - WCAG AA Compliant */
   /* Primary Actions (Vermilion) - 6.8:1 contrast on white */
-  --primary: oklch(0.6231 0.1880 259.8145);
-  --primary-hover: #B8360B;
-  --primary-light: #EA5A1B;
+  --primary: oklch(0.6231 0.188 259.8145);
+  --primary-hover: #b8360b;
+  --primary-light: #ea5a1b;
 
   /* Game Feedback Colors */
-  --feedback-earlier: #4338CA;   /* Indigo - 8.9:1 contrast on white */
-  --feedback-later: #0F766E;     /* Teal - 5.2:1 contrast on white */
-  --feedback-success: #D97706;   /* Gold - 4.8:1 contrast on white */
-  --feedback-correct: #16A34A;   /* Green - 4.7:1 contrast on white */
+  --feedback-earlier: #4338ca; /* Indigo - 8.9:1 contrast on white */
+  --feedback-later: #0f766e; /* Teal - 5.2:1 contrast on white */
+  --feedback-success: #d97706; /* Gold - 4.8:1 contrast on white */
+  --feedback-correct: #16a34a; /* Green - 4.7:1 contrast on white */
 
   /* Status Colors (Distinct from Primary) */
-  --status-error: #DC2626;       /* Red - 6.3:1 contrast on white */
-  --status-warning: #D97706;     /* Gold - 4.8:1 contrast on white */
-  --status-info: #2563EB;        /* Blue - 7.4:1 contrast on white */
+  --status-error: #dc2626; /* Red - 6.3:1 contrast on white */
+  --status-warning: #d97706; /* Gold - 4.8:1 contrast on white */
+  --status-info: #2563eb; /* Blue - 7.4:1 contrast on white */
 
   /* Neutral palette */
   --border: oklch(0.9276 0.0058 264.5313);
   --input: oklch(0.9276 0.0058 264.5313);
-  --card: oklch(1.0000 0 0);
+  --card: oklch(1 0 0);
   --card-foreground: oklch(0.3211 0 0);
 
   /* Legacy support (will be phased out) */
-  --accent: oklch(0.9514 0.0250 236.8242);
+  --accent: oklch(0.9514 0.025 236.8242);
   --accent-light: var(--primary-light);
   --success: var(--feedback-success);
   --warning: var(--status-warning);
   --error: var(--status-error);
   --info: var(--status-info);
   --radius: 0.375rem;
-  --popover: oklch(1.0000 0 0);
+  --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.3211 0 0);
-  --primary-foreground: oklch(1.0000 0 0);
-  --secondary: oklch(0.9670 0.0029 264.5419);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.967 0.0029 264.5419);
   --secondary-foreground: oklch(0.4461 0.0263 256.8018);
   --muted: oklch(0.9846 0.0017 247.8389);
   --accent-foreground: oklch(0.3791 0.1378 265.5222);
   --destructive: oklch(0.6368 0.2078 25.3313);
-  --ring: oklch(0.6231 0.1880 259.8145);
-  --background: oklch(1.0000 0 0);
+  --ring: oklch(0.6231 0.188 259.8145);
+  --background: oklch(1 0 0);
   --foreground: oklch(0.3211 0 0);
-  --chart-1: oklch(0.6231 0.1880 259.8145);
+  --chart-1: oklch(0.6231 0.188 259.8145);
   --chart-2: oklch(0.5461 0.2152 262.8809);
   --chart-3: oklch(0.4882 0.2172 264.3763);
   --chart-4: oklch(0.4244 0.1809 265.6377);
   --chart-5: oklch(0.3791 0.1378 265.5222);
   --sidebar: oklch(0.9846 0.0017 247.8389);
   --sidebar-foreground: oklch(0.3211 0 0);
-  --sidebar-primary: oklch(0.6231 0.1880 259.8145);
-  --sidebar-primary-foreground: oklch(1.0000 0 0);
-  --sidebar-accent: oklch(0.9514 0.0250 236.8242);
+  --sidebar-primary: oklch(0.6231 0.188 259.8145);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.9514 0.025 236.8242);
   --sidebar-accent-foreground: oklch(0.3791 0.1378 265.5222);
   --sidebar-border: oklch(0.9276 0.0058 264.5313);
-  --sidebar-ring: oklch(0.6231 0.1880 259.8145);
-  --destructive-foreground: oklch(1.0000 0 0);
+  --sidebar-ring: oklch(0.6231 0.188 259.8145);
+  --destructive-foreground: oklch(1 0 0);
   --font-sans: Inter, sans-serif;
   --font-serif: Source Serif 4, serif;
   --font-mono: JetBrains Mono, monospace;
@@ -77,11 +77,15 @@
   --spacing: 0.25rem;
   --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
   --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-  --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
-  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
-  --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 2px 4px -1px hsl(0 0% 0% / 0.10);
-  --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10);
-  --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 8px 10px -1px hsl(0 0% 0% / 0.10);
+  --shadow-sm:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow-md:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
+  --shadow-lg:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
+  --shadow-xl:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
   --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
   --letter-spacing: 0em;
   --tracking-normal: 0em;
@@ -99,20 +103,20 @@ html.dark {
   --border: #34495e;
 
   /* Dark Mode Semantic Colors - Adjusted for 4.5:1+ contrast on dark backgrounds */
-  --primary: #EA5A1B;           /* Vermilion lighter for dark mode */
-  --primary-hover: #FF6B2B;
-  --primary-light: #FF7A3B;
+  --primary: #ea5a1b; /* Vermilion lighter for dark mode */
+  --primary-hover: #ff6b2b;
+  --primary-light: #ff7a3b;
 
   /* Game Feedback Colors - Dark Mode Optimized */
-  --feedback-earlier: #6366F1;   /* Indigo lighter - 4.7:1 on dark */
-  --feedback-later: #14B8A6;     /* Teal lighter - 5.8:1 on dark */
-  --feedback-success: #FBBF24;   /* Gold lighter - 6.2:1 on dark */
-  --feedback-correct: #22C55E;   /* Green lighter - 5.1:1 on dark */
+  --feedback-earlier: #6366f1; /* Indigo lighter - 4.7:1 on dark */
+  --feedback-later: #14b8a6; /* Teal lighter - 5.8:1 on dark */
+  --feedback-success: #fbbf24; /* Gold lighter - 6.2:1 on dark */
+  --feedback-correct: #22c55e; /* Green lighter - 5.1:1 on dark */
 
   /* Status Colors - Dark Mode */
-  --status-error: #EF4444;       /* Red lighter - 4.8:1 on dark */
-  --status-warning: #FBBF24;     /* Gold lighter - 6.2:1 on dark */
-  --status-info: #3B82F6;        /* Blue lighter - 4.9:1 on dark */
+  --status-error: #ef4444; /* Red lighter - 4.8:1 on dark */
+  --status-warning: #fbbf24; /* Gold lighter - 6.2:1 on dark */
+  --status-info: #3b82f6; /* Blue lighter - 4.9:1 on dark */
 }
 
 /* Fallback for system preference when no explicit class is set */
@@ -128,25 +132,30 @@ html.dark {
     --border: #34495e;
 
     /* System Dark Mode Semantic Colors */
-    --primary: #EA5A1B;
-    --primary-hover: #FF6B2B;
-    --primary-light: #FF7A3B;
+    --primary: #ea5a1b;
+    --primary-hover: #ff6b2b;
+    --primary-light: #ff7a3b;
 
-    --feedback-earlier: #6366F1;
-    --feedback-later: #14B8A6;
-    --feedback-success: #FBBF24;
-    --feedback-correct: #22C55E;
+    --feedback-earlier: #6366f1;
+    --feedback-later: #14b8a6;
+    --feedback-success: #fbbf24;
+    --feedback-correct: #22c55e;
 
-    --status-error: #EF4444;
-    --status-warning: #FBBF24;
-    --status-info: #3B82F6;
+    --status-error: #ef4444;
+    --status-warning: #fbbf24;
+    --status-info: #3b82f6;
   }
 }
 
 /* Essential game-specific animations */
 @keyframes bounce-once {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 .bounce-once {
@@ -367,6 +376,16 @@ html.dark {
   --tracking-widest: calc(var(--tracking-normal) + 0.1em);
   --tracking-normal: var(--tracking-normal);
   --letter-spacing: var(--letter-spacing);
+  --animate-rippling: rippling var(--duration) ease-out;
+  @keyframes rippling {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      transform: scale(2);
+      opacity: 0;
+    }
+  }
 }
 
 .dark {
@@ -376,8 +395,8 @@ html.dark {
   --card-foreground: oklch(0.9219 0 0);
   --popover: oklch(0.2686 0 0);
   --popover-foreground: oklch(0.9219 0 0);
-  --primary: oklch(0.6231 0.1880 259.8145);
-  --primary-foreground: oklch(1.0000 0 0);
+  --primary: oklch(0.6231 0.188 259.8145);
+  --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.2686 0 0);
   --secondary-foreground: oklch(0.9219 0 0);
   --muted: oklch(0.2686 0 0);
@@ -387,21 +406,21 @@ html.dark {
   --destructive: oklch(0.6368 0.2078 25.3313);
   --border: oklch(0.3715 0 0);
   --input: oklch(0.3715 0 0);
-  --ring: oklch(0.6231 0.1880 259.8145);
-  --chart-1: oklch(0.7137 0.1434 254.6240);
-  --chart-2: oklch(0.6231 0.1880 259.8145);
+  --ring: oklch(0.6231 0.188 259.8145);
+  --chart-1: oklch(0.7137 0.1434 254.624);
+  --chart-2: oklch(0.6231 0.188 259.8145);
   --chart-3: oklch(0.5461 0.2152 262.8809);
   --chart-4: oklch(0.4882 0.2172 264.3763);
   --chart-5: oklch(0.4244 0.1809 265.6377);
   --sidebar: oklch(0.2046 0 0);
   --sidebar-foreground: oklch(0.9219 0 0);
-  --sidebar-primary: oklch(0.6231 0.1880 259.8145);
-  --sidebar-primary-foreground: oklch(1.0000 0 0);
+  --sidebar-primary: oklch(0.6231 0.188 259.8145);
+  --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.3791 0.1378 265.5222);
   --sidebar-accent-foreground: oklch(0.8823 0.0571 254.1284);
   --sidebar-border: oklch(0.3715 0 0);
-  --sidebar-ring: oklch(0.6231 0.1880 259.8145);
-  --destructive-foreground: oklch(1.0000 0 0);
+  --sidebar-ring: oklch(0.6231 0.188 259.8145);
+  --destructive-foreground: oklch(1 0 0);
   --radius: 0.375rem;
   --font-sans: Inter, sans-serif;
   --font-serif: Source Serif 4, serif;
@@ -415,11 +434,15 @@ html.dark {
   --spacing: 0.25rem;
   --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
   --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-  --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
-  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
-  --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 2px 4px -1px hsl(0 0% 0% / 0.10);
-  --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10);
-  --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 8px 10px -1px hsl(0 0% 0% / 0.10);
+  --shadow-sm:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow-md:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
+  --shadow-lg:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
+  --shadow-xl:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
   --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
   --letter-spacing: 0em;
 }
