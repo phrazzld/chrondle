@@ -2,19 +2,21 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { BarChart3, HelpCircle, Settings } from 'lucide-react';
+import { HelpCircle, Settings } from 'lucide-react';
+import { getStreakColorClasses } from '@/lib/utils';
 
 interface AppHeaderProps {
   onShowHelp: () => void;
   onShowSettings: () => void;
-  onShowStats: () => void;
+  currentStreak?: number;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({ 
   onShowHelp, 
   onShowSettings,
-  onShowStats
+  currentStreak
 }) => {
+  const streakColors = currentStreak ? getStreakColorClasses(currentStreak) : null;
   return (
     <header className="w-full border-b border-border bg-card py-4">
       <div className="max-w-6xl mx-auto px-6">
@@ -25,19 +27,24 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               <span className="sm:hidden">C</span>
               <span className="hidden sm:inline">CHRONDLE</span>
             </h1>
+            {currentStreak !== undefined && currentStreak > 0 && streakColors && (
+              <div 
+                className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors duration-300 ${streakColors.backgroundColor}`}
+                title={streakColors.milestone || `${currentStreak} day streak`}
+                aria-label={`Current streak: ${currentStreak} day${currentStreak === 1 ? '' : 's'}`}
+              >
+                <span className={`text-sm font-medium ${streakColors.textColor} opacity-80`}>
+                  Streak
+                </span>
+                <span className={`text-sm font-bold ${streakColors.textColor}`}>
+                  {currentStreak}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}
           <div className="flex items-center gap-1">
-            <Button
-              onClick={onShowStats}
-              variant="ghost"
-              size="icon"
-              title="Stats - View your game statistics"
-              aria-label="Show game statistics and achievements"
-            >
-              <BarChart3 className="h-5 w-5" />
-            </Button>
             <Button
               onClick={onShowHelp}
               variant="ghost"

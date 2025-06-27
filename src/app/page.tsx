@@ -14,7 +14,6 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/button';
 import { HelpModal } from '@/components/modals/HelpModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
-import { StatsModal } from '@/components/modals/StatsModal';
 import { GameOverModal } from '@/components/modals/GameOverModal';
 import { HintReviewModal } from '@/components/modals/HintReviewModal';
 import { GameProgress } from '@/components/GameProgress';
@@ -55,7 +54,6 @@ export default function ChronldePage() {
   // UI state
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [showStatsModal, setShowStatsModal] = useState(false);
   const [showGameOverModal, setShowGameOverModal] = useState(false);
   const [validationError, setValidationError] = useState('');
   
@@ -226,7 +224,7 @@ export default function ChronldePage() {
         <AppHeader 
           onShowHelp={() => setShowHelpModal(true)}
           onShowSettings={() => setShowSettingsModal(true)}
-          onShowStats={() => setShowStatsModal(true)}
+          currentStreak={streakData.currentStreak}
         />
 
         {/* Loading Content */}
@@ -326,7 +324,7 @@ export default function ChronldePage() {
       <AppHeader 
         onShowHelp={() => setShowHelpModal(true)}
         onShowSettings={() => setShowSettingsModal(true)}
-        onShowStats={() => setShowStatsModal(true)}
+        currentStreak={streakData.currentStreak}
       />
 
       {/* Main Content Area */}
@@ -407,14 +405,6 @@ export default function ChronldePage() {
         isOpen={showSettingsModal}
         onClose={() => setShowSettingsModal(false)}
       />
-
-      {/* Stats Modal */}
-      <StatsModal
-        isOpen={showStatsModal}
-        onClose={() => setShowStatsModal(false)}
-        streakData={streakData}
-      />
-
 
       {/* Game Over Modal */}
       {gameLogic.gameState.puzzle && (

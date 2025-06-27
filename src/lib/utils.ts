@@ -64,3 +64,56 @@ export function generateEmojiTimeline(guesses: number[], targetYear: number): st
     return '⚫'; // Very far
   }).join('');
 }
+
+export interface StreakColorClasses {
+  textColor: string;
+  backgroundColor: string;
+  milestone?: string;
+}
+
+export function getStreakColorClasses(streak: number): StreakColorClasses {
+  if (streak <= 0) {
+    return {
+      textColor: 'text-muted-foreground',
+      backgroundColor: 'bg-muted',
+    };
+  }
+  
+  if (streak <= 2) {
+    return {
+      textColor: 'text-slate-600',
+      backgroundColor: 'bg-slate-100',
+    };
+  }
+  
+  if (streak <= 6) {
+    return {
+      textColor: 'text-blue-600',
+      backgroundColor: 'bg-blue-100',
+      milestone: streak === 3 ? 'Building habit!' : undefined,
+    };
+  }
+  
+  if (streak <= 13) {
+    return {
+      textColor: 'text-green-600',
+      backgroundColor: 'bg-green-100',
+      milestone: streak === 7 ? 'One week strong!' : undefined,
+    };
+  }
+  
+  if (streak <= 29) {
+    return {
+      textColor: 'text-orange-600',
+      backgroundColor: 'bg-orange-100',
+      milestone: streak === 14 ? 'Two weeks solid!' : undefined,
+    };
+  }
+  
+  // 30+ days
+  return {
+    textColor: 'text-red-600',
+    backgroundColor: 'bg-red-100',
+    milestone: streak === 30 ? 'One month champion!' : undefined,
+  };
+}
