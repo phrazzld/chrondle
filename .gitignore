@@ -41,5 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 /docs/leyline
-src/components/dev/
 *.backup
+
+# Build and temporary files
+.vercel-trigger
