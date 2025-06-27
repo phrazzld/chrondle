@@ -44,7 +44,7 @@ export const GuessInput: React.FC<GuessInputProps> = ({
     if (disabled) return;
 
     const currentValue = parseInt(inputValue, 10) || new Date().getFullYear();
-    
+
     switch (e.key) {
       case 'ArrowUp':
         e.preventDefault();
@@ -52,7 +52,7 @@ export const GuessInput: React.FC<GuessInputProps> = ({
         const newUpValue = Math.min(currentValue + increment, GAME_CONFIG.MAX_YEAR);
         setInputValue(newUpValue.toString());
         break;
-        
+
       case 'ArrowDown':
         e.preventDefault();
         const decrement = e.shiftKey ? 10 : 1;
@@ -64,12 +64,12 @@ export const GuessInput: React.FC<GuessInputProps> = ({
 
   const handleSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     // Prevent double submission during animation
     if (isSubmitting) return;
-    
+
     const guess = parseInt(inputValue, 10);
-    
+
     // Validation
     if (isNaN(guess) || !isValidYear(guess)) {
       onValidationError?.('Please enter a valid year.');
@@ -78,13 +78,13 @@ export const GuessInput: React.FC<GuessInputProps> = ({
 
     // Trigger animation immediately for instant feedback
     setIsSubmitting(true);
-    
+
     // Use requestAnimationFrame for optimal timing
     requestAnimationFrame(() => {
       // Make the guess
       onGuess(guess);
       setInputValue('');
-      
+
       // Remove animation class after animation completes (150ms)
       setTimeout(() => {
         setIsSubmitting(false);
@@ -92,12 +92,12 @@ export const GuessInput: React.FC<GuessInputProps> = ({
     });
   }, [inputValue, onGuess, onValidationError, isSubmitting]);
 
-  const buttonText = disabled ? 'Game Over' : 'Submit';
+  const buttonText = disabled ? 'Game Over' : 'Guess';
   const isSubmitDisabled = disabled || remainingGuesses <= 0;
 
   return (
-    <div className={className}>      
-      <form onSubmit={handleSubmit} className="space-y-3">
+    <div className={className}>
+      <form onSubmit={handleSubmit} className="flex gap-3">
         {/* Clean Input Field */}
         <Input
           ref={inputRef}
@@ -106,7 +106,7 @@ export const GuessInput: React.FC<GuessInputProps> = ({
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="e.g. 1969, -450"
-          className="text-2xl text-left font-bold h-16 bg-background border-2 border-input focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all duration-200 shadow-sm"
+          className="text-2xl text-left font-bold h-12 bg-background border-2 border-input focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all duration-200 shadow-sm flex-1"
           title="Use ↑↓ arrow keys (±1 year) or Shift+↑↓ (±10 years)"
           required
           disabled={disabled}
@@ -118,11 +118,10 @@ export const GuessInput: React.FC<GuessInputProps> = ({
           type="submit"
           disabled={isSubmitDisabled}
           size="lg"
-          className={`w-full h-12 text-lg font-semibold transition-all duration-200 ${
-            isSubmitting 
-              ? 'scale-105 bg-primary/90 shadow-lg animate-pulse' 
-              : 'hover:scale-105 hover:shadow-md'
-          }`}
+          className={`h-12 px-8 text-lg font-semibold transition-all duration-200 ${isSubmitting
+            ? 'scale-105 bg-primary/90 shadow-lg animate-pulse'
+            : 'hover:bg-primary/90'
+            }`}
         >
           {buttonText}
         </Button>

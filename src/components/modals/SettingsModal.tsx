@@ -128,7 +128,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold font-serif">
+          <DialogTitle className="text-2xl font-bold">
             Settings
           </DialogTitle>
         </DialogHeader>

@@ -60,7 +60,7 @@ export const HintReviewModal: React.FC<HintReviewModalProps> = ({
                 ←
               </Button>
             )}
-            <DialogTitle className="text-2xl font-bold font-serif">
+            <DialogTitle className="text-2xl font-bold">
               Guess #{guessNumber} Review
             </DialogTitle>
             {totalGuesses > 1 && onNavigate && (

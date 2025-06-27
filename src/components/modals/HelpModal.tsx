@@ -20,7 +20,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center font-serif">
+          <DialogTitle className="text-2xl font-bold text-center">
             How to Play
           </DialogTitle>
         </DialogHeader>

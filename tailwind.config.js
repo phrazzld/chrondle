@@ -10,10 +10,6 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
-      fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        serif: ['var(--font-playfair-display)', 'serif'],
-      },
       colors: {
         background: 'var(--background)',
         'background-subtle': 'var(--background-subtle)',
@@ -98,38 +94,6 @@ module.exports = {
         '48': 'var(--space-48)',
         '56': 'var(--space-56)',
         '64': 'var(--space-64)',
-      },
-      fontSize: {
-        xs: 'var(--text-xs)',
-        sm: 'var(--text-sm)',
-        base: 'var(--text-base)',
-        lg: 'var(--text-lg)',
-        xl: 'var(--text-xl)',
-        '2xl': 'var(--text-2xl)',
-        '3xl': 'var(--text-3xl)',
-        '4xl': 'var(--text-4xl)',
-      },
-      fontWeight: {
-        light: 'var(--font-light)',
-        normal: 'var(--font-normal)',
-        medium: 'var(--font-medium)',
-        semibold: 'var(--font-semibold)',
-        bold: 'var(--font-bold)',
-        extrabold: 'var(--font-extrabold)',
-      },
-      lineHeight: {
-        tight: 'var(--leading-tight)',
-        snug: 'var(--leading-snug)',
-        normal: 'var(--leading-normal)',
-        relaxed: 'var(--leading-relaxed)',
-        loose: 'var(--leading-loose)',
-      },
-      letterSpacing: {
-        tight: 'var(--tracking-tight)',
-        normal: 'var(--tracking-normal)',
-        wide: 'var(--tracking-wide)',
-        wider: 'var(--tracking-wider)',
-        widest: 'var(--tracking-widest)',
       },
       animation: {
         'bounce-once': 'bounce-once 0.5s ease-in-out',

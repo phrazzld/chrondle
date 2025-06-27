@@ -20,6 +20,7 @@ import { HintReviewModal } from '@/components/modals/HintReviewModal';
 import { GameProgress } from '@/components/GameProgress';
 import { HintsDisplay } from '@/components/HintsDisplay';
 import { GuessInput } from '@/components/GuessInput';
+import { GameInstructions } from '@/components/GameInstructions';
 import { DebugBanner } from '@/components/DebugBanner';
 import { AppHeader } from '@/components/AppHeader';
 import { LiveAnnouncer } from '@/components/ui/LiveAnnouncer';
@@ -245,91 +246,69 @@ export default function ChronldePage() {
         {/* Loading Content */}
         <main className="min-h-screen">
           <div className="max-w-6xl mx-auto px-6 py-6">
-            <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
+            <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
             
-              {/* Left Column - Loading Input and Progress */}
-              <div className="lg:col-span-1 space-y-6">
-                {/* Loading Input */}
-                <div className="sticky top-6">
-                  <Card className="shadow-lg border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5">
-                    <div className="p-6">
-                      <h3 className="text-lg font-semibold text-foreground mb-4">Guess the Year</h3>
-                      <div className="flex gap-3 items-center">
-                        <div className="flex-1">
-                          <div className="w-full p-3 text-lg text-center rounded-lg border-2 bg-input border-border opacity-50">
-                            e.g. 1969, -450
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-center gap-1">
-                          <Button className="px-6 opacity-50" disabled>Submit</Button>
-                          <span className="text-xs text-muted-foreground">1/6</span>
-                        </div>
+              {/* Loading Instructions */}
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-foreground mb-2">
+                  Guess the Year - Historical Events
+                </h2>
+                <div className="h-4 bg-muted animate-pulse rounded w-2/3 mx-auto"></div>
+              </div>
+              
+              {/* Loading Input */}
+              <div className="space-y-3">
+                <div className="w-full p-3 text-2xl text-left font-bold h-16 rounded-lg border-2 bg-input border-border opacity-50 flex items-center">
+                  e.g. 1969, -450
+                </div>
+                <Button className="w-full h-12 text-lg font-semibold opacity-50" disabled size="lg">
+                  Submit
+                </Button>
+              </div>
+              
+              {/* Loading Progress */}
+              <div className="flex justify-center gap-2 py-2">
+                {Array.from({ length: 6 }, (_, i) => (
+                  <div key={i} className="w-3 h-3 rounded-full bg-muted-foreground/30" />
+                ))}
+              </div>
+
+              {/* Loading Hints */}
+              <div className="space-y-4">
+                {/* Loading Current Hint */}
+                <Card className="border-2 border-primary/20 shadow-md bg-gradient-to-br from-primary/5 to-primary/10">
+                  <div className="p-4">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
+                        1
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider block">
+                          🎯 Current Hint
+                        </span>
+                        <span className="text-xs text-muted-foreground">Hint 1 of 6</span>
                       </div>
                     </div>
-                  </Card>
-                </div>
-                
-                {/* Loading Progress */}
-                <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
-                  <div className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h2 className="text-lg font-semibold text-foreground">Game Progress</h2>
-                        <p className="text-sm text-muted-foreground">Preparing puzzle...</p>
-                      </div>
-                      <div className="flex gap-1">
-                        {Array.from({ length: 6 }, (_, i) => (
-                          <div key={i} className="w-3 h-3 rounded-full bg-muted-foreground/30" />
-                        ))}
-                      </div>
+                    <div className="flex items-center text-muted-foreground">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-3"></div>
+                      <span className="text-lg font-medium">Loading puzzle...</span>
                     </div>
                   </div>
                 </Card>
-              </div>
-
-              {/* Right Column - Loading Hints */}
-              <div className="lg:col-span-2">
-                <div className="space-y-4">
-                  <div className="mb-4">
-                    <h2 className="text-xl font-bold text-foreground mb-2">Historical Events</h2>
-                    <div className="h-4 bg-muted animate-pulse rounded w-2/3"></div>
-                  </div>
-                  
-                  {/* Loading Current Hint */}
-                  <Card className="border-2 border-primary/20 shadow-md bg-gradient-to-br from-primary/5 to-primary/10">
-                    <div className="p-4">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
-                          1
-                        </div>
-                        <div>
-                          <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider block">
-                            🎯 Current Hint
-                          </span>
-                          <span className="text-xs text-muted-foreground">Hint 1 of 6</span>
-                        </div>
+                
+                {/* Loading Placeholder Hints */}
+                {Array.from({ length: 5 }, (_, i) => (
+                  <Card key={i} className="bg-muted/20 border-dashed border-muted-foreground/30">
+                    <div className="p-4 flex items-center gap-3">
+                      <div className="w-6 h-6 bg-muted rounded-full flex items-center justify-center text-xs font-medium text-muted-foreground">
+                        {i + 2}
                       </div>
-                      <div className="flex items-center text-muted-foreground">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-3"></div>
-                        <span className="text-lg font-medium">Loading puzzle...</span>
-                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        Hint {i + 2} will be revealed after your next guess
+                      </span>
                     </div>
                   </Card>
-                  
-                  {/* Loading Placeholder Hints */}
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <Card key={i} className="bg-muted/20 border-dashed border-muted-foreground/30">
-                      <div className="p-4 flex items-center gap-3">
-                        <div className="w-6 h-6 bg-muted rounded-full flex items-center justify-center text-xs font-medium text-muted-foreground">
-                          {i + 2}
-                        </div>
-                        <span className="text-sm text-muted-foreground">
-                          Hint {i + 2} will be revealed after your next guess
-                        </span>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
+                ))}
               </div>
 
             </div>
@@ -381,45 +360,36 @@ export default function ChronldePage() {
             className="mb-6"
           />
 
-          {/* Modern Game Layout */}
-          <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
+          {/* Single Column Game Layout */}
+          <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
             
-            {/* Left Column - Input and Progress */}
-            <div className="lg:col-span-1 space-y-6">
-              <div className="sticky top-6">
-                <Card className="shadow-lg border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5">
-                  <div className="p-6">
-                    <h3 className="text-lg font-semibold text-foreground mb-4">
-                      Guess the Year
-                    </h3>
-                    <GuessInput
-                      onGuess={gameLogic.makeGuess}
-                      disabled={gameLogic.isGameComplete || gameLogic.isLoading}
-                      remainingGuesses={gameLogic.remainingGuesses}
-                      onValidationError={handleValidationError}
-                    />
-                  </div>
-                </Card>
-              </div>
-              
-              <GameProgress
-                currentHintIndex={gameLogic.currentHintIndex}
-                isGameWon={gameLogic.hasWon}
-              />
-            </div>
-
-            {/* Right Column - All Hints */}
-            <div className="lg:col-span-2">
-              <HintsDisplay
-                events={gameLogic.gameState.puzzle?.events || []}
-                guesses={gameLogic.gameState.guesses}
-                targetYear={gameLogic.gameState.puzzle?.year || 0}
-                currentHintIndex={gameLogic.currentHintIndex}
-                isLoading={gameLogic.isLoading}
-                error={gameLogic.error}
-                onHintClick={handleHintClick}
-              />
-            </div>
+            {/* Game Instructions */}
+            <GameInstructions />
+            
+            {/* Input Section */}
+            <GuessInput
+              onGuess={gameLogic.makeGuess}
+              disabled={gameLogic.isGameComplete || gameLogic.isLoading}
+              remainingGuesses={gameLogic.remainingGuesses}
+              onValidationError={handleValidationError}
+            />
+            
+            {/* Progress Section */}
+            <GameProgress
+              currentHintIndex={gameLogic.currentHintIndex}
+              isGameWon={gameLogic.hasWon}
+            />
+            
+            {/* Hints Section */}
+            <HintsDisplay
+              events={gameLogic.gameState.puzzle?.events || []}
+              guesses={gameLogic.gameState.guesses}
+              targetYear={gameLogic.gameState.puzzle?.year || 0}
+              currentHintIndex={gameLogic.currentHintIndex}
+              isLoading={gameLogic.isLoading}
+              error={gameLogic.error}
+              onHintClick={handleHintClick}
+            />
 
           </div>
 
