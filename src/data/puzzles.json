@@ -1,7 +1,7 @@
 {
   "meta": {
     "version": "2.0",
-    "total_puzzles": 100,
+    "total_puzzles": 103,
     "date_range": "-776-2008"
   },
   "puzzles": {
@@ -37,6 +37,14 @@
       "Julius Caesar murdered on Ides of March",
       "Mark Antony and Octavian pursue civil war revenge"
     ],
+    "30": [
+      "Phaedrus translates Aesop's fables for Roman readers",
+      "Kushan Empire emerges in Central Asian territories",
+      "Velleius Paterculus completes general history of antiquity",
+      "Sejanus purges Agrippina the Elder's imperial family",
+      "Crucifixion of Jesus Christ transforms religious history",
+      "Caligula survives as sole heir to Germanicus lineage"
+    ],
     "79": [
       "Pliny the Elder dies investigating volcanic phenomena",
       "Herculaneum residents asphyxiated by 1000-degree gases",
@@ -68,6 +76,14 @@
       "Christmas Mass interrupted by unexpected coronation ceremony",
       "Charlemagne becomes first Western Emperor since 476",
       "Carolingian Renaissance promotes learning and literacy"
+    ],
+    "1000": [
+      "Icelandic Althing officially adopts Christianity",
+      "Otto III meets Polish Duke Bolesław in Gniezno",
+      "Byzantine forces capture Bulgarian capitals Pliska and Preslav",
+      "Battle of Svolder defeats Norwegian King Olaf Tryggvason",
+      "Polish archbishopric gains independence from Holy Roman Empire",
+      "First millennium ends marking Early to High Middle Ages transition"
     ],
     "1054": [
       "Cardinal Humbert delivers papal bull to Hagia Sophia",
@@ -628,6 +644,14 @@
       "Ghana becomes first African colony to gain independence",
       "Space race begins with Soviet technological achievement",
       "Federal troops enforce school desegregation"
+    ],
+    "1960": [
+      "First televised presidential debates change election campaigns",
+      "U-2 spy plane shot down over Soviet territory",
+      "Kennedy calls Coretta King during Martin Luther's arrest",
+      "Alaska and Hawaii participate in first presidential election",
+      "John F. Kennedy elected youngest president in history",
+      "Cold War tensions escalate with Castro's Cuba alliance"
     ],
     "1963": [
       "John F. Kennedy assassinated in Dallas motorcade",

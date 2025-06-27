@@ -45,3 +45,6 @@ next-env.d.ts
 
 # Build and temporary files
 .vercel-trigger
+
+# Temporary data files
+temp-data/
