@@ -200,11 +200,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 </div>
               )}
               
-              {notifications.permissionStatus === 'default' && notifications.shouldShowPermissionPrompt && (
-                <div className="mt-2 p-2 rounded text-xs bg-blue-500 text-white">
-                  📱 Click the toggle to enable daily reminders!
-                </div>
-              )}
             </div>
 
             {/* Reminder Time Picker */}
