@@ -20,7 +20,9 @@ export const SmartTooltip: React.FC<SmartTooltipProps> = ({
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState<'center' | 'left' | 'right'>('center');
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     const checkMobile = () => {
@@ -33,10 +35,33 @@ export const SmartTooltip: React.FC<SmartTooltipProps> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const calculateTooltipPosition = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      
+      // If trigger is in left 30% of screen, align tooltip left
+      if (rect.left < viewportWidth * 0.3) {
+        setTooltipPosition('left');
+      }
+      // If trigger is in right 30% of screen, align tooltip right  
+      else if (rect.right > viewportWidth * 0.7) {
+        setTooltipPosition('right');
+      }
+      // Otherwise center the tooltip
+      else {
+        setTooltipPosition('center');
+      }
+    }
+  };
+
   const showTooltip = () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
+    
+    // Calculate optimal position before showing
+    calculateTooltipPosition();
     
     if (isMobile) {
       // On mobile, toggle tooltip on tap
@@ -75,11 +100,27 @@ export const SmartTooltip: React.FC<SmartTooltipProps> = ({
   }, []);
 
   const getPositionClasses = () => {
-    switch (side) {
-      case 'top':
-        return 'bottom-full left-1/2 transform -translate-x-1/2 mb-2';
-      case 'bottom':
-        return 'top-full left-1/2 transform -translate-x-1/2 mt-2';
+    // On mobile, prefer bottom positioning to avoid cutoff issues
+    const effectiveSide = (isMobile && side === 'top') ? 'bottom' : side;
+    
+    // Base positioning for top/bottom tooltips
+    if (effectiveSide === 'top' || effectiveSide === 'bottom') {
+      const verticalClass = effectiveSide === 'top' ? 'bottom-full mb-2' : 'top-full mt-2';
+      
+      // Horizontal positioning based on calculated position
+      switch (tooltipPosition) {
+        case 'left':
+          return `${verticalClass} left-0`;
+        case 'right':
+          return `${verticalClass} right-0`;
+        case 'center':
+        default:
+          return `${verticalClass} left-1/2 transform -translate-x-1/2`;
+      }
+    }
+    
+    // Side positioning (left/right tooltips)
+    switch (effectiveSide) {
       case 'left':
         return 'right-full top-1/2 transform -translate-y-1/2 mr-2';
       case 'right':
@@ -90,11 +131,29 @@ export const SmartTooltip: React.FC<SmartTooltipProps> = ({
   };
 
   const getArrowClasses = () => {
-    switch (side) {
-      case 'top':
-        return 'top-full left-1/2 transform -translate-x-1/2 border-t-muted border-t-8 border-x-transparent border-x-8 border-b-0';
-      case 'bottom':
-        return 'bottom-full left-1/2 transform -translate-x-1/2 border-b-muted border-b-8 border-x-transparent border-x-8 border-t-0';
+    // On mobile, prefer bottom positioning to avoid cutoff issues
+    const effectiveSide = (isMobile && side === 'top') ? 'bottom' : side;
+    
+    // Arrow positioning for top/bottom tooltips
+    if (effectiveSide === 'top' || effectiveSide === 'bottom') {
+      const arrowVertical = effectiveSide === 'top' 
+        ? 'top-full border-t-muted border-t-8 border-x-transparent border-x-8 border-b-0'
+        : 'bottom-full border-b-muted border-b-8 border-x-transparent border-x-8 border-t-0';
+      
+      // Horizontal arrow positioning based on tooltip position
+      switch (tooltipPosition) {
+        case 'left':
+          return `${arrowVertical} left-4`;
+        case 'right':
+          return `${arrowVertical} right-4`;
+        case 'center':
+        default:
+          return `${arrowVertical} left-1/2 transform -translate-x-1/2`;
+      }
+    }
+    
+    // Arrow positioning for left/right tooltips
+    switch (effectiveSide) {
       case 'left':
         return 'left-full top-1/2 transform -translate-y-1/2 border-l-muted border-l-8 border-y-transparent border-y-8 border-r-0';
       case 'right':
@@ -105,7 +164,7 @@ export const SmartTooltip: React.FC<SmartTooltipProps> = ({
   };
 
   return (
-    <div className="relative inline-block">
+    <div className="relative inline-block" ref={triggerRef}>
       <div
         onMouseEnter={showTooltip}
         onMouseLeave={hideTooltip}

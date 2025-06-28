@@ -97,7 +97,7 @@ export const GuessInput: React.FC<GuessInputProps> = ({
 
   return (
     <div className={className}>
-      <form onSubmit={handleSubmit} className="flex gap-3">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
         {/* Clean Input Field */}
         <Input
           ref={inputRef}
@@ -105,8 +105,8 @@ export const GuessInput: React.FC<GuessInputProps> = ({
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Enter year (e.g. 1969 or -450 for BC)"
-          className="text-2xl text-left font-accent font-bold h-12 bg-background border-2 border-input focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all duration-200 shadow-sm flex-1 tracking-wide"
+          placeholder="Enter year (e.g. 1969)"
+          className="text-lg sm:text-2xl text-left font-accent font-bold h-12 bg-background border-2 border-input focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all duration-200 shadow-sm w-full sm:flex-1 tracking-wide"
           title="Use ↑↓ arrow keys (±1 year) or Shift+↑↓ (±10 years). Use negative numbers for BC years (e.g. -450 for 450 BC)"
           required
           disabled={disabled}
@@ -118,7 +118,7 @@ export const GuessInput: React.FC<GuessInputProps> = ({
           type="submit"
           disabled={isSubmitDisabled}
           size="lg"
-          className={`h-12 px-8 text-lg font-accent font-semibold tracking-wide transition-all duration-200 ${isSubmitting
+          className={`h-12 px-8 text-lg font-accent font-semibold tracking-wide transition-all duration-200 w-full sm:w-auto ${isSubmitting
             ? 'scale-105 bg-primary/90 shadow-lg animate-pulse'
             : 'hover:bg-primary/90'
             }`}
