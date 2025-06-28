@@ -2,17 +2,15 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { HelpCircle, Settings } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { getStreakColorClasses } from '@/lib/utils';
 
 interface AppHeaderProps {
-  onShowHelp: () => void;
   onShowSettings: () => void;
   currentStreak?: number;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
-  onShowHelp,
   onShowSettings,
   currentStreak
 }) => {
@@ -45,15 +43,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
           {/* Action Buttons */}
           <div className="flex items-center gap-1">
-            <Button
-              onClick={onShowHelp}
-              variant="ghost"
-              size="icon"
-              title="Help - Learn how to play Chrondle"
-              aria-label="Show help and game instructions"
-            >
-              <HelpCircle className="h-5 w-5" />
-            </Button>
             <Button
               onClick={onShowSettings}
               variant="ghost"

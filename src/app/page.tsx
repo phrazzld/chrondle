@@ -1,10 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { 
-  markPlayerAsPlayed,
-  hasPlayerPlayedBefore 
-} from '@/lib/storage';
 import { getGuessDirectionInfo, formatYear } from '@/lib/utils';
 import { getEnhancedProximityFeedback } from '@/lib/enhancedFeedback';
 import { useGameState } from '@/hooks/useGameState';
@@ -13,7 +9,6 @@ import { useStreak } from '@/hooks/useStreak';
 import { useCountdown } from '@/hooks/useCountdown';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/button';
-import { HelpModal } from '@/components/modals/HelpModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
 import { HintReviewModal } from '@/components/modals/HintReviewModal';
 import { GameProgress } from '@/components/GameProgress';
@@ -55,7 +50,6 @@ export default function ChronldePage() {
   const { timeString } = useCountdown();
   
   // UI state
-  const [showHelpModal, setShowHelpModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [validationError, setValidationError] = useState('');
   
@@ -82,12 +76,6 @@ export default function ChronldePage() {
     }
   }, [gameLogic.isGameComplete, gameLogic.gameState.puzzle, gameLogic.hasWon, updateStreak, debugMode]);
   
-  // Show help modal for first-time players
-  useEffect(() => {
-    if (!gameLogic.isLoading && !hasPlayerPlayedBefore() && !debugMode) {
-      setShowHelpModal(true);
-    }
-  }, [gameLogic.isLoading, debugMode]);
 
   // Announce guess feedback for screen readers
   useEffect(() => {
@@ -208,10 +196,6 @@ export default function ChronldePage() {
     enabled: Boolean(hintReviewModal?.isOpen) && gameLogic.gameState.guesses.length > 1
   });
 
-  const closeHelpModal = () => {
-    setShowHelpModal(false);
-    markPlayerAsPlayed();
-  };
 
   // Prevent SSR mismatch
   if (!mounted) {
@@ -222,7 +206,6 @@ export default function ChronldePage() {
     return (
       <div className="min-h-screen" style={{ background: 'var(--background)' }}>
         <AppHeader 
-          onShowHelp={() => setShowHelpModal(true)}
           onShowSettings={() => setShowSettingsModal(true)}
           currentStreak={streakData.currentStreak}
         />
@@ -322,7 +305,6 @@ export default function ChronldePage() {
       </a>
       
       <AppHeader 
-        onShowHelp={() => setShowHelpModal(true)}
         onShowSettings={() => setShowSettingsModal(true)}
         currentStreak={streakData.currentStreak}
       />
@@ -407,10 +389,6 @@ export default function ChronldePage() {
       <LiveAnnouncer message={announcement} priority="polite" />
 
       {/* How to Play Modal */}
-      <HelpModal 
-        isOpen={showHelpModal}
-        onClose={closeHelpModal}
-      />
 
       {/* Settings Modal */}
       <SettingsModal

@@ -16,11 +16,11 @@ export function formatYear(year: number): string {
 export function getGuessDirectionInfo(guess: number, target: number) {
   const difference = guess - target;
   if (difference === 0) {
-    return { direction: 'correct', icon: '🎯', text: 'CORRECT!' };
+    return { direction: 'correct', icon: '🎯', text: 'Perfect! You found it!' };
   } else if (difference > 0) {
-    return { direction: 'earlier', icon: '▼', text: 'EARLIER' };
+    return { direction: 'earlier', icon: '▼', text: 'Too late - try an earlier year' };
   } else {
-    return { direction: 'later', icon: '▲', text: 'LATER' };
+    return { direction: 'later', icon: '▲', text: 'Too early - try a later year' };
   }
 }
 

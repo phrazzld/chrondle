@@ -15,11 +15,11 @@
   --primary-hover: #b8360b;
   --primary-light: #ea5a1b;
 
-  /* Game Feedback Colors */
-  --feedback-earlier: #4338ca; /* Indigo - 8.9:1 contrast on white */
-  --feedback-later: #0f766e; /* Teal - 5.2:1 contrast on white */
-  --feedback-success: #d97706; /* Gold - 4.8:1 contrast on white */
-  --feedback-correct: #16a34a; /* Green - 4.7:1 contrast on white */
+  /* Game Feedback Colors - Historical Palette */
+  --feedback-earlier: #d4a574; /* Warm amber - aged parchment feel */
+  --feedback-later: #2c3e50; /* Deep navy - vintage ink elegance */
+  --feedback-success: #d4a574; /* Warm amber - same as earlier for consistency */
+  --feedback-correct: #27ae60; /* Forest green - wax seal richness */
 
   /* Status Colors (Distinct from Primary) */
   --status-error: #dc2626; /* Red - 6.3:1 contrast on white */

@@ -105,12 +105,12 @@ export const GuessInput: React.FC<GuessInputProps> = ({
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="e.g. 1969, -450"
+          placeholder="Enter year (e.g. 1969 or -450 for BC)"
           className="text-2xl text-left font-bold h-12 bg-background border-2 border-input focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all duration-200 shadow-sm flex-1"
-          title="Use ↑↓ arrow keys (±1 year) or Shift+↑↓ (±10 years)"
+          title="Use ↑↓ arrow keys (±1 year) or Shift+↑↓ (±10 years). Use negative numbers for BC years (e.g. -450 for 450 BC)"
           required
           disabled={disabled}
-          aria-label="Enter your year guess. Use arrow keys to increment or decrement."
+          aria-label="Enter your year guess. Use arrow keys to increment or decrement. Use negative numbers for BC years."
         />
 
         {/* Clean Submit Button */}
