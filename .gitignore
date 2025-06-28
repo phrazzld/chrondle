@@ -49,3 +49,6 @@ next-env.d.ts
 # Temporary data files
 temp-data/
 todo.md
+align-context.md
+backlog.md
+task.md
