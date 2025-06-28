@@ -4,6 +4,7 @@ import React from 'react';
 import { formatYear } from '@/lib/utils';
 import { Separator } from '@/components/ui/Separator';
 import { TextAnimate } from '@/components/magicui/text-animate';
+import { Check } from 'lucide-react';
 
 interface HintsDisplayProps {
   events: string[];
@@ -51,8 +52,6 @@ const CompactHintItem: React.FC<CompactHintItemProps> = ({
   // Determine guess feedback
   const isCorrect = guess === targetYear;
   const isEarlier = guess < targetYear;
-  const triangleIcon = isCorrect ? '✓' : (isEarlier ? '▲' : '▼');
-  const feedbackText = isCorrect ? 'CORRECT!' : (isEarlier ? 'EARLY' : 'LATE');
   const feedbackColor = isCorrect ? 'text-green-600 dark:text-green-400' : 
                         (isEarlier ? 'text-orange-600 dark:text-orange-400' : 'text-blue-600 dark:text-blue-400');
 
@@ -60,15 +59,21 @@ const CompactHintItem: React.FC<CompactHintItemProps> = ({
     <div 
       className="py-3"
     >
-      <p className="text-xs text-muted-foreground mb-1 text-left uppercase">Hint #{hintNumber}</p>
+      <p className="text-xs text-muted-foreground mb-1 text-left uppercase font-accent tracking-wide">Hint #{hintNumber}</p>
       <div className="flex items-center justify-between gap-3">
-        <p className="text-lg text-left flex-1">{hintText}</p>
+        <p className="text-lg text-left flex-1 font-body leading-relaxed">{hintText}</p>
         <div className="flex items-center gap-3">
-          <div className={`w-20 text-center font-semibold text-sm whitespace-nowrap ${feedbackColor}`}>
-            {triangleIcon} {feedbackText}
+          <div className={`w-8 flex justify-center items-center ${feedbackColor}`}>
+            {isCorrect ? (
+              <Check className="w-5 h-5" />
+            ) : (
+              <span className="font-semibold text-lg">
+                {isEarlier ? '▲' : '▼'}
+              </span>
+            )}
           </div>
           <div className="w-18 bg-muted/70 rounded-md px-2 py-1 text-center whitespace-nowrap border border-muted/40">
-            <span className="font-medium text-foreground text-sm">{formatYear(guess)}</span>
+            <span className="font-accent font-semibold text-foreground text-sm">{formatYear(guess)}</span>
           </div>
         </div>
       </div>
@@ -83,16 +88,16 @@ const ActiveHintItem: React.FC<ActiveHintItemProps> = ({
 }) => {
   return (
     <div className="py-3">
-      <p className="text-xs text-muted-foreground mb-1 text-left uppercase">Hint #{hintNumber}</p>
+      <p className="text-xs text-muted-foreground mb-1 text-left uppercase font-accent tracking-wide">Hint #{hintNumber}</p>
       {isLoading ? (
         <div className="flex items-center text-muted-foreground">
           <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary mr-2"></div>
-          <span className="text-lg">Loading hint...</span>
+          <span className="text-lg font-body">Loading hint...</span>
         </div>
       ) : (
         <TextAnimate 
           key={hintText} 
-          className="text-lg text-left" 
+          className="text-lg text-left font-body leading-relaxed" 
           animation="blurIn" 
           by="character"
           duration={0.6}
@@ -111,8 +116,8 @@ const PlaceholderHintItem: React.FC<PlaceholderHintItemProps> = ({
 }) => {
   return (
     <div className="py-3 opacity-50">
-      <p className="text-xs text-muted-foreground mb-1 text-left uppercase">Hint #{hintNumber}</p>
-      <p className="text-lg text-muted-foreground text-left">
+      <p className="text-xs text-muted-foreground mb-1 text-left uppercase font-accent tracking-wide">Hint #{hintNumber}</p>
+      <p className="text-lg text-muted-foreground text-left font-body leading-relaxed">
         Will be revealed after your next guess
       </p>
     </div>
@@ -130,8 +135,8 @@ const CompletionHintItem: React.FC<CompletionHintItemProps> = ({
 }) => {
   return (
     <div className="py-3 opacity-75">
-      <p className="text-xs text-muted-foreground mb-1 text-left uppercase">Hint #{hintNumber}</p>
-      <p className="text-lg text-muted-foreground text-left">
+      <p className="text-xs text-muted-foreground mb-1 text-left uppercase font-accent tracking-wide">Hint #{hintNumber}</p>
+      <p className="text-lg text-muted-foreground text-left font-body leading-relaxed">
         {hintText || 'No hint available'}
       </p>
     </div>

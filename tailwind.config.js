@@ -10,6 +10,14 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-sans)'],
+        serif: ['var(--font-serif)'],
+        accent: ['var(--font-accent)'],
+        mono: ['var(--font-mono)'],
+        heading: ['var(--font-serif)'],
+        body: ['var(--font-sans)'],
+      },
       colors: {
         background: 'var(--background)',
         'background-subtle': 'var(--background-subtle)',

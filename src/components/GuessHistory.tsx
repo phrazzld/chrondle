@@ -34,7 +34,7 @@ const GuessRow: React.FC<GuessRowProps> = React.memo(({
           <Badge variant="default" className="bg-green-500 hover:bg-green-600">
             CORRECT
           </Badge>
-          <span className="font-bold text-lg">{formatYear(guess)}</span>
+          <span className="font-accent font-bold text-lg tracking-wide">{formatYear(guess)}</span>
         </div>
         <span className="text-green-700 dark:text-green-300 font-semibold">
           You won!
@@ -54,13 +54,13 @@ const GuessRow: React.FC<GuessRowProps> = React.memo(({
         <Badge variant={badgeVariant} className="text-sm px-3 py-1">
           {badgeText}
         </Badge>
-        <span className="font-semibold text-lg">{formatYear(guess)}</span>
+        <span className="font-accent font-semibold text-lg tracking-wide">{formatYear(guess)}</span>
       </div>
       
       {hint && (
         <div className="pl-8">
-          <p className="text-sm text-muted-foreground">
-            <span className="font-medium">Next hint:</span> {hint}
+          <p className="text-sm text-muted-foreground font-body">
+            <span className="font-medium font-accent">Next hint:</span> {hint}
           </p>
         </div>
       )}
@@ -88,7 +88,7 @@ export const GuessHistory: React.FC<GuessHistoryProps> = ({
     >
       <div className="mb-4">
         <h3 
-          className="text-xl font-bold mb-2" 
+          className="text-xl font-heading font-bold mb-2" 
           style={{ color: 'var(--foreground)' }}
           id="guess-history-heading"
         >

@@ -4,6 +4,7 @@ import React from 'react';
 import { formatYear } from '@/lib/utils';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
+import { Check } from 'lucide-react';
 
 interface GameTimelineProps {
   events: string[];
@@ -294,7 +295,7 @@ export const GameTimeline: React.FC<GameTimelineProps> = ({
         <Card className="border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 dark:border-green-800 dark:from-green-950 dark:to-emerald-950">
           <CardContent className="p-6 text-center">
             <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">✓</span>
+              <Check className="w-8 h-8 text-white" />
             </div>
             <h3 className="text-2xl font-bold text-green-700 dark:text-green-300 mb-2">
               Congratulations!

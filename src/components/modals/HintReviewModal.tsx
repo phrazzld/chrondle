@@ -60,7 +60,7 @@ export const HintReviewModal: React.FC<HintReviewModalProps> = ({
                 ←
               </Button>
             )}
-            <DialogTitle className="text-2xl font-bold">
+            <DialogTitle className="text-2xl font-heading font-bold">
               Guess #{guessNumber} Review
             </DialogTitle>
             {totalGuesses > 1 && onNavigate && (
@@ -85,7 +85,7 @@ export const HintReviewModal: React.FC<HintReviewModalProps> = ({
           {/* Header */}
           <div className="mb-6">
             <div className="flex items-center justify-center gap-2 text-lg">
-              <span className="font-bold text-foreground">
+              <span className="font-accent font-bold text-foreground tracking-wide">
                 You guessed: {formatYear(guess)}
               </span>
               {!isCorrect && (
@@ -118,11 +118,11 @@ export const HintReviewModal: React.FC<HintReviewModalProps> = ({
 
           {/* Hint Display */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3 text-foreground">
+            <h3 className="text-lg font-heading font-semibold mb-3 text-foreground">
               Hint #{guessNumber}:
             </h3>
             <div className="p-4 rounded-lg text-left border-l-4 border-primary bg-secondary text-foreground">
-              <p className="text-base leading-relaxed">{hint}</p>
+              <p className="text-base font-body leading-relaxed">{hint}</p>
             </div>
           </div>
 
@@ -130,11 +130,11 @@ export const HintReviewModal: React.FC<HintReviewModalProps> = ({
           {isCorrect && (
             <div className="mb-6">
               <div className="p-4 rounded-lg border-2 border-green-600 bg-muted">
-                <p className="text-lg font-semibold text-foreground">
+                <p className="text-lg font-accent font-semibold text-foreground tracking-wide">
                   Target Year: {formatYear(targetYear)}
                 </p>
-                <p className="text-sm mt-1 text-muted-foreground">
-                  All events in this puzzle happened in {formatYear(targetYear)}
+                <p className="text-sm font-body mt-1 text-muted-foreground">
+                  All events in this puzzle happened in <span className="font-accent tracking-wide">{formatYear(targetYear)}</span>
                 </p>
               </div>
             </div>
@@ -143,7 +143,7 @@ export const HintReviewModal: React.FC<HintReviewModalProps> = ({
           {/* Close Button */}
           <Button 
             onClick={onClose}
-            className="w-full py-3 px-6 text-lg font-semibold"
+            className="w-full py-3 px-6 text-lg font-accent font-semibold tracking-wide"
           >
             Continue Game
           </Button>
