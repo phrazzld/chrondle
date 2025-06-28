@@ -43,7 +43,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
     );
   }
 
-  // Minimal completion state - no verbose messaging
+  // Game completed - show results with answer reveal
 
   const getShareButtonContent = () => {
     switch (shareStatus) {
@@ -92,6 +92,36 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
 
   return (
     <div className={`text-center mb-8 ${className}`}>
+      {/* Answer Reveal Section - Prominent for Loss State */}
+      {!hasWon && targetYear && (
+        <div className="mb-6 p-6 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950/30 dark:to-red-900/30 border border-red-200 dark:border-red-800 rounded-xl">
+          <div className="text-sm text-red-600 dark:text-red-400 uppercase tracking-wide font-medium mb-2">
+            The answer was
+          </div>
+          <div className="text-4xl sm:text-5xl font-bold text-red-700 dark:text-red-300 mb-2">
+            {targetYear}
+          </div>
+          <div className="text-sm text-red-600 dark:text-red-400">
+            Better luck tomorrow!
+          </div>
+        </div>
+      )}
+
+      {/* Success State - Show answer with celebration */}
+      {hasWon && targetYear && (
+        <div className="mb-6 p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/30 dark:to-green-900/30 border border-green-200 dark:border-green-800 rounded-xl">
+          <div className="text-sm text-green-600 dark:text-green-400 uppercase tracking-wide font-medium mb-2">
+            Correct! The year was
+          </div>
+          <div className="text-4xl sm:text-5xl font-bold text-green-700 dark:text-green-300 mb-2">
+            {targetYear}
+          </div>
+          <div className="text-sm text-green-600 dark:text-green-400">
+            Great job!
+          </div>
+        </div>
+      )}
+
       {/* Consolidated Single Row Layout */}
       <div className="w-full flex items-center gap-4 p-6 bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl">
         
