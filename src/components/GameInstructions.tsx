@@ -47,13 +47,6 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
 
   const getShareButtonContent = () => {
     switch (shareStatus) {
-      case 'copying':
-        return (
-          <div className="flex items-center justify-center gap-2">
-            <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-            <span>Copying...</span>
-          </div>
-        );
       case 'success':
         return (
           <div className="flex items-center justify-center gap-2">
@@ -115,7 +108,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
         {/* Share Button */}
         <RippleButton
           onClick={() => shareGame()}
-          disabled={shareStatus === 'copying'}
+          disabled={false}
           className={getShareButtonStyles()}
           rippleColor="rgba(255, 255, 255, 0.3)"
           aria-label="Share your results"

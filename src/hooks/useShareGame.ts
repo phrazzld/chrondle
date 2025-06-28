@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { generateShareText, generateEmojiTimeline } from '@/lib/utils';
 import { useClipboard } from '@/hooks/useClipboard';
 
-export type ShareStatus = 'idle' | 'copying' | 'success' | 'error';
+export type ShareStatus = 'idle' | 'success' | 'error';
 
 interface UseShareGameOptions {
   onSuccess?: () => void;
@@ -38,8 +38,6 @@ export function useShareGame(
   }, [shareStatus]);
   
   const shareGame = useCallback(async (useDetailed?: boolean) => {
-    setShareStatus('copying');
-    
     const textToShare = useDetailed || detailed ? detailedShareText : compactShareText;
     const success = await copyToClipboard(textToShare);
     

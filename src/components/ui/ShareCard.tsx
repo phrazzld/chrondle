@@ -20,55 +20,67 @@ export const ShareCard: React.FC<ShareCardProps> = ({
   shareStatus
 }) => {
   const getShareButtonContent = () => {
-    switch (shareStatus) {
-      case 'copying':
-        return (
-          <div className="flex items-center justify-center gap-3">
-            <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
-            <span>Copying...</span>
-          </div>
-        );
-      case 'success':
-        return (
-          <div className="flex items-center justify-center gap-3">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            <span>Link copied!</span>
-          </div>
-        );
-      case 'error':
-        return (
-          <div className="flex items-center justify-center gap-3">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-            <span>Try again</span>
-          </div>
-        );
-      default:
-        return (
-          <div className="flex items-center justify-center gap-3">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.368a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-            </svg>
-            <span>Share Results</span>
-          </div>
-        );
-    }
+    const isSuccess = shareStatus === 'success';
+    const isError = shareStatus === 'error';
+    
+    return (
+      <div className="flex items-center justify-center gap-3 relative">
+        {/* Icon Container with Magic UI-style transition */}
+        <div className="relative h-5 w-5">
+          {/* Share Icon */}
+          <svg 
+            className={`h-5 w-5 transition-all duration-300 ${isSuccess || isError ? "scale-0" : "scale-100"}`}
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.368a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+          </svg>
+          
+          {/* Success Checkmark */}
+          <svg 
+            className={`absolute inset-0 h-5 w-5 transition-all duration-300 ${isSuccess ? "scale-100" : "scale-0"}`}
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          
+          {/* Error X */}
+          <svg 
+            className={`absolute inset-0 h-5 w-5 transition-all duration-300 ${isError ? "scale-100" : "scale-0"}`}
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </div>
+        
+        {/* Text Container with slide animation */}
+        <div className="relative">
+          {/* Default Text */}
+          <span className={`transition-all duration-300 ${isSuccess || isError ? "opacity-0 translate-y-1" : "opacity-100 translate-y-0"}`}>
+            Share Results
+          </span>
+          
+          {/* Success Text */}
+          <span className={`absolute inset-0 transition-all duration-300 ${isSuccess ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"}`}>
+            Copied!
+          </span>
+          
+          {/* Error Text */}
+          <span className={`absolute inset-0 transition-all duration-300 ${isError ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"}`}>
+            Try again
+          </span>
+        </div>
+      </div>
+    );
   };
 
   const getShareButtonStyles = () => {
-    const baseStyles = "w-full py-4 px-6 font-semibold text-lg transition-all duration-300 border-2";
-    
-    switch (shareStatus) {
-      case 'success':
-        return `${baseStyles} bg-green-500 border-green-600 text-white hover:bg-green-600`;
-      case 'error':
-        return `${baseStyles} bg-red-500 border-red-600 text-white hover:bg-red-600`;
-      default:
-        return `${baseStyles} bg-primary border-primary text-primary-foreground hover:bg-primary/90`;
-    }
+    return "w-full py-4 px-6 font-semibold text-lg border-2 bg-primary border-primary text-primary-foreground hover:bg-primary/90 relative overflow-hidden";
   };
 
   return (
@@ -105,12 +117,19 @@ export const ShareCard: React.FC<ShareCardProps> = ({
         {/* Share Button */}
         <RippleButton
           onClick={onShare}
-          disabled={shareStatus === 'copying'}
+          disabled={false}
           className={getShareButtonStyles()}
           rippleColor="rgba(255, 255, 255, 0.3)"
           aria-label="Copy results to clipboard and share"
         >
-          {getShareButtonContent()}
+          {/* Background Overlays for smooth color transitions */}
+          <div className={`absolute inset-0 bg-green-500 transition-all duration-300 ${shareStatus === 'success' ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`} />
+          <div className={`absolute inset-0 bg-red-500 transition-all duration-300 ${shareStatus === 'error' ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`} />
+          
+          {/* Content */}
+          <div className="relative z-10">
+            {getShareButtonContent()}
+          </div>
         </RippleButton>
 
         {/* Encouragement text */}
