@@ -1,65 +1,95 @@
 {
   "meta": {
-    "version": "2.0",
-    "total_puzzles": 103,
+    "version": "4.4",
+    "total_puzzles": 136,
     "date_range": "-776-2008"
   },
   "puzzles": {
-    "-776": [
-      "Coroebus of Elis, a cook, wins first recorded footrace",
-      "Sacred truce allows safe passage for athletes across Greece",
-      "Zeus receives sacrificial offerings at Altis sanctuary",
-      "Stadion race measures exactly 192 meters in length",
-      "Olympiad becomes standard Greek chronological measurement",
-      "First Olympic Games establish athletic competition tradition"
-    ],
-    "-509": [
-      "Sextus Tarquinius rapes noblewoman Lucretia",
-      "Lucretia's public suicide sparks anti-royal uprising",
-      "Lucius Junius Brutus leads aristocratic conspiracy",
-      "Consular system replaces single monarch rule",
-      "Last Etruscan king Tarquin Superbus flees Rome",
-      "Roman Republic established ending monarchical period"
-    ],
-    "-221": [
-      "Qi state falls as final Warring States opponent",
-      "Li Si implements Legalist administrative reforms",
-      "Currency, writing, and measurements standardized nationwide",
-      "Northern walls connected into Great Wall system",
-      "Zheng adopts title Qin Shi Huang meaning First Emperor",
-      "Chinese unification ends 250 years of warfare"
-    ],
-    "-44": [
-      "Marcus Brutus reluctantly joins assassination conspiracy",
-      "Spurinna the soothsayer warns Caesar of March danger",
-      "Senate meets at Theatre of Pompey due to reconstruction",
-      "Et tu, Brute spoken as Brutus delivers fatal blow",
-      "Julius Caesar murdered on Ides of March",
-      "Mark Antony and Octavian pursue civil war revenge"
-    ],
     "30": [
       "Phaedrus translates Aesop's fables for Roman readers",
       "Kushan Empire emerges in Central Asian territories",
-      "Velleius Paterculus completes general history of antiquity",
-      "Sejanus purges Agrippina the Elder's imperial family",
-      "Crucifixion of Jesus Christ transforms religious history",
-      "Caligula survives as sole heir to Germanicus lineage"
+      "Velleius Paterculus completes his history of antiquity",
+      "Sejanus purges Agrippina the Elder's family",
+      "Crucifixion of Jesus of Nazareth occurs in Jerusalem",
+      "Caligula survives as sole heir to Germanicus",
+      "Buddhism is introduced into China"
     ],
     "79": [
-      "Pliny the Elder dies investigating volcanic phenomena",
-      "Herculaneum residents asphyxiated by 1000-degree gases",
+      "Pliny the Elder dies investigating Vesuvius eruption",
+      "Herculaneum residents killed by 1000-degree pyroclastic flow",
       "Emperor Titus organizes massive disaster relief efforts",
-      "Pompeii's brothels and bakeries perfectly preserved",
+      "Pompeii's brothels and bakeries preserved in ash",
       "Mount Vesuvius erupts after centuries of dormancy",
-      "Villa of Papyri library scrolls carbonized but readable"
+      "Villa of the Papyri library scrolls are carbonized",
+      "Gnaeus Julius Agricola founds a fortress at Chester"
+    ],
+    "117": [
+      "Lusius Quietus suppresses the Kitos War in Judea",
+      "Dacian gold finances massive public works projects",
+      "Trajan's Column is completed in Rome",
+      "Emperor Trajan dies on his way back to Rome",
+      "Plotina announces Trajan's adoption of Hadrian as heir",
+      "Roman Empire achieves its peak territorial expansion",
+      "Hadrian abandons some of Trajan's eastern conquests"
+    ],
+    "212": [
+      "The Constitutio Antoniniana grants citizenship to all free Roman men",
+      "Emperor Caracalla murders his brother Geta in their mother's arms",
+      "Papinian, a distinguished jurist, is executed for protesting the murder",
+      "Construction begins on the massive Baths of Caracalla in Rome",
+      "The warlord Ma Teng is executed in China",
+      "Caracalla prepares for a campaign against the Alemanni",
+      "Vologases VI of Parthia faces a rebellion from his brother Artabanus IV"
     ],
     "313": [
-      "Constantine defeats Maxentius at Milvian Bridge",
-      "Chi-Rho symbol appears in Constantine's dream vision",
-      "Christian clergy exempted from municipal obligations",
-      "Confiscated church properties ordered returned immediately",
-      "Edict of Milan legalizes Christianity throughout empire",
-      "Licinius and Constantine agree on religious tolerance"
+      "Constantine defeats Maxentius at the Milvian Bridge",
+      "The Chi-Rho symbol appears in Constantine's dream",
+      "Christian clergy are exempted from municipal obligations",
+      "Confiscated church properties are ordered to be returned",
+      "The Edict of Milan legalizes Christianity in the Roman Empire",
+      "Licinius and Constantine agree on a policy of religious tolerance",
+      "The Donatist schism is declared a heresy at the Lateran Synod"
+    ],
+    "330": [
+      "Constantine dedicates Constantinople as the new Roman capital",
+      "Ancient Byzantium is transformed into Nova Roma",
+      "The Eastern Roman Empire receives a permanent capital",
+      "Constantine leads a grand procession to dedicate the new city",
+      "The city is strategically located to control trade routes",
+      "The Goths devastate the city of Tanais",
+      "Frumentius becomes the first bishop of Ethiopia"
+    ],
+    "410": [
+      "Alaric's Visigoths sack Rome for the first time in 800 years",
+      "Hypatia of Alexandria leads the Neoplatonist school in Egypt",
+      "The Romans officially withdraw their legions from Britain",
+      "Emperor Honorius tells the Britons to look to their own defense",
+      "The Goths spare the Christian churches of Saint Peter and Saint Paul",
+      "The sack of Rome sends shockwaves throughout the Roman Empire"
+    ],
+    "476": [
+      "Germanic mercenaries demand Italian estates from Orestes",
+      "Ticinum battle results in Orestes' capture and execution",
+      "Last Western imperial regalia sent to Constantinople",
+      "Odoacer establishes first barbarian kingdom in Italy",
+      "Romulus Augustulus deposed as last Western Roman Emperor",
+      "Western Roman Empire collapses ending millennium of world rule"
+    ],
+    "527": [
+      "Court official beheaded for religious conversion produces miraculous liquid",
+      "Anglo-Saxon tribes establish new kingdom covering future Essex territory",
+      "Asian kingdom formally adopts Buddhist faith through divine intervention",
+      "Justinian appointed co-ruler to aging Emperor Justin I in Constantinople",
+      "Ichadon's martyrdom convinces Silla king to embrace Buddhism as state religion",
+      "Justinian becomes sole emperor launching legal reforms and territorial reconquest"
+    ],
+    "622": [
+      "Byzantine Emperor Heraclius launches campaign against Persian Empire",
+      "Ansar tribal confederation creates protection alliance",
+      "Medina Constitution establishes multi-tribal governance protecting diverse communities",
+      "First Muslim political structure establishes governance",
+      "The Hijra migration from Mecca begins new era",
+      "Visigothic Spain expels Jewish population under King Sisebut"
     ],
     "732": [
       "Odo of Aquitaine requests Frankish military assistance",
@@ -69,6 +99,14 @@
       "Battle of Tours prevents Umayyad northern expansion",
       "Muslim army retreats southward after devastating defeat"
     ],
+    "793": [
+      "Tang Dynasty establishes state monopoly on tea",
+      "Charlemagne orders massive canal connecting Rhine and Danube rivers",
+      "Saxon ambush annihilates Frankish count and entire military entourage",
+      "Northern raiders arrive in longships devastating sacred island monastery",
+      "Tang Dynasty institutes tea monopoly while Charlemagne digs Rhine-Danube channel",
+      "Viking attack on Lindisfarne monastery begins age of Norse expansion"
+    ],
     "800": [
       "Pope Leo III escapes Roman assault and mutilation",
       "Empress Irene rules Byzantine Empire as sole woman",
@@ -76,6 +114,22 @@
       "Christmas Mass interrupted by unexpected coronation ceremony",
       "Charlemagne becomes first Western Emperor since 476",
       "Carolingian Renaissance promotes learning and literacy"
+    ],
+    "962": [
+      "Otto I receives imperial crown from Pope John XII in Rome",
+      "Ottonian Renaissance revives Carolingian educational traditions",
+      "Eastern Frankish kingdom claims succession to Charlemagne's empire",
+      "Pope John XII crowns Otto I as Emperor restoring Western imperial title",
+      "Holy Roman Empire established linking German territories to Roman legacy",
+      "Otto the Great crowned Emperor beginning thousand-year Germanic empire"
+    ],
+    "987": [
+      "Song Dynasty completes territorial reunification under imperial leadership",
+      "Carolingian dynasty ends when Louis V dies in riding accident",
+      "Japanese scholar officially granted divine status and religious title",
+      "Bardas Phokas proclaims himself emperor challenging legitimate ruler",
+      "Hugh Capet crowned King of France founding dynasty lasting three centuries",
+      "Capetian dynasty begins while Song China unifies and Bardas Phokas rebels"
     ],
     "1000": [
       "Icelandic Althing officially adopts Christianity",
@@ -93,6 +147,14 @@
       "Mutual excommunications issued on July 16th",
       "Great Schism permanently separates Eastern and Western Christianity"
     ],
+    "1066": [
+      "Harald Hardrada dies at Stamford Bridge fighting English forces",
+      "Muslim mob crucifies Jewish vizier in Granada massacre",
+      "Chinese scholar compiles eight-volume chronicle of ancient history",
+      "Halley's Comet appearance interpreted as divine omen",
+      "Harold Godwinson defeats brother Tostig and Harald Hardrada in September",
+      "Norman duke William victorious at Hastings on October fourteenth"
+    ],
     "1095": [
       "Alexius I Komnenos requests mercenaries against Seljuks",
       "Peter the Hermit preaches popular crusading movement",
@@ -101,13 +163,61 @@
       "Council of Clermont launches First Crusade",
       "Deus vult battle cry rallies Western Christian knights"
     ],
+    "1099": [
+      "First Crusade captures Jerusalem from Fatimid Caliphate",
+      "Godfrey of Bouillon becomes first ruler of Kingdom of Jerusalem",
+      "Crusaders defeat Fatimid army at the Battle of Ascalon",
+      "Pope Urban II dies before news of Jerusalem's capture reaches him",
+      "Daimbert of Pisa is named the first Latin Patriarch of Jerusalem",
+      "Construction begins on the Modena Cathedral in Italy"
+    ],
+    "1162": [
+      "Future Mongol conqueror Temüjin is born near Burkhan Khaldun",
+      "Thomas Becket is consecrated Archbishop of Canterbury",
+      "Frederick Barbarossa's forces capture and destroy Milan",
+      "Ladislaus II is crowned King of Hungary and Croatia",
+      "Hostilities resume between Jin dynasty and Southern Song dynasty",
+      "Venetian Republic victory celebration originates city's famous Carnival"
+    ],
     "1180": [
-      "Louis VII of France dies returning from Second Crusade",
+      "Japanese warrior clans begin devastating five-year civil war",
       "Philip Augustus becomes King of France at age fifteen",
-      "Manuel I Komnenos campaigns against Seljuk Sultanate",
+      "European engineers develop revolutionary horizontal-axle windmill design",
       "Saladin captures Aleppo from Zengid dynasty",
-      "Crusader states lose unified military leadership",
+      "Henry II transforms Windsor Castle into stone palatial residence",
       "Ayyubid expansion threatens Frankish territorial control"
+    ],
+    "1204": [
+      "Maimonides dies in Cairo",
+      "Temujin defeats Naiman tribes completing steppe unification",
+      "Philip II conquers Normandy ending Angevin territorial control",
+      "Hagia Sophia converted to Roman Catholic cathedral temporarily",
+      "Fourth Crusade captures Constantinople instead of Jerusalem",
+      "Byzantine capital sacked by Crusaders fragmenting Eastern Roman Empire"
+    ],
+    "1206": [
+      "Former slave assumes power after master's assassination by religious sect",
+      "Emperor Kaloyan defeats Latin crusader army capturing knights in Thrace",
+      "English peasant claims saints gave him tour of torture chambers",
+      "Steppe tribes unite under Genghis Khan at kurultai assembly",
+      "Qutb-ud-din Aibak founds Delhi Sultanate after Muhammad Ghori dies",
+      "Temujin becomes Genghis Khan unifying Mongol tribes into world empire"
+    ],
+    "1215": [
+      "Feudal lords unite against financial oppression and military failures",
+      "Water meadow chosen as neutral ground between opposing forces",
+      "Royal seal pressed onto parchment after tense negotiations",
+      "Twenty-five barons appointed to enforce compliance with agreement",
+      "King John signs charter at Runnymede limiting royal authority",
+      "Magna Carta creates foundation for constitutional government worldwide"
+    ],
+    "1258": [
+      "Hulagu Khan's Mongol forces sack and burn Baghdad",
+      "The House of Wisdom's great library is destroyed",
+      "Al-Musta'sim, the last Abbasid Caliph, is executed",
+      "Simon de Montfort forces King Henry III to accept the Provisions of Oxford",
+      "The Treaty of Corbeil is signed between France and Aragon",
+      "The first Mongol invasion of Vietnam is launched"
     ],
     "1271": [
       "Niccolò and Maffeo Polo return to Khanbaliq",
@@ -141,6 +251,14 @@
       "Battle of Bannockburn secures Scottish independence",
       "Templar Grand Master burned alive on Seine island"
     ],
+    "1315": [
+      "Unprecedented rainfall destroys harvests beginning Europe's worst agricultural crisis",
+      "Edward Bruce invades Ireland proclaiming himself monarch",
+      "Swiss forest cantons ambush Austrian army at lakeside mountain pass",
+      "French invasion of Flanders fails when cavalry bog down in waterlogged fields",
+      "University scholars crown poet with laurel reviving ancient classical tradition",
+      "Famine conditions force armies to abandon military campaigns across continent"
+    ],
     "1337": [
       "Isabella of France's son claims Capetian inheritance",
       "Philip VI confiscates Gascony from English crown",
@@ -156,6 +274,14 @@
       "Messina becomes first European city infected",
       "Black Death pandemic begins demographic catastrophe",
       "Flagellant movements blame plague on divine wrath"
+    ],
+    "1348": [
+      "Alpine earthquake shakes northern Italy fueling apocalyptic fears",
+      "English king establishes exclusive knightly order with garter emblem",
+      "Teutonic knights claim victory drowning thousands of Lithuanian warriors",
+      "Charles IV establishes Prague University north of Alps",
+      "Pope issues protective decree shielding Jewish communities from violence",
+      "Charles IV founds Prague University while plague devastates European populations"
     ],
     "1378": [
       "Gregory XI moves papal court from Avignon back to Rome",
@@ -181,6 +307,22 @@
       "Battle of Agincourt proves longbow superior to chivalry",
       "Bohemian Hussite movement begins after Hus execution"
     ],
+    "1420": [
+      "Bohemian religious reformers develop mobile fortress wagons for battlefield",
+      "Catholic Church declares crusade against Christian heretics in central Europe",
+      "Jan Žižka's tactical innovations revolutionize medieval warfare",
+      "Hussite wagon formations defeat traditional knightly cavalry charges",
+      "Council of Constance aftermath sparks Bohemian religious revolution",
+      "Battle of Kutná Hora demonstrates Hussite military superiority over crusading armies"
+    ],
+    "1429": [
+      "Teenage peasant girl enters besieged city through eastern gate unopposed",
+      "Divine voices convince seventeen-year-old to seek audience with French dauphin",
+      "English forces retreat ending seven-month siege after miraculous intervention",
+      "French army achieves stunning victories shattering myth of English invincibility",
+      "Dangerous march through Burgundian territory reaches traditional coronation city",
+      "Charles VII crowned King of France with banner-bearing maiden beside altar"
+    ],
     "1431": [
       "Pierre Cauchon presides over Joan's heresy trial",
       "Burgundian allies deliver Joan to English authorities",
@@ -188,6 +330,14 @@
       "Charles VII abandons Joan to political necessity",
       "Joan of Arc burned alive in Rouen marketplace",
       "French resistance movement gains martyred symbol"
+    ],
+    "1453": [
+      "French artillery decimates English forces near Bordeaux river",
+      "Earl of Shrewsbury dies in battle against superior firepower",
+      "Henry VI suffers mental breakdown upon hearing military defeat",
+      "Ottoman cannons breach walls defended for thousand years",
+      "Battle of Castillon concludes Hundred Years War with French victory",
+      "Constantinople falls to Mehmed II ending Byzantine civilization"
     ],
     "1455": [
       "Richard Duke of York challenges Henry VI's sanity",
@@ -205,6 +355,14 @@
       "Battle of Bosworth Field ends Plantagenet dynasty",
       "Henry VII establishes Tudor royal house"
     ],
+    "1492": [
+      "Muhammad XII surrenders Granada to Catholic monarchs in January",
+      "German cartographer constructs first surviving terrestrial globe without Americas",
+      "Ottoman navy rescues expelled Spanish Jews transporting them to Turkish shores",
+      "Antonio de Nebrija publishes first Castilian Spanish grammar textbook",
+      "Alhambra Decree forces 200,000 Jews to convert or leave Spain",
+      "Columbus reaches Caribbean islands believing he found Asian trade route"
+    ],
     "1498": [
       "Vasco da Gama rounds Cape of Good Hope successfully",
       "Calicut Zamorin receives Portuguese trade delegation",
@@ -213,12 +371,20 @@
       "Direct sea route to India bypasses Ottoman control",
       "Portuguese establish Asian maritime trading empire"
     ],
+    "1500": [
+      "Pedro Cabral accidentally discovers Brazil while sailing to India",
+      "Vicente Yáñez Pinzón becomes first European to sight Brazilian coast",
+      "Pope Alexander VI declares Holy Jubilee Year drawing pilgrims to Rome",
+      "Diogo Dias discovers Madagascar island naming it São Lourenço",
+      "Cesare Borgia resumes military campaigns conquering Romagna territories",
+      "Amazon River mouth explored by Spanish expedition from northeastern Brazil"
+    ],
     "1503": [
       "Leonardo da Vinci begins Mona Lisa portrait",
       "Giuliano della Rovere becomes Pope Julius II",
       "Cesare Borgia's conquests threaten Italian balance",
       "Casa de Contratación regulates Spanish colonial trade",
-      "Nostradamus born in Saint-Rémy-de-Provence",
+      "Queen Isabella issues edict protecting New World indigenous populations",
       "High Renaissance artistic patronage reaches zenith"
     ],
     "1508": [
@@ -228,6 +394,22 @@
       "Emperor Maximilian I joins anti-Venetian alliance",
       "Pope Julius II plans military campaigns against Venice",
       "High Renaissance transforms papal artistic patronage"
+    ],
+    "1513": [
+      "James IV dies in devastating defeat at Flodden Field",
+      "Medici cardinal becomes Pope launching Renaissance papacy patronage",
+      "Vasco Núñez de Balboa sights Pacific Ocean from Darién peak",
+      "French cavalry flees so quickly battle earns nickname of Spurs",
+      "Exiled Florentine diplomat writes treatise on effective political leadership",
+      "Henry VIII lands massive army at Calais beginning French invasion"
+    ],
+    "1517": [
+      "Johann Tetzel begins controversial indulgence trade",
+      "Ottoman Sultan Selim I conquers Egypt ending Mamluk Sultanate",
+      "Francisco Hernández de Córdoba discovers Yucatán Peninsula",
+      "Ottoman Empire gains control of Mecca and Medina holy cities",
+      "Martin Luther creates landmark 95 Theses",
+      "Protestant Reformation challenges Catholic church authority"
     ],
     "1519": [
       "Habsburg Charles defeats French candidate for empire",
@@ -245,6 +427,22 @@
       "Protestant Reformation gains imperial protection",
       "Magellan killed in Philippines by Lapu-Lapu"
     ],
+    "1527": [
+      "Charles V's unpaid troops mutiny and sack Rome in May",
+      "Niccolò Machiavelli dies ending career of influential political theorist",
+      "Pope Clement VII surrenders after taking refuge in Castel Sant'Angelo",
+      "German Peasants War finally ends with complete peasant defeat",
+      "Ferdinand I crowned King of Hungary at Székesfehérvár Basilica",
+      "Croatian nobles elect Ferdinand Habsburg as their king at Cetin"
+    ],
+    "1524": [
+      "Giovanni da Verrazzano becomes first European to enter New York Bay",
+      "German Peasants War spreads across Holy Roman Empire territories",
+      "Vasco da Gama dies from malaria as Portuguese Viceroy of India",
+      "Pedro de Alvarado defeats K'iche Maya forces near Quetzaltenango",
+      "Francisco Pizarro begins first expedition attempting Peru conquest with eighty men",
+      "Thomas Münzer promotes radical Protestant reforms among German peasants"
+    ],
     "1534": [
       "Thomas Cranmer annuls Henry VIII's marriage to Catherine",
       "Act of Supremacy declares king head of English church",
@@ -261,6 +459,14 @@
       "Jesuit Francis Xavier prepares mission to Asia",
       "Scientific Revolution begins with astronomical mathematics"
     ],
+    "1558": [
+      "Elizabeth I accedes to English throne after Mary I dies",
+      "Francis, Duke of Guise, captures Calais from England",
+      "Mary, Queen of Scots, marries French Dauphin Francis",
+      "Ferdinand I becomes Holy Roman Emperor after Charles V",
+      "Livonian War begins over territory in present-day Estonia",
+      "Francisco Fernandes introduces smoking tobacco to Europe"
+    ],
     "1571": [
       "Don Juan of Austria commands Holy League fleet",
       "Miguel de Cervantes loses hand fighting Turks",
@@ -268,6 +474,14 @@
       "Venetian galleys employ superior bronze cannons",
       "Battle of Lepanto ends Ottoman Mediterranean expansion",
       "Christian slaves freed from Turkish galley ships"
+    ],
+    "1588": [
+      "Fire ships scattered massive invasion fleet near Gravelines",
+      "Mary Queen of Scots executed for treason plot in February",
+      "Christopher Marlowe writes Doctor Faustus tragedy in London",
+      "Weather phenomenon disperses Mediterranean naval force",
+      "Protestant winds save England from Catholic invasion",
+      "Spanish Armada defeat reshapes European naval power balance"
     ],
     "1598": [
       "Henry IV converts to Catholicism for French crown",
@@ -284,6 +498,14 @@
       "Japanese victory at Sekigahara unifies nation",
       "English merchants receive royal monopoly on Asian trade",
       "Tokugawa Ieyasu becomes first Edo period shogun"
+    ],
+    "1605": [
+      "Catholic conspirators stockpile explosive barrels beneath legislative assembly",
+      "Ingenious gentleman tilts at windmills in groundbreaking satirical novel",
+      "Emperor Akbar dies after unifying diverse subcontinental empire",
+      "Midnight search discovers plotter guarding underground demolition materials",
+      "Guy Fawkes caught beneath Parliament while Cervantes publishes Don Quixote",
+      "Gunpowder Plot foiled November 5th as Mughal Emperor Akbar dies October 27th"
     ],
     "1607": [
       "John Smith leads Virginia Company expedition",
@@ -309,6 +531,14 @@
       "Squanto teaches colonists corn cultivation techniques",
       "Winter kills half of Plymouth settlement population"
     ],
+    "1633": [
+      "Roman Inquisition forces Galileo to recant heliocentric theory",
+      "Calvert expedition departs England seeking Catholic religious refuge",
+      "Wallenstein conducts secret peace negotiations with enemy powers",
+      "Murad IV campaigns against rebellious Georgian kingdoms",
+      "Cibali fire destroys one-fifth of Constantinople",
+      "Massachusetts colonists establish Ipswich near Merrimack River"
+    ],
     "1642": [
       "Charles I attempts to arrest five members of Parliament",
       "Oliver Cromwell organizes Ironside cavalry regiment",
@@ -324,6 +554,22 @@
       "Habsburg Austria loses Alsace to France",
       "Treaty of Westphalia establishes modern state system",
       "Pride's Purge removes Presbyterian MPs from Parliament"
+    ],
+    "1649": [
+      "Oliver Cromwell launches brutal campaign against Irish Catholics",
+      "Louis XIV flees Paris during noble uprising",
+      "Manchu forces reconquer central Chinese provinces from Ming loyalists",
+      "Charles I refuses to recognize court's legal authority",
+      "Charles I beheaded outside Whitehall Banqueting House for treason",
+      "Oliver Cromwell declares England Commonwealth after regicide execution"
+    ],
+    "1665": [
+      "Microscopic organisms observed swimming in rainwater for scientific documentation",
+      "Great urban catastrophe drives young mathematician to countryside isolation",
+      "Mathematical genius develops calculus during enforced academic holiday",
+      "Bubonic plague kills quarter of England's capital population in eighteen months",
+      "Isaac Newton's annus mirabilis begins at Woolsthorpe Manor estate",
+      "Great Plague of London forces Cambridge University closure, inspiring Newton's discoveries"
     ],
     "1666": [
       "Great Fire burns four-fifths of London within walls",
@@ -341,6 +587,22 @@
       "Pennsylvania attracts German and Dutch immigrants",
       "Moscow Streltsy rebellion challenges Tsarist authority"
     ],
+    "1683": [
+      "Massive military force besieges strategic city controlling river trade routes",
+      "Winged cavalry charges downhill to save besieged European capital",
+      "Grand Vizier's failed campaign ends with silk cord execution",
+      "Coffee houses proliferate after enemy's hasty retreat leaves supplies",
+      "Polish King Jan Sobieski defeats Ottoman army at Vienna gates",
+      "Battle of Vienna on September 12th halts Turkish expansion into Europe"
+    ],
+    "1687": [
+      "Cambridge professor publishes mathematical description of celestial mechanics",
+      "Universal gravitation theory explains both falling apples and planetary orbits",
+      "Three laws of motion establish foundation for classical physics",
+      "Latin treatise revolutionizes understanding of forces and motion",
+      "Isaac Newton's Principia Mathematica creates modern mathematical physics",
+      "Mathematical Principles of Natural Philosophy transforms scientific methodology permanently"
+    ],
     "1688": [
       "Seven bishops petition against James II's Declaration",
       "William of Orange lands at Torbay with Dutch army",
@@ -349,6 +611,14 @@
       "Glorious Revolution establishes parliamentary supremacy",
       "Bill of Rights limits royal prerogatives permanently"
     ],
+    "1692": [
+      "Salem Witch Trials begin in Massachusetts Bay Colony",
+      "Bridget Bishop is the first person hanged for witchcraft",
+      "Earthquake and tsunami destroy Port Royal, Jamaica",
+      "Massacre of Glencoe occurs in the Scottish Highlands",
+      "Anglo-Dutch fleet defeats the French at the Battle of La Hogue",
+      "The Kangxi Emperor issues an Edict of Tolerance towards Christians"
+    ],
     "1707": [
       "Scottish Parliament votes for union with England",
       "Darien Scheme bankruptcy forces Scottish accommodation",
@@ -356,6 +626,14 @@
       "Jacobite threat influences union negotiations",
       "Act of Union creates unified British Parliament",
       "Presbyterian Kirk protected in union settlement"
+    ],
+    "1704": [
+      "The Duke of Marlborough defeats the French at the Battle of Blenheim",
+      "An Anglo-Dutch force captures Gibraltar from Spain",
+      "Tsar Peter the Great's forces capture Narva from Sweden",
+      "French and Native American forces raid Deerfield, Massachusetts",
+      "Isaac Newton publishes his book Opticks",
+      "Jonathan Swift publishes his satire A Tale of a Tub"
     ],
     "1721": [
       "Senate proclaims Peter the Great Emperor of All Russias",
@@ -387,13 +665,13 @@
       "French and Indian War begins in North America",
       "Black Hole of Calcutta incident sparks British outrage",
       "Seven Years War becomes first global conflict",
-      "Mozart born in Salzburg during wartime upheaval"
+      "Treaty of Westminster establishes Anglo-Prussian alliance securing Hanover neutrality"
     ],
     "1769": [
       "James Watt patents separate condenser steam engine",
       "Captain Cook observes Venus transit from Tahiti",
       "Dartmouth College chartered in New Hampshire",
-      "Napoleon Bonaparte born on Corsica island",
+      "Richard Arkwright patents mechanical spinning frame revolutionizing textile production",
       "Industrial Revolution gains momentum with steam power",
       "Spanish missions established in California"
     ],
@@ -405,6 +683,30 @@
       "Boston Tea Party escalates imperial crisis",
       "Pope Clement XIV suppresses Jesuit order worldwide"
     ],
+    "1776": [
+      "Secret society founded in Bavarian forest during torchlight ceremony",
+      "Scottish economist publishes foundational work on free market capitalism",
+      "Captain James Cook begins third Pacific voyage seeking Northwest Passage",
+      "Thomas Paine's pamphlet Common Sense inspires colonial independence movement",
+      "Adam Weishaupt establishes Illuminati and Adam Smith publishes Wealth of Nations",
+      "Declaration of Independence creates first modern democratic republic in Philadelphia"
+    ],
+    "1783": [
+      "The Treaty of Paris officially ends the American Revolutionary War",
+      "Catherine the Great annexes the Crimean Khanate for Russia",
+      "The Laki volcanic fissure erupts in Iceland, causing widespread famine",
+      "A series of earthquakes devastates Calabria in Southern Italy",
+      "The Montgolfier brothers launch the first manned hot-air balloon flight",
+      "The United States is recognized as an independent nation"
+    ],
+    "1789": [
+      "Naval mutineers seize HMS Bounty forcing Captain Bligh into small boat",
+      "First American Congress reaches quorum electing Pennsylvania speaker",
+      "Catholic Church creates first United States diocese in Baltimore",
+      "Fletcher Christian leads HMS Bounty mutiny against Captain Bligh",
+      "George Washington inaugurated as first constitutional president",
+      "Parisian revolutionaries storm Bastille fortress beginning political upheaval"
+    ],
     "1804": [
       "Napoleon seizes crown from Pope Pius VII",
       "Lewis and Clark expedition departs St. Louis",
@@ -412,6 +714,14 @@
       "Code Napoléon establishes civil law system",
       "French Empire proclaimed with continental ambitions",
       "Sacagawea guides expedition through Rocky Mountains"
+    ],
+    "1812": [
+      "Devastating earthquake destroys Caracas interpreted as divine punishment",
+      "American merchant vessels seized by British naval forces enforcing blockade",
+      "Battle of Borodino becomes bloodiest single day of Napoleonic Wars",
+      "Grande Armée enters Moscow finding abandoned city set ablaze",
+      "Caracas earthquake kills thousands undermining Bolivar's independence movement",
+      "Napoleon retreats from Russia losing half million soldiers to winter"
     ],
     "1815": [
       "Wellington and Blücher defeat Napoleon at Waterloo",
@@ -453,6 +763,14 @@
       "Victorian era begins sixty-three year reign",
       "Electric communication revolutionizes information speed"
     ],
+    "1844": [
+      "Baltimore to Washington message travels instantly over copper wires",
+      "Samuel Morse demonstrates electromagnetic communication system",
+      "What hath God wrought transmitted as first official telegram",
+      "Religious revival spreads across Protestant denominations in America",
+      "Telegraph network begins connecting distant cities electronically",
+      "Great Awakening coincides with communications revolution transforming information speed"
+    ],
     "1845": [
       "Potato blight fungus destroys Irish crop",
       "Sir Robert Peel repeals Corn Laws",
@@ -460,6 +778,14 @@
       "Franklin expedition disappears in Arctic ice",
       "Great Famine begins million Irish deaths",
       "Manifest Destiny ideology drives westward expansion"
+    ],
+    "1848": [
+      "Treaty of Guadalupe Hidalgo transfers Mexican territory to United States",
+      "Frankfurt Parliament establishes first German democracy",
+      "Marx and Engels publish Communist Manifesto in London",
+      "Gold discovered at Sutter's Mill sparking California Gold Rush",
+      "February Revolution establishes French Second Republic",
+      "Year of Revolutions transforms European world order"
     ],
     "1859": [
       "Charles Darwin publishes Origin of Species",
@@ -476,6 +802,14 @@
       "Bull Run battlefield shocks Union with Southern victory",
       "American Civil War begins with secession crisis",
       "Victor Emmanuel II proclaimed King of Italy"
+    ],
+    "1865": [
+      "Three South American nations sign secret treaty against Paraguay",
+      "Young English mathematician publishes fantastical tale about underground adventures",
+      "Former Union soldiers establish charitable mission in London slums",
+      "Brazilian naval fleet destroys Paraguayan ships at river battle",
+      "Abraham Lincoln shot at Ford's Theatre five days after war ends",
+      "Constitutional amendment abolishes slavery throughout reunited American states"
     ],
     "1869": [
       "Ferdinand de Lesseps opens Suez Canal",
@@ -573,6 +907,14 @@
       "Sun Yat-sen proclaimed president of Chinese Republic",
       "Italy invades Ottoman Libya"
     ],
+    "1914": [
+      "Jamaican activist establishes organization promoting African diaspora unity",
+      "Belgian surgeon performs first successful indirect blood transfusion",
+      "Ship carrying Indian immigrants denied entry to Canadian port",
+      "Engineering marvel connects Atlantic and Pacific oceans after decade",
+      "Archduke Franz Ferdinand assassinated in Sarajevo triggering alliances",
+      "Marcus Garvey founds UNIA while Panama Canal opens for shipping"
+    ],
     "1917": [
       "February Revolution forces Tsar Nicholas II to abdicate",
       "United States declares war on Germany",
@@ -589,6 +931,14 @@
       "German Spring Offensive fails on Western Front",
       "Kaiser Wilhelm II abdicates and flees to Netherlands"
     ],
+    "1919": [
+      "Storage tank bursts flooding Boston streets with deadly sweet syrup",
+      "British astronomers photograph starlight bending during African solar eclipse",
+      "Postal worker discovers thirty-six mail bombs targeting prominent Americans",
+      "Entire city workforce walks off jobs paralyzing Canadian prairie metropolis",
+      "Constitutional amendment prohibiting alcohol ratified by thirty-sixth state",
+      "Eddington confirms Einstein's relativity while Palmer raids target suspected radicals"
+    ],
     "1922": [
       "Treaty creates Union of Soviet Socialist Republics",
       "Benito Mussolini marches on Rome",
@@ -596,6 +946,14 @@
       "Michael Collins assassinated in Irish Civil War",
       "Fascist Party gains control of Italian government",
       "Gandhi sentenced to prison for sedition"
+    ],
+    "1929": [
+      "Vatican City established as world's smallest state",
+      "Young Plan restructures German war reparations payments",
+      "Saint Valentine's Day Massacre shocks Chicago public",
+      "Museum of Modern Art opens in Manhattan townhouse",
+      "Black Tuesday stock market crash wipes out fortunes",
+      "Great Depression begins decade of global economic crisis"
     ],
     "1933": [
       "Adolf Hitler appointed Chancellor by Hindenburg",
@@ -621,6 +979,14 @@
       "United States enters World War Two",
       "Lend-Lease provides aid to Britain and USSR"
     ],
+    "1945": [
+      "Soviet forces liberate Auschwitz-Birkenau death camp in January",
+      "Yalta Conference divides postwar Europe into spheres",
+      "B-29 bomber drops atomic weapon on Japanese city",
+      "Adolf Hitler commits suicide in Berlin bunker",
+      "United Nations Charter signed in San Francisco",
+      "V-J Day celebrations mark end of Second World War"
+    ],
     "1947": [
       "India and Pakistan gain independence from Britain",
       "Marshall Plan announced for European reconstruction",
@@ -636,6 +1002,14 @@
       "Universal Declaration of Human Rights adopted",
       "Arab-Israeli War begins Middle East conflict",
       "Soviet Union begins nuclear weapons program"
+    ],
+    "1949": [
+      "George Orwell publishes dystopian novel Nineteen Eighty-Four",
+      "Indonesia ends centuries of Dutch colonial rule",
+      "Jerusalem divided between Israel and Jordan after armistice",
+      "People's Republic establishes Communist China",
+      "NATO creates first peacetime military alliance",
+      "Berlin Blockade lifted after 318-day Soviet siege"
     ],
     "1957": [
       "Soviet Union launches Sputnik I satellite",
@@ -653,6 +1027,14 @@
       "John F. Kennedy elected youngest president in history",
       "Cold War tensions escalate with Castro's Cuba alliance"
     ],
+    "1962": [
+      "Nuclear confrontation brings world closest to atomic warfare",
+      "American astronaut becomes first to orbit Earth three times",
+      "Algeria achieves independence ending eight-year war with France",
+      "Catholic Church opens modernizing council transforming religious practice",
+      "Rachel Carson publishes groundbreaking environmental expose on pesticides",
+      "Hollywood icon dies from barbiturate overdose shocking global audiences"
+    ],
     "1963": [
       "John F. Kennedy assassinated in Dallas motorcade",
       "March on Washington features King's Dream speech",
@@ -660,6 +1042,54 @@
       "Buddhist monk Thich Quang Duc self-immolates in Saigon",
       "Lee Harvey Oswald kills president from book depository",
       "Lyndon Johnson sworn in aboard Air Force One"
+    ],
+    "1969": [
+      "Senator drives off Massachusetts bridge killing former aide",
+      "Charles Manson orchestrates brutal murders of Sharon Tate and others",
+      "Investigative journalist exposes previous year's Vietnamese civilian massacre",
+      "Internet precursor network connects first universities and research centers",
+      "Nixon inaugurated promising to end Vietnam War honorably",
+      "Neil Armstrong becomes first human to walk on lunar surface"
+    ],
+    "1973": [
+      "Arab nations impose petroleum embargo against Western supporters",
+      "Watergate burglars caught inside Democratic Party headquarters",
+      "Vice President Spiro Agnew resigns amid bribery scandal",
+      "OPEC quadruples oil prices triggering global recession",
+      "Energy crisis and political corruption converge in American upheaval",
+      "Oil embargo and Nixon resignation transform 1970s American politics"
+    ],
+    "1979": [
+      "Nuclear reactor partially melts down in Pennsylvania power plant",
+      "British royal family member killed by republican bomb on fishing boat",
+      "Students seize embassy staff beginning 444-day diplomatic crisis",
+      "Margaret Thatcher becomes first female British prime minister",
+      "Soviet forces enter mountainous nation to prop up communist regime",
+      "Shah flees Iran as Islamic revolution overthrows Pahlavi monarchy"
+    ],
+    "1989": [
+      "Deadliest tornado in history devastates Bangladesh killing thousands",
+      "Students occupy Beijing square demanding democratic reforms",
+      "Supertanker spills millions of gallons into Alaskan pristine waters",
+      "Tim Berners-Lee invents system linking global information networks",
+      "East Germans celebrate as concrete barrier falls after 28 years",
+      "Ayatollah Khomeini dies after decade ruling Islamic republic"
+    ],
+    "1991": [
+      "Tim Berners-Lee releases World Wide Web to public",
+      "Mount Pinatubo erupts affecting global temperatures",
+      "Operation Desert Storm liberates Kuwait from Iraq",
+      "Croatia and Slovenia declare independence from Yugoslavia",
+      "Boris Yeltsin elected president of Russian Federation",
+      "Soviet Union dissolves into fifteen independent nations"
+    ],
+    "2001": [
+      "Collaborative online encyclopedia launches revolutionizing information sharing",
+      "Scientists complete mapping of complete human genetic code",
+      "Oklahoma City bomber executed by federal lethal injection",
+      "Energy corporation files largest bankruptcy in American history",
+      "Apple releases portable digital music player holding thousand songs",
+      "September 11th terrorist attacks kill 2,977 people launching war on terror"
     ],
     "2008": [
       "Lehman Brothers bankruptcy triggers financial crisis",
@@ -669,165 +1099,62 @@
       "Russia invades Georgia over South Ossetia",
       "Large Hadron Collider begins operation in Switzerland"
     ],
-    "476": [
-      "Germanic mercenaries demand Italian estates from Orestes",
-      "Ticinum battle results in Orestes' capture and execution",
-      "Last Western imperial regalia sent to Constantinople",
-      "Odoacer establishes first barbarian kingdom in Italy",
-      "Romulus Augustulus deposed as last Western Roman Emperor",
-      "Western Roman Empire collapses ending millennium of world rule"
+    "-753": [
+      "Twin brothers debate which hilltop to choose for settlement",
+      "Divine birds observed by rival siblings claiming leadership",
+      "Fratricide occurs during dispute over sacred boundary markers",
+      "She-wolf discovers abandoned infants beside flowing river",
+      "Romulus kills Remus and founds city on seven hills",
+      "Rome established by Romulus becoming eternal city"
     ],
-    "622": [
-      "Muhammad establishes first Muslim community in Medina",
-      "Ansar tribal confederation creates protection alliance",
-      "Islamic calendar begins marking historic Year One",
-      "First Muslim political structure establishes governance",
-      "The Hijra migration from Mecca begins new era",
-      "Islam founded as world religion and political empire"
+    "-776": [
+      "Coroebus of Elis, a cook, wins first recorded footrace",
+      "Sacred truce allows safe passage for athletes across Greece",
+      "Zeus receives sacrificial offerings at Altis sanctuary",
+      "Stadion race measures exactly 192 meters in length",
+      "Olympiad becomes standard Greek chronological measurement",
+      "First Olympic Games establish athletic competition tradition"
     ],
-    "1066": [
-      "Major Battle of Hastings begins Norman conquest",
-      "William the Conqueror launches historic invasion of England",
-      "Last Anglo-Saxon King Harold II falls at Hastings",
-      "Norman conquest establishes new English monarchy",
-      "Bayeux Tapestry created depicting historic invasion",
-      "Saxon kings replaced by Norman royal empire"
+    "-509": [
+      "Sextus Tarquinius rapes noblewoman Lucretia",
+      "Lucretia's public suicide sparks anti-royal uprising",
+      "Lucius Junius Brutus leads aristocratic conspiracy",
+      "Consular system replaces single monarch rule",
+      "Last Etruscan king Tarquin Superbus flees Rome",
+      "Roman Republic established ending monarchical period",
+      "Temple of Jupiter Optimus Maximus dedicated on Capitoline Hill September thirteenth"
     ],
-    "1215": [
-      "Magna Carta establishes first constitutional limits on monarchy",
-      "English barons create historic rebellion against royal authority",
-      "Foundation of world's first constitutional monarchy begins",
-      "First major limits placed on royal power established",
-      "Archbishop Stephen Langton creates landmark agreement",
-      "First constitutional limits on king established worldwide"
+    "-146": [
+      "Mediterranean trading empire falls after three-year siege",
+      "Greek cultural center destroyed ending Hellenistic independence",
+      "Nomadic confederation raids Chinese border despite tribute payments",
+      "Fifty thousand survivors sold into slavery after urban destruction",
+      "Roman legions raze Carthage and Corinth in single campaign year",
+      "Rome establishes dominance over western and eastern Mediterranean simultaneously"
     ],
-    "1492": [
-      "Christopher Columbus begins European colonization of Americas",
-      "Spanish Reconquista ends with fall of last Moorish kingdom",
-      "Major expulsion of Jews creates European diaspora",
-      "Lorenzo de Medici's death ends Florence's golden age",
-      "First world globe created by Martin Behaim",
-      "First New World discovered changing global empire"
+    "-221": [
+      "Qi state falls as final Warring States opponent",
+      "Li Si implements Legalist administrative reforms",
+      "Currency, writing, and measurements standardized nationwide",
+      "Northern walls connected into Great Wall system",
+      "Zheng adopts title Qin Shi Huang meaning First Emperor",
+      "Chinese unification ends 250 years of warfare"
     ],
-    "1588": [
-      "Spanish Armada collapses ending Spanish naval dominance",
-      "Francis Drake establishes English global naval power",
-      "Mary Queen of Scots execution ends Catholic succession",
-      "William Shakespeare begins creating historic plays",
-      "First Globe Theatre construction begins in London",
-      "Spanish empire defeated establishing English world power"
+    "-27": [
+      "Imperial census counts over four million citizens across Mediterranean territories",
+      "Marcus Agrippa begins constructing temple dedicated to Mars and Venus",
+      "Roman naval fleet established at Misenum harbor for Mediterranean control",
+      "Spanish provinces reorganized creating Baetica and Lusitania administrative divisions",
+      "Egypt becomes imperial province under Augustus after Cleopatra's defeat",
+      "Senate grants Augustus title transforming Roman Republic into imperial system"
     ],
-    "1776": [
-      "Declaration of Independence creates first modern republic",
-      "Continental Congress establishes American independence",
-      "George Washington begins historic Delaware crossing",
-      "Common Sense creates first mass democratic movement",
-      "British empire begins losing major American colonies",
-      "First modern revolution against British empire begins"
-    ],
-    "1789": [
-      "French Revolution begins transforming world politics",
-      "First Declaration of Rights establishes human rights",
-      "George Washington becomes first constitutional president",
-      "Tennis Court Oath creates first revolutionary assembly",
-      "Estates-General ends after historic 175-year absence",
-      "French Revolution begins overthrowing king and monarchy"
-    ],
-    "1865": [
-      "American Civil War ends preserving federal union",
-      "President Lincoln's assassination creates national trauma",
-      "Thirteenth Amendment ends slavery establishing freedom",
-      "First transcontinental telegraph creates instant communication",
-      "Lewis Carroll creates landmark children's literature",
-      "Civil War ends preserving American world power"
-    ],
-    "1914": [
-      "World War One begins ending century of peace",
-      "Germany begins major invasion of Western Europe",
-      "First Battle of Marne ends German advance",
-      "Panama Canal creates major global shipping route",
-      "Federal Reserve establishes modern banking system",
-      "First World War begins ending European peace"
-    ],
-    "1945": [
-      "World War Two ends with historic Allied victory",
-      "First atomic bombs create nuclear age",
-      "United Nations founded establishing global governance",
-      "Adolf Hitler's death ends Nazi regime",
-      "Auschwitz liberation begins Holocaust recognition",
-      "Second World War ends establishing new world order"
-    ],
-    "1969": [
-      "Apollo 11 establishes first human lunar landing",
-      "Woodstock creates landmark counterculture movement",
-      "ARPANET begins global internet revolution",
-      "Boeing 747 creates first jumbo jet era",
-      "Stonewall riots begin modern gay rights movement",
-      "First moon landing establishes American world leadership"
-    ],
-    "1989": [
-      "Berlin Wall collapses ending Cold War division",
-      "Tiananmen Square creates global democracy movement",
-      "Cold War ends between world superpowers",
-      "World Wide Web founded creating digital revolution",
-      "Exxon Valdez creates major environmental disaster",
-      "Communist empire collapses ending Cold War worldwide"
-    ],
-    "1453": [
-      "Hungarian engineer creates first siege artillery",
-      "Ottoman navy establishes historic overland transport",
-      "Last Byzantine defense begins at Golden Horn",
-      "Last Byzantine Emperor Constantine XI falls heroically",
-      "Mehmed II ends Byzantine Empire after 1000 years",
-      "Byzantine Empire ends after thousand-year world rule"
-    ],
-    "1517": [
-      "Johann Tetzel begins controversial indulgence trade",
-      "Albert of Brandenburg creates major church corruption",
-      "University of Wittenberg establishes Protestant theology",
-      "Printing press begins first mass media revolution",
-      "Martin Luther creates landmark 95 Theses",
-      "Protestant Revolution begins against Catholic world empire"
-    ],
-    "1848": [
-      "Frederick William begins German unification movement",
-      "Frankfurt Parliament establishes first German democracy",
-      "Major Hungarian Revolution begins national independence",
-      "Austrian Empire begins granting first autonomy",
-      "February Revolution establishes French Second Republic",
-      "Year of Revolutions transforms European world order"
-    ],
-    "1929": [
-      "Vatican City established as world's smallest state",
-      "Young Plan creates last war reparations agreement",
-      "Saint Valentine's Day Massacre begins gang war era",
-      "Museum of Modern Art establishes modern culture",
-      "Stock Market Crash begins global economic collapse",
-      "World economic collapse creates Great Depression worldwide"
-    ],
-    "1949": [
-      "Geneva Conventions establish global humanitarian law",
-      "Indonesia ends centuries of Dutch colonial rule",
-      "Soviet Union begins nuclear arms race",
-      "People's Republic establishes Communist China",
-      "NATO creates first peacetime military alliance",
-      "Cold War begins dividing world into rival empires"
-    ],
-    "1991": [
-      "Tim Berners-Lee creates public World Wide Web",
-      "Yugoslavia begins violent ethnic dissolution",
-      "Warsaw Pact ends Soviet military dominance",
-      "Boris Yeltsin establishes new Russian state",
-      "Persian Gulf War begins precision warfare era",
-      "Soviet empire collapses ending Cold War worldwide"
-    ],
-    "2001": [
-      "September 11 attacks begin global war on terror",
-      "Wikipedia creates first collaborative encyclopedia",
-      "War in Afghanistan begins longest American conflict",
-      "Apple creates first iPod revolutionizing music",
-      "Anthrax attacks create first bioterrorism panic",
-      "World Trade Center attack begins global war on terror"
+    "-44": [
+      "Marcus Brutus reluctantly joins assassination conspiracy",
+      "Spurinna the soothsayer warns Caesar of March danger",
+      "Senate meets at Theatre of Pompey due to reconstruction",
+      "Et tu, Brute spoken as Brutus delivers fatal blow",
+      "Julius Caesar murdered on Ides of March",
+      "Mark Antony and Octavian pursue civil war revenge"
     ]
   }
 }
