@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Settings } from 'lucide-react';
+import { Settings, Flame } from 'lucide-react';
 import { getStreakColorClasses } from '@/lib/utils';
 
 interface AppHeaderProps {
@@ -19,30 +19,30 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     <header className="w-full border-b border-border bg-card py-4">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between">
-          {/* Logo/Brand - Responsive sizing */}
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl md:text-3xl font-bold text-primary m-0">
+          {/* Logo/Brand - Clean and uncluttered */}
+          <div className="flex items-center">
+            <h1 className="text-2xl md:text-3xl font-heading font-bold text-primary m-0">
               <span className="sm:hidden">C</span>
               <span className="hidden sm:inline">CHRONDLE</span>
             </h1>
+          </div>
+
+          {/* Action Buttons with Streak Counter */}
+          <div className="flex items-center gap-3">
+            {/* Streak Counter - Horizontal Badge */}
             {currentStreak !== undefined && currentStreak > 0 && streakColors && (
               <div
-                className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors duration-300 ${streakColors.backgroundColor}`}
+                className={`flex items-center gap-2 px-3 py-2 rounded-full ${streakColors.backgroundColor} border border-white/20 shadow-sm`}
                 title={streakColors.milestone || `${currentStreak} day streak`}
-                aria-label={`Current streak: ${currentStreak} day${currentStreak === 1 ? '' : 's'}`}
+                aria-label={`Current streak: ${currentStreak} day streak`}
               >
-                <span className={`text-sm font-medium ${streakColors.textColor} opacity-80`}>
-                  Streak
-                </span>
-                <span className={`text-sm font-bold ${streakColors.textColor}`}>
-                  {currentStreak}
+                <Flame className={`w-4 h-4 ${streakColors.textColor}`} />
+                <span className={`text-sm font-accent font-bold ${streakColors.textColor} whitespace-nowrap`}>
+                  {currentStreak} day streak
                 </span>
               </div>
             )}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-1">
+            
             <Button
               onClick={onShowSettings}
               variant="ghost"

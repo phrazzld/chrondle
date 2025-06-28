@@ -105,39 +105,47 @@ export function getStreakColorClasses(streak: number): StreakColorClasses {
   
   if (streak <= 2) {
     return {
-      textColor: 'text-slate-600',
-      backgroundColor: 'bg-slate-100',
+      textColor: 'text-slate-700',
+      backgroundColor: 'bg-slate-200',
     };
   }
   
   if (streak <= 6) {
     return {
-      textColor: 'text-blue-600',
-      backgroundColor: 'bg-blue-100',
-      milestone: streak === 3 ? 'Building habit!' : undefined,
+      textColor: 'text-blue-700',
+      backgroundColor: 'bg-blue-200',
+      milestone: streak === 3 ? 'Building momentum!' : undefined,
     };
   }
   
   if (streak <= 13) {
     return {
-      textColor: 'text-green-600',
-      backgroundColor: 'bg-green-100',
-      milestone: streak === 7 ? 'One week strong!' : undefined,
+      textColor: 'text-emerald-700',
+      backgroundColor: 'bg-emerald-200',
+      milestone: streak === 7 ? 'One week streak! 🔥' : undefined,
     };
   }
   
   if (streak <= 29) {
     return {
-      textColor: 'text-orange-600',
-      backgroundColor: 'bg-orange-100',
-      milestone: streak === 14 ? 'Two weeks solid!' : undefined,
+      textColor: 'text-orange-700',
+      backgroundColor: 'bg-orange-200',
+      milestone: streak === 14 ? 'Two weeks strong! ⚡' : undefined,
     };
   }
   
-  // 30+ days
+  if (streak <= 99) {
+    return {
+      textColor: 'text-red-700',
+      backgroundColor: 'bg-red-200',
+      milestone: streak === 30 ? 'One month champion! 🏆' : streak === 50 ? 'Incredible dedication! 💎' : undefined,
+    };
+  }
+  
+  // 100+ days - Elite status
   return {
-    textColor: 'text-red-600',
-    backgroundColor: 'bg-red-100',
-    milestone: streak === 30 ? 'One month champion!' : undefined,
+    textColor: 'text-purple-700',
+    backgroundColor: 'bg-purple-200',
+    milestone: streak === 100 ? 'Century club! 👑' : undefined,
   };
 }
