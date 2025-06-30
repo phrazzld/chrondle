@@ -33,7 +33,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             {/* Streak Counter - Horizontal Badge */}
             {currentStreak !== undefined && currentStreak > 0 && streakColors && (
               <div
-                className={`flex items-center gap-2 px-3 py-2 rounded-full ${streakColors.backgroundColor} border border-white/20 shadow-sm h-10`}
+                className={`flex items-center gap-2 px-3 py-2 rounded-full border ${streakColors.borderColor} shadow-sm h-10`}
                 title={streakColors.milestone || `${currentStreak} day streak`}
                 aria-label={`Current streak: ${currentStreak} day streak`}
               >

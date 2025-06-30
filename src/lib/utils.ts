@@ -91,7 +91,7 @@ export function generateEmojiTimeline(guesses: number[], targetYear: number): st
 
 export interface StreakColorClasses {
   textColor: string;
-  backgroundColor: string;
+  borderColor: string;
   milestone?: string;
 }
 
@@ -99,53 +99,53 @@ export function getStreakColorClasses(streak: number): StreakColorClasses {
   if (streak <= 0) {
     return {
       textColor: 'text-muted-foreground',
-      backgroundColor: 'bg-muted',
+      borderColor: 'border-muted-foreground/30',
     };
   }
   
   if (streak <= 2) {
     return {
-      textColor: 'text-slate-700',
-      backgroundColor: 'bg-slate-200',
+      textColor: 'text-slate-600',
+      borderColor: 'border-slate-300',
     };
   }
   
   if (streak <= 6) {
     return {
-      textColor: 'text-blue-700',
-      backgroundColor: 'bg-blue-200',
+      textColor: 'text-blue-600',
+      borderColor: 'border-blue-300',
       milestone: streak === 3 ? 'Building momentum!' : undefined,
     };
   }
   
   if (streak <= 13) {
     return {
-      textColor: 'text-emerald-700',
-      backgroundColor: 'bg-emerald-200',
+      textColor: 'text-emerald-600',
+      borderColor: 'border-emerald-300',
       milestone: streak === 7 ? 'One week streak! 🔥' : undefined,
     };
   }
   
   if (streak <= 29) {
     return {
-      textColor: 'text-orange-700',
-      backgroundColor: 'bg-orange-200',
+      textColor: 'text-orange-600',
+      borderColor: 'border-orange-300',
       milestone: streak === 14 ? 'Two weeks strong! ⚡' : undefined,
     };
   }
   
   if (streak <= 99) {
     return {
-      textColor: 'text-red-700',
-      backgroundColor: 'bg-red-200',
+      textColor: 'text-red-600',
+      borderColor: 'border-red-300',
       milestone: streak === 30 ? 'One month champion! 🏆' : streak === 50 ? 'Incredible dedication! 💎' : undefined,
     };
   }
   
   // 100+ days - Elite status
   return {
-    textColor: 'text-purple-700',
-    backgroundColor: 'bg-purple-200',
+    textColor: 'text-purple-600',
+    borderColor: 'border-purple-300',
     milestone: streak === 100 ? 'Century club! 👑' : undefined,
   };
 }
