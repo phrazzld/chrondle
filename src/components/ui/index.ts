@@ -18,3 +18,4 @@ export { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './
 export { LoadingSpinner } from './LoadingSpinner';
 export { ProgressBar } from './ProgressBar';
 export { SwipeProgressBar } from './SwipeProgressBar';
+export { ThemeToggle } from './ThemeToggle';

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Settings, Flame } from 'lucide-react';
 import { getStreakColorClasses } from '@/lib/utils';
 
@@ -43,13 +44,16 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               </div>
             )}
             
+            {/* Theme Toggle */}
+            <ThemeToggle />
+            
             <Button
               onClick={onShowSettings}
               variant="ghost"
               size="icon"
               title="Settings - Adjust theme and accessibility options"
               aria-label="Show settings for theme and accessibility"
-              className="h-10 w-10"
+              className="h-10 w-10 rounded-full"
             >
               <Settings className="h-5 w-5" />
             </Button>
