@@ -3,6 +3,7 @@
 import React from 'react';
 import { RippleButton } from '@/components/magicui/ripple-button';
 import { useShareGame } from '@/hooks/useShareGame';
+import { formatYear } from '@/lib/utils';
 
 interface GameInstructionsProps {
   className?: string;
@@ -100,7 +101,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
             The answer was
           </div>
           <div className="text-4xl sm:text-5xl font-bold text-red-700 dark:text-red-300 mb-2">
-            {targetYear}
+            {formatYear(targetYear)}
           </div>
           <div className="text-sm text-red-600 dark:text-red-400">
             Better luck tomorrow!
@@ -115,7 +116,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
             Correct! The year was
           </div>
           <div className="text-4xl sm:text-5xl font-bold text-green-700 dark:text-green-300 mb-2">
-            {targetYear}
+            {formatYear(targetYear)}
           </div>
           <div className="text-sm text-green-600 dark:text-green-400">
             Great job!

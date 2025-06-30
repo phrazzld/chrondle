@@ -17,7 +17,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const streakColors = currentStreak ? getStreakColorClasses(currentStreak) : null;
   return (
     <header className="w-full border-b border-border bg-card py-4">
-      <div className="max-w-2xl mx-auto px-6">
+      <div className="max-w-2xl mx-auto px-6 sm:px-0">
         <div className="flex items-center justify-between min-h-[40px]">
           {/* Logo/Brand - Clean and uncluttered */}
           <div className="flex items-center h-10">
