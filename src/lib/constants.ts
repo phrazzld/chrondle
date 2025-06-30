@@ -229,7 +229,7 @@ export type ApiEndpoint = typeof API_ENDPOINTS[keyof typeof API_ENDPOINTS];
 // --- VALIDATION HELPERS ---
 
 export function isValidYear(year: number): boolean {
-  return year >= GAME_CONFIG.MIN_YEAR && year <= GAME_CONFIG.MAX_YEAR && year !== 0;
+  return year >= GAME_CONFIG.MIN_YEAR && year <= GAME_CONFIG.MAX_YEAR;
 }
 
 
