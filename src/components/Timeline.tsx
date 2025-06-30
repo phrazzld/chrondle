@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { formatYear, getGuessDirectionInfo } from '@/lib/utils';
+import { getGuessDirectionInfo } from '@/lib/utils';
 import { NumberTicker } from '@/components/ui/NumberTicker';
 
 interface TimelineProps {
@@ -23,7 +23,6 @@ export const Timeline: React.FC<TimelineProps> = ({
   maxYear,
   guesses,
   targetYear,
-  isGameComplete,
 }) => {
   // Display range state with simple transitions
   const [currentDisplayRange, setCurrentDisplayRange] = useState<{min: number, max: number}>({min: minYear, max: maxYear});
@@ -96,7 +95,7 @@ export const Timeline: React.FC<TimelineProps> = ({
   }, [validMin, validMax, currentDisplayRange.min, currentDisplayRange.max]);
 
   return (
-    <div className="w-full -mx-2 sm:mx-0 mb-0">
+    <div className="w-full mb-0">
       <div className="flex items-center justify-between gap-1 sm:gap-2 px-1">
         {/* Left bookend label */}
         <div className="min-w-0 flex-shrink-0 text-left">
@@ -104,16 +103,17 @@ export const Timeline: React.FC<TimelineProps> = ({
             key={`min-${currentDisplayRange.min}`}
             value={Math.round(currentDisplayRange.min)}
             startValue={Math.round(prevMinRef.current)}
-            className="text-xl sm:text-sm font-bold text-blue-500/80 dark:text-blue-400/80 whitespace-nowrap"
+            className="text-sm sm:text-sm font-bold text-blue-500/80 dark:text-blue-400/80 whitespace-nowrap"
             duration={800}
           />
         </div>
         
         {/* Timeline SVG */}
         <svg 
-          viewBox="0 -5 800 110" 
-          className="flex-1 h-24 sm:h-20 transition-all duration-700 ease-out"
+          viewBox="0 25 800 50" 
+          className="flex-1 h-16 sm:h-16"
           preserveAspectRatio="xMidYMid meet"
+          style={{ overflow: 'hidden' }}
         >
         {/* Simple tick marks: start and end only */}
         {(() => {
@@ -181,35 +181,19 @@ export const Timeline: React.FC<TimelineProps> = ({
             
             return (
               <g key={`valid-${index}-${guess.year}`}>
-                <circle 
-                  cx={x} 
-                  cy="50" 
-                  r="5" 
-                  fill="currentColor" 
-                  className={colorClass}
-                />
-                <text 
-                  x={x} 
-                  y="90" 
-                  textAnchor="middle" 
-                  className="text-7xl sm:text-xl fill-foreground font-bold"
-                >
-                  {formatYear(guess.year)}
-                </text>
+                {!isCorrect && (
+                  <circle 
+                    cx={x} 
+                    cy="50" 
+                    r="10" 
+                    fill="currentColor" 
+                    className={colorClass}
+                  />
+                )}
               </g>
             );
           })}
         
-        {/* Target year marker on timeline when game is complete */}
-        {isGameComplete && targetYear && targetYear >= currentDisplayRange.min && targetYear <= currentDisplayRange.max && (
-          <circle 
-            cx={getPositionX(targetYear)} 
-            cy="50" 
-            r="6" 
-            fill="currentColor" 
-            className="text-green-600 dark:text-green-400"
-          />
-        )}
         </svg>
         
         {/* Right bookend label */}
@@ -218,22 +202,12 @@ export const Timeline: React.FC<TimelineProps> = ({
             key={`max-${currentDisplayRange.max}`}
             value={Math.round(currentDisplayRange.max)}
             startValue={Math.round(prevMaxRef.current)}
-            className="text-xl sm:text-sm font-bold text-red-500/80 dark:text-red-400/80 whitespace-nowrap"
+            className="text-sm sm:text-sm font-bold text-red-500/80 dark:text-red-400/80 whitespace-nowrap"
             duration={800}
           />
         </div>
       </div>
       
-      {/* Target year display when game is complete */}
-      {isGameComplete && targetYear && (
-        <div className="flex items-center justify-center mt-2">
-          <div className="px-3 py-1 sm:px-4 sm:py-2 bg-green-50 border border-green-200 rounded-lg dark:bg-green-900/20 dark:border-green-800">
-            <span className="text-sm sm:text-base font-bold text-green-700 dark:text-green-300">
-              Target: {formatYear(targetYear)}
-            </span>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

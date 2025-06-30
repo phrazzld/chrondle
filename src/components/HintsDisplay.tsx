@@ -58,7 +58,7 @@ const CurrentHint: React.FC<CurrentHintProps> = ({
         damping: 25,
         opacity: { duration: 0.3 }
       }}
-      className="py-4 px-4 rounded-lg border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10 shadow-md"
+      className="py-4 px-4 rounded-lg border-2 border-primary/50 bg-gradient-to-br from-muted/10 to-muted/20 shadow-lg"
     >
       <p className="text-xs text-primary mb-2 text-left uppercase font-accent tracking-wide flex items-center gap-2">
         <span className="inline-flex w-5 h-5 rounded-full bg-primary text-white items-center justify-center text-[10px] font-bold">
@@ -135,9 +135,11 @@ const PastHint: React.FC<PastHintProps> = ({
               <Check className="w-4 h-4" />
             </div>
           )}
-          <div className="w-14 bg-background/80 rounded-md px-2 py-1 text-center whitespace-nowrap border border-muted/40">
-            <span className="font-accent font-semibold text-foreground text-xs">{formatYear(guess)}</span>
-          </div>
+          {!isCorrect && (
+            <div className="min-w-16 bg-background/80 rounded-md px-3 py-1 flex items-center justify-center whitespace-nowrap border border-muted/40">
+              <span className="font-accent font-semibold text-foreground text-xs">{formatYear(guess)}</span>
+            </div>
+          )}
         </div>
       </div>
     </motion.div>
@@ -287,7 +289,7 @@ export const HintsDisplay: React.FC<HintsDisplayProps> = ({
 
       {/* Future Hints - Revealed on game completion */}
       {futureHints.length > 0 && (
-        <div className="mt-6 pt-4 border-t border-muted/30">
+        <div className="mt-3 pt-2 border-t border-muted/30">
           <p className="text-xs text-muted-foreground uppercase font-accent tracking-wide mb-3">
             Unused Hints
           </p>
