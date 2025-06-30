@@ -1,7 +1,7 @@
 {
   "meta": {
     "version": "4.4",
-    "total_puzzles": 136,
+    "total_puzzles": 154,
     "date_range": "-776-2008"
   },
   "puzzles": {
@@ -60,12 +60,13 @@
       "Frumentius becomes the first bishop of Ethiopia"
     ],
     "410": [
-      "Alaric's Visigoths sack Rome for the first time in 800 years",
-      "Hypatia of Alexandria leads the Neoplatonist school in Egypt",
-      "The Romans officially withdraw their legions from Britain",
-      "Emperor Honorius tells the Britons to look to their own defense",
-      "The Goths spare the Christian churches of Saint Peter and Saint Paul",
-      "The sack of Rome sends shockwaves throughout the Roman Empire"
+      "Alaric's Visigoths sack Rome for three days.",
+      "Hypatia of Alexandria leads the Neoplatonist school.",
+      "Emperor Honorius tells Britain to see to its own defense.",
+      "The Western Roman Empire officially withdraws from Britain.",
+      "Visigoths spare the Basilicas of Saint Peter and Paul.",
+      "The sack of Rome sends shockwaves across the Empire.",
+      "Future Visigothic king Theodoric I is born."
     ],
     "476": [
       "Germanic mercenaries demand Italian estates from Orestes",
@@ -76,44 +77,44 @@
       "Western Roman Empire collapses ending millennium of world rule"
     ],
     "527": [
-      "Court official beheaded for religious conversion produces miraculous liquid",
-      "Anglo-Saxon tribes establish new kingdom covering future Essex territory",
-      "Asian kingdom formally adopts Buddhist faith through divine intervention",
-      "Justinian appointed co-ruler to aging Emperor Justin I in Constantinople",
-      "Ichadon's martyrdom convinces Silla king to embrace Buddhism as state religion",
-      "Justinian becomes sole emperor launching legal reforms and territorial reconquest"
+      "Justinian I becomes sole ruler of the Byzantine Empire.",
+      "The Kingdom of Essex is founded by the Saxons in Britain.",
+      "Silla, one of Korea's Three Kingdoms, adopts Buddhism.",
+      "Justinian appoints Belisarius to command the eastern army.",
+      "The codification of Roman law, the Codex Justinianus, begins.",
+      "Justinian begins a major reorganization of the Byzantine army."
     ],
     "622": [
-      "Byzantine Emperor Heraclius launches campaign against Persian Empire",
-      "Ansar tribal confederation creates protection alliance",
-      "Medina Constitution establishes multi-tribal governance protecting diverse communities",
-      "First Muslim political structure establishes governance",
-      "The Hijra migration from Mecca begins new era",
-      "Visigothic Spain expels Jewish population under King Sisebut"
+      "The Prophet Muhammad completes the Hijra to Medina.",
+      "The Islamic calendar is established, with this as its first year.",
+      "The Constitution of Medina is drafted, creating a multi-religious state.",
+      "The first mosque in Islam is constructed at Quba.",
+      "Emperor Heraclius launches a counter-offensive against the Sasanian Empire.",
+      "The Byzantine army defeats the Persians at the Battle of Issus."
     ],
     "732": [
-      "Odo of Aquitaine requests Frankish military assistance",
-      "Umayyad cavalry struggles against Frankish phalanx formation",
-      "Abd al-Rahman al-Ghafiqi dies in combat",
-      "Charles Martel's forces fight uphill battle advantage",
-      "Battle of Tours prevents Umayyad northern expansion",
-      "Muslim army retreats southward after devastating defeat"
+      "Charles Martel defeats the Umayyad Caliphate at the Battle of Tours.",
+      "The Umayyad governor of Al-Andalus, Abd al-Rahman al-Ghafiqi, is killed.",
+      "The Frankish army's victory halts the northward advance of Islamic forces.",
+      "Duke Eudes of Aquitaine requests Frankish assistance against the Umayyads.",
+      "The battle is fought between the cities of Tours and Poitiers in France.",
+      "Charles Martel's victory lays the groundwork for the Carolingian Empire."
     ],
     "793": [
-      "Tang Dynasty establishes state monopoly on tea",
-      "Charlemagne orders massive canal connecting Rhine and Danube rivers",
-      "Saxon ambush annihilates Frankish count and entire military entourage",
-      "Northern raiders arrive in longships devastating sacred island monastery",
-      "Tang Dynasty institutes tea monopoly while Charlemagne digs Rhine-Danube channel",
-      "Viking attack on Lindisfarne monastery begins age of Norse expansion"
+      "Viking raiders sack the monastery at Lindisfarne, marking the start of the Viking Age.",
+      "Charlemagne orders the construction of the Fossa Carolina canal.",
+      "Pepin of Italy campaigns against the Lombards in Benevento.",
+      "Count Theoderic is killed by Saxon rebels in Frisia.",
+      "Emir Hisham I of Córdoba calls for a jihad against the Christian Franks.",
+      "Arabian forces invade Languedoc, capturing Narbonne and Carcassonne."
     ],
     "800": [
-      "Pope Leo III escapes Roman assault and mutilation",
-      "Empress Irene rules Byzantine Empire as sole woman",
-      "Alcuin of York advises Charlemagne on imperial title",
-      "Christmas Mass interrupted by unexpected coronation ceremony",
-      "Charlemagne becomes first Western Emperor since 476",
-      "Carolingian Renaissance promotes learning and literacy"
+      "Pope Leo III crowns Charlemagne Emperor of the Romans in Rome.",
+      "The coronation marks the revival of the imperial title in Western Europe.",
+      "The Rus' Khaganate is established in Eastern Europe.",
+      "The Abbasid Caliphate cedes southern Italian holdings to the Aghlabid Dynasty.",
+      "Sijilmasa is founded as a caravan departure point in Morocco.",
+      "The Book of Kells is written and illuminated in Ireland."
     ],
     "962": [
       "Otto I receives imperial crown from Pope John XII in Rome",
@@ -132,28 +133,46 @@
       "Capetian dynasty begins while Song China unifies and Bardas Phokas rebels"
     ],
     "1000": [
-      "Icelandic Althing officially adopts Christianity",
-      "Otto III meets Polish Duke Bolesław in Gniezno",
-      "Byzantine forces capture Bulgarian capitals Pliska and Preslav",
-      "Battle of Svolder defeats Norwegian King Olaf Tryggvason",
-      "Polish archbishopric gains independence from Holy Roman Empire",
-      "First millennium ends marking Early to High Middle Ages transition"
+      "The Althing in Iceland officially adopts Christianity.",
+      "Holy Roman Emperor Otto III meets Bolesław I Chrobry in Gniezno.",
+      "Byzantine Emperor Basil II captures Pliska and Preslav from Bulgaria.",
+      "King Olaf Tryggvason of Norway dies at the Battle of Svolder.",
+      "The Gniezno Congress establishes an independent Polish archbishopric.",
+      "Stephen I is crowned the first King of Hungary.",
+      "The first millennium concludes, marking the High Middle Ages' beginning."
+    ],
+    "1025": [
+      "Bolesław I Chrobry is crowned the first King of Poland.",
+      "Byzantine Emperor Basil II, the Bulgar-slayer, dies.",
+      "Mahmud of Ghazni raids and plunders the Somnath Temple in India.",
+      "The Chola dynasty conquers the Southeast Asian kingdom of Srivijaya.",
+      "Avicenna publishes his influential medical treatise, *The Canon of Medicine*.",
+      "The Northern Song Dynasty in China experiences a golden age."
     ],
     "1054": [
-      "Cardinal Humbert delivers papal bull to Hagia Sophia",
-      "Filioque clause disputes Holy Spirit's divine procession",
-      "Michael Cerularius refuses to accept Roman primacy",
-      "Unleavened bread controversy divides Eucharistic practice",
-      "Mutual excommunications issued on July 16th",
-      "Great Schism permanently separates Eastern and Western Christianity"
+      "Cardinal Humbert delivers a papal bull to Patriarch Michael Cerularius.",
+      "The Filioque clause dispute divides the Eastern and Western Churches.",
+      "Patriarch Michael Cerularius refuses to acknowledge Roman primacy.",
+      "The unleavened bread controversy further divides Christian practices.",
+      "Mutual excommunications are issued on July 16th in Constantinople.",
+      "The Great Schism permanently separates Eastern Orthodoxy and Roman Catholicism."
     ],
     "1066": [
-      "Harald Hardrada dies at Stamford Bridge fighting English forces",
-      "Muslim mob crucifies Jewish vizier in Granada massacre",
-      "Chinese scholar compiles eight-volume chronicle of ancient history",
-      "Halley's Comet appearance interpreted as divine omen",
-      "Harold Godwinson defeats brother Tostig and Harald Hardrada in September",
-      "Norman duke William victorious at Hastings on October fourteenth"
+      "Harald Hardrada dies at the Battle of Stamford Bridge.",
+      "A Muslim mob crucifies Joseph ibn Naghrela in Granada.",
+      "Sima Guang compiles the *Zizhi Tongjian* in China.",
+      "Halley's Comet appears, interpreted as a divine omen.",
+      "Harold Godwinson defeats Tostig Godwinson and Harald Hardrada.",
+      "William the Conqueror defeats Harold Godwinson at Hastings.",
+      "The Norman Conquest of England begins, reshaping English history."
+    ],
+    "1071": [
+      "The Battle of Manzikert results in a decisive Byzantine defeat.",
+      "Sultan Alp Arslan leads the Seljuk Turks to victory over the Byzantines.",
+      "Emperor Romanos IV Diogenes is captured by the Seljuk forces.",
+      "The Siege of Bari ends with Norman forces capturing the last Byzantine city in Italy.",
+      "Robert I, \"the Frisian,\" defeats Richilde at the Battle of Cassel.",
+      "English rebels, including Hereward the Wake, are defeated by Norman forces."
     ],
     "1095": [
       "Alexius I Komnenos requests mercenaries against Seljuks",
@@ -170,6 +189,14 @@
       "Pope Urban II dies before news of Jerusalem's capture reaches him",
       "Daimbert of Pisa is named the first Latin Patriarch of Jerusalem",
       "Construction begins on the Modena Cathedral in Italy"
+    ],
+    "1100": [
+      "King William II of England dies in a hunting accident.",
+      "Henry I is crowned King of England at Westminster Abbey.",
+      "Henry I issues the Charter of Liberties, a precursor to constitutional law.",
+      "Baldwin I is crowned the first King of Jerusalem.",
+      "Bohemond I of Antioch is captured by the Danishmends.",
+      "The Siege of Haifa ends with a Crusader victory."
     ],
     "1162": [
       "Future Mongol conqueror Temüjin is born near Burkhan Khaldun",
@@ -196,12 +223,12 @@
       "Byzantine capital sacked by Crusaders fragmenting Eastern Roman Empire"
     ],
     "1206": [
-      "Former slave assumes power after master's assassination by religious sect",
-      "Emperor Kaloyan defeats Latin crusader army capturing knights in Thrace",
-      "English peasant claims saints gave him tour of torture chambers",
-      "Steppe tribes unite under Genghis Khan at kurultai assembly",
-      "Qutb-ud-din Aibak founds Delhi Sultanate after Muhammad Ghori dies",
-      "Temujin becomes Genghis Khan unifying Mongol tribes into world empire"
+      "Temüjin is proclaimed Genghis Khan, ruler of all Mongols.",
+      "The Mongol Empire is established at a kurultai on the Onon River.",
+      "Qutb al-Din Aibak founds the Mamluk dynasty in India.",
+      "The Delhi Sultanate is established in the Indian subcontinent.",
+      "King Valdemar II of Denmark leads an expedition to Saaremaa.",
+      "The first temple dedicated to Zen Buddhism is completed in Japan."
     ],
     "1215": [
       "Feudal lords unite against financial oppression and military failures",
@@ -252,12 +279,12 @@
       "Templar Grand Master burned alive on Seine island"
     ],
     "1315": [
-      "Unprecedented rainfall destroys harvests beginning Europe's worst agricultural crisis",
-      "Edward Bruce invades Ireland proclaiming himself monarch",
-      "Swiss forest cantons ambush Austrian army at lakeside mountain pass",
-      "French invasion of Flanders fails when cavalry bog down in waterlogged fields",
-      "University scholars crown poet with laurel reviving ancient classical tradition",
-      "Famine conditions force armies to abandon military campaigns across continent"
+      "The Great Famine of 1315-1317 begins in Europe.",
+      "Louis X of France abolishes serfdom.",
+      "The Scottish army under Robert the Bruce besieges Carlisle Castle.",
+      "The Mamluk Sultanate invades and loots the city of Malatya.",
+      "Ferdinand of Majorca conquers the Principality of Achaea.",
+      "The Swiss Confederacy defeats the Habsburgs at the Battle of Morgarten."
     ],
     "1337": [
       "Isabella of France's son claims Capetian inheritance",
@@ -298,6 +325,14 @@
       "Richard II promises abolition of serfdom",
       "Peasants' Revolt challenges feudal social order",
       "Wat Tyler killed by Mayor William Walworth"
+    ],
+    "1400": [
+      "The Epiphany Rising against King Henry IV is suppressed in England.",
+      "Holy Roman Emperor Wenceslaus is deposed by German princes.",
+      "Owain Glyndŵr is proclaimed Prince of Wales, beginning a revolt.",
+      "The Mongol conqueror Timur invades Syria, devastating cities.",
+      "The Kingdom of Malacca is founded on the Malay Peninsula.",
+      "King Jeongjong of Joseon abdicates, and Taejong succeeds him in Korea."
     ],
     "1415": [
       "Henry V leads starving army through Norman countryside",
@@ -372,7 +407,7 @@
       "Portuguese establish Asian maritime trading empire"
     ],
     "1500": [
-      "Pedro Cabral accidentally discovers Brazil while sailing to India",
+      "Pedro Cabral accidentally discovers Brazil whilesailing to India",
       "Vicente Yáñez Pinzón becomes first European to sight Brazilian coast",
       "Pope Alexander VI declares Holy Jubilee Year drawing pilgrims to Rome",
       "Diogo Dias discovers Madagascar island naming it São Lourenço",
@@ -459,6 +494,14 @@
       "Jesuit Francis Xavier prepares mission to Asia",
       "Scientific Revolution begins with astronomical mathematics"
     ],
+    "1953": [
+      "Soviet Premier Joseph Stalin dies in Moscow.",
+      "The Korean War ends with a signed armistice.",
+      "Francis Crick and James Watson publish DNA's structure.",
+      "Edmund Hillary and Tenzing Norgay summit Mount Everest.",
+      "Queen Elizabeth II is crowned in Westminster Abbey.",
+      "Julius and Ethel Rosenberg are executed for espionage."
+    ],
     "1558": [
       "Elizabeth I accedes to English throne after Mary I dies",
       "Francis, Duke of Guise, captures Calais from England",
@@ -474,6 +517,14 @@
       "Venetian galleys employ superior bronze cannons",
       "Battle of Lepanto ends Ottoman Mediterranean expansion",
       "Christian slaves freed from Turkish galley ships"
+    ],
+    "1582": [
+      "Pope Gregory XIII introduces the Gregorian calendar.",
+      "Ten days are skipped in October to correct calendar drift.",
+      "Russia cedes Livonian territories to the Polish-Lithuanian Commonwealth.",
+      "The University of Edinburgh is chartered in Scotland.",
+      "Spanish conquistador Hernando de Lerma founds Salta in Argentina.",
+      "William Shakespeare receives a marriage license to Anne Hathaway."
     ],
     "1588": [
       "Fire ships scattered massive invasion fleet near Gravelines",
@@ -514,6 +565,14 @@
       "Roanoke Lost Colony mystery remains unsolved",
       "English establish permanent Chesapeake settlement",
       "Tobacco cultivation begins colonial cash crop economy"
+    ],
+    "1609": [
+      "Galileo Galilei observes the Moon through his telescope.",
+      "Johannes Kepler publishes his first two laws of planetary motion.",
+      "Henry Hudson explores the river that now bears his name.",
+      "The expulsion of the Moriscos from Spain begins.",
+      "The Twelve Years' Truce is signed between Spain and the Dutch Republic.",
+      "The first volume of the Douay-Rheims Bible is published."
     ],
     "1618": [
       "Bohemian nobles throw imperial governors from window",
@@ -619,6 +678,14 @@
       "Anglo-Dutch fleet defeats the French at the Battle of La Hogue",
       "The Kangxi Emperor issues an Edict of Tolerance towards Christians"
     ],
+    "1704": [
+      "The Duke of Marlborough defeats the French at the Battle of Blenheim",
+      "An Anglo-Dutch force captures Gibraltar from Spain",
+      "Tsar Peter the Great's forces capture Narva from Sweden",
+      "French and Native American forces raid Deerfield, Massachusetts",
+      "Isaac Newton publishes his book Opticks",
+      "Jonathan Swift publishes his satire A Tale of a Tub"
+    ],
     "1707": [
       "Scottish Parliament votes for union with England",
       "Darien Scheme bankruptcy forces Scottish accommodation",
@@ -627,13 +694,13 @@
       "Act of Union creates unified British Parliament",
       "Presbyterian Kirk protected in union settlement"
     ],
-    "1704": [
-      "The Duke of Marlborough defeats the French at the Battle of Blenheim",
-      "An Anglo-Dutch force captures Gibraltar from Spain",
-      "Tsar Peter the Great's forces capture Narva from Sweden",
-      "French and Native American forces raid Deerfield, Massachusetts",
-      "Isaac Newton publishes his book Opticks",
-      "Jonathan Swift publishes his satire A Tale of a Tub"
+    "1720": [
+      "The South Sea Bubble collapses in London.",
+      "The Mississippi Company bubble bursts in Paris.",
+      "The Treaty of The Hague ends the War of the Quadruple Alliance.",
+      "The Great Plague of Marseille begins in France.",
+      "Sweden and Prussia sign the Treaty of Stockholm.",
+      "Edmond Halley is appointed Astronomer Royal in England."
     ],
     "1721": [
       "Senate proclaims Peter the Great Emperor of All Russias",
@@ -707,6 +774,14 @@
       "George Washington inaugurated as first constitutional president",
       "Parisian revolutionaries storm Bastille fortress beginning political upheaval"
     ],
+    "1799": [
+      "Napoleon Bonaparte overthrows the French Directory in a coup.",
+      "The Rosetta Stone is discovered in Egypt by French soldiers.",
+      "George Washington dies at his Mount Vernon home.",
+      "The War of the Second Coalition continues in Europe.",
+      "The Coup of 18 Brumaire brings Napoleon to power.",
+      "The Austro-Russian army campaigns against the French in Italy."
+    ],
     "1804": [
       "Napoleon seizes crown from Pope Pius VII",
       "Lewis and Clark expedition departs St. Louis",
@@ -714,6 +789,14 @@
       "Code Napoléon establishes civil law system",
       "French Empire proclaimed with continental ambitions",
       "Sacagawea guides expedition through Rocky Mountains"
+    ],
+    "1805": [
+      "The Battle of Trafalgar establishes British naval supremacy.",
+      "Napoleon Bonaparte is crowned King of Italy.",
+      "The Lewis and Clark Expedition reaches the Pacific Ocean.",
+      "The First Barbary War ends with the Battle of Derne.",
+      "Muhammad Ali Pasha founds his dynasty in Egypt.",
+      "Ludwig van Beethoven's \"Eroica\" symphony premieres in Vienna."
     ],
     "1812": [
       "Devastating earthquake destroys Caracas interpreted as divine punishment",
@@ -1058,6 +1141,14 @@
       "OPEC quadruples oil prices triggering global recession",
       "Energy crisis and political corruption converge in American upheaval",
       "Oil embargo and Nixon resignation transform 1970s American politics"
+    ],
+    "1975": [
+      "The Vietnam War ends with the fall of Saigon.",
+      "The Khmer Rouge captures Phnom Penh, beginning a reign of terror.",
+      "The Apollo-Soyuz Test Project marks US-Soviet space cooperation.",
+      "Bill Gates and Paul Allen found Microsoft.",
+      "The Suez Canal reopens after being closed for eight years.",
+      "The Altair 8800 personal computer is released."
     ],
     "1979": [
       "Nuclear reactor partially melts down in Pennsylvania power plant",

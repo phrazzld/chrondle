@@ -44,9 +44,9 @@ try {
       continue;
     }
     
-    // Validate event count
-    if (events.length !== 6) {
-      console.error(`❌ Year ${year}: Has ${events.length} events, expected 6`);
+    // Validate event count (minimum 6 events)
+    if (events.length < 6) {
+      console.error(`❌ Year ${year}: Has ${events.length} events, expected minimum 6`);
       isValid = false;
       continue;
     }

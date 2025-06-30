@@ -17,7 +17,7 @@
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
     "update-metadata": "node scripts/update-puzzle-metadata.mjs",
-    "validate-puzzles": "node scripts/validate-puzzles.js",
+    "validate-puzzles": "node scripts/validate-puzzles.mjs",
     "test-puzzles": "node scripts/test-puzzle-system.js",
     "test-debug": "node scripts/test-debug-years.js",
     "validate-curated-years": "node scripts/validate-curated-years.js",

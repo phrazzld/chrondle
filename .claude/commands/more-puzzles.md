@@ -37,7 +37,7 @@ Continuously expand and improve `puzzles.json` by:
    • Validate each event with at least two reputable sources; discard if dates conflict.
 
 3. **Craft Hints**
-   • One-sentence, ≤ 15 words, present tense, no explicit year or exact date.
+   • One-sentence, ≤ 20 words, present tense, no explicit year or exact date.
    • **CRITICAL: ALWAYS use proper nouns - never vague descriptors!**
 
    - WRONG: "imperial capital city" → CORRECT: "Constantinople"
