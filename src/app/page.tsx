@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getGuessDirectionInfo, formatYear } from '@/lib/utils';
 import { getEnhancedProximityFeedback } from '@/lib/enhancedFeedback';
 import { useGameState } from '@/hooks/useGameState';
@@ -18,11 +18,11 @@ import { GameInstructions } from '@/components/GameInstructions';
 import { DebugBanner } from '@/components/DebugBanner';
 import { AppHeader } from '@/components/AppHeader';
 import { LiveAnnouncer } from '@/components/ui/LiveAnnouncer';
-import { ViewportDebug } from '@/components/dev/ViewportDebug';
 import { AchievementModal } from '@/components/modals/AchievementModal';
 import { BackgroundAnimation } from '@/components/BackgroundAnimation';
 import { Timeline } from '@/components/Timeline';
 import { Footer } from '@/components/Footer';
+import { Confetti, ConfettiRef } from '@/components/magicui/confetti';
 
 // Force dynamic rendering to prevent SSR issues with theme context
 export const dynamic = 'force-dynamic';
@@ -35,6 +35,9 @@ export default function ChronldePage() {
   // Debug state
   const [debugMode, setDebugMode] = useState(false);
   const [debugParams, setDebugParams] = useState('');
+  
+  // Confetti ref for victory celebration
+  const confettiRef = useRef<ConfettiRef>(null);
   
   // Game state management using custom hook
   const gameLogic = useGameState(debugMode);
@@ -77,6 +80,59 @@ export default function ChronldePage() {
       }
     }
   }, [gameLogic.isGameComplete, gameLogic.gameState.puzzle, gameLogic.hasWon, updateStreak, debugMode]);
+  
+  // Trigger confetti celebration on victory
+  useEffect(() => {
+    if (gameLogic.hasWon && gameLogic.isGameComplete && mounted && confettiRef.current) {
+      // Check for reduced motion preference
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      
+      if (prefersReducedMotion) {
+        // Simple, less intensive confetti for users who prefer reduced motion
+        const triggerReducedConfetti = async () => {
+          try {
+            await confettiRef.current?.fire({
+              particleCount: 30,
+              spread: 45,
+              origin: { x: 0.5, y: 0.6 },
+              colors: ['#d4a574', '#27ae60'],
+              gravity: 1.2,
+              drift: 0
+            });
+          } catch (error) {
+            console.error('Victory confetti error:', error);
+          }
+        };
+        triggerReducedConfetti();
+      } else {
+        // Full confetti celebration for users who enjoy motion
+        const triggerVictoryConfetti = async () => {
+          try {
+            // First burst from center
+            await confettiRef.current?.fire({
+              particleCount: 100,
+              spread: 70,
+              origin: { x: 0.5, y: 0.6 },
+              colors: ['#d4a574', '#27ae60', '#3498db', '#f39c12']
+            });
+            
+            // Second burst with different spread
+            setTimeout(async () => {
+              await confettiRef.current?.fire({
+                particleCount: 50,
+                spread: 120,
+                origin: { x: 0.5, y: 0.7 },
+                colors: ['#d4a574', '#27ae60', '#3498db', '#f39c12']
+              });
+            }, 250);
+          } catch (error) {
+            console.error('Victory confetti error:', error);
+          }
+        };
+        triggerVictoryConfetti();
+      }
+    }
+  }, [gameLogic.hasWon, gameLogic.isGameComplete, mounted]);
   
 
   // Announce guess feedback for screen readers
@@ -425,14 +481,26 @@ export default function ChronldePage() {
       )}
 
 
-      {/* Development Viewport Debug Indicator */}
-      <ViewportDebug isVisible={debugMode} />
 
       {/* Achievement Modal */}
       <AchievementModal
         isOpen={hasNewAchievement}
         onClose={clearNewAchievement}
         achievement={newAchievement || ''}
+      />
+
+      {/* Victory Confetti */}
+      <Confetti
+        ref={confettiRef}
+        className="fixed inset-0 z-50 pointer-events-none"
+        style={{
+          width: '100vw',
+          height: '100vh',
+          left: 0,
+          top: 0
+        }}
+        manualstart={true}
+        aria-hidden="true"
       />
 
     </div>
