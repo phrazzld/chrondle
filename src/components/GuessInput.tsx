@@ -96,8 +96,8 @@ export const GuessInput: React.FC<GuessInputProps> = ({
   const isSubmitDisabled = disabled || remainingGuesses <= 0;
 
   return (
-    <div className={className}>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
+    <div className={`${className} mb-0`}>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row mb-0">
         {/* Clean Input Field */}
         <Input
           ref={inputRef}

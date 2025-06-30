@@ -21,6 +21,8 @@ import { LiveAnnouncer } from '@/components/ui/LiveAnnouncer';
 import { ViewportDebug } from '@/components/dev/ViewportDebug';
 import { AchievementModal } from '@/components/modals/AchievementModal';
 import { BackgroundAnimation } from '@/components/BackgroundAnimation';
+import { Timeline } from '@/components/Timeline';
+import { Footer } from '@/components/Footer';
 
 // Force dynamic rendering to prevent SSR issues with theme context
 export const dynamic = 'force-dynamic';
@@ -317,16 +319,16 @@ export default function ChronldePage() {
         aria-label="Historical guessing game"
       >
         <div className="max-w-6xl mx-auto px-6 py-6">
-          
-          {/* Debug Banner */}
-          <DebugBanner 
-            isVisible={debugMode}
-            debugParams={debugParams}
-            className="mb-6"
-          />
 
           {/* Single Column Game Layout */}
           <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
+            
+            {/* Debug Banner */}
+            <DebugBanner 
+              isVisible={debugMode}
+              debugParams={debugParams}
+              className=""
+            />
             
             {/* Game Instructions */}
             <GameInstructions 
@@ -347,6 +349,16 @@ export default function ChronldePage() {
                 onValidationError={handleValidationError}
               />
             )}
+            
+            {/* Timeline Visualization - Universal Design */}
+            <Timeline
+              minYear={-2000}
+              maxYear={new Date().getFullYear()}
+              guesses={gameLogic.gameState.guesses}
+              targetYear={gameLogic.gameState.puzzle?.year || null}
+              isGameComplete={gameLogic.isGameComplete}
+              hasWon={gameLogic.hasWon}
+            />
             
             {/* Progress Section */}
             <GameProgress
@@ -369,11 +381,11 @@ export default function ChronldePage() {
 
           </div>
 
-          {/* Bottom padding for mobile */}
-          <div className="h-20"></div>
-
         </div>
       </main>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Validation Error Feedback */}
       {validationError && (

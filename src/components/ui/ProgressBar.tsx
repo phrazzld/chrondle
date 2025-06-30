@@ -110,10 +110,9 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
 
   // Calculate filled segments count
   const filledSegments = guesses.length;
-  const hasWon = guesses.includes(targetYear);
 
   return (
-    <div className={`progress-bar-container ${hasWon ? 'progress-bar-success' : ''} ${className}`}>
+    <div className={`progress-bar-container ${className}`}>
       <div
         className="progress-segments"
         onClick={handleSegmentClick}
