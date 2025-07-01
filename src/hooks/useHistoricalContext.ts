@@ -2,70 +2,23 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { openRouterService } from '@/lib/openrouter';
-import { AI_CONFIG, STORAGE_KEYS } from '@/lib/constants';
+import { AI_CONFIG } from '@/lib/constants';
 import type { 
   AIContextState, 
-  AIContextResponse, 
-  CachedAIContext,
+  AIContextResponse,
   UseAIContextReturn,
   AIContextActions
 } from '@/lib/types/aiContext';
 
 /**
  * Custom hook for managing AI historical context
- * Follows useGameState patterns and integrates with OpenRouter service
+ * Simplified version with no client-side caching - relies on OpenRouter caching
  */
 export function useHistoricalContext(year?: number, events?: string[]): UseAIContextReturn {
   const [data, setData] = useState<AIContextResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [enabled, setEnabled] = useState(true);
-
-  // Generate cache key for the current year/events combination
-  const cacheKey = useMemo(() => {
-    if (!year || !events || events.length === 0) return null;
-    const eventsHash = events.join('|').slice(0, 50); // Truncate for manageable keys
-    return `${year}-${eventsHash}`;
-  }, [year, events]);
-
-  // Check cache for existing context
-  const getCachedContext = useCallback((key: string): AIContextResponse | null => {
-    if (typeof window === 'undefined') return null;
-    
-    try {
-      const cached = localStorage.getItem(`${STORAGE_KEYS.AI_CONTEXT_PREFIX}${key}`);
-      if (!cached) return null;
-      
-      const cachedData: CachedAIContext = JSON.parse(cached);
-      const isExpired = Date.now() - cachedData.cachedAt > AI_CONFIG.CACHE_TTL;
-      
-      if (isExpired) {
-        localStorage.removeItem(`${STORAGE_KEYS.AI_CONTEXT_PREFIX}${key}`);
-        return null;
-      }
-      
-      return cachedData.context;
-    } catch (error) {
-      console.error('Error reading AI context cache:', error);
-      return null;
-    }
-  }, []);
-
-  // Save context to cache
-  const setCachedContext = useCallback((key: string, context: AIContextResponse): void => {
-    if (typeof window === 'undefined') return;
-    
-    try {
-      const cachedData: CachedAIContext = {
-        context,
-        cachedAt: Date.now(),
-        cacheKey: key
-      };
-      localStorage.setItem(`${STORAGE_KEYS.AI_CONTEXT_PREFIX}${key}`, JSON.stringify(cachedData));
-    } catch (error) {
-      console.error('Error saving AI context cache:', error);
-    }
-  }, []);
 
   // Generate context for given year and events
   const generateContext = useCallback(async (targetYear: number, targetEvents: string[]): Promise<void> => {
@@ -75,24 +28,8 @@ export function useHistoricalContext(year?: number, events?: string[]): UseAICon
     setError(null);
     
     try {
-      // Generate cache key for this request
-      const eventsHash = targetEvents.join('|').slice(0, 50);
-      const requestCacheKey = `${targetYear}-${eventsHash}`;
-      
-      // Check cache first
-      const cached = getCachedContext(requestCacheKey);
-      if (cached) {
-        setData(cached);
-        setLoading(false);
-        return;
-      }
-      
-      // Generate new context using OpenRouter service
+      // Generate new context using OpenRouter service (relies on OpenRouter's caching)
       const response = await openRouterService.getHistoricalContext(targetYear, targetEvents);
-      
-      // Cache the response
-      setCachedContext(requestCacheKey, response);
-      
       setData(response);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to generate historical context';
@@ -101,7 +38,7 @@ export function useHistoricalContext(year?: number, events?: string[]): UseAICon
     } finally {
       setLoading(false);
     }
-  }, [enabled, getCachedContext, setCachedContext]);
+  }, [enabled]);
 
   // Clear current context and error state
   const clearContext = useCallback(() => {
@@ -132,52 +69,11 @@ export function useHistoricalContext(year?: number, events?: string[]): UseAICon
 
   // Auto-generate context when year/events change (if enabled)
   useEffect(() => {
-    if (!enabled || !year || !events || events.length === 0 || !cacheKey) return;
+    if (!enabled || !year || !events || events.length === 0) return;
     
-    // Check cache first
-    const cached = getCachedContext(cacheKey);
-    if (cached) {
-      setData(cached);
-      return;
-    }
-    
-    // Generate new context if not cached
+    // Generate context directly - no caching logic
     generateContext(year, events);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [year, events, enabled, cacheKey]); // Remove generateContext and getCachedContext from deps to prevent infinite loops
-
-  // Cleanup old cache entries on mount
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
-    const cleanupCache = () => {
-      try {
-        const keys = Object.keys(localStorage);
-        const aiContextKeys = keys.filter(key => key.startsWith(STORAGE_KEYS.AI_CONTEXT_PREFIX));
-        
-        for (const key of aiContextKeys) {
-          const cached = localStorage.getItem(key);
-          if (cached) {
-            try {
-              const cachedData: CachedAIContext = JSON.parse(cached);
-              const isExpired = Date.now() - cachedData.cachedAt > AI_CONFIG.CACHE_TTL;
-              
-              if (isExpired) {
-                localStorage.removeItem(key);
-              }
-            } catch {
-              // Remove corrupted cache entries
-              localStorage.removeItem(key);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error cleaning up AI context cache:', error);
-      }
-    };
-    
-    cleanupCache();
-  }, []);
+  }, [year, events, enabled, generateContext]);
 
   // Create actions object
   const actions: AIContextActions = useMemo(() => ({
@@ -203,31 +99,14 @@ export function useHistoricalContext(year?: number, events?: string[]): UseAICon
 
 /**
  * Hook for managing AI context settings/preferences
+ * Simplified version without localStorage persistence
  */
 export function useAIContextSettings() {
-  const [enabled, setEnabled] = useState(() => {
-    if (typeof window === 'undefined') return AI_CONFIG.FEATURE_ENABLED;
-    
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.AI_CONTEXT_CACHE);
-      return saved ? JSON.parse(saved).enabled : AI_CONFIG.FEATURE_ENABLED;
-    } catch {
-      return AI_CONFIG.FEATURE_ENABLED;
-    }
-  });
+  const [enabled, setEnabled] = useState<boolean>(AI_CONFIG.FEATURE_ENABLED);
 
   const toggleEnabled = useCallback(() => {
-    const newEnabled = !enabled;
-    setEnabled(newEnabled);
-    
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem(STORAGE_KEYS.AI_CONTEXT_CACHE, JSON.stringify({ enabled: newEnabled }));
-      } catch (error) {
-        console.error('Error saving AI context settings:', error);
-      }
-    }
-  }, [enabled]);
+    setEnabled(prev => !prev);
+  }, []);
 
   return {
     enabled,

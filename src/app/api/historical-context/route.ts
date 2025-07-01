@@ -5,7 +5,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateServerEnvironment, getOpenRouterApiKey } from '@/lib/env';
 import { AI_CONFIG } from '@/lib/constants';
-import { validateHistoricalContext, createQualityReport } from '@/lib/aiValidation';
 
 export async function POST(request: NextRequest) {
   try {
@@ -84,35 +83,12 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Validate content quality
-    const validation = validateHistoricalContext(context);
-    
-    // Log quality metrics in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log('AI Content Quality Report:');
-      console.log(createQualityReport(validation));
-    }
-    
-    // Accept content if it meets basic standards, even if not perfect
-    // This allows for some AI variability while maintaining quality
-    if (validation.score < 50) {
-      console.warn(`Low quality AI content (score: ${validation.score}):`, validation.issues);
-      return NextResponse.json(
-        { error: 'Generated content does not meet quality standards' },
-        { status: 502 }
-      );
-    }
     
     return NextResponse.json({
       context: context.trim(),
       year,
       generatedAt: new Date().toISOString(),
-      source: 'openrouter-gemini',
-      // Include quality metrics in development
-      ...(process.env.NODE_ENV === 'development' && {
-        qualityScore: validation.score,
-        validation: validation.metrics
-      })
+      source: 'openrouter-gemini'
     });
     
   } catch (error) {

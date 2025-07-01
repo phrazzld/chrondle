@@ -49,17 +49,6 @@ export interface AIContextState {
   enabled: boolean;
 }
 
-/**
- * Cached context data for localStorage
- */
-export interface CachedAIContext {
-  /** The cached context response */
-  context: AIContextResponse;
-  /** Cache timestamp for TTL validation */
-  cachedAt: number;
-  /** Cache key for identification */
-  cacheKey: string;
-}
 
 /**
  * Actions available for AI context hook

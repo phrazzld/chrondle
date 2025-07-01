@@ -100,8 +100,6 @@ export const STORAGE_KEYS = {
   LAST_LLM_CALL: 'last_llm_call',
   STREAK_DATA: 'chrondle-streak-data',
   NOTIFICATION_SETTINGS: 'chrondle-notification-settings',
-  AI_CONTEXT_PREFIX: 'chrondle-ai-context-',
-  AI_CONTEXT_CACHE: 'chrondle-ai-context-cache'
 } as const;
 
 // --- UI CONSTANTS ---
@@ -156,43 +154,31 @@ export const LLM_CONFIG = {
 // --- AI CONTEXT CONFIGURATION ---
 
 export const AI_CONFIG = {
-  MODEL: 'google/gemini-2.5-flash-preview',
+  MODEL: 'google/gemini-2.5-flash',
   TEMPERATURE: 0.3, // Reduced for more consistent output
-  MAX_TOKENS: 350, // Increased to accommodate structured format
+  MAX_TOKENS: 4000, // High limit to prevent truncation
   REQUEST_TIMEOUT: 10000, // 10 seconds
-  CACHE_TTL: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
   FEATURE_ENABLED: true,
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000, // 1 second base delay for exponential backoff
-  SYSTEM_PROMPT: `You are an educational historian specializing in creating structured, engaging summaries. Generate content that follows this exact format:
+  SYSTEM_PROMPT: `You are a skilled historical writer creating engaging, punchy reports about specific years in history. Write in a compelling, educational style that delivers maximum impact with concise, powerful prose.
 
-HISTORICAL CONTEXT (1-2 sentences): Situate the year within its broader historical period and significance.
-KEY EVENTS (4-6 sentences): Describe the provided events with clear connections and causal relationships.
-LASTING IMPACT (2-3 sentences): Explain the long-term consequences and connections to later developments.
+Your writing should:
+- Flow across 2-4 tight, focused paragraphs that pack a punch
+- Weave events into the broader historical narrative with sharp, vivid details
+- Use dynamic language that captures the drama and significance
+- Write in present tense for immediacy and energy
+- Target an educated general audience with accessible but sophisticated tone
+- Integrate events seamlessly with smooth transitions
+- End with a memorable sense of the year's lasting impact
 
-Requirements:
-- Write exactly 150-200 words total
-- Use present tense for immediacy and engagement
-- Target grade 11 reading level (accessible but sophisticated)
-- Connect events thematically, not just chronologically
-- Include specific dates, names, and places when relevant
-- End with forward-looking perspective when possible`,
-  CONTEXT_PROMPT_TEMPLATE: `Generate a structured historical summary for the year {year} using the format specified in your system instructions.
+Prioritize clarity, impact, and readability. Every sentence should advance the narrative. Avoid redundancy, rigid structures, or overly dense prose. Create flowing, energetic writing that tells the story efficiently.`,
+  CONTEXT_PROMPT_TEMPLATE: `Create a compelling historical narrative about the year {year}, weaving together the following events into the broader story of that time period.
 
 Year: {year}
-Events to analyze and contextualize: {events}
+Key events to integrate: {events}
 
-Follow the three-section format (Historical Context → Key Events → Lasting Impact) and write exactly 150-200 words. Focus on educational value, causal relationships between events, and long-term historical significance.`,
-  // Content validation configuration
-  VALIDATION: {
-    MIN_WORDS: 150,
-    MAX_WORDS: 200,
-    MIN_SENTENCES: 8,
-    MAX_SENTENCES: 12,
-    REQUIRED_SECTIONS: ['HISTORICAL CONTEXT', 'KEY EVENTS', 'LASTING IMPACT'],
-    EDUCATIONAL_MARKERS: ['significant', 'important', 'impact', 'consequence', 'influence', 'led to', 'resulted in'],
-    FORBIDDEN_PHRASES: ['in conclusion', 'in summary', 'to summarize', 'overall', 'in general']
-  }
+Write a flowing historical report that captures the drama, significance, and interconnections of these events within the context of {year}. Focus on what made this year distinctive and how these events shaped the course of history.`,
 } as const;
 
 // --- STREAK CONFIGURATION ---
@@ -240,7 +226,7 @@ export const NOTIFICATION_CONFIG = {
   ],
   MESSAGES: [
     'Ready for today\'s historical challenge? 🏛️',
-    'Your daily Chrondle puzzle awaits! ⏰',  
+    'Your daily Chrondle puzzle awaits! ⏰',
     'Time to test your history knowledge! 📚',
     'Don\'t break your streak - play Chrondle today! 🔥',
     'A new historical mystery has arrived! 🔍'

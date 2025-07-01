@@ -7,7 +7,6 @@ import type {
   AIContextResponse,
   AIContextError,
   AIContextState,
-  CachedAIContext,
   AIContextActions,
   UseAIContextReturn,
   AIContextDisplayProps
@@ -83,22 +82,6 @@ describe('AI Context Types', () => {
     expect(loadedState.data?.context).toBe('Test context');
   });
 
-  it('should define correct CachedAIContext structure', () => {
-    const cached: CachedAIContext = {
-      context: {
-        context: 'Cached context',
-        year: 1969,
-        generatedAt: '2024-01-01T00:00:00Z',
-        source: 'test'
-      },
-      cachedAt: Date.now(),
-      cacheKey: 'context-1969-hash'
-    };
-
-    expect(typeof cached.context).toBe('object');
-    expect(typeof cached.cachedAt).toBe('number');
-    expect(typeof cached.cacheKey).toBe('string');
-  });
 
   it('should define correct AIContextActions structure', () => {
     const mockActions: AIContextActions = {
