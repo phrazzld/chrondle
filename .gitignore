@@ -48,7 +48,13 @@ next-env.d.ts
 
 # Temporary data files
 temp-data/
-todo.md
-align-context.md
-backlog.md
-task.md
+TODO.md
+ALIGN-CONTEXT.md
+BACKLOG.md
+TASK.md
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+
+thinktank.log
+/thinktank_*/

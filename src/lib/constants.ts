@@ -99,7 +99,7 @@ export const STORAGE_KEYS = {
   OPENAI_API_KEY: 'openai_api_key',
   LAST_LLM_CALL: 'last_llm_call',
   STREAK_DATA: 'chrondle-streak-data',
-  NOTIFICATION_SETTINGS: 'chrondle-notification-settings'
+  NOTIFICATION_SETTINGS: 'chrondle-notification-settings',
 } as const;
 
 // --- UI CONSTANTS ---
@@ -151,6 +151,36 @@ export const LLM_CONFIG = {
   HINT_PROMPT_TEMPLATE: 'Convert this historical event into a clear, engaging hint for a year-guessing game. Make it informative but don\'t include the year or obvious time markers. Keep it under 20 words: {description}'
 } as const;
 
+// --- AI CONTEXT CONFIGURATION ---
+
+export const AI_CONFIG = {
+  MODEL: 'google/gemini-2.5-flash',
+  TEMPERATURE: 0.3, // Reduced for more consistent output
+  MAX_TOKENS: 4000, // High limit to prevent truncation
+  REQUEST_TIMEOUT: 10000, // 10 seconds
+  FEATURE_ENABLED: true,
+  RETRY_ATTEMPTS: 3,
+  RETRY_DELAY: 1000, // 1 second base delay for exponential backoff
+  SYSTEM_PROMPT: `You are a skilled historical writer creating engaging, punchy reports about specific years in history. Write in a compelling, educational style that delivers maximum impact with concise, powerful prose.
+
+Your writing should:
+- Flow across 2-4 tight, focused paragraphs that pack a punch
+- Weave events into the broader historical narrative with sharp, vivid details
+- Use dynamic language that captures the drama and significance
+- Write in present tense for immediacy and energy
+- Target an educated general audience with accessible but sophisticated tone
+- Integrate events seamlessly with smooth transitions
+- End with a memorable sense of the year's lasting impact
+
+Prioritize clarity, impact, and readability. Every sentence should advance the narrative. Avoid redundancy, rigid structures, or overly dense prose. Create flowing, energetic writing that tells the story efficiently.`,
+  CONTEXT_PROMPT_TEMPLATE: `Create a compelling historical narrative about the year {year}, weaving together the following events into the broader story of that time period.
+
+Year: {year}
+Key events to integrate: {events}
+
+Write a flowing historical report that captures the drama, significance, and interconnections of these events within the context of {year}. Focus on what made this year distinctive and how these events shaped the course of history.`,
+} as const;
+
 // --- STREAK CONFIGURATION ---
 
 export const STREAK_CONFIG = {
@@ -196,7 +226,7 @@ export const NOTIFICATION_CONFIG = {
   ],
   MESSAGES: [
     'Ready for today\'s historical challenge? 🏛️',
-    'Your daily Chrondle puzzle awaits! ⏰',  
+    'Your daily Chrondle puzzle awaits! ⏰',
     'Time to test your history knowledge! 📚',
     'Don\'t break your streak - play Chrondle today! 🔥',
     'A new historical mystery has arrived! 🔍'

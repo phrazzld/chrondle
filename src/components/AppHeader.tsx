@@ -9,11 +9,13 @@ import { getStreakColorClasses } from '@/lib/utils';
 interface AppHeaderProps {
   onShowSettings: () => void;
   currentStreak?: number;
+  isDebugMode?: boolean;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
   onShowSettings,
-  currentStreak
+  currentStreak,
+  isDebugMode = false
 }) => {
   const streakColors = currentStreak ? getStreakColorClasses(currentStreak) : null;
   return (
@@ -25,6 +27,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             <h1 className="text-2xl md:text-3xl font-heading font-bold text-primary m-0 flex items-center">
               <span className="sm:hidden flex items-center justify-center w-10 h-10">C</span>
               <span className="hidden sm:inline">CHRONDLE</span>
+              {isDebugMode && (
+                <span 
+                  className="ml-2 w-2 h-2 rounded-full bg-orange-600 opacity-75"
+                  title="Debug mode active"
+                  aria-label="Debug mode indicator"
+                />
+              )}
             </h1>
           </div>
 

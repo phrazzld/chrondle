@@ -16,6 +16,7 @@ export function useShareGame(
   guesses: number[],
   targetYear: number,
   hasWon: boolean,
+  puzzleEvents?: string[],
   options?: UseShareGameOptions
 ) {
   const { onSuccess, onError, detailed = false } = options || {};
@@ -23,8 +24,8 @@ export function useShareGame(
   const [shareStatus, setShareStatus] = useState<ShareStatus>('idle');
   
   // Generate both compact and detailed share text
-  const compactShareText = generateShareText(guesses, targetYear, hasWon);
-  const detailedShareText = generateShareText(guesses, targetYear, hasWon);
+  const compactShareText = generateShareText(guesses, targetYear, hasWon, puzzleEvents);
+  const detailedShareText = generateShareText(guesses, targetYear, hasWon, puzzleEvents);
   const emojiBarcode = generateEmojiTimeline(guesses, targetYear);
   
   // Reset status after delay

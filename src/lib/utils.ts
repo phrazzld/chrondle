@@ -40,7 +40,7 @@ export function formatCountdown(milliseconds: number): string {
 }
 
 
-export function generateShareText(guesses: number[], targetYear: number, hasWon: boolean): string {
+export function generateShareText(guesses: number[], targetYear: number, hasWon: boolean, puzzleEvents?: string[]): string {
   const today = new Date();
   const dateString = today.toLocaleDateString('en-US', { 
     year: 'numeric', 
@@ -51,8 +51,14 @@ export function generateShareText(guesses: number[], targetYear: number, hasWon:
   const emojiTimeline = generateEmojiTimeline(guesses, targetYear);
   const score = hasWon ? `${guesses.length}/6` : 'X/6';
   
-  let result = `Chrondle: ${dateString} - ${score}\n\n`;
-  result += emojiTimeline;
+  let result = `Chrondle: ${dateString} - ${score}\n`;
+  
+  // Add first hint if available (directly below the top line)
+  if (puzzleEvents && puzzleEvents.length > 0) {
+    result += `${puzzleEvents[0]}\n`;
+  }
+  
+  result += `\n${emojiTimeline}`;
   result += '\n\nhttps://www.chrondle.app';
   
   return result;
