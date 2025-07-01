@@ -143,6 +143,7 @@ export function useHistoricalContext(year?: number, events?: string[]): UseAICon
     
     // Generate new context if not cached
     generateContext(year, events);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year, events, enabled, cacheKey]); // Remove generateContext and getCachedContext from deps to prevent infinite loops
 
   // Cleanup old cache entries on mount
