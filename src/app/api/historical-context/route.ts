@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateServerEnvironment, getOpenRouterApiKey } from '@/lib/env';
 import { AI_CONFIG } from '@/lib/constants';
+import { createTimeoutSignal } from '@/lib/fetch-utils';
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,31 +38,44 @@ export async function POST(request: NextRequest) {
       .replace('{year}', year.toString())
       .replace('{events}', eventsText);
     
-    const openRouterResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://chrondle.com', // Optional: Your site URL
-        'X-Title': 'Chrondle Historical Context', // Optional: Your app name
-      },
-      body: JSON.stringify({
-        model: AI_CONFIG.MODEL,
-        messages: [
-          {
-            role: 'system',
-            content: AI_CONFIG.SYSTEM_PROMPT
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: AI_CONFIG.TEMPERATURE,
-        max_tokens: AI_CONFIG.MAX_TOKENS,
-      }),
-      signal: AbortSignal.timeout(AI_CONFIG.REQUEST_TIMEOUT)
-    });
+    // Create timeout signal compatible with all runtimes
+    const [timeoutSignal, cleanupTimeout] = createTimeoutSignal(AI_CONFIG.REQUEST_TIMEOUT);
+    
+    let openRouterResponse;
+    try {
+      openRouterResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://chrondle.com', // Optional: Your site URL
+          'X-Title': 'Chrondle Historical Context', // Optional: Your app name
+        },
+        body: JSON.stringify({
+          model: AI_CONFIG.MODEL,
+          messages: [
+            {
+              role: 'system',
+              content: AI_CONFIG.SYSTEM_PROMPT
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: AI_CONFIG.TEMPERATURE,
+          max_tokens: AI_CONFIG.MAX_TOKENS,
+        }),
+        signal: timeoutSignal
+      });
+      
+      // Clean up timeout on successful completion
+      cleanupTimeout();
+    } catch (fetchError) {
+      // Clean up timeout on any error
+      cleanupTimeout();
+      throw fetchError;
+    }
     
     if (!openRouterResponse.ok) {
       const errorText = await openRouterResponse.text();
@@ -95,7 +109,7 @@ export async function POST(request: NextRequest) {
     console.error('Historical context API error:', error);
     
     // Handle timeout errors specifically
-    if (error instanceof Error && error.name === 'TimeoutError') {
+    if (error instanceof Error && error.name === 'AbortError') {
       return NextResponse.json(
         { error: 'Request timed out while generating context' },
         { status: 504 }

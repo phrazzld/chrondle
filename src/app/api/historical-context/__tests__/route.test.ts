@@ -250,6 +250,67 @@ These events symbolize 1969's dual legacy of technological achievement and cultu
       expect(response.status).toBe(500);
       expect(data.error).toBe('Failed to generate historical context');
     });
+
+    it('should handle request timeout (AbortError)', async () => {
+      // Mock fetch to immediately reject with AbortError (simulating timeout)
+      const abortError = new Error('The operation was aborted');
+      abortError.name = 'AbortError';
+      mockFetch.mockRejectedValueOnce(abortError);
+      
+      const requestData = {
+        year: 1969,
+        events: ['Moon landing']
+      };
+
+      const request = new NextRequest('http://localhost:3000/api/historical-context', {
+        method: 'POST',
+        body: JSON.stringify(requestData),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(504);
+      expect(data.error).toBe('Request timed out while generating context');
+    });
+
+    it('should cleanup timeout on successful request', async () => {
+      vi.useFakeTimers();
+      const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout');
+      
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          choices: [{
+            message: {
+              content: 'Historical context for 1969'
+            }
+          }]
+        })
+      });
+      
+      const requestData = {
+        year: 1969,
+        events: ['Moon landing']
+      };
+
+      const request = new NextRequest('http://localhost:3000/api/historical-context', {
+        method: 'POST',
+        body: JSON.stringify(requestData),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      await POST(request);
+      
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+      vi.useRealTimers();
+    });
   });
 
   describe('GET /api/historical-context', () => {

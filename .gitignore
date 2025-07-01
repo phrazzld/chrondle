@@ -55,3 +55,6 @@ TASK.md
 
 # TypeScript build info
 tsconfig.tsbuildinfo
+
+thinktank.log
+/thinktank_*/
