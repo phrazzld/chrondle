@@ -30,7 +30,8 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
   const { shareGame, shareStatus } = useShareGame(
     guesses,
     targetYear || 0,
-    hasWon
+    hasWon,
+    puzzleEvents
   );
 
   // Active game state - show normal instructions
