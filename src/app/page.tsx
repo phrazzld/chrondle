@@ -15,7 +15,6 @@ import { GameProgress } from '@/components/GameProgress';
 import { HintsDisplay } from '@/components/HintsDisplay';
 import { GuessInput } from '@/components/GuessInput';
 import { GameInstructions } from '@/components/GameInstructions';
-import { DebugBanner } from '@/components/DebugBanner';
 import { AppHeader } from '@/components/AppHeader';
 import { LiveAnnouncer } from '@/components/ui/LiveAnnouncer';
 import { AchievementModal } from '@/components/modals/AchievementModal';
@@ -34,7 +33,6 @@ export default function ChronldePage() {
   
   // Debug state
   const [debugMode, setDebugMode] = useState(false);
-  const [debugParams, setDebugParams] = useState('');
   
   // Confetti ref for victory celebration
   const confettiRef = useRef<ConfettiRef>(null);
@@ -174,12 +172,7 @@ export default function ChronldePage() {
     const isDebug = urlParams.get('debug') === 'true';
     setDebugMode(isDebug);
     
-    if (isDebug) {
-      const activeParams = [];
-      if (urlParams.get('year')) activeParams.push(`year=${urlParams.get('year')}`);
-      if (urlParams.get('scenario')) activeParams.push(`scenario=${urlParams.get('scenario')}`);
-      setDebugParams(activeParams.length ? activeParams.join(' | ') : 'Basic debug mode');
-    }
+    // Debug parameters are handled by the useGameState hook
 
     // Register service worker for notifications
     if ('serviceWorker' in navigator) {
@@ -204,6 +197,7 @@ export default function ChronldePage() {
   const closeHintReviewModal = useCallback(() => {
     setHintReviewModal(null);
   }, []);
+
 
 
   // Gesture navigation for reviewing hints
@@ -365,6 +359,7 @@ export default function ChronldePage() {
       <AppHeader 
         onShowSettings={() => setShowSettingsModal(true)}
         currentStreak={streakData.currentStreak}
+        isDebugMode={debugMode}
       />
 
       {/* Main Content Area */}
@@ -379,13 +374,6 @@ export default function ChronldePage() {
           {/* Single Column Game Layout */}
           <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
             
-            {/* Debug Banner */}
-            <DebugBanner 
-              isVisible={debugMode}
-              debugParams={debugParams}
-              className=""
-            />
-            
             {/* Game Instructions */}
             <GameInstructions 
               isGameComplete={gameLogic.isGameComplete}
@@ -394,6 +382,7 @@ export default function ChronldePage() {
               guesses={gameLogic.gameState.guesses}
               timeString={timeString}
               currentStreak={streakData.currentStreak}
+              puzzleEvents={gameLogic.gameState.puzzle?.events || []}
             />
             
             {/* Input Section - Hidden when game complete */}
@@ -434,6 +423,7 @@ export default function ChronldePage() {
               isLoading={gameLogic.isLoading}
               error={gameLogic.error}
             />
+
 
           </div>
 

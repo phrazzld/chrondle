@@ -99,7 +99,9 @@ export const STORAGE_KEYS = {
   OPENAI_API_KEY: 'openai_api_key',
   LAST_LLM_CALL: 'last_llm_call',
   STREAK_DATA: 'chrondle-streak-data',
-  NOTIFICATION_SETTINGS: 'chrondle-notification-settings'
+  NOTIFICATION_SETTINGS: 'chrondle-notification-settings',
+  AI_CONTEXT_PREFIX: 'chrondle-ai-context-',
+  AI_CONTEXT_CACHE: 'chrondle-ai-context-cache'
 } as const;
 
 // --- UI CONSTANTS ---
@@ -149,6 +151,48 @@ export const LLM_CONFIG = {
   MAX_TOKENS: 50,
   SYSTEM_PROMPT: 'You are a helpful assistant that creates engaging, concise hints for historical guessing games.',
   HINT_PROMPT_TEMPLATE: 'Convert this historical event into a clear, engaging hint for a year-guessing game. Make it informative but don\'t include the year or obvious time markers. Keep it under 20 words: {description}'
+} as const;
+
+// --- AI CONTEXT CONFIGURATION ---
+
+export const AI_CONFIG = {
+  MODEL: 'google/gemini-2.5-flash-preview',
+  TEMPERATURE: 0.3, // Reduced for more consistent output
+  MAX_TOKENS: 350, // Increased to accommodate structured format
+  REQUEST_TIMEOUT: 10000, // 10 seconds
+  CACHE_TTL: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
+  FEATURE_ENABLED: true,
+  RETRY_ATTEMPTS: 3,
+  RETRY_DELAY: 1000, // 1 second base delay for exponential backoff
+  SYSTEM_PROMPT: `You are an educational historian specializing in creating structured, engaging summaries. Generate content that follows this exact format:
+
+HISTORICAL CONTEXT (1-2 sentences): Situate the year within its broader historical period and significance.
+KEY EVENTS (4-6 sentences): Describe the provided events with clear connections and causal relationships.
+LASTING IMPACT (2-3 sentences): Explain the long-term consequences and connections to later developments.
+
+Requirements:
+- Write exactly 150-200 words total
+- Use present tense for immediacy and engagement
+- Target grade 11 reading level (accessible but sophisticated)
+- Connect events thematically, not just chronologically
+- Include specific dates, names, and places when relevant
+- End with forward-looking perspective when possible`,
+  CONTEXT_PROMPT_TEMPLATE: `Generate a structured historical summary for the year {year} using the format specified in your system instructions.
+
+Year: {year}
+Events to analyze and contextualize: {events}
+
+Follow the three-section format (Historical Context → Key Events → Lasting Impact) and write exactly 150-200 words. Focus on educational value, causal relationships between events, and long-term historical significance.`,
+  // Content validation configuration
+  VALIDATION: {
+    MIN_WORDS: 150,
+    MAX_WORDS: 200,
+    MIN_SENTENCES: 8,
+    MAX_SENTENCES: 12,
+    REQUIRED_SECTIONS: ['HISTORICAL CONTEXT', 'KEY EVENTS', 'LASTING IMPACT'],
+    EDUCATIONAL_MARKERS: ['significant', 'important', 'impact', 'consequence', 'influence', 'led to', 'resulted in'],
+    FORBIDDEN_PHRASES: ['in conclusion', 'in summary', 'to summarize', 'overall', 'in general']
+  }
 } as const;
 
 // --- STREAK CONFIGURATION ---
