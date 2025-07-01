@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     const { year, events } = body;
     
     // Basic validation
-    if (!year || typeof year !== 'number') {
+    if (typeof year !== 'number' || isNaN(year)) {
       return NextResponse.json(
         { error: 'Year parameter is required and must be a number' },
         { status: 400 }

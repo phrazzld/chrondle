@@ -78,6 +78,7 @@ export const HistoricalContextCard: React.FC<HistoricalContextCardProps> = ({
       aiContext.actions.retryGeneration();
     } else if (!aiContext.data && !aiContext.loading && year && events.length > 0) {
       if (isDebugMode) console.log('[HistoricalContextCard] Generating context for first time');
+      setIsExpanded(true); // Expand immediately to show loading state
       aiContext.actions.generateContext(year, events);
     } else if (aiContext.data) {
       // Data exists - toggle between expanded/collapsed
