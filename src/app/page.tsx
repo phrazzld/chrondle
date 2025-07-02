@@ -27,39 +27,39 @@ import { Confetti, ConfettiRef } from '@/components/magicui/confetti';
 export const dynamic = 'force-dynamic';
 
 export default function ChronldePage() {
-  
+
   // SSR state
   const [mounted, setMounted] = useState(false);
-  
+
   // Debug state
   const [debugMode, setDebugMode] = useState(false);
-  
+
   // Confetti ref for victory celebration
   const confettiRef = useRef<ConfettiRef>(null);
-  
+
   // Game state management using custom hook
   const gameLogic = useGameState(debugMode);
-  
+
   // Streak system
-  const { 
-    streakData, 
-    updateStreak, 
-    hasNewAchievement, 
-    newAchievement, 
-    clearNewAchievement 
+  const {
+    streakData,
+    updateStreak,
+    hasNewAchievement,
+    newAchievement,
+    clearNewAchievement
   } = useStreak();
-  
+
   // Countdown for next puzzle
   const { timeString } = useCountdown();
-  
+
   // UI state
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [validationError, setValidationError] = useState('');
-  
+
   // Accessibility announcements
   const [announcement, setAnnouncement] = useState('');
   const [lastGuessCount, setLastGuessCount] = useState(0);
-  
+
   // Hint review modal state
   const [hintReviewModal, setHintReviewModal] = useState<{
     isOpen: boolean;
@@ -78,13 +78,13 @@ export default function ChronldePage() {
       }
     }
   }, [gameLogic.isGameComplete, gameLogic.gameState.puzzle, gameLogic.hasWon, updateStreak, debugMode]);
-  
+
   // Trigger confetti celebration on victory
   useEffect(() => {
     if (gameLogic.hasWon && gameLogic.isGameComplete && mounted && confettiRef.current) {
       // Check for reduced motion preference
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      
+
       if (prefersReducedMotion) {
         // Simple, less intensive confetti for users who prefer reduced motion
         const triggerReducedConfetti = async () => {
@@ -113,7 +113,7 @@ export default function ChronldePage() {
               origin: { x: 0.5, y: 0.6 },
               colors: ['#d4a574', '#27ae60', '#3498db', '#f39c12']
             });
-            
+
             // Second burst with different spread
             setTimeout(async () => {
               await confettiRef.current?.fire({
@@ -131,17 +131,17 @@ export default function ChronldePage() {
       }
     }
   }, [gameLogic.hasWon, gameLogic.isGameComplete, mounted]);
-  
+
 
   // Announce guess feedback for screen readers
   useEffect(() => {
     const currentGuessCount = gameLogic.gameState.guesses.length;
-    
+
     // Only announce when a new guess has been made
     if (currentGuessCount > lastGuessCount && currentGuessCount > 0 && gameLogic.gameState.puzzle) {
       const latestGuess = gameLogic.gameState.guesses[currentGuessCount - 1];
       const targetYear = gameLogic.gameState.puzzle.year;
-      
+
       if (latestGuess === targetYear) {
         setAnnouncement(`Correct! The year was ${formatYear(targetYear)}. Congratulations!`);
       } else {
@@ -154,7 +154,7 @@ export default function ChronldePage() {
         const cleanDirection = directionInfo.direction.toLowerCase().replace('▲', '').replace('▼', '').trim();
         setAnnouncement(`${formatYear(latestGuess)} is ${cleanDirection}. ${enhancedFeedback.encouragement}${enhancedFeedback.historicalHint ? ` ${enhancedFeedback.historicalHint}` : ''}${enhancedFeedback.progressMessage ? ` ${enhancedFeedback.progressMessage}` : ''}`);
       }
-      
+
       setLastGuessCount(currentGuessCount);
     }
   }, [gameLogic.gameState.guesses, gameLogic.gameState.puzzle, lastGuessCount]);
@@ -167,11 +167,11 @@ export default function ChronldePage() {
   // Initialize game on mount
   useEffect(() => {
     if (!mounted) return;
-    
+
     const urlParams = new URLSearchParams(window.location.search);
     const isDebug = urlParams.get('debug') === 'true';
     setDebugMode(isDebug);
-    
+
     // Debug parameters are handled by the useGameState hook
 
     // Register service worker for notifications
@@ -206,7 +206,7 @@ export default function ChronldePage() {
 
     const currentIndex = hintReviewModal?.guessNumber ? hintReviewModal.guessNumber - 1 : 0;
     const maxIndex = gameLogic.gameState.guesses.length - 1;
-    
+
     let newIndex: number;
     if (direction === 'prev') {
       newIndex = currentIndex > 0 ? currentIndex - 1 : maxIndex;
@@ -216,7 +216,7 @@ export default function ChronldePage() {
 
     const guess = gameLogic.gameState.guesses[newIndex];
     const hint = gameLogic.gameState.puzzle.events[newIndex + 1] || 'No more hints available.';
-    
+
     setHintReviewModal({
       isOpen: true,
       guessNumber: newIndex + 1,
@@ -231,7 +231,7 @@ export default function ChronldePage() {
 
     const guess = gameLogic.gameState.guesses[index];
     const hint = gameLogic.gameState.puzzle.events[index + 1] || 'No more hints available.';
-    
+
     setHintReviewModal({
       isOpen: true,
       guessNumber: index + 1,
@@ -257,7 +257,7 @@ export default function ChronldePage() {
   if (gameLogic.isLoading) {
     return (
       <div className="min-h-screen" style={{ background: 'var(--background)' }}>
-        <AppHeader 
+        <AppHeader
           onShowSettings={() => setShowSettingsModal(true)}
           currentStreak={streakData.currentStreak}
         />
@@ -266,7 +266,7 @@ export default function ChronldePage() {
         <main className="min-h-screen">
           <div className="max-w-6xl mx-auto px-6 py-6">
             <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
-            
+
               {/* Loading Instructions */}
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-foreground mb-2">
@@ -274,7 +274,7 @@ export default function ChronldePage() {
                 </h2>
                 <div className="h-4 bg-muted animate-pulse rounded w-2/3 mx-auto"></div>
               </div>
-              
+
               {/* Loading Input */}
               <div className="space-y-3">
                 <div className="w-full p-3 text-2xl text-left font-bold h-16 rounded-lg border-2 bg-input border-border opacity-50 flex items-center">
@@ -284,7 +284,7 @@ export default function ChronldePage() {
                   Submit
                 </Button>
               </div>
-              
+
               {/* Loading Progress */}
               <div className="flex justify-center gap-2 py-2">
                 {Array.from({ length: 6 }, (_, i) => (
@@ -314,7 +314,7 @@ export default function ChronldePage() {
                     </div>
                   </div>
                 </Card>
-                
+
                 {/* Loading Placeholder Hints */}
                 {Array.from({ length: 5 }, (_, i) => (
                   <Card key={i} className="bg-muted/20 border-dashed border-muted-foreground/30">
@@ -339,31 +339,31 @@ export default function ChronldePage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
-      
+
       {/* Background Animation */}
       <BackgroundAnimation
         guesses={gameLogic.gameState.guesses}
         targetYear={gameLogic.gameState.puzzle?.year || null}
         isGameOver={gameLogic.isGameComplete}
       />
-      
+
       {/* Skip Navigation Link */}
-      <a 
+      <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-white p-2 rounded-lg border-2 border-primary text-primary font-semibold"
         tabIndex={1}
       >
         Skip to main content
       </a>
-      
-      <AppHeader 
+
+      <AppHeader
         onShowSettings={() => setShowSettingsModal(true)}
         currentStreak={streakData.currentStreak}
         isDebugMode={debugMode}
       />
 
       {/* Main Content Area */}
-      <main 
+      <main
         id="main-content"
         className={`min-h-screen ${gameLogic.gameState.guesses.length > 0 ? 'gesture-enabled' : ''}`}
         role="main"
@@ -373,9 +373,9 @@ export default function ChronldePage() {
 
           {/* Single Column Game Layout */}
           <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
-            
+
             {/* Game Instructions */}
-            <GameInstructions 
+            <GameInstructions
               isGameComplete={gameLogic.isGameComplete}
               hasWon={gameLogic.hasWon}
               targetYear={gameLogic.gameState.puzzle?.year}
@@ -384,7 +384,7 @@ export default function ChronldePage() {
               currentStreak={streakData.currentStreak}
               puzzleEvents={gameLogic.gameState.puzzle?.events || []}
             />
-            
+
             {/* Input Section - Hidden when game complete */}
             {!gameLogic.isGameComplete && (
               <GuessInput
@@ -394,7 +394,7 @@ export default function ChronldePage() {
                 onValidationError={handleValidationError}
               />
             )}
-            
+
             {/* Timeline Visualization - Universal Design */}
             <Timeline
               minYear={-2000}
@@ -404,7 +404,7 @@ export default function ChronldePage() {
               isGameComplete={gameLogic.isGameComplete}
               hasWon={gameLogic.hasWon}
             />
-            
+
             {/* Progress Section */}
             <GameProgress
               currentHintIndex={gameLogic.currentHintIndex}
@@ -412,7 +412,7 @@ export default function ChronldePage() {
               isGameComplete={gameLogic.isGameComplete}
               guessCount={gameLogic.gameState.guesses.length}
             />
-            
+
             {/* Hints Section */}
             <HintsDisplay
               events={gameLogic.gameState.puzzle?.events || []}
@@ -435,7 +435,7 @@ export default function ChronldePage() {
 
       {/* Validation Error Feedback */}
       {validationError && (
-        <div 
+        <div
           className="fixed bottom-6 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg text-white font-medium shadow-lg z-50"
           style={{ background: 'var(--error)' }}
         >
@@ -454,7 +454,7 @@ export default function ChronldePage() {
         onClose={() => setShowSettingsModal(false)}
       />
 
-      
+
       {/* Hint Review Modal */}
       {hintReviewModal && (
         <HintReviewModal

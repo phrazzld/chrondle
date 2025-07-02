@@ -48,7 +48,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               >
                 <Flame className={`w-4 h-4 ${streakColors.textColor}`} />
                 <span className={`text-sm font-accent font-bold ${streakColors.textColor} whitespace-nowrap`}>
-                  {currentStreak} day streak
+                  <span className="hidden sm:inline">{currentStreak} day streak</span>
+                  <span className="sm:hidden">{currentStreak}</span>
                 </span>
               </div>
             )}

@@ -27,8 +27,9 @@ export const StreakIndicator: React.FC<StreakIndicatorProps> = ({
       <div 
         className="flex items-center gap-1 px-2 py-1 rounded-md text-sm font-medium transition-all duration-200 touch-target-min"
         style={{ 
-          background: hasActiveStreak ? 'var(--primary)' : 'var(--muted-foreground)',
-          color: hasActiveStreak ? 'white' : 'var(--background)'
+          background: hasActiveStreak ? 'var(--primary)' : 'var(--input)',
+          color: hasActiveStreak ? 'white' : 'var(--foreground)',
+          border: hasActiveStreak ? 'none' : '1px solid var(--border)'
         }}
         title={`Current streak: ${current} day${current !== 1 ? 's' : ''}`}
         aria-label={`Current streak: ${current} day${current !== 1 ? 's' : ''}`}

@@ -26,15 +26,7 @@ export const HistoricalContextCard: React.FC<HistoricalContextCardProps> = ({
   // Debug mode check (only in development)
   const isDebugMode = process.env.NODE_ENV === 'development' && typeof window !== 'undefined' && window.location.search.includes('debug=true');
 
-  // Auto-expand when content becomes available (ONLY if user hasn't interacted)
-  useEffect(() => {
-    if (aiContext.data && !isExpanded && !aiContext.error && !hasUserInteracted) {
-      if (isDebugMode) {
-        console.log('[HistoricalContextCard] Auto-expanding because data became available');
-      }
-      setIsExpanded(true);
-    }
-  }, [aiContext.data, aiContext.error, hasUserInteracted, isDebugMode, isExpanded]);
+  // Removed auto-expansion - user must manually expand to view content
 
   // Save expansion preference and interaction state to sessionStorage
   useEffect(() => {

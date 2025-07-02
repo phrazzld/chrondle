@@ -84,7 +84,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
 
   const getShareButtonStyles = () => {
     const baseStyles = "flex-1 py-3 px-4 font-semibold text-sm transition-all duration-300 rounded-lg";
-    
+
     switch (shareStatus) {
       case 'success':
         return `${baseStyles} bg-green-500 text-white hover:bg-green-600`;
@@ -97,7 +97,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
 
 
   return (
-    <div className={`text-center mb-1 ${className}`}>
+    <div className={`mb-1 ${className}`}>
       {/* Answer Reveal Section - Compact for Loss State */}
       {!hasWon && targetYear && (
         <div className="mb-6 w-full flex items-center gap-4 p-6 bg-gradient-to-br from-red-500/5 to-red-600/10 border border-red-500/20 rounded-xl">
@@ -109,7 +109,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
               {formatYear(targetYear)}
             </div>
           </div>
-          
+
           <div className="text-sm font-medium text-red-600 dark:text-red-400">
             Better luck tomorrow!
           </div>
@@ -121,13 +121,13 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
         <div className="mb-6 w-full flex items-center gap-4 p-6 bg-gradient-to-br from-green-500/5 to-green-600/10 border border-green-500/20 rounded-xl">
           <div className="flex flex-col items-start flex-1">
             <div className="text-xs text-green-600 dark:text-green-400 uppercase tracking-wide font-medium mb-1">
-              Correct! The year was
+              The year was
             </div>
             <div className="text-2xl sm:text-3xl font-bold text-green-700 dark:text-green-300">
               {formatYear(targetYear)}
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -139,7 +139,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
 
       {/* Consolidated Single Row Layout */}
       <div className="w-full flex items-center gap-4 p-6 bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl mb-4">
-        
+
         {/* Countdown Section */}
         <div className="flex flex-col items-start flex-1">
           <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">
@@ -149,7 +149,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
             {timeString || '00:00:00'}
           </div>
         </div>
-        
+
         {/* Share Button Section */}
         <div className="flex gap-3">
           {/* Share Button */}
@@ -163,7 +163,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
             {getShareButtonContent()}
           </RippleButton>
         </div>
-        
+
       </div>
 
       {/* Historical Context Card - Below the next puzzle section */}
