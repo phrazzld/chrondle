@@ -1,10 +1,26 @@
 {
   "meta": {
     "version": "4.4",
-    "total_puzzles": 161,
-    "date_range": "-776-2010"
+    "total_puzzles": 182,
+    "date_range": "-1200-2010"
   },
   "puzzles": {
+    "-1200": [
+      "The Hittite Empire in Anatolia collapses under pressure from invaders.",
+      "The city of Ugarit in Syria is destroyed by the Sea Peoples.",
+      "Pharaoh Ramesses III defends Egypt against a major invasion.",
+      "The Mycenaean civilization in Greece suffers widespread destruction.",
+      "The Olmec civilization flourishes at its center of San Lorenzo.",
+      "The Middle Assyrian Empire rises to prominence in Mesopotamia."
+    ],
+    "-814": [
+      "Queen Dido flees her brother Pygmalion, King of Tyre.",
+      "Phoenician colonists establish the city of Kart-hadasht.",
+      "Byrsa Hill becomes the citadel for the new settlement.",
+      "A legendary oxhide demarcates the initial size of Carthage.",
+      "The new city is founded on the coast of modern Tunisia.",
+      "Elissa of Tyre leads her followers to establish a new home."
+    ],
     "-776": [
       "Coroebus of Elis, a cook, wins first recorded footrace",
       "Sacred truce allows safe passage for athletes across Greece",
@@ -12,22 +28,6 @@
       "Stadion race measures exactly 192 meters in length",
       "Olympiad becomes standard Greek chronological measurement",
       "First Olympic Games establish athletic competition tradition"
-    ],
-    "-1200": [
-      "The Late Bronze Age collapse begins in the Eastern Mediterranean.",
-      "The Hittite Empire in Anatolia collapses.",
-      "The city of Troy is destroyed, marking the end of the Trojan War.",
-      "The Olmec civilization emerges in Mesoamerica.",
-      "The Phoenicians begin to establish trade routes across the Mediterranean.",
-      "The use of iron for tools and weapons becomes more widespread."
-    ],
-    "-750": [
-      "The Etruscan civilization begins to flourish in central Italy.",
-      "Greek colonists begin to settle in southern Italy and Sicily.",
-      "The city of Cumae is founded by Greek colonists.",
-      "King Xie of the Zhou Dynasty is killed, ending a civil war.",
-      "The Assyrian Empire continues its expansion under Ashur-dan III.",
-      "The first recorded solar eclipse is observed by the Babylonians."
     ],
     "-753": [
       "Twin brothers debate which hilltop to choose for settlement",
@@ -37,14 +37,21 @@
       "Romulus kills Remus and founds city on seven hills",
       "Rome established by Romulus becoming eternal city"
     ],
+    "-750": [
+      "The city of Cumae is founded by Greek colonists in Italy.",
+      "The epic poems, the Iliad and the Odyssey, are composed by Homer.",
+      "The Greek alphabet is developed from the Phoenician script.",
+      "The city-states of Athens and Sparta begin to rise in power.",
+      "The Assyrian Empire continues its expansion under King Ashur-dan III.",
+      "The first recorded solar eclipse is observed by Babylonian astronomers."
+    ],
     "-509": [
-      "Sextus Tarquinius rapes noblewoman Lucretia",
-      "Lucretia's public suicide sparks anti-royal uprising",
-      "Lucius Junius Brutus leads aristocratic conspiracy",
-      "Consular system replaces single monarch rule",
-      "Last Etruscan king Tarquin Superbus flees Rome",
-      "Roman Republic established ending monarchical period",
-      "Temple of Jupiter Optimus Maximus dedicated on Capitoline Hill September thirteenth"
+      "The Roman monarchy is overthrown, and the Republic is established.",
+      "Lucius Junius Brutus and Lucius Tarquinius Collatinus become the first consuls of Rome.",
+      "The last king of Rome, Lucius Tarquinius Superbus, is expelled from the city.",
+      "The Temple of Jupiter Optimus Maximus is dedicated on the Capitoline Hill.",
+      "A treaty is signed between the Roman Republic and Carthage.",
+      "The rape of Lucretia by Sextus Tarquinius sparks a revolt against the monarchy."
     ],
     "-221": [
       "Qi state falls as final Warring States opponent",
@@ -79,12 +86,12 @@
       "Senate grants Augustus title transforming Roman Republic into imperial system"
     ],
     "1": [
-      "The birth of Jesus is traditionally placed in this year.",
-      "Ovid writes his epic poem *Metamorphoses*.",
-      "The first silk is imported to Rome from China.",
-      "Tiberius, under orders from Augustus, quells revolts in Germania.",
-      "Gaius Caesar and the Parthian king Phraates V meet on the Euphrates.",
-      "The Han Dynasty in China is at the height of its power."
+      "Emperor Augustus is in the midst of his reign during the Pax Romana.",
+      "The poet Ovid is writing his influential work, the Metamorphoses.",
+      "The first strands of silk are believed to have been brought to Rome.",
+      "Tiberius, a Roman general, is putting down revolts in Germania.",
+      "The city of Teotihuacan in Mesoamerica is beginning to flourish.",
+      "Buddhism is first introduced in China during the Han Dynasty."
     ],
     "30": [
       "Phaedrus translates Aesop's fables for Roman readers",
@@ -158,12 +165,12 @@
       "Western Roman Empire collapses ending millennium of world rule"
     ],
     "500": [
-      "Clovis I, King of the Franks, converts to Catholicism.",
-      "The legendary King Arthur wins the Battle of Badon against the Anglo-Saxons.",
-      "The Gupta Empire in India begins to decline.",
-      "The city of Tikal is a major center of Maya civilization.",
-      "The first Swedish state, Svealand, is founded.",
-      "The anastasian war begins between the Byzantine and Persian Empires."
+      "Frankish king Clovis I consolidates his rule over Gaul.",
+      "The city of Tikal is founded in the Mayan civilization.",
+      "The Gupta Empire in India enters a period of decline.",
+      "The Battle of Mount Badon is fought in Britain against the Anglo-Saxons.",
+      "The philosopher Boethius is born in Rome.",
+      "The Sasanian Empire and the Byzantine Empire are at peace."
     ],
     "527": [
       "Justinian I becomes sole ruler of the Byzantine Empire.",
@@ -425,11 +432,11 @@
     ],
     "1400": [
       "The Epiphany Rising against King Henry IV of England is suppressed.",
-      "The Holy Roman Emperor Wenceslaus is deposed by German princes.",
-      "Owain Glyndŵr is proclaimed Prince of Wales, sparking a revolt.",
-      "The Mongol conqueror Timur invades and devastates Syria.",
-      "The Kingdom of Malacca is founded on the Malay Peninsula.",
-      "King Jeongjong of Joseon abdicates in favor of his brother Taejong."
+      "Owain Glyndŵr is proclaimed Prince of Wales, sparking a major rebellion.",
+      "Timur's forces invade and devastate the city of Aleppo.",
+      "The Hồ dynasty is established in Vietnam, ending the Trần dynasty.",
+      "The Medici Bank, under Giovanni di Bicci de' Medici, expands its influence.",
+      "Richard II of England dies in captivity at Pontefract Castle."
     ],
     "1415": [
       "Henry V leads starving army through Norman countryside",
@@ -696,12 +703,12 @@
       "Puritan revolution challenges divine right of kings"
     ],
     "1648": [
-      "Cardinal Mazarin negotiates French territorial gains",
-      "Switzerland and Netherlands gain independence recognition",
-      "Cuius regio, eius religio principle confirmed",
-      "Habsburg Austria loses Alsace to France",
-      "Treaty of Westphalia establishes modern state system",
-      "Pride's Purge removes Presbyterian MPs from Parliament"
+      "The Peace of Westphalia ends the Thirty Years' War in Europe.",
+      "The Dutch Republic gains independence from Spain.",
+      "Pride's Purge removes members from the English Parliament.",
+      "The construction of the Red Fort in Delhi is completed.",
+      "The Religious Society of Friends, or Quakers, is founded by George Fox.",
+      "The Fronde, a series of civil wars, begins in France."
     ],
     "1649": [
       "Oliver Cromwell launches brutal campaign against Irish Catholics",
@@ -838,6 +845,14 @@
       "Tea Act grants monopoly triggering merchant opposition",
       "Boston Tea Party escalates imperial crisis",
       "Pope Clement XIV suppresses Jesuit order worldwide"
+    ],
+    "1775": [
+      "The Battles of Lexington and Concord mark the start of the American Revolution.",
+      "The Second Continental Congress appoints George Washington as commander-in-chief.",
+      "The Battle of Bunker Hill results in a costly British victory.",
+      "Patrick Henry delivers his famous 'Give me liberty, or give me death!' speech.",
+      "The Olive Branch Petition is sent to King George III as a final plea for peace.",
+      "The Continental Navy is established by the Continental Congress."
     ],
     "1776": [
       "Secret society founded in Bavarian forest during torchlight ceremony",
@@ -1032,6 +1047,14 @@
       "President Grover Cleveland marries Frances Folsom in the White House.",
       "A major earthquake strikes Charleston, South Carolina.",
       "Karl Benz and Gottlieb Daimler patent the first automobiles."
+    ],
+    "1888": [
+      "The serial killer known as Jack the Ripper terrorizes London.",
+      "The National Geographic Society is founded in Washington, D.C.",
+      "Brazil passes the Golden Law, abolishing slavery.",
+      "George Eastman patents the Kodak box camera.",
+      "The Washington Monument opens to the public.",
+      "The English Football League is established."
     ],
     "1889": [
       "The Eiffel Tower is inaugurated in Paris for the Exposition Universelle.",
@@ -1278,6 +1301,14 @@
       "Lee Harvey Oswald kills president from book depository",
       "Lyndon Johnson sworn in aboard Air Force One"
     ],
+    "1964": [
+      "The Civil Rights Act of 1964 is signed into law in the United States.",
+      "The Beatles make their first appearance on The Ed Sullivan Show.",
+      "The Ford Mustang is introduced at the New York World's Fair.",
+      "The Gulf of Tonkin Resolution escalates U.S. involvement in the Vietnam War.",
+      "Dr. Martin Luther King Jr. receives the Nobel Peace Prize.",
+      "The 24th Amendment to the U.S. Constitution is ratified."
+    ],
     "1968": [
       "North Korea captures the USS Pueblo intelligence ship.",
       "The Tet Offensive begins in Vietnam, shocking American forces.",
@@ -1344,6 +1375,14 @@
       "The first federal holiday honoring Martin Luther King Jr. is celebrated.",
       "Pixar Animation Studios is established."
     ],
+    "1989": [
+      "The Berlin Wall falls, symbolizing the Cold War's end.",
+      "Pro-democracy protests are suppressed in China's Tiananmen Square.",
+      "The Exxon Valdez oil tanker runs aground in Alaska.",
+      "Tim Berners-Lee proposes the World Wide Web.",
+      "Nintendo releases the Game Boy handheld console.",
+      "The 'Velvet Revolution' ends communist rule in Czechoslovakia."
+    ],
     "1990": [
       "The Hubble Space Telescope is launched into Earth's orbit.",
       "Nelson Mandela is released from prison in South Africa.",
@@ -1352,14 +1391,6 @@
       "The Americans with Disabilities Act is signed into law.",
       "Panamanian dictator Manuel Noriega surrenders to the United States."
     ],
-    "1993": [
-      "A truck bomb explodes in the World Trade Center garage.",
-      "The Waco siege ends in a deadly fire after a 51-day standoff.",
-      "The \"Don't Ask, Don't Tell\" policy is implemented in the U.S. military.",
-      "The European Union is formally established by the Maastricht Treaty.",
-      "The Oslo I Accord is signed by Israel and the PLO.",
-      "Colombian drug lord Pablo Escobar is killed by police."
-    ],
     "1991": [
       "The Soviet Union is officially dissolved in December.",
       "Operation Desert Storm is launched to liberate Kuwait.",
@@ -1367,6 +1398,22 @@
       "The video of Rodney King's beating by police sparks outrage.",
       "Nirvana's album *Nevermind* brings grunge music to the mainstream.",
       "Mount Pinatubo erupts in the Philippines."
+    ],
+    "1992": [
+      "The Maastricht Treaty is signed, establishing the European Union.",
+      "Riots erupt in Los Angeles following the acquittal of police officers in the Rodney King case.",
+      "The Cold War is declared over by George H.W. Bush and Boris Yeltsin.",
+      "Dr. Mae Jemison becomes the first African American woman in space.",
+      "The Summer Olympics are held in Barcelona, Spain.",
+      "Hurricane Andrew, a Category 5 storm, devastates Florida."
+    ],
+    "1993": [
+      "A truck bomb explodes in the World Trade Center garage.",
+      "The Waco siege ends in a deadly fire after a 51-day standoff.",
+      "The \"Don't Ask, Don't Tell\" policy is implemented in the U.S. military.",
+      "The European Union is formally established by the Maastricht Treaty.",
+      "The Oslo I Accord is signed by Israel and the PLO.",
+      "Colombian drug lord Pablo Escobar is killed by police."
     ],
     "1994": [
       "Nelson Mandela is elected President of South Africa.",

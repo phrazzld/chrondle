@@ -67,3 +67,31 @@ Continuously expand and improve `puzzles.json` by:
 • Skip obscure trivia players cannot reasonably verify.
 • If a year lacks six solid events, choose a different year.
 • When improving hints, preserve the most recognizable events unless clarity or variety demands replacement.
+
+# USING THE `manage_puzzles.py` SCRIPT
+
+To safely add or update entries in `puzzles.json`, use the `manage_puzzles.py` script located in the `scripts/` directory.
+
+**To add a new year:**
+
+```bash
+python3 scripts/manage_puzzles.py add --year <YEAR> --hints "Hint 1" "Hint 2" "Hint 3" "Hint 4" "Hint 5" "Hint 6"
+```
+
+Example:
+
+```bash
+python3 scripts/manage_puzzles.py add --year 1998 --hints "Google is founded by Larry Page and Sergey Brin." "The International Space Station begins construction." "The Good Friday Agreement is signed in Northern Ireland." "The film Titanic wins 11 Academy Awards." "The Euro currency is introduced as an accounting unit." "The impeachment process against President Bill Clinton begins."
+```
+
+**To update an existing year:**
+
+```bash
+python3 scripts/manage_puzzles.py update --year <YEAR> --hints "New Hint 1" "New Hint 2" "New Hint 3" "New Hint 4" "New Hint 5" "New Hint 6"
+```
+
+Example:
+
+```bash
+python3 scripts/manage_puzzles.py update --year 1997 --hints "Hong Kong is handed over from British to Chinese rule." "Tony Blair becomes Prime Minister of the United Kingdom." "Dolly the sheep, the first cloned mammal, is announced." "NASA's Pathfinder probe successfully lands on Mars." "IBM's Deep Blue chess computer defeats Garry Kasparov." "Princess Diana dies in a car crash in Paris."
+```
