@@ -106,12 +106,10 @@ const PastHint: React.FC<PastHintProps> = ({
 
   // Determine guess feedback
   const isCorrect = guess === targetYear;
-  const isEarlier = guess < targetYear;
   
-  // Background colors for hint cards
+  // Neutral background colors for hint cards (no proximity coloring)
   const backgroundClass = isCorrect ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' : 
-                         (isEarlier ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800' : 
-                                     'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800');
+                         'bg-muted/30 border-muted/40';
 
   return (
     <motion.div 

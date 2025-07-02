@@ -412,10 +412,8 @@ export default function ChronldePage() {
               <ProximityDisplay
                 currentGuess={gameLogic.gameState.guesses[gameLogic.gameState.guesses.length - 1]}
                 currentDistance={Math.abs(gameLogic.gameState.guesses[gameLogic.gameState.guesses.length - 1] - gameLogic.gameState.puzzle.year)}
-                closestGuess={gameLogic.closestGuess}
                 targetYear={gameLogic.gameState.puzzle.year}
                 hasWon={gameLogic.hasWon}
-                isCurrentGuessClosest={gameLogic.isCurrentGuessClosest}
                 guessCount={gameLogic.gameState.guesses.length}
                 className="animate-fade-in"
               />
