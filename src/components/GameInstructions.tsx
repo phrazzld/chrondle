@@ -5,6 +5,7 @@ import { RippleButton } from '@/components/magicui/ripple-button';
 import { useShareGame } from '@/hooks/useShareGame';
 import { formatYear } from '@/lib/utils';
 import { HistoricalContextCard } from '@/components/HistoricalContextCard';
+import type { ClosestGuessData } from '@/hooks/useGameState';
 
 interface GameInstructionsProps {
   className?: string;
@@ -15,6 +16,7 @@ interface GameInstructionsProps {
   timeString?: string;
   currentStreak?: number;
   puzzleEvents?: string[];
+  closestGuess?: ClosestGuessData | null;
 }
 
 export const GameInstructions: React.FC<GameInstructionsProps> = ({
@@ -24,7 +26,8 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
   targetYear,
   guesses = [],
   timeString,
-  puzzleEvents = []
+  puzzleEvents = [],
+  closestGuess
 }) => {
   // Share functionality - always initialize hook (React hooks rule)
   const { shareGame, shareStatus } = useShareGame(
@@ -108,6 +111,12 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
             <div className="text-2xl sm:text-3xl font-bold text-red-700 dark:text-red-300">
               {formatYear(targetYear)}
             </div>
+            {/* Show closest guess information if available */}
+            {closestGuess && (
+              <div className="text-sm text-red-600/80 dark:text-red-400/80 mt-1">
+                Your closest: {formatYear(closestGuess.guess)} ({closestGuess.distance} year{closestGuess.distance === 1 ? '' : 's'} off)
+              </div>
+            )}
           </div>
 
           <div className="text-sm font-medium text-red-600 dark:text-red-400">

@@ -22,6 +22,9 @@ export interface Progress {
   puzzleId: string | null;
   puzzleYear: number | null;
   timestamp: string;
+  // Closest guess tracking for enhanced sharing
+  closestGuess?: number;
+  closestDistance?: number;
 }
 
 export interface Settings {
@@ -135,12 +138,38 @@ export function saveProgress(gameState: GameState, isDebugMode?: boolean): void 
     return; 
   }
 
+  // Calculate closest guess for persistence
+  let closestGuess: number | undefined;
+  let closestDistance: number | undefined;
+  
+  if (gameState.guesses.length > 0 && gameState.puzzle) {
+    try {
+      let bestDistance = Infinity;
+      let bestGuess = gameState.guesses[0];
+      
+      for (const guess of gameState.guesses) {
+        const distance = Math.abs(guess - gameState.puzzle.year);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          bestGuess = guess;
+        }
+      }
+      
+      closestGuess = bestGuess;
+      closestDistance = bestDistance;
+    } catch (error) {
+      console.warn('Failed to calculate closest guess for save:', error);
+    }
+  }
+
   const progress: Progress = {
     guesses: gameState.guesses,
     isGameOver: gameState.isGameOver,
     puzzleId: gameState.puzzle ? gameState.puzzle.puzzleId : null,
     puzzleYear: gameState.puzzle ? gameState.puzzle.year : null,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    closestGuess,
+    closestDistance
   };
   
   console.log(`🔍 DEBUG: Saving progress:`, progress);
