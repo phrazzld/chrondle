@@ -13,6 +13,22 @@
       "Olympiad becomes standard Greek chronological measurement",
       "First Olympic Games establish athletic competition tradition"
     ],
+    "-1200": [
+      "The Late Bronze Age collapse begins in the Eastern Mediterranean.",
+      "The Hittite Empire in Anatolia collapses.",
+      "The city of Troy is destroyed, marking the end of the Trojan War.",
+      "The Olmec civilization emerges in Mesoamerica.",
+      "The Phoenicians begin to establish trade routes across the Mediterranean.",
+      "The use of iron for tools and weapons becomes more widespread."
+    ],
+    "-750": [
+      "The Etruscan civilization begins to flourish in central Italy.",
+      "Greek colonists begin to settle in southern Italy and Sicily.",
+      "The city of Cumae is founded by Greek colonists.",
+      "King Xie of the Zhou Dynasty is killed, ending a civil war.",
+      "The Assyrian Empire continues its expansion under Ashur-dan III.",
+      "The first recorded solar eclipse is observed by the Babylonians."
+    ],
     "-753": [
       "Twin brothers debate which hilltop to choose for settlement",
       "Divine birds observed by rival siblings claiming leadership",
@@ -61,6 +77,14 @@
       "Spanish provinces reorganized creating Baetica and Lusitania administrative divisions",
       "Egypt becomes imperial province under Augustus after Cleopatra's defeat",
       "Senate grants Augustus title transforming Roman Republic into imperial system"
+    ],
+    "1": [
+      "The birth of Jesus is traditionally placed in this year.",
+      "Ovid writes his epic poem *Metamorphoses*.",
+      "The first silk is imported to Rome from China.",
+      "Tiberius, under orders from Augustus, quells revolts in Germania.",
+      "Gaius Caesar and the Parthian king Phraates V meet on the Euphrates.",
+      "The Han Dynasty in China is at the height of its power."
     ],
     "30": [
       "Phaedrus translates Aesop's fables for Roman readers",
@@ -117,13 +141,13 @@
       "Frumentius becomes the first bishop of Ethiopia"
     ],
     "410": [
-      "Alaric's Visigoths sack Rome for three days.",
-      "Hypatia of Alexandria leads the Neoplatonist school.",
-      "Emperor Honorius tells Britain to see to its own defense.",
-      "The Western Roman Empire officially withdraws from Britain.",
-      "Visigoths spare the Basilicas of Saint Peter and Paul.",
-      "The sack of Rome sends shockwaves across the Empire.",
-      "Future Visigothic king Theodoric I is born."
+      "Alaric's Visigoths capture and sack Rome for three days",
+      "Emperor Honorius tells Britain to fend for itself",
+      "The Western Roman Empire withdraws its legions from Britain",
+      "Visigoths spare the Basilicas of Saint Peter and Paul",
+      "The sack of Rome sends shockwaves across the Empire",
+      "Hypatia of Alexandria leads the Neoplatonist school in Egypt",
+      "Future Visigothic king Theodoric I is born"
     ],
     "476": [
       "Germanic mercenaries demand Italian estates from Orestes",
@@ -132,6 +156,14 @@
       "Odoacer establishes first barbarian kingdom in Italy",
       "Romulus Augustulus deposed as last Western Roman Emperor",
       "Western Roman Empire collapses ending millennium of world rule"
+    ],
+    "500": [
+      "Clovis I, King of the Franks, converts to Catholicism.",
+      "The legendary King Arthur wins the Battle of Badon against the Anglo-Saxons.",
+      "The Gupta Empire in India begins to decline.",
+      "The city of Tikal is a major center of Maya civilization.",
+      "The first Swedish state, Svealand, is founded.",
+      "The anastasian war begins between the Byzantine and Persian Empires."
     ],
     "527": [
       "Justinian I becomes sole ruler of the Byzantine Empire.",
@@ -148,6 +180,14 @@
       "The first mosque in Islam is constructed at Quba.",
       "Emperor Heraclius launches a counter-offensive against the Sasanian Empire.",
       "The Byzantine army defeats the Persians at the Battle of Issus."
+    ],
+    "632": [
+      "The Prophet Muhammad delivers his Farewell Sermon in Mecca.",
+      "The Prophet Muhammad dies in Medina, creating a succession crisis.",
+      "Abu Bakr is chosen as the first Caliph of the Rashidun Caliphate.",
+      "The Ridda Wars begin as several Arab tribes rebel.",
+      "Musaylimah al-Kadhdhab declares himself a prophet in Yamama.",
+      "Fatimah, daughter of the Prophet Muhammad, dies."
     ],
     "732": [
       "Charles Martel defeats the Umayyad Caliphate at the Battle of Tours.",
@@ -182,12 +222,12 @@
       "Otto the Great crowned Emperor beginning thousand-year Germanic empire"
     ],
     "987": [
-      "Song Dynasty completes territorial reunification under imperial leadership",
-      "Carolingian dynasty ends when Louis V dies in riding accident",
-      "Japanese scholar officially granted divine status and religious title",
-      "Bardas Phokas proclaims himself emperor challenging legitimate ruler",
-      "Hugh Capet crowned King of France founding dynasty lasting three centuries",
-      "Capetian dynasty begins while Song China unifies and Bardas Phokas rebels"
+      "The Carolingian dynasty ends with the death of King Louis V.",
+      "Hugh Capet is elected and crowned King of France.",
+      "The Capetian dynasty begins its rule over France.",
+      "Bardas Phokas and Bardas Skleros lead a revolt against Byzantine Emperor Basil II.",
+      "Al-Mansur, ruler of Al-Andalus, captures the city of Coimbra.",
+      "Kukulcan, a Mayan ruler, conquers the city of Chichen Itza."
     ],
     "1000": [
       "The Althing in Iceland officially adopts Christianity.",
@@ -336,11 +376,11 @@
       "Templar Grand Master burned alive on Seine island"
     ],
     "1315": [
-      "The Great Famine of 1315-1317 begins in Europe.",
-      "Louis X of France abolishes serfdom.",
+      "The Great Famine of 1315-1317 begins across Europe.",
+      "Louis X of France formally abolishes serfdom.",
       "The Scottish army under Robert the Bruce besieges Carlisle Castle.",
       "The Mamluk Sultanate invades and loots the city of Malatya.",
-      "Ferdinand of Majorca conquers the Principality of Achaea.",
+      "Ferdinand of Majorca conquers the Principality of Achaea in Greece.",
       "The Swiss Confederacy defeats the Habsburgs at the Battle of Morgarten."
     ],
     "1337": [
@@ -384,12 +424,12 @@
       "Wat Tyler killed by Mayor William Walworth"
     ],
     "1400": [
-      "The Epiphany Rising against King Henry IV is suppressed in England.",
-      "Holy Roman Emperor Wenceslaus is deposed by German princes.",
-      "Owain Glyndŵr is proclaimed Prince of Wales, beginning a revolt.",
-      "The Mongol conqueror Timur invades Syria, devastating cities.",
+      "The Epiphany Rising against King Henry IV of England is suppressed.",
+      "The Holy Roman Emperor Wenceslaus is deposed by German princes.",
+      "Owain Glyndŵr is proclaimed Prince of Wales, sparking a revolt.",
+      "The Mongol conqueror Timur invades and devastates Syria.",
       "The Kingdom of Malacca is founded on the Malay Peninsula.",
-      "King Jeongjong of Joseon abdicates, and Taejong succeeds him in Korea."
+      "King Jeongjong of Joseon abdicates in favor of his brother Taejong."
     ],
     "1415": [
       "Henry V leads starving army through Norman countryside",
@@ -592,12 +632,12 @@
       "Treaty of Vervins ends Spanish intervention in France"
     ],
     "1600": [
-      "Elizabeth I grants charter to East India Company",
-      "Giordano Bruno burned alive for infinite universe theory",
-      "William Shakespeare writes Hamlet tragedy",
-      "Japanese victory at Sekigahara unifies nation",
-      "English merchants receive royal monopoly on Asian trade",
-      "Tokugawa Ieyasu becomes first Edo period shogun"
+      "The East India Company is granted a royal charter by Queen Elizabeth I.",
+      "Giordano Bruno is burned at the stake for heresy in Rome.",
+      "William Shakespeare's play *A Midsummer Night's Dream* is published.",
+      "Tokugawa Ieyasu wins the Battle of Sekigahara, unifying Japan.",
+      "The world's first modern opera, *Euridice*, premieres in Florence.",
+      "The Huaynaputina volcano in Peru erupts violently."
     ],
     "1605": [
       "Catholic conspirators stockpile explosive barrels beneath legislative assembly",
@@ -783,6 +823,14 @@
       "Industrial Revolution gains momentum with steam power",
       "Spanish missions established in California"
     ],
+    "1770": [
+      "British soldiers kill five colonists in the Boston Massacre.",
+      "Captain James Cook claims the east coast of Australia for Britain.",
+      "The future Louis XVI marries Marie Antoinette in Paris.",
+      "Ludwig van Beethoven is born in Bonn, Germany.",
+      "The Townshend Acts are partially repealed, except for the tax on tea.",
+      "The Russian navy defeats the Ottoman fleet at the Battle of Chesma."
+    ],
     "1773": [
       "Sons of Liberty disguise as Mohawk warriors",
       "East India Company tea dumped into Boston Harbor",
@@ -871,6 +919,14 @@
       "John Quincy Adams wins presidency in House decision",
       "Russian autocracy crushes liberal military uprising"
     ],
+    "1830": [
+      "The July Revolution in Paris overthrows King Charles X.",
+      "The Indian Removal Act is signed into law in the United States.",
+      "The Belgian Revolution leads to the creation of an independent Belgium.",
+      "The Book of Mormon is published in New York.",
+      "The Liverpool and Manchester Railway, the first inter-city railway, opens.",
+      "France invades Algiers, beginning a new colonial era."
+    ],
     "1833": [
       "Slavery Abolition Act frees 800,000 colonial slaves",
       "William Wilberforce dies three days after act passes",
@@ -928,12 +984,12 @@
       "Victor Emmanuel II proclaimed King of Italy"
     ],
     "1865": [
-      "Three South American nations sign secret treaty against Paraguay",
-      "Young English mathematician publishes fantastical tale about underground adventures",
-      "Former Union soldiers establish charitable mission in London slums",
-      "Brazilian naval fleet destroys Paraguayan ships at river battle",
-      "Abraham Lincoln shot at Ford's Theatre five days after war ends",
-      "Constitutional amendment abolishes slavery throughout reunited American states"
+      "The American Civil War ends with the surrender of Robert E. Lee.",
+      "President Abraham Lincoln is assassinated at Ford's Theatre.",
+      "The Thirteenth Amendment to the U.S. Constitution abolishes slavery.",
+      "Lewis Carroll publishes *Alice's Adventures in Wonderland*.",
+      "The Salvation Army is founded in London.",
+      "The Ku Klux Klan is formed in Pulaski, Tennessee."
     ],
     "1869": [
       "Ferdinand de Lesseps opens Suez Canal",
@@ -970,20 +1026,20 @@
     ],
     "1886": [
       "The Statue of Liberty is dedicated in New York Harbor.",
-      "The Haymarket Affair occurs in Chicago during a labor strike.",
+      "A bomb explodes at a labor rally in Haymarket Square.",
       "Coca-Cola is invented by pharmacist John Stith Pemberton.",
-      "Apache leader Geronimo surrenders to General Nelson Miles.",
+      "Apache leader Geronimo surrenders to U.S. General Nelson Miles.",
       "President Grover Cleveland marries Frances Folsom in the White House.",
       "A major earthquake strikes Charleston, South Carolina.",
-      "Karl Benz and Gottlieb Daimler file patents for gasoline-powered automobiles."
+      "Karl Benz and Gottlieb Daimler patent the first automobiles."
     ],
     "1889": [
-      "Eiffel Tower opens for the Exposition Universelle in Paris",
-      "South Fork Dam collapses causing the Johnstown Flood",
-      "The Oklahoma Land Rush opens two million acres to settlement",
-      "Nintendo is founded in Kyoto, Japan as a playing card company",
-      "Brazil deposes Emperor Pedro II and becomes a republic",
-      "Vincent van Gogh paints The Starry Night in Saint-Rémy-de-Provence"
+      "The Eiffel Tower is inaugurated in Paris for the Exposition Universelle.",
+      "The South Fork Dam collapses, causing the deadly Johnstown Flood.",
+      "The Oklahoma Land Rush opens two million acres to eager settlers.",
+      "Nintendo is founded in Kyoto, Japan, as a playing card company.",
+      "Brazil's monarchy is overthrown, and a republic is declared.",
+      "Vincent van Gogh paints *The Starry Night* in Saint-Rémy-de-Provence."
     ],
     "1896": [
       "The U.S. Supreme Court rules \"separate but equal\" in Plessy v. Ferguson.",
@@ -1021,12 +1077,12 @@
       "The second Olympic Games are held in Paris, with women competing."
     ],
     "1902": [
-      "The Second Boer War officially ends with the Treaty of Vereeniging.",
+      "The Second Boer War ends with the Treaty of Vereeniging.",
       "Mount Pelée erupts in Martinique, destroying Saint-Pierre.",
-      "Cuba gains independence from the United States.",
-      "Edward VII is crowned King of the United Kingdom.",
+      "Cuba gains formal independence from the United States.",
+      "King Edward VII is crowned King of the United Kingdom.",
       "The football club Real Madrid is founded in Spain.",
-      "Willis Carrier invents air conditioning in New York City."
+      "Willis Carrier invents the first modern air conditioner."
     ],
     "1903": [
       "Orville and Wilbur Wright achieve the first successful powered flight.",
@@ -1198,6 +1254,14 @@
       "Alfred Hitchcock's film *Psycho* premieres.",
       "The birth control pill is approved by the FDA."
     ],
+    "1961": [
+      "Yuri Gagarin becomes the first human to orbit the Earth.",
+      "The CIA-backed Bay of Pigs invasion of Cuba fails.",
+      "East Germany begins construction of the Berlin Wall.",
+      "Freedom Riders challenge segregation on interstate buses.",
+      "President John F. Kennedy establishes the Peace Corps.",
+      "The trial of Nazi war criminal Adolf Eichmann begins in Jerusalem."
+    ],
     "1962": [
       "Nuclear confrontation brings world closest to atomic warfare",
       "American astronaut becomes first to orbit Earth three times",
@@ -1230,6 +1294,14 @@
       "Nixon inaugurated promising to end Vietnam War honorably",
       "Neil Armstrong becomes first human to walk on lunar surface"
     ],
+    "1971": [
+      "The New York Times begins publishing the Pentagon Papers.",
+      "The 26th Amendment lowers the U.S. voting age to 18.",
+      "The first microprocessor is released by Intel.",
+      "Walt Disney World opens in Orlando, Florida.",
+      "The first email is sent between two computers.",
+      "The People's Republic of China is admitted to the United Nations."
+    ],
     "1973": [
       "The Paris Peace Accords officially end U.S. involvement in Vietnam.",
       "The Watergate scandal intensifies with resignations.",
@@ -1257,12 +1329,12 @@
       "Shah flees Iran as Islamic revolution overthrows Pahlavi monarchy"
     ],
     "1980": [
-      "Ronald Reagan is elected President of the United States.",
+      "Ronald Reagan is elected President of the United States in a landslide.",
       "Zimbabwe gains independence with Robert Mugabe as Prime Minister.",
-      "Mount St. Helens erupts in Washington State.",
-      "CNN launches as the first 24-hour cable news network.",
-      "Pac-Man, the iconic video game, is released in Japan.",
-      "John Lennon is assassinated in New York City."
+      "Mount St. Helens erupts in Washington state, killing 57 people.",
+      "CNN, the first 24-hour cable news network, is launched.",
+      "The iconic video game *Pac-Man* is released in Japan.",
+      "John Lennon is assassinated outside his New York City apartment."
     ],
     "1986": [
       "The Space Shuttle Challenger disintegrates after liftoff.",
@@ -1280,13 +1352,21 @@
       "The Americans with Disabilities Act is signed into law.",
       "Panamanian dictator Manuel Noriega surrenders to the United States."
     ],
+    "1993": [
+      "A truck bomb explodes in the World Trade Center garage.",
+      "The Waco siege ends in a deadly fire after a 51-day standoff.",
+      "The \"Don't Ask, Don't Tell\" policy is implemented in the U.S. military.",
+      "The European Union is formally established by the Maastricht Treaty.",
+      "The Oslo I Accord is signed by Israel and the PLO.",
+      "Colombian drug lord Pablo Escobar is killed by police."
+    ],
     "1991": [
-      "The Soviet Union officially dissolves into fifteen separate states.",
-      "The Persian Gulf War, Operation Desert Storm, begins and ends.",
-      "Tim Berners-Lee creates the first webpage, marking the birth of the World Wide Web.",
-      "Rodney King's beating by Los Angeles police is captured on videotape.",
-      "Nirvana releases its landmark single \"Smells Like Teen Spirit.\"",
-      "Mount Pinatubo in the Philippines erupts, one of the most powerful eruptions of the 20th century."
+      "The Soviet Union is officially dissolved in December.",
+      "Operation Desert Storm is launched to liberate Kuwait.",
+      "Tim Berners-Lee creates the first webpage, launching the World Wide Web.",
+      "The video of Rodney King's beating by police sparks outrage.",
+      "Nirvana's album *Nevermind* brings grunge music to the mainstream.",
+      "Mount Pinatubo erupts in the Philippines."
     ],
     "1994": [
       "Nelson Mandela is elected President of South Africa.",
@@ -1296,13 +1376,21 @@
       "Amazon is founded by Jeff Bezos.",
       "Sony releases its first PlayStation console."
     ],
+    "1995": [
+      "Timothy McVeigh bombs the Murrah Federal Building in Oklahoma City.",
+      "The Dayton Accords end the Bosnian War.",
+      "Yitzhak Rabin is assassinated at a peace rally in Tel Aviv.",
+      "Microsoft releases its revolutionary Windows 95 operating system.",
+      "The O.J. Simpson murder trial concludes with a controversial verdict.",
+      "The Aum Shinrikyo cult releases sarin gas in the Tokyo subway."
+    ],
     "1996": [
-      "Bill Clinton is re-elected as the President of the United States.",
-      "The Comprehensive Nuclear-Test-Ban Treaty is signed at the United Nations.",
-      "The Taliban captures Kabul, the capital city of Afghanistan.",
-      "NASA announces that the Allan Hills 84001 meteorite might contain evidence of primitive lifeforms.",
-      "Dolly the sheep, the first mammal cloned from an adult cell, is born.",
-      "Hotmail, one of the first web-based email services, is launched."
+      "Bill Clinton is re-elected as President of the United States.",
+      "The Comprehensive Nuclear-Test-Ban Treaty is adopted by the UN.",
+      "The Taliban captures Kabul, the capital of Afghanistan.",
+      "NASA announces potential evidence of life in a Martian meteorite.",
+      "Dolly the sheep, the first cloned mammal, is born in Scotland.",
+      "The Spice Girls release their debut single, \"Wannabe\""
     ],
     "1997": [
       "Hong Kong is handed over from British to Chinese rule.",
@@ -1314,12 +1402,20 @@
       "J.K. Rowling's *Harry Potter and the Philosopher's Stone* is published."
     ],
     "1999": [
-      "The Euro is established as a single currency for eleven European Union members.",
-      "The impeachment trial of U.S. President Bill Clinton concludes with his acquittal.",
-      "NATO begins aerial bombing over Yugoslavia.",
-      "Bertrand Piccard and Brian Jones complete the first non-stop hot air balloon circumnavigation.",
-      "The iconic film *The Matrix* premieres.",
-      "Napster, a peer-to-peer file-sharing service, is launched."
+      "The Euro is established as a single currency for eleven European nations.",
+      "The impeachment trial of President Bill Clinton ends in acquittal.",
+      "NATO launches a bombing campaign against Yugoslavia over Kosovo.",
+      "Bertrand Piccard and Brian Jones complete the first non-stop balloon flight.",
+      "The iconic science fiction film *The Matrix* premieres.",
+      "The music-sharing service Napster is launched."
+    ],
+    "2000": [
+      "The dot-com bubble bursts, causing the NASDAQ to crash.",
+      "The International Space Station welcomes its first resident crew.",
+      "The Tate Modern art gallery opens in London.",
+      "The \"ILOVEYOU\" computer virus spreads globally.",
+      "The United States presidential election is decided by the Supreme Court.",
+      "Sony releases the PlayStation 2 console."
     ],
     "2001": [
       "Collaborative online encyclopedia launches revolutionizing information sharing",
