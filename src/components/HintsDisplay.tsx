@@ -104,12 +104,37 @@ const PastHint: React.FC<PastHintProps> = ({
     );
   }
 
-  // Determine guess feedback
-  const isCorrect = guess === targetYear;
+  // Calculate proximity for visual feedback
+  const distance = Math.abs(guess - targetYear);
+  const isCorrect = distance === 0;
+
+  // Get proximity emoji (reusing logic from ProximityDisplay)
+  const getProximityEmoji = (distance: number): string => {
+    if (distance === 0) return '🎯'; // Perfect
+    if (distance <= 10) return '🔥'; // Very hot
+    if (distance <= 50) return '♨️'; // Hot  
+    if (distance <= 150) return '🌡️'; // Warm
+    if (distance <= 500) return '❄️'; // Cold
+    return '🧊'; // Very cold
+  };
+
+  // Get proximity text for accessibility
+  const getProximityText = (distance: number): string => {
+    if (distance === 0) return 'Perfect';
+    if (distance <= 10) return 'Very close';
+    if (distance <= 50) return 'Close';  
+    if (distance <= 150) return 'Warm';
+    if (distance <= 500) return 'Cold';
+    return 'Very cold';
+  };
+
+  const proximityEmoji = getProximityEmoji(distance);
+  const proximityText = getProximityText(distance);
   
-  // Neutral background colors for hint cards (no proximity coloring)
-  const backgroundClass = isCorrect ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' : 
-                         'bg-muted/30 border-muted/40';
+  // Enhanced background colors with subtle proximity hints
+  const backgroundClass = isCorrect 
+    ? 'bg-green-50 border-green-200/50 dark:bg-green-900/20 dark:border-green-800/50' 
+    : 'bg-muted/10 border-muted/20';
 
   return (
     <motion.div 
@@ -122,23 +147,40 @@ const PastHint: React.FC<PastHintProps> = ({
         stiffness: 500,
         damping: 30
       }}
-      className={`py-2 px-3 rounded-lg border ${backgroundClass} opacity-75`}
+      className={`py-3 px-4 rounded-lg border-2 ${backgroundClass} opacity-90 hover:opacity-100 transition-opacity duration-200 shadow-sm`}
     >
-      <p className="text-xs text-muted-foreground mb-1 text-left uppercase font-accent tracking-wide">Hint #{hintNumber}</p>
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-left flex-1 font-body leading-relaxed">{hintText}</p>
+      {/* Enhanced header with proximity indicator */}
+      <div className="flex items-center gap-3 mb-2">
+        <p className="text-xs text-muted-foreground uppercase font-accent tracking-wide font-medium">
+          Hint #{hintNumber}
+        </p>
+        <div className="flex-1" />
         <div className="flex items-center gap-2">
+          <span className="font-accent font-semibold text-foreground text-xs">
+            {formatYear(guess)}
+          </span>
+          {/* Proximity indicator */}
+          <span 
+            className="text-sm" 
+            role="img" 
+            aria-label={proximityText}
+            title={`${proximityText} (${distance} years off)`}
+          >
+            {proximityEmoji}
+          </span>
           {isCorrect && (
             <div className="flex justify-center items-center text-green-600 dark:text-green-400">
               <Check className="w-4 h-4" />
             </div>
           )}
-          {!isCorrect && (
-            <div className="min-w-16 bg-background/80 rounded-md px-3 py-1 flex items-center justify-center whitespace-nowrap border border-muted/40">
-              <span className="font-accent font-semibold text-foreground text-xs">{formatYear(guess)}</span>
-            </div>
-          )}
         </div>
+      </div>
+      
+      {/* Content section */}
+      <div>
+        <p className="text-sm text-left font-body leading-relaxed text-foreground">
+          {hintText}
+        </p>
       </div>
     </motion.div>
   );
@@ -152,20 +194,41 @@ const FutureHint: React.FC<FutureHintProps> = ({
   return (
     <motion.div 
       layout={!shouldReduceMotion}
-      initial={shouldReduceMotion ? undefined : { opacity: 0, y: -20 }}
-      animate={shouldReduceMotion ? undefined : { opacity: 0.6, y: 0 }}
+      initial={shouldReduceMotion ? undefined : { opacity: 0, y: -10, scale: 0.98 }}
+      animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
       exit={shouldReduceMotion ? undefined : { opacity: 0 }}
       transition={{ 
         type: "spring",
-        stiffness: 400,
-        damping: 25
+        stiffness: 300,
+        damping: 25,
+        delay: 0.1
       }}
-      className="py-2 opacity-60"
+      className="py-3 px-4 rounded-lg border border-dashed border-muted/40 bg-muted/10 opacity-75 hover:opacity-90 transition-opacity duration-200"
     >
-      <p className="text-xs text-muted-foreground mb-1 text-left uppercase font-accent tracking-wide">Hint #{hintNumber}</p>
-      <p className="text-sm text-muted-foreground text-left font-body leading-relaxed">
-        {hintText || 'No hint available'}
-      </p>
+      {/* Enhanced header for unused hints */}
+      <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-center gap-2">
+          <span className="text-lg" role="img" aria-label="unused hint">
+            💡
+          </span>
+          <p className="text-xs text-muted-foreground uppercase font-accent tracking-wide font-medium">
+            Hint #{hintNumber}
+          </p>
+        </div>
+        <div className="flex-1" />
+        <div className="flex items-center">
+          <span className="text-xs text-muted-foreground/70 uppercase tracking-wider font-medium">
+            Unused
+          </span>
+        </div>
+      </div>
+      
+      {/* Content section */}
+      <div className="pl-2">
+        <p className="text-sm text-muted-foreground text-left font-body leading-relaxed">
+          {hintText || 'No hint available'}
+        </p>
+      </div>
     </motion.div>
   );
 };
@@ -287,33 +350,51 @@ export const HintsDisplay: React.FC<HintsDisplayProps> = ({
 
       {/* Future Hints - Revealed on game completion */}
       {futureHints.length > 0 && (
-        <div className="mt-3 pt-2 border-t border-muted/30">
-          <p className="text-xs text-muted-foreground uppercase font-accent tracking-wide mb-3">
-            Unused Hints
-          </p>
-          <AnimatePresence>
-            {futureHints.map((hint, index) => (
-              <motion.div
-                key={`future-hint-${hint.hintNumber}`}
-                initial={shouldReduceMotion ? undefined : { opacity: 0, y: -10 }}
-                animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-                transition={{ 
-                  delay: index * 0.1,
-                  type: "spring",
-                  stiffness: 400,
-                  damping: 25
-                }}
-              >
-                <FutureHint
-                  hintNumber={hint.hintNumber}
-                  hintText={hint.hintText}
-                  shouldReduceMotion={shouldReduceMotion ?? false}
-                />
-                {index < futureHints.length - 1 && <Separator className="mt-2" />}
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+        <motion.div 
+          initial={shouldReduceMotion ? {} : { opacity: 0, y: 20 }}
+          animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
+          transition={shouldReduceMotion ? {} : { delay: 0.5, duration: 0.4 }}
+          className="mt-6 pt-4 border-t border-muted/40"
+        >
+          {/* Enhanced header for revealed hints */}
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-xl" role="img" aria-label="revealed hints">
+              ✨
+            </span>
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                Unused Hints Revealed
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {futureHints.length} hint{futureHints.length === 1 ? '' : 's'} you didn&apos;t need
+              </p>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <AnimatePresence>
+              {futureHints.map((hint, index) => (
+                <motion.div
+                  key={`future-hint-${hint.hintNumber}`}
+                  initial={shouldReduceMotion ? undefined : { opacity: 0, y: -10, scale: 0.98 }}
+                  animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
+                  transition={{ 
+                    delay: 0.7 + (index * 0.15), // Staggered reveal after header
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 25
+                  }}
+                >
+                  <FutureHint
+                    hintNumber={hint.hintNumber}
+                    hintText={hint.hintText}
+                    shouldReduceMotion={shouldReduceMotion ?? false}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </motion.div>
       )}
     </div>
   );
