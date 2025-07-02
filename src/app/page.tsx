@@ -22,6 +22,7 @@ import { BackgroundAnimation } from '@/components/BackgroundAnimation';
 import { Timeline } from '@/components/Timeline';
 import { Footer } from '@/components/Footer';
 import { Confetti, ConfettiRef } from '@/components/magicui/confetti';
+import { ProximityDisplay } from '@/components/ui/ProximityDisplay';
 
 // Force dynamic rendering to prevent SSR issues with theme context
 export const dynamic = 'force-dynamic';
@@ -383,6 +384,7 @@ export default function ChronldePage() {
               timeString={timeString}
               currentStreak={streakData.currentStreak}
               puzzleEvents={gameLogic.gameState.puzzle?.events || []}
+              closestGuess={gameLogic.closestGuess}
             />
 
             {/* Input Section - Hidden when game complete */}
@@ -404,6 +406,20 @@ export default function ChronldePage() {
               isGameComplete={gameLogic.isGameComplete}
               hasWon={gameLogic.hasWon}
             />
+
+            {/* Proximity Display - Show closest guess during active gameplay */}
+            {!gameLogic.isGameComplete && gameLogic.gameState.guesses.length > 0 && !gameLogic.hasWon && gameLogic.gameState.puzzle && (
+              <ProximityDisplay
+                currentGuess={gameLogic.gameState.guesses[gameLogic.gameState.guesses.length - 1]}
+                currentDistance={Math.abs(gameLogic.gameState.guesses[gameLogic.gameState.guesses.length - 1] - gameLogic.gameState.puzzle.year)}
+                closestGuess={gameLogic.closestGuess}
+                targetYear={gameLogic.gameState.puzzle.year}
+                hasWon={gameLogic.hasWon}
+                isCurrentGuessClosest={gameLogic.isCurrentGuessClosest}
+                guessCount={gameLogic.gameState.guesses.length}
+                className="animate-fade-in"
+              />
+            )}
 
             {/* Progress Section */}
             <GameProgress

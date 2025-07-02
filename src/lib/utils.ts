@@ -31,6 +31,66 @@ export function getTimeUntilMidnight(): number {
   return midnight.getTime() - now.getTime();
 }
 
+// Calculate closest guess for sharing and display
+export function calculateClosestGuess(guesses: number[], targetYear: number): { guess: number; distance: number } | null {
+  if (!Array.isArray(guesses) || guesses.length === 0 || typeof targetYear !== 'number') {
+    return null;
+  }
+
+  try {
+    let closestDistance = Infinity;
+    let closestGuess = guesses[0];
+
+    for (const guess of guesses) {
+      if (typeof guess !== 'number' || !isFinite(guess)) {
+        continue;
+      }
+
+      const distance = Math.abs(guess - targetYear);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestGuess = guess;
+      }
+    }
+
+    return { guess: closestGuess, distance: closestDistance };
+  } catch (error) {
+    console.error('Closest guess calculation failed:', error);
+    return null;
+  }
+}
+
+// Format closest guess message for sharing
+export function formatClosestGuessMessage(closestData: { guess: number; distance: number } | null, hasWon: boolean): string {
+  // Defensive programming: handle all edge cases
+  if (!closestData || hasWon || closestData.distance === 0) {
+    return '';
+  }
+
+  // Validate distance is a valid number
+  const { distance } = closestData;
+  if (typeof distance !== 'number' || !isFinite(distance) || distance < 0) {
+    console.warn('Invalid distance in formatClosestGuessMessage:', distance);
+    return '';
+  }
+  
+  try {
+    // Add achievement indicators for exceptional accuracy
+    if (distance === 1) {
+      return ` (Closest: 1 year off! 🎯)`;
+    } else if (distance <= 5) {
+      return ` (Closest: ${distance} years off 🏆)`;
+    } else if (distance <= 25) {
+      return ` (Closest: ${distance} years off 🎖️)`;
+    } else {
+      return ` (Closest: ${distance} years off)`;
+    }
+  } catch (error) {
+    console.error('Error formatting closest guess message:', error);
+    return '';
+  }
+}
+
 export function formatCountdown(milliseconds: number): string {
   const hours = Math.floor(milliseconds / (1000 * 60 * 60));
   const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
@@ -41,27 +101,49 @@ export function formatCountdown(milliseconds: number): string {
 
 
 export function generateShareText(guesses: number[], targetYear: number, hasWon: boolean, puzzleEvents?: string[]): string {
-  const today = new Date();
-  const dateString = today.toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
-  });
-  
-  const emojiTimeline = generateEmojiTimeline(guesses, targetYear);
-  const score = hasWon ? `${guesses.length}/6` : 'X/6';
-  
-  let result = `Chrondle: ${dateString} - ${score}\n`;
-  
-  // Add first hint if available (directly below the top line)
-  if (puzzleEvents && puzzleEvents.length > 0) {
-    result += `${puzzleEvents[0]}\n`;
+  try {
+    // Validate inputs
+    if (!Array.isArray(guesses) || typeof targetYear !== 'number' || typeof hasWon !== 'boolean') {
+      console.error('Invalid inputs to generateShareText');
+      return 'Chrondle share text generation failed';
+    }
+
+    const today = new Date();
+    const dateString = today.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    
+    const emojiTimeline = generateEmojiTimeline(guesses, targetYear);
+    const score = hasWon ? `${guesses.length}/6` : 'X/6';
+    
+    // Calculate closest guess for enhanced sharing with error handling
+    let closestMessage = '';
+    try {
+      const closestData = calculateClosestGuess(guesses, targetYear);
+      closestMessage = formatClosestGuessMessage(closestData, hasWon);
+    } catch (error) {
+      console.warn('Failed to calculate closest guess for sharing:', error);
+      // Continue without closest guess message
+    }
+    
+    let result = `Chrondle: ${dateString} - ${score}${closestMessage}\n`;
+    
+    // Add first hint if available (directly below the top line)
+    if (puzzleEvents && Array.isArray(puzzleEvents) && puzzleEvents.length > 0 && puzzleEvents[0]) {
+      result += `${puzzleEvents[0]}\n`;
+    }
+    
+    result += `\n${emojiTimeline}`;
+    result += '\n\nhttps://www.chrondle.app';
+    
+    return result;
+  } catch (error) {
+    console.error('Failed to generate share text:', error);
+    // Fallback to basic share text
+    return `Chrondle: ${hasWon ? 'Won' : 'Lost'} in ${guesses.length}/6 guesses\nhttps://www.chrondle.app`;
   }
-  
-  result += `\n${emojiTimeline}`;
-  result += '\n\nhttps://www.chrondle.app';
-  
-  return result;
 }
 
 export function generateWordleBoxes(guess: number, targetYear: number): string {

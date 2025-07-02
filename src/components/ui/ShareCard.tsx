@@ -3,6 +3,8 @@
 import React from 'react';
 import { RippleButton } from '@/components/magicui/ripple-button';
 import { ShareStatus } from '@/hooks/useShareGame';
+import { formatYear } from '@/lib/utils';
+import type { ClosestGuessData } from '@/hooks/useGameState';
 
 interface ShareCardProps {
   emojiBarcode: string;
@@ -10,6 +12,8 @@ interface ShareCardProps {
   guesses: number[];
   onShare: () => void;
   shareStatus: ShareStatus;
+  closestGuess?: ClosestGuessData | null;
+  targetYear?: number;
 }
 
 export const ShareCard: React.FC<ShareCardProps> = ({
@@ -17,7 +21,9 @@ export const ShareCard: React.FC<ShareCardProps> = ({
   hasWon,
   guesses,
   onShare,
-  shareStatus
+  shareStatus,
+  closestGuess,
+  targetYear
 }) => {
   const getShareButtonContent = () => {
     const isSuccess = shareStatus === 'success';
@@ -110,6 +116,31 @@ export const ShareCard: React.FC<ShareCardProps> = ({
             <p className="text-sm font-medium text-muted-foreground">
               {hasWon ? `Solved in ${guesses.length} guess${guesses.length === 1 ? '' : 'es'}!` : 'So close!'}
             </p>
+            
+            {/* Closest guess information for lost games */}
+            {!hasWon && closestGuess && targetYear && (
+              <div className="mt-3 p-3 bg-muted/30 rounded-lg border border-border/20">
+                <div className="flex items-center justify-center gap-2 text-sm">
+                  <span className="text-muted-foreground">Closest guess:</span>
+                  <span className="font-medium text-foreground">
+                    {formatYear(closestGuess.guess)}
+                  </span>
+                  <span className="text-muted-foreground">
+                    ({closestGuess.distance} year{closestGuess.distance === 1 ? '' : 's'} off)
+                  </span>
+                  {closestGuess.distance <= 5 && (
+                    <span className="text-lg" role="img" aria-label="excellent accuracy">
+                      🏆
+                    </span>
+                  )}
+                  {closestGuess.distance <= 25 && closestGuess.distance > 5 && (
+                    <span className="text-lg" role="img" aria-label="good accuracy">
+                      🎖️
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
         </div>

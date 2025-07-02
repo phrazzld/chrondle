@@ -5,6 +5,50 @@ import { GameState, createInitialGameState, initializePuzzle, saveProgress, load
 import { sortEventsByRecognizability } from '@/lib/api';
 import { GAME_CONFIG } from '@/lib/constants';
 
+// Utility function to find the closest guess with robust error handling
+function findClosestGuess(guesses: number[], targetYear: number): ClosestGuessData | null {
+  if (!Array.isArray(guesses) || guesses.length === 0 || typeof targetYear !== 'number') {
+    return null;
+  }
+
+  try {
+    let closestDistance = Infinity;
+    let closestGuess = guesses[0];
+    let closestIndex = 0;
+
+    for (let i = 0; i < guesses.length; i++) {
+      const guess = guesses[i];
+      if (typeof guess !== 'number' || !isFinite(guess)) {
+        console.warn(`Invalid guess at index ${i}: ${guess}`);
+        continue;
+      }
+
+      const distance = Math.abs(guess - targetYear);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestGuess = guess;
+        closestIndex = i;
+      }
+    }
+
+    return {
+      guess: closestGuess,
+      distance: closestDistance,
+      guessIndex: closestIndex
+    };
+  } catch (error) {
+    console.error('Closest guess calculation failed:', error);
+    return null;
+  }
+}
+
+// Closest guess tracking interface
+export interface ClosestGuessData {
+  guess: number;
+  distance: number;
+  guessIndex: number; // Which attempt (0-based)
+}
+
 export interface UseGameStateReturn {
   gameState: GameState;
   isLoading: boolean;
@@ -21,6 +65,10 @@ export interface UseGameStateReturn {
   currentEvent: string | null;
   currentHintIndex: number;
   nextHint: string | null;
+  
+  // Closest guess tracking
+  closestGuess: ClosestGuessData | null;
+  isCurrentGuessClosest: boolean;
 }
 
 export function useGameState(debugMode: boolean = false): UseGameStateReturn {
@@ -113,13 +161,26 @@ export function useGameState(debugMode: boolean = false): UseGameStateReturn {
     // Next hint (event corresponding to next reveal)
     const nextHint = gameState.puzzle?.events[currentHintIndex + 1] || null;
 
+    // Closest guess calculations
+    const closestGuess = gameState.puzzle 
+      ? findClosestGuess(gameState.guesses, gameState.puzzle.year)
+      : null;
+    
+    // Check if the most recent guess is the closest so far
+    const currentGuess = gameState.guesses[gameState.guesses.length - 1];
+    const isCurrentGuessClosest = closestGuess && currentGuess 
+      ? closestGuess.guess === currentGuess
+      : false;
+
     return {
       remainingGuesses,
       isGameComplete,
       hasWon,
       currentEvent,
       currentHintIndex,
-      nextHint
+      nextHint,
+      closestGuess,
+      isCurrentGuessClosest
     };
   }, [gameState.guesses, gameState.isGameOver, gameState.puzzle]);
 
