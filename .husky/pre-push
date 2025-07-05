@@ -1,12 +1,8 @@
 #!/bin/sh
 echo "🔍 Running pre-push checks..."
 
-# Type checking
+# Type checking only - tests run in CI
 echo "📝 Type checking..."
 pnpm type-check || exit 1
 
-# Run tests
-echo "🧪 Running tests..."
-pnpm test -- --run || exit 1
-
-echo "✅ All pre-push checks passed!"
+echo "✅ Pre-push checks passed!"
