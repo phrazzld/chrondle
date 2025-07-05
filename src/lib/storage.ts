@@ -2,6 +2,7 @@
 // Ensures 100% compatibility with original HTML localStorage usage patterns
 
 import { STORAGE_KEYS, STREAK_CONFIG } from './constants';
+import { logger } from './logger';
 
 export interface StorageEntry {
   key: string;
@@ -68,7 +69,7 @@ export function getProgressKey(): string {
 
 export function saveGameProgress(progress: Record<string, unknown>, debugMode: boolean = false): void {
   if (debugMode) {
-    console.log('Debug mode: skipping localStorage save');
+    logger.debug('Debug mode: skipping localStorage save');
     return;
   }
   
@@ -78,21 +79,21 @@ export function saveGameProgress(progress: Record<string, unknown>, debugMode: b
     timestamp: new Date().toISOString()
   });
   
-  console.log(`🔍 DEBUG: Saving progress:`, progress);
+  logger.debug(`Saving progress:`, progress);
   safeSetItem(key, progressData);
 }
 
 export function loadGameProgress(debugMode: boolean = false): Record<string, unknown> | null {
   if (debugMode) {
-    console.log('Debug mode: skipping localStorage load');
+    logger.debug('Debug mode: skipping localStorage load');
     return null;
   }
   
   const key = getProgressKey();
   const savedData = safeGetItem(key);
   
-  console.log(`🔍 DEBUG: Loading progress for key: ${key}`);
-  console.log(`🔍 DEBUG: Found saved progress:`, savedData);
+  logger.debug(`Loading progress for key: ${key}`);
+  logger.debug(`Found saved progress:`, savedData);
   
   if (savedData) {
     try {
@@ -294,7 +295,7 @@ export function cleanupOldStorage(): void {
   const today = new Date().toISOString().slice(0, 10);
   const todayKey = `${STORAGE_KEYS.PROGRESS_PREFIX}${today}`;
   
-  console.log(`🔍 DEBUG: Cleaning up old localStorage entries, keeping: ${todayKey}`);
+  logger.debug(`Cleaning up old localStorage entries, keeping: ${todayKey}`);
   
   const keysToRemove: string[] = [];
   
@@ -308,11 +309,11 @@ export function cleanupOldStorage(): void {
     
     keysToRemove.forEach(key => {
       localStorage.removeItem(key);
-      console.log(`🗑️ Removed old storage entry: ${key}`);
+      logger.debug(`🗑️ Removed old storage entry: ${key}`);
     });
     
     if (keysToRemove.length > 0) {
-      console.log(`🔍 DEBUG: Cleaned up ${keysToRemove.length} old entries`);
+      logger.debug(`Cleaned up ${keysToRemove.length} old entries`);
     }
   } catch (error) {
     console.error('Error during storage cleanup:', error);
@@ -336,7 +337,7 @@ export function clearAllChronldeStorage(): string[] {
     // Remove all chrondle keys
     keys.forEach(key => localStorage.removeItem(key));
     
-    console.log(`🗑️ Cleared ${keys.length} chrondle storage entries:`, keys);
+    logger.info(`🗑️ Cleared ${keys.length} chrondle storage entries:`, keys);
   } catch (error) {
     console.error('Error clearing chrondle storage:', error);
   }
@@ -348,7 +349,7 @@ export function clearAllChronldeStorage(): string[] {
 
 export function logAllChronldeStorage(): void {
   const allChrondles = getAllChronldeEntries();
-  console.log(`🔍 DEBUG: All chrondle localStorage entries:`, allChrondles);
+  logger.debug(`All chrondle localStorage entries:`, allChrondles);
 }
 
 export function getStorageInfo(): {
@@ -473,7 +474,7 @@ export function validateStorageIntegrity(): boolean {
       return false;
     }
     
-    console.log('✅ localStorage integrity check passed');
+    logger.info('✅ localStorage integrity check passed');
     return true;
   } catch (error) {
     console.error('localStorage integrity check failed:', error);

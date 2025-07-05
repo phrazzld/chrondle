@@ -7,6 +7,7 @@ import { useGameState } from '@/hooks/useGameState';
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import { useStreak } from '@/hooks/useStreak';
 import { useCountdown } from '@/hooks/useCountdown';
+import { logger } from '@/lib/logger';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/button';
 import { SettingsModal } from '@/components/modals/SettingsModal';
@@ -179,10 +180,10 @@ export default function ChronldePage() {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js')
         .then((registration) => {
-          console.log('📱 Service Worker registered successfully:', registration);
+          logger.info('📱 Service Worker registered successfully:', registration);
         })
         .catch((error) => {
-          console.log('📱 Service Worker registration failed:', error);
+          logger.error('📱 Service Worker registration failed:', error);
         });
     }
 

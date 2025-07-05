@@ -6,7 +6,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
-    testTimeout: 30000, // 30 seconds timeout for slow tests
+    teardownTimeout: 1000, // Give 1 second for cleanup then exit
   },
   resolve: {
     alias: {

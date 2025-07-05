@@ -2,6 +2,7 @@
 // Uses Web Notifications API for local scheduled reminders
 
 import { NOTIFICATION_CONFIG } from './constants';
+import { logger } from './logger';
 import { 
   loadNotificationSettings, 
   saveNotificationSettings, 
@@ -70,7 +71,7 @@ class WebNotificationService implements NotificationService {
         this.scheduleDaily(time);
       }, delay);
 
-      console.log(`📅 Daily reminder scheduled for ${new Date(targetTime).toLocaleString()}`);
+      logger.info(`📅 Daily reminder scheduled for ${new Date(targetTime).toLocaleString()}`);
       return true;
     } catch (error) {
       console.error('Error scheduling daily notification:', error);
@@ -82,7 +83,7 @@ class WebNotificationService implements NotificationService {
     if (this.timeoutId !== null) {
       window.clearTimeout(this.timeoutId);
       this.timeoutId = null;
-      console.log('📅 Daily reminder cancelled');
+      logger.info('📅 Daily reminder cancelled');
     }
     return true;
   }
@@ -136,7 +137,7 @@ class WebNotificationService implements NotificationService {
         notification.close();
       };
 
-      console.log('📅 Daily reminder notification shown:', message);
+      logger.info('📅 Daily reminder notification shown:', message);
     } catch (error) {
       console.error('Error showing notification:', error);
     }
@@ -239,13 +240,13 @@ export async function initializeNotifications(): Promise<void> {
     if (currentPermission === 'granted') {
       const service = getNotificationService();
       await service.scheduleDaily(settings.time);
-      console.log('📅 Daily reminders initialized on app startup');
+      logger.info('📅 Daily reminders initialized on app startup');
     } else {
       // Permission was revoked, update our records
       updateNotificationPermission(currentPermission);
       settings.enabled = false;
       saveNotificationSettings(settings);
-      console.log('📅 Notification permission revoked, disabled reminders');
+      logger.info('📅 Notification permission revoked, disabled reminders');
     }
   }
 }

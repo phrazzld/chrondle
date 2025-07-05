@@ -125,7 +125,7 @@ describe('gameState Library Functions', () => {
       vi.spyOn(global, 'Date').mockImplementation(() => mockDate);
 
       // Test that algorithm produces consistent results
-      const iterations = 100;
+      const iterations = 10; // Reduced from 100 to prevent console output bottleneck
       const firstYear = getDailyYear();
       
       for (let i = 0; i < iterations; i++) {

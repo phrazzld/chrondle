@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import { motion, useMotionValue, animate } from 'motion/react';
 import { formatYear } from '@/lib/utils';
+import { logger } from '@/lib/logger';
 
 interface NumberTickerProps {
   value: number;
@@ -22,7 +23,7 @@ export const NumberTicker: React.FC<NumberTickerProps> = ({
 
   useEffect(() => {
     if (startValue !== undefined && startValue !== value) {
-      console.log(`NumberTicker animating from ${startValue} to ${value}`);
+      logger.debug(`NumberTicker animating from ${startValue} to ${value}`);
       const controls = animate(motionValue, value, {
         duration: duration / 1000,
         ease: 'easeOut',
@@ -30,7 +31,7 @@ export const NumberTicker: React.FC<NumberTickerProps> = ({
 
       return () => controls.stop();
     } else {
-      console.log(`NumberTicker setting immediately to ${value}`);
+      logger.debug(`NumberTicker setting immediately to ${value}`);
       // Set immediately if no animation needed
       motionValue.set(value);
     }

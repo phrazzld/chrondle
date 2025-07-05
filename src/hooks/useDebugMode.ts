@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { createDebugUtilities } from '@/lib/gameState';
 import { GameState } from '@/lib/gameState';
 import { URL_PARAMS } from '@/lib/constants';
+import { logger } from '@/lib/logger';
 
 export interface UseDebugModeReturn {
   isDebugMode: boolean;
@@ -68,9 +69,9 @@ export function useDebugMode(gameState: GameState): UseDebugModeReturn {
       window.chrondle = debugUtilities;
       
       if (debugState.isDebugMode) {
-        console.log('🔧 Debug mode active. Use window.chrondle for utilities.');
+        logger.info('🔧 Debug mode active. Use window.chrondle for utilities.');
       } else {
-        console.log('🔧 Debug utilities available: window.chrondle.debug(), window.chrondle.clearStorage()');
+        logger.info('🔧 Debug utilities available: window.chrondle.debug(), window.chrondle.clearStorage()');
       }
     }
 
@@ -108,7 +109,7 @@ export function useDebugMode(gameState: GameState): UseDebugModeReturn {
     }
 
     document.addEventListener('keydown', handleDebugShortcuts);
-    console.log('⌨️  Debug shortcuts: Ctrl+R (reset), Ctrl+C (clear storage), Ctrl+D (dump state)');
+    logger.info('⌨️  Debug shortcuts: Ctrl+R (reset), Ctrl+C (clear storage), Ctrl+D (dump state)');
 
     return () => {
       document.removeEventListener('keydown', handleDebugShortcuts);

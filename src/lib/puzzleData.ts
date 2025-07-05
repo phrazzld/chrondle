@@ -2,6 +2,7 @@
 // Ultra-minimal schema: just year -> events mapping with metadata
 
 import puzzleDataJson from '@/data/puzzles.json';
+import { logger } from './logger';
 
 // --- TYPE DEFINITIONS ---
 
@@ -52,12 +53,12 @@ export function getPuzzleForYear(year: number): string[] {
   
   // If exactly 6 events, return all
   if (events.length === 6) {
-    console.log(`🔍 DEBUG: Loaded puzzle for year ${year} with ${events.length} events`);
+    logger.debug(`Loaded puzzle for year ${year} with ${events.length} events`);
     return [...events]; // Return copy to prevent mutations
   }
   
   // If more than 6 events, deterministically select 6
-  console.log(`🔍 DEBUG: Year ${year} has ${events.length} events, selecting 6 deterministically`);
+  logger.debug(`Year ${year} has ${events.length} events, selecting 6 deterministically`);
   
   // Create deterministic selection based on current date and year
   const today = new Date();
@@ -84,7 +85,7 @@ export function getPuzzleForYear(year: number): string[] {
   selectedIndices.sort((a, b) => a - b);
   
   const selectedEvents = selectedIndices.map(i => events[i]);
-  console.log(`🔍 DEBUG: Selected events at indices [${selectedIndices.join(', ')}] for year ${year}`);
+  logger.debug(`Selected events at indices [${selectedIndices.join(', ')}] for year ${year}`);
   
   return selectedEvents;
 }
@@ -157,7 +158,7 @@ export function validatePuzzleData(): boolean {
         isValid = false;
         continue;
       } else if (events.length > 6) {
-        console.log(`🔍 DEBUG: Year ${year} has ${events.length} events (>6), will select 6 deterministically`);
+        logger.debug(`Year ${year} has ${events.length} events (>6), will select 6 deterministically`);
       }
       
       // Check each event
@@ -173,7 +174,7 @@ export function validatePuzzleData(): boolean {
     }
     
     if (isValid) {
-      console.log(`🔍 DEBUG: Puzzle data validation passed - ${Object.keys(puzzleData.puzzles).length} valid puzzles`);
+      logger.info(`Puzzle data validation passed - ${Object.keys(puzzleData.puzzles).length} valid puzzles`);
     }
     
     return isValid;

@@ -114,9 +114,7 @@ describe('Enhanced Proximity Feedback', () => {
       const medievalHint = getHistoricalContextHint(1969, 1200, options);
       const modernHint = getHistoricalContextHint(1969, 1950, options);
       
-      // Debug logging
-      console.log('Medieval hint (1969 vs 1200):', medievalHint);
-      console.log('Modern hint (1969 vs 1950):', modernHint);
+      // Debug logging removed for production
       
       expect(medievalHint.hint).toBeTruthy();
       expect(medievalHint.hint?.toLowerCase()).toMatch(/medieval|century|era|period/);
@@ -170,7 +168,7 @@ describe('Enhanced Proximity Feedback', () => {
         includeProgressiveTracking: true
       });
       
-      console.log('Integration test feedback:', feedback);
+      // Debug output removed for production
       
       expect(feedback.message).toBeTruthy();
       expect(feedback.encouragement).toBeTruthy();

@@ -1,7 +1,7 @@
 {
   "meta": {
     "version": "4.4",
-    "total_puzzles": 246,
+    "total_puzzles": 252,
     "date_range": "-1200-2010"
   },
   "puzzles": {
@@ -331,12 +331,12 @@
       "The first temple dedicated to Zen Buddhism is completed in Japan."
     ],
     "1215": [
-      "Feudal lords unite against financial oppression and military failures",
-      "Water meadow chosen as neutral ground between opposing forces",
-      "Royal seal pressed onto parchment after tense negotiations",
-      "Twenty-five barons appointed to enforce compliance with agreement",
-      "King John signs charter at Runnymede limiting royal authority",
-      "Magna Carta creates foundation for constitutional government worldwide"
+      "King John of England signs the Magna Carta at Runnymede.",
+      "The Fourth Lateran Council is convened by Pope Innocent III.",
+      "Genghis Khan's Mongol forces capture the city of Beijing.",
+      "The First Barons' War breaks out in England.",
+      "Frederick II is crowned King of the Romans.",
+      "The Dominican Order is founded by Saint Dominic."
     ],
     "1258": [
       "Hulagu Khan's Mongol forces sack and burn Baghdad",
@@ -619,12 +619,12 @@
       "Christian slaves freed from Turkish galley ships"
     ],
     "1582": [
-      "Pope Gregory XIII introduces the Gregorian calendar",
-      "Ten days are skipped in October to correct the calendar",
-      "The University of Edinburgh is founded in Scotland",
-      "William Shakespeare marries Anne Hathaway in Stratford-upon-Avon",
-      "The Raid of the Babington Plot is foiled in England",
-      "The Battle of Yamazaki is fought in Japan"
+      "Pope Gregory XIII introduces the Gregorian calendar.",
+      "Ten days are skipped in October to correct the calendar.",
+      "The University of Edinburgh is founded in Scotland.",
+      "William Shakespeare marries Anne Hathaway in Stratford-upon-Avon.",
+      "Warlord Oda Nobunaga is assassinated in the Honnō-ji Incident.",
+      "Yermak Timofeyevich completes the Russian conquest of the Khanate of Sibir."
     ],
     "1588": [
       "Fire ships scattered massive invasion fleet near Gravelines",
@@ -924,12 +924,12 @@
       "The Northwest Ordinance is passed, organizing the Northwest Territory."
     ],
     "1788": [
-      "The First Fleet arrives in Botany Bay, Australia",
-      "The U.S. Constitution is ratified by the ninth state, New Hampshire",
-      "The city of Marietta, Ohio is founded",
-      "A great fire destroys much of New Orleans",
-      "The African Association is founded in London",
-      "The Day of the Tiles occurs in Grenoble, France"
+      "Captain Arthur Phillip establishes a penal colony at Sydney Cove.",
+      "New Hampshire becomes the ninth state to ratify the U.S. Constitution.",
+      "The city of Marietta, Ohio, is founded as the first permanent U.S. settlement in the Northwest Territory.",
+      "A major fire destroys 856 buildings in the city of New Orleans.",
+      "The African Association is founded in London to explore West Africa.",
+      "The Day of the Tiles, a riot against royal authority, takes place in Grenoble, France."
     ],
     "1789": [
       "The French Revolution begins with the storming of the Bastille in Paris.",
@@ -1211,7 +1211,7 @@
       "Queen Victoria celebrates her Golden Jubilee, marking 50 years on the British throne.",
       "The United States passes the Dawes Act, authorizing the division of Native American tribal land.",
       "Arthur Conan Doyle's 'A Study in Scarlet,' the first Sherlock Holmes story, is published.",
-      "Anne Sullivan begins teaching Helen Keller, a deaf and blind girl.",
+      "Anne Sullivan begins teaching the blind and deaf Helen Keller.",
       "The first official Groundhog Day is celebrated in Punxsutawney, Pennsylvania."
     ],
     "1888": [
@@ -1746,6 +1746,14 @@
       "Richard Nixon is inaugurated as the 37th President of the United States.",
       "The Beatles release their iconic album 'Abbey Road'."
     ],
+    "1970": [
+      "The Beatles officially break up.",
+      "The first Earth Day is celebrated in the United States.",
+      "Four students are killed by the National Guard at Kent State University.",
+      "The Apollo 13 mission suffers an in-flight emergency.",
+      "The Bhola cyclone devastates East Pakistan (now Bangladesh).",
+      "Brazil, led by Pelé, wins the FIFA World Cup in Mexico."
+    ],
     "1971": [
       "The New York Times begins publishing the Pentagon Papers, a top-secret history of the Vietnam War.",
       "The 26th Amendment to the U.S. Constitution is ratified, lowering the voting age to 18.",
@@ -1785,8 +1793,7 @@
       "Bill Gates and Paul Allen found Microsoft.",
       "The Apollo-Soyuz Test Project marks US-Soviet space cooperation.",
       "The Suez Canal reopens after being closed for eight years.",
-      "Junko Tabei becomes the first woman to summit Mount Everest.",
-      "The Altair 8800 personal computer is released."
+      "Junko Tabei becomes the first woman to summit Mount Everest."
     ],
     "1976": [
       "The United States celebrates its Bicentennial, marking 200 years of independence.",
@@ -1868,9 +1875,15 @@
       "The United States launches airstrikes against Libya in Operation El Dorado Canyon.",
       "Halley's Comet makes its closest approach to the Sun, visible from Earth.",
       "The first Martin Luther King Jr. Day is celebrated as a U.S. federal holiday.",
-      "Pixar Animation Studios is founded in California by Steve Jobs.",
-      "Argentine footballer Diego Maradona scores the 'Hand of God' goal.",
-      "The Iran-Contra affair becomes public, revealing a secret U.S. arms deal."
+      "Pixar Animation Studios is founded in California by Steve Jobs."
+    ],
+    "1988": [
+      "Pan Am Flight 103 is bombed over Lockerbie, Scotland.",
+      "The Soviet Union begins its withdrawal from Afghanistan.",
+      "A ceasefire is reached in the Iran-Iraq War.",
+      "The first World AIDS Day is observed.",
+      "The Morris worm, one of the first computer worms, is released.",
+      "The Summer Olympics are held in Seoul, South Korea."
     ],
     "1989": [
       "The Berlin Wall is opened, leading to the reunification of Germany.",
@@ -1878,9 +1891,7 @@
       "The Exxon Valdez oil tanker runs aground, causing a massive oil spill in Alaska.",
       "Tim Berners-Lee writes a proposal for a system of interlinked hypertext documents.",
       "Nintendo releases the Game Boy, a handheld video game console.",
-      "The 'Velvet Revolution' peacefully ends communist rule in Czechoslovakia.",
-      "Tim Burton's film *Batman*, starring Michael Keaton, is a box-office success.",
-      "The first of 24 GPS satellites is launched into orbit."
+      "The 'Velvet Revolution' peacefully ends communist rule in Czechoslovakia."
     ],
     "1990": [
       "The Hubble Space Telescope is deployed into orbit by the Space Shuttle *Discovery*.",
@@ -1888,8 +1899,7 @@
       "Iraq invades Kuwait, leading to the start of the Persian Gulf War.",
       "East and West Germany are reunified, ending 45 years of division.",
       "The Americans with Disabilities Act is signed into law by President George H.W. Bush.",
-      "Tim Berners-Lee writes the first web browser, laying the foundation for the World Wide Web.",
-      "The Human Genome Project, an international effort to map human DNA, is launched."
+      "Tim Berners-Lee writes the first web browser, laying the foundation for the World Wide Web."
     ],
     "1991": [
       "The Soviet Union is officially dissolved, ending the Cold War.",
@@ -1897,9 +1907,7 @@
       "Tim Berners-Lee creates and releases the first public webpage.",
       "The videotaped beating of Rodney King by Los Angeles police sparks outrage.",
       "Nirvana's album *Nevermind* brings grunge music to a global audience.",
-      "The eruption of Mount Pinatubo in the Philippines is the second-largest of the 20th century.",
-      "The horror film *The Silence of the Lambs* is released, starring Anthony Hopkins.",
-      "The well-preserved mummy of Ötzi the Iceman is discovered in the Alps."
+      "The eruption of Mount Pinatubo in the Philippines is the second-largest of the 20th century."
     ],
     "1992": [
       "The Maastricht Treaty is signed, creating the European Union.",
@@ -1915,9 +1923,7 @@
       "The 'Don't Ask, Don't Tell' policy is implemented for gay people in the U.S. military.",
       "The Maastricht Treaty formally establishes the European Union.",
       "The Oslo I Accord is signed at the White House by Israel and the PLO.",
-      "Colombian drug lord Pablo Escobar is killed in a shootout with police.",
-      "Steven Spielberg's film *Jurassic Park* becomes a box-office hit.",
-      "The peaceful dissolution of Czechoslovakia creates the Czech Republic and Slovakia."
+      "Colombian drug lord Pablo Escobar is killed in a shootout with police."
     ],
     "1994": [
       "Nelson Mandela is inaugurated as South Africa's first black president.",
@@ -1925,9 +1931,7 @@
       "The North American Free Trade Agreement (NAFTA) goes into effect.",
       "The Channel Tunnel, connecting the UK and France, is officially opened.",
       "Jeff Bezos founds the online bookstore Amazon in his garage.",
-      "Sony releases its first PlayStation video game console in Japan.",
-      "Kurt Cobain, frontman of the band Nirvana, dies by suicide.",
-      "Quentin Tarantino's film *Pulp Fiction* is released to critical acclaim."
+      "Sony releases its first PlayStation video game console in Japan."
     ],
     "1995": [
       "A truck bomb destroys the Murrah Federal Building in Oklahoma City.",
@@ -1935,9 +1939,7 @@
       "Israeli Prime Minister Yitzhak Rabin is assassinated by a right-wing extremist.",
       "Microsoft releases the Windows 95 operating system with a massive marketing campaign.",
       "The O.J. Simpson murder trial ends with a controversial 'not guilty' verdict.",
-      "The Aum Shinrikyo cult releases sarin nerve gas in the Tokyo subway system.",
-      "Pixar's *Toy Story*, the first feature-length CGI film, is released.",
-      "The World Trade Organization (WTO) is established to regulate international trade."
+      "The Aum Shinrikyo cult releases sarin nerve gas in the Tokyo subway system."
     ],
     "1996": [
       "Bill Clinton is re-elected President of the United States, defeating Bob Dole.",
@@ -1945,8 +1947,7 @@
       "The Taliban capture the Afghan capital of Kabul, imposing strict Islamic law.",
       "NASA scientists announce the discovery of a meteorite from Mars with possible signs of life.",
       "Dolly the sheep, the first mammal to be cloned from an adult cell, is born.",
-      "The British girl group the Spice Girls release their debut single, 'Wannabe'.",
-      "The Nintendo 64 video game console is released in Japan and North America."
+      "The British girl group the Spice Girls release their debut single, 'Wannabe'."
     ],
     "1997": [
       "The United Kingdom hands over sovereignty of Hong Kong to China.",
@@ -1959,22 +1960,20 @@
       "James Cameron's film *Titanic* is released, becoming a box-office phenomenon."
     ],
     "1998": [
-      "The Good Friday Agreement is signed, marking a step towards peace in Northern Ireland.",
-      "India and Pakistan conduct a series of nuclear weapons tests.",
-      "The U.S. embassies in Kenya and Tanzania are bombed by al-Qaeda.",
-      "Google is founded by Larry Page and Sergey Brin in a garage in Menlo Park.",
-      "The film Titanic wins 11 Academy Awards, including Best Picture.",
-      "France wins the FIFA World Cup for the first time, defeating Brazil in the final."
+      "The Good Friday Agreement is signed in Northern Ireland.",
+      "Hurricane Mitch causes widespread devastation in Central America.",
+      "The European Central Bank is established in Frankfurt, Germany.",
+      "Google is founded by Larry Page and Sergey Brin.",
+      "The final episode of the sitcom 'Seinfeld' airs.",
+      "France wins the FIFA World Cup for the first time."
     ],
     "1999": [
-      "The Euro is introduced as an electronic currency in eleven European countries.",
-      "The U.S. Senate acquits President Bill Clinton in his impeachment trial.",
-      "NATO launches a 78-day bombing campaign against Yugoslavia to end the Kosovo War.",
-      "Bertrand Piccard and Brian Jones complete the first non-stop circumnavigation of the Earth by balloon.",
-      "The science fiction film *The Matrix* is released, influencing action movies for years.",
-      "The peer-to-peer file-sharing service Napster is launched, disrupting the music industry.",
-      "The world's population is estimated to have reached six billion people.",
-      "The United States officially transfers control of the Panama Canal to Panama."
+      "The Euro is introduced as an electronic currency.",
+      "NATO launches a bombing campaign in Yugoslavia.",
+      "The world's population reaches six billion people.",
+      "The animated television series *SpongeBob SquarePants* debuts.",
+      "The territory of Nunavut is created in Canada.",
+      "The United States transfers control of the Panama Canal to Panama."
     ],
     "2000": [
       "The dot-com bubble bursts, causing the NASDAQ to crash.",
@@ -1985,12 +1984,12 @@
       "Sony releases the PlayStation 2 console."
     ],
     "2001": [
-      "Collaborative online encyclopedia launches revolutionizing information sharing",
-      "Scientists complete mapping of complete human genetic code",
-      "Oklahoma City bomber executed by federal lethal injection",
-      "Energy corporation files largest bankruptcy in American history",
-      "Apple releases portable digital music player holding thousand songs",
-      "September 11th terrorist attacks kill 2,977 people launching war on terror"
+      "Al-Qaeda terrorists hijack four planes on September 11th.",
+      "Wikipedia, a free online encyclopedia, is launched.",
+      "Apple releases the first iPod digital music player.",
+      "The Enron corporation collapses in a massive scandal.",
+      "A 7.7 magnitude earthquake strikes Gujarat, India.",
+      "The United States initiates the War on Terror."
     ],
     "2002": [
       "The Euro is introduced as the new currency for twelve European Union countries.",
@@ -2000,6 +1999,14 @@
       "Chechen rebels take hundreds of hostages in a Moscow theater.",
       "The FIFA World Cup is co-hosted by South Korea and Japan."
     ],
+    "2003": [
+      "The Space Shuttle Columbia disintegrates upon reentry.",
+      "A United States-led coalition invades Iraq.",
+      "The Human Genome Project is declared complete.",
+      "Apple launches the iTunes Music Store.",
+      "The final classic Volkswagen Beetle is produced in Mexico.",
+      "The supersonic passenger jet Concorde makes its final flight."
+    ],
     "2004": [
       "A massive undersea earthquake in the Indian Ocean triggers a devastating tsunami.",
       "NASA's rovers, Spirit and Opportunity, land on Mars to explore the planet.",
@@ -2008,21 +2015,45 @@
       "The European Union undergoes its largest expansion with ten new member countries.",
       "The Boston Red Sox win the World Series for the first time since 1918."
     ],
+    "2005": [
+      "Hurricane Katrina devastates New Orleans",
+      "Angela Merkel becomes Germany's first female Chancellor",
+      "The video-sharing platform YouTube is launched",
+      "Coordinated suicide bombings strike London's public transport system",
+      "The Huygens probe lands on Saturn's moon Titan",
+      "The Kyoto Protocol, a climate change treaty, enters into force"
+    ],
+    "2006": [
+      "Former Iraqi President Saddam Hussein is executed.",
+      "Twitter, the social media platform, is launched.",
+      "Google acquires the video-sharing platform YouTube.",
+      "North Korea conducts its first nuclear test.",
+      "The International Astronomical Union reclassifies Pluto as a dwarf planet.",
+      "Italy wins the FIFA World Cup in Germany."
+    ],
+    "2007": [
+      "Apple releases the first iPhone.",
+      "Nancy Pelosi becomes the first female Speaker of the U.S. House of Representatives.",
+      "The final Harry Potter book, *Harry Potter and the Deathly Hallows*, is published.",
+      "A 8.0 magnitude earthquake strikes Peru.",
+      "Former Prime Minister Benazir Bhutto is assassinated in Pakistan.",
+      "The IPCC and Al Gore win the Nobel Peace Prize for climate change work."
+    ],
     "2008": [
-      "Lehman Brothers bankruptcy triggers financial crisis",
-      "Barack Obama elected first African American president",
-      "Beijing hosts spectacular Summer Olympics",
-      "Subprime mortgage collapse spreads globally",
-      "Russia invades Georgia over South Ossetia",
-      "Large Hadron Collider begins operation in Switzerland"
+      "Barack Obama is elected the first African American President of the United States.",
+      "The Large Hadron Collider is inaugurated at CERN.",
+      "A major financial crisis grips the global economy.",
+      "Cyclone Nargis devastates Myanmar.",
+      "The Summer Olympics are held in Beijing, China.",
+      "Marvel Studios releases its first film, *Iron Man*."
     ],
     "2010": [
-      "A 7.0 magnitude earthquake devastates Haiti.",
-      "The Deepwater Horizon oil spill occurs in the Gulf of Mexico.",
-      "The Burj Khalifa in Dubai becomes the world's tallest structure.",
-      "Apple introduces the iPad.",
-      "Instagram is launched.",
-      "The FIFA World Cup is held in South Africa."
+      "A massive earthquake devastates the nation of Haiti.",
+      "The Deepwater Horizon oil spill causes an environmental catastrophe.",
+      "The Arab Spring begins with protests in Tunisia.",
+      "Thirty-three miners are rescued after being trapped in a Chilean mine.",
+      "Apple releases the first iPad, creating a new category of tablet computers.",
+      "The social media platform Instagram is launched."
     ]
   }
 }

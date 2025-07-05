@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useHistoricalContext } from '@/hooks/useHistoricalContext';
 import { formatYear } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { logger } from '@/lib/logger';
 
 interface HistoricalContextCardProps {
   year?: number;
@@ -34,7 +35,7 @@ export const HistoricalContextCard: React.FC<HistoricalContextCardProps> = ({
       sessionStorage.setItem(`chrondle-context-expanded-${year}`, String(isExpanded));
       sessionStorage.setItem(`chrondle-context-interacted-${year}`, 'true');
       if (isDebugMode) {
-        console.log(`[HistoricalContextCard] Saved state - expanded: ${isExpanded}, interacted: true`);
+        logger.debug(`[HistoricalContextCard] Saved state - expanded: ${isExpanded}, interacted: true`);
       }
     }
   }, [isExpanded, year, hasUserInteracted, isDebugMode]);
@@ -50,7 +51,7 @@ export const HistoricalContextCard: React.FC<HistoricalContextCardProps> = ({
         if (savedExpanded !== null) {
           setIsExpanded(savedExpanded === 'true');
           if (isDebugMode) {
-            console.log(`[HistoricalContextCard] Restored state - expanded: ${savedExpanded}, interacted: true`);
+            logger.debug(`[HistoricalContextCard] Restored state - expanded: ${savedExpanded}, interacted: true`);
           }
         }
       }
@@ -59,23 +60,23 @@ export const HistoricalContextCard: React.FC<HistoricalContextCardProps> = ({
 
   const handleToggle = () => {
     if (isDebugMode) {
-      console.log(`[HistoricalContextCard] Button clicked - current state: expanded=${isExpanded}, hasData=${!!aiContext.data}, error=${!!aiContext.error}, loading=${aiContext.loading}`);
+      logger.debug(`[HistoricalContextCard] Button clicked - current state: expanded=${isExpanded}, hasData=${!!aiContext.data}, error=${!!aiContext.error}, loading=${aiContext.loading}`);
     }
 
     // Mark that user has interacted with the component
     setHasUserInteracted(true);
 
     if (aiContext.error) {
-      if (isDebugMode) console.log('[HistoricalContextCard] Retrying generation due to error');
+      if (isDebugMode) logger.debug('[HistoricalContextCard] Retrying generation due to error');
       aiContext.actions.retryGeneration();
     } else if (!aiContext.data && !aiContext.loading && year && events.length > 0) {
-      if (isDebugMode) console.log('[HistoricalContextCard] Generating context for first time');
+      if (isDebugMode) logger.debug('[HistoricalContextCard] Generating context for first time');
       setIsExpanded(true); // Expand immediately to show loading state
       aiContext.actions.generateContext(year, events);
     } else if (aiContext.data) {
       // Data exists - toggle between expanded/collapsed
       const newState = !isExpanded;
-      if (isDebugMode) console.log(`[HistoricalContextCard] Toggling expansion: ${isExpanded} -> ${newState}`);
+      if (isDebugMode) logger.debug(`[HistoricalContextCard] Toggling expansion: ${isExpanded} -> ${newState}`);
       setIsExpanded(newState);
     }
   };

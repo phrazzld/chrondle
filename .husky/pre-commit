@@ -1,1 +1,13 @@
+#!/bin/sh
+# Check for console.log statements in source files (excluding tests, docs, and scripts)
+STAGED_FILES=$(git diff --cached --name-only | grep -E '\.(ts|tsx|js|jsx)$' | grep -v -E '(__tests__|\.test\.|\.spec\.|setup\.|^scripts/|^docs/)')
+
+if [ -n "$STAGED_FILES" ]; then
+  if echo "$STAGED_FILES" | xargs grep -l "console\.log" 2>/dev/null | grep -v "logger.ts"; then
+    echo "❌ Error: console.log statements found in source files"
+    echo "Please remove console.log statements before committing"
+    exit 1
+  fi
+fi
+
 npx lint-staged

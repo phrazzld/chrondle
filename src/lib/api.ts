@@ -1,6 +1,8 @@
 // API Integration for Chrondle
 // Extracted from index.html lines ~244-772
 
+import { logger } from './logger';
+
 // Removed wikidata import - no longer used in static puzzle system
 
 // --- API CONFIGURATION ---
@@ -99,7 +101,7 @@ export function cleanEventDescription(text: string): string {
     
     // Debug logging if cleaning made changes
     if (cleaned !== text) {
-      console.log(`🔍 DEBUG: Cleaned Wikipedia markup: "${text}" → "${cleaned}"`);
+      logger.debug(`Cleaned Wikipedia markup: "${text}" → "${cleaned}"`);
     }
     
     return cleaned;
@@ -128,7 +130,7 @@ export function enhanceEventDescription(
     const cleanLocation = location ? location.trim() : '';
     const cleanParticipants = participants ? participants.trim() : '';
     
-    console.log(`🔍 DEBUG: Enhancing "${cleanLabel}" with context:`, {
+    logger.debug(`Enhancing "${cleanLabel}" with context:`, {
       description: cleanDescription || 'none',
       location: cleanLocation || 'none',
       participants: cleanParticipants || 'none'
@@ -204,7 +206,7 @@ export function enhanceEventDescription(
       .trim();
     
     if (finalResult !== cleanLabel) {
-      console.log(`🔍 DEBUG: Enhanced "${cleanLabel}" → "${finalResult}"`);
+      logger.debug(`Enhanced "${cleanLabel}" → "${finalResult}"`);
     }
     
     return finalResult || cleanLabel; // Ultimate fallback to original label

@@ -1,5 +1,5 @@
 // Test setup for Vitest
-import { beforeEach } from 'vitest';
+import { beforeEach, beforeAll, afterAll, vi } from 'vitest';
 
 // Mock localStorage for testing
 const localStorageMock = (() => {
@@ -45,6 +45,15 @@ beforeEach(() => {
     value: mockCrypto,
     writable: true
   });
+});
+
+// Mock console.log to prevent output during tests
+beforeAll(() => {
+  vi.spyOn(console, 'log').mockImplementation(() => {});
+});
+
+afterAll(() => {
+  vi.restoreAllMocks();
 });
 
 export { localStorageMock, mockCrypto };

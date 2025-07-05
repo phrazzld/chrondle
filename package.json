@@ -2,7 +2,7 @@
   "name": "chrondle",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@latest",
+  "packageManager": "pnpm@9.1.0",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "dev": "next dev --turbopack",
