@@ -1,22 +1,10 @@
 module.exports = {
-  // TypeScript and JavaScript files
-  '**/*.{ts,tsx,js,jsx}': [
-    'eslint --fix',
-    'prettier --write',
-  ],
-  
-  // TypeScript files only - run type checking
-  '**/*.{ts,tsx}': [
-    () => 'pnpm type-check'
-  ],
-  
-  // JSON, CSS, and other files
-  '**/*.{json,css,scss,md}': [
-    'prettier --write'
-  ],
-  
-  // Next.js specific - only lint files that are staged
-  '**/*.{ts,tsx,js,jsx}': [
-    'next lint --fix --file'
-  ]
+  // TypeScript and JavaScript files - lint and format
+  "**/*.{ts,tsx,js,jsx}": ["eslint --fix", "prettier --write"],
+
+  // TypeScript files only - run type checking on the whole project
+  "**/*.{ts,tsx}": [() => "pnpm type-check"],
+
+  // Other files - just format
+  "**/*.{json,css,scss,md}": ["prettier --write"],
 };

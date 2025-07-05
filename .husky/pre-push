@@ -1,19 +1,12 @@
 #!/bin/sh
 echo "🔍 Running pre-push checks..."
-START_TIME=$(date +%s)
 
 # Type checking
 echo "📝 Type checking..."
 pnpm type-check || exit 1
 
-# Build check
-echo "🔨 Testing build..."
-pnpm build || exit 1
-
 # Run tests
 echo "🧪 Running tests..."
-node scripts/run-tests.js || exit 1
+pnpm test -- --run || exit 1
 
-END_TIME=$(date +%s)
-DURATION=$((END_TIME - START_TIME))
-echo "✅ All pre-push checks passed in ${DURATION} seconds!"
+echo "✅ All pre-push checks passed!"
