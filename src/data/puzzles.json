@@ -1,7 +1,7 @@
 {
   "meta": {
     "version": "4.4",
-    "total_puzzles": 252,
+    "total_puzzles": 275,
     "date_range": "-1200-2010"
   },
   "puzzles": {
@@ -94,12 +94,12 @@
       "The Kingdom of Aksum in East Africa emerges as a major trading power."
     ],
     "30": [
-      "Jesus of Nazareth is crucified in Jerusalem under the authority of Pontius Pilate.",
+      "Jesus of Nazareth is crucified in Jerusalem.",
       "John the Baptist is executed by order of Herod Antipas.",
-      "The Praetorian prefect Sejanus has Agrippina the Elder arrested and exiled.",
+      "Agrippina the Elder is arrested and exiled by order of Sejanus.",
       "The Kushan Empire is founded in Central and South Asia.",
       "The Roman writer Velleius Paterculus completes his 'History of Rome'.",
-      "The Roman fabulist Phaedrus translates many of Aesop's fables into Latin."
+      "The Roman fabulist Phaedrus translates Aesop's fables into Latin."
     ],
     "79": [
       "Mount Vesuvius erupts, burying Pompeii and Herculaneum",
@@ -162,12 +162,12 @@
       "The usurper Basiliscus is overthrown, and Emperor Zeno is restored to the Byzantine throne."
     ],
     "500": [
-      "Frankish King Clovis I defeats the Burgundians at the Battle of Dijon.",
-      "The philosopher Boethius, a key figure in late Roman culture, is born.",
-      "The legendary Battle of Mount Badon is fought in Britain.",
-      "The Hephthalite Empire, or White Huns, control a vast territory in Central Asia.",
-      "The monastic settlement at Kildare in Ireland is founded by Saint Brigid.",
-      "The Gupta Empire in India faces invasions from the Alchon Huns."
+      "Frankish king Clovis I consolidates power in Gaul.",
+      "The Ostrogoths under Theodoric the Great rule Italy.",
+      "The legendary Battle of Mons Badonicus is fought in Britain.",
+      "The Gupta Empire in India experiences a golden age of culture.",
+      "The Zapotec civilization flourishes at Monte Albán in Mesoamerica.",
+      "The Kingdom of Aksum in Ethiopia is a major trading power."
     ],
     "527": [
       "Justinian I becomes sole ruler of the Byzantine Empire.",
@@ -995,6 +995,14 @@
       "Congress of Vienna redraws European boundaries",
       "Battle of New Orleans fought after peace treaty"
     ],
+    "1820": [
+      "The Missouri Compromise is signed into law, admitting Missouri to the Union as a slave state.",
+      "The first organized immigration of free African Americans to West Africa occurs.",
+      "Explorers with a British expedition are the first to sight the Antarctic continent.",
+      "King George III of Great Britain dies, ending a nearly 60-year reign.",
+      "A liberal uprising in Spain forces King Ferdinand VII to accept a new constitution.",
+      "American frontiersman Daniel Boone dies at the age of 85 in Missouri."
+    ],
     "1821": [
       "Alexander Ypsilantis begins Greek independence revolt",
       "Agustín de Iturbide proclaims Mexican independence",
@@ -1116,6 +1124,14 @@
       "Jefferson Davis is elected the first and only President of the Confederate States of America.",
       "The first transcontinental telegraph line is completed in the United States."
     ],
+    "1863": [
+      "President Abraham Lincoln issues the Emancipation Proclamation.",
+      "The Battle of Gettysburg marks a turning point in the American Civil War.",
+      "Union forces capture Vicksburg, gaining control of the Mississippi River.",
+      "President Lincoln delivers the Gettysburg Address.",
+      "The first wartime military draft is enacted in the United States.",
+      "The International Red Cross is founded in Geneva, Switzerland."
+    ],
     "1865": [
       "The American Civil War ends with the surrender of Robert E. Lee.",
       "President Abraham Lincoln is assassinated at Ford's Theatre.",
@@ -1215,12 +1231,12 @@
       "The first official Groundhog Day is celebrated in Punxsutawney, Pennsylvania."
     ],
     "1888": [
-      "The serial killer known as Jack the Ripper begins a series of murders in London.",
-      "The National Geographic Society is founded in Washington, D.C.",
-      "Brazil enacts the Golden Law, abolishing slavery in the country.",
-      "George Eastman patents the Kodak box camera, making photography more accessible.",
-      "The Washington Monument opens to the public for the first time.",
-      "The English Football League, the world's first domestic league, is established."
+      "The serial killer 'Jack the Ripper' terrorizes the Whitechapel district of London.",
+      "The National Geographic Society is founded in Washington, D.C. by Gardiner Greene Hubbard.",
+      "Brazil's Princess Isabel signs the 'Golden Law', abolishing slavery.",
+      "The Washington Monument opens to the public after decades of construction.",
+      "The Great Blizzard of 1888 buries the U.S. East Coast in snow.",
+      "The English Football League is founded by William McGregor."
     ],
     "1889": [
       "The Eiffel Tower is inaugurated in Paris for the Exposition Universelle.",
@@ -1230,6 +1246,30 @@
       "Brazil's monarchy is overthrown, and a republic is declared.",
       "Vincent van Gogh paints *The Starry Night* in Saint-Rémy-de-Provence."
     ],
+    "1890": [
+      "The Wounded Knee Massacre occurs, marking the end of the American Indian Wars.",
+      "Yosemite National Park is established in California, largely due to John Muir's efforts.",
+      "The Sherman Antitrust Act is passed, the first U.S. law to prohibit monopolies.",
+      "Idaho and Wyoming are admitted as the 43rd and 44th U.S. states.",
+      "Vincent van Gogh dies from a self-inflicted gunshot wound in France.",
+      "The National American Woman Suffrage Association is formed to advocate for women's voting rights."
+    ],
+    "1891": [
+      "The game of basketball is invented by James Naismith in Springfield, Massachusetts.",
+      "Carnegie Hall opens in New York City with a concert conducted by Pyotr Ilyich Tchaikovsky.",
+      "The first successful separation of conjoined twins is performed in the United States.",
+      "The Great Blizzard of 1891 strikes the south and west of England.",
+      "The first Sherlock Holmes story, 'A Scandal in Bohemia', is published in The Strand Magazine.",
+      "The first Wrigley's chewing gum is sold."
+    ],
+    "1892": [
+      "Ellis Island opens as the main U.S. immigration processing center in New York Harbor.",
+      "The Homestead Strike, a major industrial lockout and strike, turns violent in Pennsylvania.",
+      "The Dalton Gang is nearly wiped out during a failed bank robbery in Coffeyville, Kansas.",
+      "The Pledge of Allegiance is first recited in U.S. public schools.",
+      "The first collection of Sherlock Holmes stories, 'The Adventures of Sherlock Holmes', is published.",
+      "The Sierra Club, an environmental organization, is founded by John Muir."
+    ],
     "1893": [
       "The World's Columbian Exposition, a world's fair, is held in Chicago.",
       "New Zealand becomes the first country to grant all women the right to vote.",
@@ -1238,91 +1278,141 @@
       "Grover Cleveland is inaugurated for his second non-consecutive U.S. presidential term.",
       "The Duryea brothers test the first successful gasoline-powered car in America."
     ],
+    "1894": [
+      "The Pullman Strike, a major U.S. railroad strike, is suppressed by federal troops.",
+      "The First Sino-Japanese War begins over control of Korea.",
+      "The International Olympic Committee is founded in Paris.",
+      "Coca-Cola is sold in bottles for the first time.",
+      "The Dreyfus Affair begins in France with the wrongful conviction of Alfred Dreyfus.",
+      "The Great Hinckley Fire burns through 400 square miles of Minnesota forest."
+    ],
     "1895": [
-      "Wilhelm Röntgen discovers a new type of radiation, which he calls X-rays.",
+      "Wilhelm Röntgen discovers a new type of electromagnetic radiation, which he calls X-rays.",
       "The Lumière brothers hold the first public screening of a motion picture in Paris.",
-      "The Treaty of Shimonoseki ends the First Sino-Japanese War.",
-      "The Irish writer Oscar Wilde is convicted of 'gross indecency'.",
+      "The First Sino-Japanese War ends with the signing of the Treaty of Shimonoseki.",
+      "The Irish writer Oscar Wilde is convicted of 'gross indecency' and sentenced to prison.",
       "The first U.S. Open golf tournament is held in Newport, Rhode Island.",
-      "Cecil Rhodes establishes the British South Africa Company."
+      "The game of volleyball is invented by William G. Morgan in Holyoke, Massachusetts."
     ],
     "1896": [
-      "The U.S. Supreme Court rules \"separate but equal\" in Plessy v. Ferguson.",
-      "William McKinley is elected President of the United States.",
-      "Utah is admitted as the 45th U.S. state.",
-      "Wilhelm Röntgen's discovery of X-rays is widely reported.",
-      "Henri Becquerel discovers radioactivity.",
+      "The U.S. Supreme Court's Plessy v. Ferguson decision upholds 'separate but equal'.",
       "The first modern Olympic Games are held in Athens, Greece.",
-      "Gold is discovered near the Klondike River, sparking a gold rush."
+      "Gold is discovered in the Klondike region of Canada, sparking a gold rush.",
+      "Giacomo Puccini's opera 'La Bohème' premieres in Turin, Italy.",
+      "Utah is admitted as the 45th U.S. state.",
+      "Henry Ford builds his first automobile, the Ford Quadricycle."
+    ],
+    "1897": [
+      "The Klondike Gold Rush begins in the Yukon after gold is discovered on Bonanza Creek.",
+      "Queen Victoria celebrates her Diamond Jubilee, marking 60 years on the British throne.",
+      "J.J. Thomson announces his discovery of the electron, a fundamental particle of matter.",
+      "The first Boston Marathon is held, with John McDermott winning the race.",
+      "Bram Stoker's gothic horror novel 'Dracula' is published in London.",
+      "The first successful ascent of Aconcagua, the highest mountain in the Americas, is achieved."
     ],
     "1898": [
-      "The USS Maine explodes in Havana Harbor, sparking conflict.",
-      "The Spanish-American War begins, leading to U.S. expansion.",
-      "The Philippines declare independence from Spain.",
+      "The USS Maine explodes in Havana Harbor, leading to the Spanish-American War.",
       "The United States annexes the Hawaiian Islands.",
-      "Marie and Pierre Curie isolate radium and polonium.",
-      "Pharmacist Caleb Bradham names his soft drink Pepsi-Cola.",
-      "The bubonic plague begins in China and India."
+      "The Philippines declares independence from Spain, but is not recognized by the U.S.",
+      "Marie and Pierre Curie discover the radioactive elements radium and polonium.",
+      "The 'Good Friday' Agreement is signed in Northern Ireland.",
+      "Pepsi-Cola is invented by pharmacist Caleb Bradham."
     ],
     "1899": [
-      "Cuba gains liberation from Spain, leading to U.S. occupation.",
-      "The Philippine-American War begins in Manila.",
-      "The U.S. Senate ratifies the peace treaty ending the Spanish-American War.",
-      "Mount Rainier National Park is established.",
-      "The Boer War begins in South Africa between the British Empire and the Boers.",
-      "The German company Bayer patents aspirin."
+      "The Philippine-American War begins between the United States and Filipino revolutionaries.",
+      "The Second Boer War breaks out in South Africa between the British and the Boers.",
+      "The first Hague Peace Conference is held in the Netherlands.",
+      "The German company Bayer patents aspirin.",
+      "The 'newsboys' strike' takes place in New York City.",
+      "Mount Rainier National Park is established in Washington state."
     ],
     "1900": [
-      "The Galveston hurricane devastates Texas, killing thousands.",
-      "The Boxer Rebellion continues in China.",
-      "Max Planck formulates quantum theory.",
-      "Sigmund Freud publishes *The Interpretation of Dreams*.",
-      "Kodak introduces the Brownie camera, democratizing photography.",
-      "L. Frank Baum publishes *The Wonderful Wizard of Oz*.",
-      "The second Olympic Games are held in Paris, with women competing."
+      "The Boxer Rebellion, an anti-foreign uprising, is suppressed by an eight-nation alliance.",
+      "The Galveston hurricane, the deadliest in U.S. history, devastates the Texas coast.",
+      "Max Planck proposes his quantum theory of energy, a foundational theory of modern physics.",
+      "Sigmund Freud publishes his influential book 'The Interpretation of Dreams'.",
+      "The second modern Olympic Games are held in Paris as part of the Exposition Universelle.",
+      "Kodak introduces the Brownie camera, making photography affordable for the masses."
+    ],
+    "1901": [
+      "Queen Victoria of the United Kingdom dies, ending the 63-year Victorian era.",
+      "President William McKinley is assassinated by an anarchist in Buffalo, New York.",
+      "The Commonwealth of Australia is formed through the federation of six British colonies.",
+      "The first Nobel Prizes are awarded in Stockholm, Sweden.",
+      "Guglielmo Marconi sends the first transatlantic radio signal.",
+      "A massive oil gusher at Spindletop, Texas, launches the American oil boom."
     ],
     "1902": [
       "The Second Boer War ends with the signing of the Treaty of Vereeniging.",
       "The eruption of Mount Pelée on Martinique destroys the city of Saint-Pierre.",
-      "Cuba gains formal independence from the United States, with Tomás Estrada Palma as its first president.",
-      "King Edward VII and Queen Alexandra are crowned at Westminster Abbey.",
+      "Cuba gains formal independence from the United States, with conditions.",
+      "King Edward VII is crowned at Westminster Abbey after a delay due to illness.",
       "The football club Real Madrid is officially founded in the Spanish capital.",
-      "Beatrix Potter's children's book, *The Tale of Peter Rabbit*, is published.",
-      "The Aswan Low Dam, the first dam across the Nile River, is completed in Egypt."
+      "Beatrix Potter's classic children's book, 'The Tale of Peter Rabbit', is published."
     ],
     "1903": [
-      "Orville and Wilbur Wright achieve the first successful powered flight.",
-      "The United States signs a treaty with Colombia to build the Panama Canal.",
-      "Henry Ford organizes the Ford Motor Company.",
-      "The first modern World Series in professional baseball takes place.",
-      "Marie and Pierre Curie are awarded the Nobel Prize in Physics.",
-      "The 12-minute documentary film \"The Great Train Robbery\" is released.",
-      "The Iroquois Theatre fire in Chicago kills over 600 people."
+      "Orville and Wilbur Wright make the first successful powered flight at Kitty Hawk, North Carolina.",
+      "The first Tour de France, a multi-stage bicycle race, is held.",
+      "The Ford Motor Company is incorporated by Henry Ford.",
+      "The first modern World Series is played between the Boston Americans and the Pittsburgh Pirates.",
+      "Marie and Pierre Curie, along with Henri Becquerel, are awarded the Nobel Prize in Physics.",
+      "The silent film 'The Great Train Robbery' is released, a landmark in narrative filmmaking."
     ],
     "1904": [
       "The Russo-Japanese War begins with a surprise Japanese attack on Port Arthur.",
-      "The Entente Cordiale is signed between the United Kingdom and France.",
+      "The Entente Cordiale, a friendly agreement, is signed between the UK and France.",
       "The first underground line of the New York City Subway opens to the public.",
-      "The Louisiana Purchase Exposition, also known as the St. Louis World's Fair, is held.",
+      "The Louisiana Purchase Exposition, a World's Fair, is held in St. Louis.",
       "The Great Baltimore Fire destroys over 1,500 buildings in the city.",
       "Giacomo Puccini's opera 'Madama Butterfly' premieres at La Scala in Milan."
     ],
     "1905": [
-      "Bloody Sunday massacre triggers the Russian Revolution.",
-      "The Russo-Japanese War officially concludes with the Treaty of Portsmouth.",
-      "Albert Einstein publishes his theory of special relativity.",
-      "The city of Las Vegas, Nevada, is officially founded.",
-      "Kaiser Wilhelm II visits Tangiers, sparking the First Moroccan Crisis.",
-      "The Canadian provinces of Alberta and Saskatchewan are created.",
-      "Rotary International is founded in Chicago."
+      "The 'Bloody Sunday' massacre of peaceful demonstrators in St. Petersburg sparks a revolution.",
+      "Albert Einstein publishes four groundbreaking papers, including his theory of special relativity.",
+      "The Russo-Japanese War ends with a decisive Japanese victory.",
+      "The First Moroccan Crisis increases tensions between Germany and France.",
+      "The city of Las Vegas, Nevada, is founded in the Mojave Desert.",
+      "The first Rotary Club is established in Chicago by Paul Harris."
+    ],
+    "1906": [
+      "A massive earthquake and fire devastate San Francisco, California.",
+      "The Pure Food and Drug Act is passed, creating the Food and Drug Administration.",
+      "Finland becomes the first European country to grant women the right to vote.",
+      "The first Grand Prix motor race is held in Le Mans, France.",
+      "The All-India Muslim League is founded in Dhaka.",
+      "The Azusa Street Revival begins in Los Angeles, sparking the Pentecostal movement."
+    ],
+    "1907": [
+      "The first commercial color photography process, Autochrome Lumière, is introduced.",
+      "Oklahoma is admitted to the Union as the 46th U.S. state.",
+      "The first Ziegfeld Follies premieres on Broadway.",
+      "The Triple Entente alliance is formed between Great Britain, France, and Russia.",
+      "The first electric washing machine, the 'Thor', is introduced by Hurley Machine Company.",
+      "The first Cubist exhibition is held in Paris, featuring the work of Pablo Picasso."
     ],
     "1908": [
-      "The Ford Model T, the first affordable automobile, is introduced to the market.",
-      "A massive explosion, known as the Tunguska event, occurs in a remote part of Siberia.",
-      "The Summer Olympics are held in London, where athletes march behind national flags for the first time.",
-      "The Young Turk Revolution begins a period of constitutional reform in the Ottoman Empire.",
-      "The first New Year's Eve ball drop is held in New York City's Times Square.",
-      "L.M. Montgomery's classic novel 'Anne of Green Gables' is published."
+      "The Ford Model T, the first affordable automobile, is introduced.",
+      "A massive explosion over Tunguska, Siberia, flattens 800 square miles of forest.",
+      "The Summer Olympics are held in London, with athletes marching behind national flags.",
+      "The Young Turk Revolution restores the Ottoman constitution.",
+      "The first New Year's Eve ball drop is held in New York's Times Square.",
+      "L.M. Montgomery's novel 'Anne of Green Gables' is published."
+    ],
+    "1909": [
+      "The National Association for the Advancement of Colored People (NAACP) is founded in New York City.",
+      "The first successful synthesis of a completely synthetic plastic, Bakelite, is announced.",
+      "The U.S. Navy establishes its major naval base at Pearl Harbor, Hawaii.",
+      "The Anglo-Siamese Treaty of 1909 defines the modern border between Malaysia and Thailand.",
+      "The first newsreels are shown in Parisian movie theaters, marking a new era of journalism.",
+      "The construction of the RMS Titanic begins in the Harland and Wolff shipyard in Belfast."
+    ],
+    "1910": [
+      "The Union of South Africa is formed from four British colonies.",
+      "The Mexican Revolution begins with Francisco Madero's call to arms.",
+      "Halley's Comet makes a spectacular appearance, visible across the globe.",
+      "The Boy Scouts of America is founded by William D. Boyce.",
+      "Japan annexes Korea, making it a Japanese colony.",
+      "The first successful flight from a ship is made by Eugene Burton Ely."
     ],
     "1911": [
       "The Triangle Shirtwaist Factory fire kills 146 workers in New York City.",
@@ -1342,89 +1432,84 @@
       "The Piltdown Man, a fossil hoax, is presented to the Geological Society of London."
     ],
     "1913": [
-      "The Ford Motor Company introduces the first moving assembly line for cars.",
-      "The 16th Amendment to the U.S. Constitution establishes a federal income tax.",
+      "The Ford Motor Company introduces the first moving assembly line for the Model T.",
+      "The 16th Amendment is ratified, establishing a federal income tax in the U.S.",
       "The Armory Show in New York City introduces modern art to the American public.",
-      "The premiere of Igor Stravinsky's ballet *The Rite of Spring* causes a riot in Paris.",
-      "Suffragette Emily Davison is killed by the King's horse at the Epsom Derby.",
-      "The first modern crossword puzzle is published in the *New York World*."
+      "The premiere of Igor Stravinsky's ballet 'The Rite of Spring' causes a riot in Paris.",
+      "Suffragette Emily Davison is killed after stepping in front of the King's horse at the Epsom Derby.",
+      "The first modern crossword puzzle is published in the 'New York World' newspaper."
     ],
     "1914": [
-      "The assassination of Archduke Franz Ferdinand in Sarajevo triggers World War I.",
-      "Germany invades Belgium, beginning the Western Front of World War I.",
-      "The German army wins a decisive victory over the Russians at the Battle of Tannenberg.",
-      "The Panama Canal is officially opened to traffic, connecting the Atlantic and Pacific.",
-      "British and German soldiers on the Western Front unofficially declare a Christmas Truce.",
+      "The assassination of Archduke Franz Ferdinand in Sarajevo triggers the start of World War I.",
+      "Germany invades neutral Belgium, beginning the Western Front of the war.",
+      "The First Battle of the Marne halts the German advance on Paris, leading to trench warfare.",
+      "The Panama Canal is officially opened to traffic, connecting the Atlantic and Pacific oceans.",
       "The first electric traffic light is installed in Cleveland, Ohio.",
-      "Charlie Chaplin's character 'The Tramp' makes his first appearance in a film."
+      "Charlie Chaplin's iconic character 'The Tramp' makes his first film appearance."
     ],
     "1915": [
       "The Gallipoli Campaign begins with an Allied amphibious invasion of the Ottoman Empire.",
-      "Germany launches the first large-scale poison gas attack at the Second Battle of Ypres.",
-      "A German U-boat sinks the British passenger liner RMS Lusitania, killing over 1,100 people.",
+      "A German U-boat sinks the British passenger liner RMS Lusitania, killing 1,198 people.",
+      "Germany uses poison gas on a large scale for the first time at the Second Battle of Ypres.",
       "The Ottoman government begins the systematic deportation of its Armenian population.",
       "Italy joins the Allied Powers by declaring war on Austria-Hungary.",
-      "The Panama-Pacific International Exposition opens in San Francisco."
+      "D.W. Griffith's controversial film 'The Birth of a Nation' is released."
     ],
     "1916": [
-      "The Battle of the Somme, one of the bloodiest battles in history, begins in France.",
-      "The Battle of Verdun, the longest battle of World War I, is fought between France and Germany.",
+      "The Battle of the Somme, one of history's bloodiest, begins in France.",
+      "The Battle of Verdun is fought between the German and French armies for 10 months.",
       "The Easter Rising, an armed insurrection for Irish independence, takes place in Dublin.",
       "The first successful use of tanks in warfare occurs at the Battle of Flers-Courcelette.",
       "Jeannette Rankin of Montana becomes the first woman elected to the U.S. Congress.",
-      "The first Piggly Wiggly, the first self-service grocery store, opens in Memphis, Tennessee."
+      "The first Piggly Wiggly grocery store, a self-service model, opens in Memphis."
     ],
     "1917": [
-      "The United States enters World War I.",
-      "The February Revolution overthrows Tsar Nicholas II in Russia.",
-      "The Bolsheviks, led by Vladimir Lenin, seize power in Russia.",
-      "Germany resumes unrestricted U-boat warfare.",
-      "The British intercept and decode the Zimmermann Telegram.",
-      "The British capture Jerusalem from the Ottoman Turks.",
-      "The Balfour Declaration supports a Jewish homeland in Palestine."
+      "The United States declares war on Germany, entering World War I.",
+      "The Bolshevik Revolution, led by Vladimir Lenin, seizes power in Russia.",
+      "The February Revolution leads to the abdication of Tsar Nicholas II.",
+      "Germany's resumption of unrestricted submarine warfare draws the U.S. into the war.",
+      "The British capture Jerusalem from the Ottoman Empire.",
+      "The Balfour Declaration announces British support for a Jewish national home in Palestine."
     ],
     "1918": [
       "The Armistice of 11 November ends the fighting in World War I.",
-      "The Spanish Flu pandemic kills an estimated 50 million people worldwide.",
-      "The Treaty of Brest-Litovsk is signed, ending Russia's involvement in World War I.",
-      "Tsar Nicholas II and his family are executed by the Bolsheviks in Yekaterinburg.",
+      "The Spanish Flu pandemic becomes a global health crisis, killing millions.",
+      "Tsar Nicholas II and his family are executed by the Bolsheviks in Russia.",
+      "The Treaty of Brest-Litovsk is signed, ending Russia's participation in the war.",
       "The 'Lost Battalion' of the U.S. 77th Infantry Division is rescued in the Argonne Forest.",
-      "The silent film *Tarzan of the Apes*, starring Elmo Lincoln, is released.",
-      "Women in the United Kingdom are granted the right to vote for the first time."
+      "Women in the United Kingdom gain the right to vote for the first time."
     ],
     "1919": [
       "The Treaty of Versailles is signed, officially ending World War I.",
-      "The League of Nations is founded in Paris.",
-      "The 18th Amendment, prohibiting alcohol, is ratified in the United States.",
-      "The U.S. Congress approves the Nineteenth Amendment, granting women the right to vote.",
-      "The Great Molasses Flood occurs in Boston, Massachusetts.",
-      "Race riots erupt in numerous U.S. cities.",
-      "Grand Canyon is designated a national park."
+      "The League of Nations is founded in Paris to promote international cooperation.",
+      "The 18th Amendment is ratified, establishing Prohibition in the United States.",
+      "A series of race riots, known as the 'Red Summer', occur across the U.S.",
+      "The Grand Canyon is officially designated as a U.S. National Park.",
+      "The 'Black Sox' scandal taints the World Series."
     ],
     "1920": [
-      "The League of Nations is inaugurated in Paris.",
-      "The Treaty of Versailles officially takes effect, ending World War I.",
-      "The 19th Amendment grants women the right to vote in the United States.",
-      "Prohibition begins in the United States with the 18th Amendment.",
-      "The first commercial radio broadcast airs in the U.S. from KDKA AM.",
-      "The Harlem Renaissance begins in New York City."
+      "The Treaty of Versailles takes effect, officially ending World War I.",
+      "The 19th Amendment to the U.S. Constitution is ratified, granting women the right to vote.",
+      "The 18th Amendment goes into effect, beginning the era of Prohibition in the U.S.",
+      "The first commercial radio broadcast is made by KDKA in Pittsburgh.",
+      "The League of Nations holds its first meeting in Paris.",
+      "The Harlem Renaissance, a cultural movement, begins in New York City."
     ],
     "1921": [
-      "The Anglo-Irish Treaty is signed, establishing the Irish Free State.",
-      "The Tulsa Race Massacre results in the destruction of a prosperous Black neighborhood.",
-      "Adolf Hitler becomes the leader of the Nazi Party in Germany.",
+      "The Tulsa Race Massacre destroys the prosperous Greenwood District in Oklahoma.",
+      "The Irish War of Independence ends with the signing of the Anglo-Irish Treaty.",
       "The Communist Party of China is founded in Shanghai.",
-      "Frederick Banting and Charles Best discover the hormone insulin.",
-      "Charlie Chaplin's film 'The Kid' is released."
+      "Adolf Hitler becomes the leader of the Nazi Party.",
+      "Frederick Banting and Charles Best discover the hormone insulin at the University of Toronto.",
+      "Charlie Chaplin's first feature-length film, 'The Kid', is released."
     ],
     "1922": [
-      "The Irish Free State is officially established.",
-      "Benito Mussolini and the National Fascist Party come to power in Italy.",
-      "The Union of Soviet Socialist Republics is created.",
-      "Egypt gains self-government from the United Kingdom.",
-      "The first successful insulin treatment for diabetes is administered.",
-      "Howard Carter discovers the tomb of Pharaoh Tutankhamun.",
-      "The British Broadcasting Company is formed."
+      "The Irish Free State is established, leading to the Irish Civil War.",
+      "Benito Mussolini's March on Rome brings the Fascist party to power in Italy.",
+      "The Union of Soviet Socialist Republics (USSR) is formally created.",
+      "Egypt gains independence from the United Kingdom, becoming a kingdom.",
+      "Howard Carter discovers the tomb of Pharaoh Tutankhamun in the Valley of the Kings.",
+      "The British Broadcasting Company (BBC) is formed."
     ],
     "1923": [
       "Adolf Hitler leads the failed Beer Hall Putsch in Munich, Germany.",
@@ -1435,53 +1520,76 @@
       "Archaeologist Howard Carter enters the tomb of Pharaoh Tutankhamun."
     ],
     "1924": [
-      "The first Winter Olympics are held in Chamonix, France.",
-      "George Gershwin's 'Rhapsody in Blue' premieres in New York City.",
-      "Vladimir Lenin, the first leader of the Soviet Union, dies.",
+      "The first Winter Olympics are held in Chamonix, France, in the French Alps.",
+      "George Gershwin's 'Rhapsody in Blue' premieres at Aeolian Hall in New York City.",
+      "Soviet Union founder Vladimir Lenin dies, and his body is put on public display.",
       "The Indian Citizenship Act grants citizenship to all Native Americans born in the U.S.",
-      "J. Edgar Hoover is appointed the first director of the Federal Bureau of Investigation (FBI).",
+      "J. Edgar Hoover is appointed director of the Bureau of Investigation, later the FBI.",
       "The first Macy's Thanksgiving Day Parade is held in New York City."
     ],
     "1925": [
-      "The Scopes 'Monkey' Trial debates the teaching of evolution in Tennessee.",
-      "F. Scott Fitzgerald's novel *The Great Gatsby* is published.",
-      "The Locarno Treaties are signed, aiming to secure peace in Europe.",
-      "John Logie Baird achieves the first public demonstration of television.",
-      "The first issue of *The New Yorker* magazine is published in New York City.",
-      "The chemical element rhenium is discovered by German scientists."
+      "The Scopes 'Monkey' Trial challenges the teaching of evolution in Tennessee.",
+      "F. Scott Fitzgerald's novel 'The Great Gatsby' is published in New York.",
+      "The Locarno Treaties are signed in London to secure postwar European borders.",
+      "John Logie Baird gives the first public demonstration of television in London.",
+      "The first issue of 'The New Yorker' magazine is published.",
+      "The deadly Tri-State Tornado tears through Missouri, Illinois, and Indiana."
+    ],
+    "1926": [
+      "Robert H. Goddard launches the first liquid-fueled rocket.",
+      "Gertrude Ederle becomes the first woman to swim the English Channel.",
+      "A. A. Milne's book 'Winnie-the-Pooh' is published.",
+      "The National Broadcasting Company (NBC) is launched.",
+      "The U.S. Route 66 is established.",
+      "Magician Harry Houdini dies on Halloween."
     ],
     "1927": [
-      "Charles Lindbergh completes the first solo, non-stop transatlantic flight in the Spirit of St. Louis.",
-      "The film 'The Jazz Singer' is released, marking the beginning of the end for the silent film era.",
-      "The Great Mississippi Flood of 1927 is one of the most destructive river floods in U.S. history.",
-      "Work begins on the Mount Rushmore National Memorial in the Black Hills of South Dakota.",
-      "The Harlem Globetrotters basketball team plays its first game in Hinckley, Illinois.",
+      "Charles Lindbergh completes the first solo, nonstop transatlantic flight.",
+      "The film 'The Jazz Singer' is released, marking the end of the silent film era.",
+      "The Great Mississippi Flood of 1927 is one of the most destructive in U.S. history.",
+      "Work begins on the Mount Rushmore National Memorial in South Dakota.",
+      "The Harlem Globetrotters basketball team plays its first game.",
       "The first transatlantic telephone call is made from New York City to London."
     ],
+    "1928": [
+      "The Kellogg-Briand Pact, outlawing war, is signed by 15 nations in Paris.",
+      "Alexander Fleming discovers penicillin, a key breakthrough in medicine.",
+      "The first color television transmission is demonstrated by John Logie Baird in London.",
+      "Mickey Mouse makes his debut in the animated short film 'Steamboat Willie'.",
+      "The first Five-Year Plan for rapid industrialization is launched in the Soviet Union.",
+      "Amelia Earhart becomes the first woman to fly across the Atlantic Ocean as a passenger."
+    ],
     "1929": [
-      "The Wall Street Crash triggers the Great Depression.",
-      "Herbert Hoover becomes the 31st President of the United States.",
-      "Vatican City becomes an independent state.",
-      "The first Academy Awards ceremony for film is held in Los Angeles.",
-      "The Museum of Modern Art opens to the public in New York City.",
+      "The Wall Street Crash of 1929 triggers the Great Depression.",
+      "The first Academy Awards ceremony is held in Hollywood.",
+      "The Lateran Treaty is signed, creating the independent state of Vatican City.",
       "The Graf Zeppelin completes a round-the-world flight.",
-      "The first car radio is introduced."
+      "The Museum of Modern Art opens in New York City.",
+      "The first car radio is introduced by the Galvin Corporation."
+    ],
+    "1930": [
+      "Mahatma Gandhi leads the Salt March to protest the British salt tax in India.",
+      "The first FIFA World Cup is held in Uruguay, with the host nation winning.",
+      "The planet Pluto is discovered by astronomer Clyde Tombaugh.",
+      "The Great Depression intensifies, causing widespread unemployment.",
+      "The Smoot-Hawley Tariff Act is signed into law in the United States.",
+      "The fictional detective Nancy Drew is introduced in a series of books."
     ],
     "1931": [
-      "The Empire State Building opens in New York City as the world's tallest.",
+      "The Empire State Building is completed, becoming the world's tallest building.",
       "The Star-Spangled Banner is officially adopted as the U.S. national anthem.",
       "Gangster Al Capone is sentenced to eleven years in prison for tax evasion.",
-      "The Mukden Incident provides Japan a pretext to invade Manchuria.",
-      "The Christ the Redeemer statue is completed in Rio de Janeiro, Brazil.",
-      "The controversial trial of the Scottsboro Boys begins in Alabama."
+      "The Mukden Incident gives Japan a pretext to invade Manchuria.",
+      "The Christ the Redeemer statue is completed in Rio de Janeiro.",
+      "The Scottsboro Boys are arrested in Alabama, sparking a controversial legal case."
     ],
     "1932": [
-      "Franklin D. Roosevelt is elected President of the United States in a landslide victory.",
+      "Franklin D. Roosevelt is elected U.S. President in a landslide over Herbert Hoover.",
       "The Kingdom of Saudi Arabia is founded by King Abdulaziz Ibn Saud.",
-      "The infant son of aviator Charles Lindbergh is kidnapped, a crime that shocks the nation.",
+      "The infant son of aviator Charles Lindbergh is kidnapped and murdered.",
       "Amelia Earhart becomes the first woman to fly solo across the Atlantic Ocean.",
-      "The 'Bonus Army' of World War I veterans marches on Washington, D.C.",
-      "The first Venice International Film Festival is held."
+      "The 'Bonus Army' of World War I veterans is violently dispersed in Washington, D.C.",
+      "The first Venice International Film Festival is held in Italy."
     ],
     "1933": [
       "Adolf Hitler is appointed Chancellor of Germany.",
@@ -1493,28 +1601,28 @@
       "Construction begins on the Golden Gate Bridge in California."
     ],
     "1934": [
-      "Adolf Hitler becomes Führer of Germany after the death of President Paul von Hindenburg.",
-      "The 'Night of the Long Knives' sees a violent purge of Hitler's political opponents.",
-      "The infamous outlaws Bonnie Parker and Clyde Barrow are ambushed and killed by police.",
-      "The first Masters Tournament in golf is held in Augusta, Georgia.",
+      "Adolf Hitler becomes Führer of Germany, consolidating his power.",
+      "The 'Night of the Long Knives' sees the purge of Ernst Röhm and other Nazi leaders.",
+      "The infamous outlaws Bonnie and Clyde are ambushed and killed by law enforcement.",
+      "The first Masters Tournament is held at Augusta National Golf Club.",
       "The cartoon character Donald Duck makes his first appearance in a Disney film.",
-      "The island of Alcatraz becomes a federal prison."
+      "The federal prison on Alcatraz Island begins accepting inmates."
     ],
     "1935": [
-      "President Franklin D. Roosevelt signs the Social Security Act into law.",
-      "The Nuremberg Laws are enacted in Nazi Germany, stripping Jews of their citizenship.",
+      "The Social Security Act is signed into law by President Franklin D. Roosevelt.",
+      "The Nuremberg Laws are enacted, stripping Jewish people of citizenship in Nazi Germany.",
+      "The Hoover Dam, a major engineering feat, is completed on the Colorado River.",
       "Amelia Earhart becomes the first person to fly solo from Hawaii to California.",
-      "The board game Monopoly is first published by Parker Brothers.",
-      "The Hoover Dam, a major feat of engineering, is completed.",
-      "Alcoholics Anonymous is founded in Akron, Ohio."
+      "The board game Monopoly is first sold by Parker Brothers.",
+      "Alcoholics Anonymous is founded in Akron, Ohio, by Bill Wilson and Dr. Bob Smith."
     ],
     "1936": [
-      "The Spanish Civil War begins with a military uprising against the Second Spanish Republic.",
-      "King Edward VIII of the United Kingdom abdicates the throne to marry Wallis Simpson.",
-      "Jesse Owens wins four gold medals at the Summer Olympics in Berlin, Germany.",
+      "The Spanish Civil War begins with a military uprising against the Republic.",
+      "King Edward VIII of the United Kingdom abdicates to marry Wallis Simpson.",
+      "Jesse Owens wins four gold medals at the Summer Olympics in Berlin.",
       "The Hoover Dam is completed and begins generating hydroelectric power.",
       "Margaret Mitchell's epic novel 'Gone with the Wind' is published.",
-      "The last known thylacine, or Tasmanian tiger, dies in captivity in Hobart, Australia."
+      "The last known thylacine, or Tasmanian tiger, dies in captivity."
     ],
     "1937": [
       "The German airship *Hindenburg* is destroyed by fire in Lakehurst, New Jersey.",
@@ -1525,9 +1633,9 @@
       "King George VI is crowned at Westminster Abbey after his brother's abdication."
     ],
     "1938": [
-      "The Munich Agreement allows Germany to annex the Sudetenland from Czechoslovakia.",
-      "The Nazi regime orchestrates the Kristallnacht pogrom against Jews in Germany.",
-      "Orson Welles's 'War of the Worlds' radio broadcast causes a panic.",
+      "The Munich Agreement allows Nazi Germany to annex the Sudetenland.",
+      "The 'Kristallnacht' pogrom is carried out against Jews throughout Nazi Germany.",
+      "Orson Welles's 'War of the Worlds' radio broadcast causes a nationwide panic.",
       "The superhero Superman first appears in Action Comics #1.",
       "The Fair Labor Standards Act establishes a minimum wage in the United States.",
       "German chemists Otto Hahn and Fritz Strassmann discover nuclear fission."
@@ -1540,6 +1648,14 @@
       "The Spanish Civil War ends with a Nationalist victory.",
       "Physicists Lise Meitner and Otto Frisch explain nuclear fission."
     ],
+    "1940": [
+      "Winston Churchill becomes Prime Minister of the United Kingdom.",
+      "The Dunkirk evacuation rescues over 300,000 Allied soldiers from France.",
+      "The Battle of Britain rages in the skies over the United Kingdom.",
+      "The Blitz, a German bombing campaign, begins against London.",
+      "The first peacetime military draft is enacted in the United States.",
+      "The Lascaux Cave paintings are discovered in France."
+    ],
     "1941": [
       "The United States enacts the Lend-Lease Act, providing aid to Allies.",
       "Germany launches Operation Barbarossa, invading the Soviet Union.",
@@ -1549,12 +1665,20 @@
       "Mass killing operations begin in the Holocaust, including at Chelmno."
     ],
     "1942": [
-      "The U.S. Navy defeats the Japanese fleet at the Battle of Midway.",
-      "The Manhattan Project to develop an atomic bomb is initiated.",
-      "The Battle of Stalingrad, a turning point on the Eastern Front, begins.",
-      "Enrico Fermi creates the first self-sustaining nuclear chain reaction.",
-      "The classic film *Casablanca*, starring Humphrey Bogart, premieres.",
-      "A fire at the Cocoanut Grove nightclub in Boston kills 492 people."
+      "The Battle of Midway is a decisive victory for the United States in the Pacific War.",
+      "The Manhattan Project to develop the atomic bomb begins in the United States.",
+      "The Battle of Stalingrad begins, a turning point on the Eastern Front.",
+      "Enrico Fermi creates the first self-sustaining nuclear chain reaction in Chicago.",
+      "The film 'Casablanca', starring Humphrey Bogart and Ingrid Bergman, premieres.",
+      "President Franklin D. Roosevelt signs Executive Order 9066, leading to Japanese American internment."
+    ],
+    "1943": [
+      "The German Sixth Army surrenders at the Battle of Stalingrad.",
+      "The Warsaw Ghetto Uprising begins in occupied Poland.",
+      "The 'Big Three' leaders meet at the Tehran Conference.",
+      "The Allied invasion of Sicily leads to the downfall of Benito Mussolini.",
+      "The Battle of Kursk, the largest tank battle in history, is fought.",
+      "The Bengal famine causes millions of deaths in British India."
     ],
     "1944": [
       "Allied forces land on the beaches of Normandy on D-Day, the largest seaborne invasion in history.",
@@ -1573,10 +1697,10 @@
       "V-J Day celebrations mark end of Second World War"
     ],
     "1946": [
-      "The Nuremberg Trials of Nazi war criminals conclude in Germany.",
+      "The Nuremberg Trials for Nazi war criminals conclude in Germany.",
       "Winston Churchill delivers his 'Iron Curtain' speech in Fulton, Missouri.",
       "The first session of the United Nations General Assembly is held in London.",
-      "The bikini swimsuit, designed by Louis Réard, is introduced in Paris.",
+      "The bikini swimsuit is introduced by French designer Louis Réard.",
       "The first Cannes Film Festival is held on the French Riviera.",
       "The United States grants independence to the Republic of the Philippines."
     ],
@@ -1597,12 +1721,36 @@
       "The World Health Organization is established as a specialized agency of the United Nations."
     ],
     "1949": [
-      "George Orwell publishes dystopian novel Nineteen Eighty-Four",
-      "Indonesia ends centuries of Dutch colonial rule",
-      "Jerusalem divided between Israel and Jordan after armistice",
-      "People's Republic establishes Communist China",
-      "NATO creates first peacetime military alliance",
-      "Berlin Blockade lifted after 318-day Soviet siege"
+      "The North Atlantic Treaty Organization (NATO) is founded by twelve countries.",
+      "The Soviet Union successfully tests its first atomic bomb, ending the U.S. monopoly.",
+      "Mao Zedong proclaims the establishment of the People's Republic of China.",
+      "The Soviet Union lifts the Berlin Blockade after more than a year.",
+      "George Orwell's dystopian novel 'Nineteen Eighty-Four' is published in London.",
+      "The first Emmy Awards for television excellence are presented in Hollywood."
+    ],
+    "1950": [
+      "The Korean War begins with North Korea's invasion of South Korea.",
+      "Senator Joseph McCarthy claims to have a list of communists in the State Department.",
+      "The first 'Peanuts' comic strip by Charles M. Schulz is published.",
+      "The first modern credit card, the Diners Club card, is introduced.",
+      "Uruguay defeats Brazil in the final match of the FIFA World Cup.",
+      "The Great Brink's Robbery takes place in Boston."
+    ],
+    "1951": [
+      "The 22nd Amendment to the U.S. Constitution is ratified, limiting presidents to two terms.",
+      "The first commercial computer, the UNIVAC I, is delivered to the U.S. Census Bureau.",
+      "J.D. Salinger's novel 'The Catcher in the Rye' is published.",
+      "The first color television broadcast is made by CBS.",
+      "The Treaty of San Francisco is signed, officially ending World War II with Japan.",
+      "The first transcontinental television broadcast is made by President Harry S. Truman."
+    ],
+    "1952": [
+      "King George VI of the United Kingdom dies and is succeeded by his daughter, Elizabeth II.",
+      "The United States detonates the first hydrogen bomb in the Marshall Islands.",
+      "Dr. Jonas Salk develops the first successful polio vaccine.",
+      "The de Havilland Comet, the first commercial jetliner, enters service.",
+      "The 'Great Smog of London' kills thousands and prompts air pollution reform.",
+      "The Diary of a Young Girl by Anne Frank is published in English."
     ],
     "1953": [
       "Soviet dictator Joseph Stalin dies in Moscow after 30 years in power.",
@@ -1615,44 +1763,44 @@
       "The first James Bond novel, *Casino Royale*, by Ian Fleming, is published."
     ],
     "1954": [
-      "The U.S. Supreme Court's *Brown v. Board of Education* decision desegregates schools.",
-      "The French army is defeated by the Viet Minh at the Battle of Dien Bien Phu.",
-      "Dr. Joseph Murray performs the first successful human kidney transplant.",
-      "The first issue of *Sports Illustrated* magazine is published.",
-      "The first *Godzilla* film is released in Japan, launching a media franchise.",
-      "The Boeing 707, the first successful U.S. jet airliner, makes its maiden flight."
+      "The U.S. Supreme Court's Brown v. Board of Education decision declares school segregation unconstitutional.",
+      "The French are defeated by the Viet Minh at the Battle of Dien Bien Phu, ending French rule in Indochina.",
+      "The first successful kidney transplant is performed by Dr. Joseph Murray in Boston.",
+      "The first issue of Sports Illustrated magazine is published.",
+      "The first 'Godzilla' film is released in Japan, launching a monster movie franchise.",
+      "The Boeing 707, the first successful American jet airliner, makes its maiden flight."
     ],
     "1955": [
-      "The Warsaw Pact is signed by the Soviet Union and its allies.",
-      "Walt Disney opens his first theme park, Disneyland, in California.",
-      "Ray Kroc opens his first McDonald's franchise in Illinois.",
-      "Rosa Parks is arrested for refusing to give up her bus seat in Alabama.",
-      "Actor James Dean dies in a car crash at the age of 24.",
-      "The Salk polio vaccine is declared safe and effective for use."
+      "The Warsaw Pact is signed by the Soviet Union and its Eastern Bloc allies.",
+      "Disneyland opens in Anaheim, California, as the first Disney theme park.",
+      "Ray Kroc opens his first McDonald's franchise in Des Plaines, Illinois.",
+      "Rosa Parks is arrested for refusing to give up her bus seat in Montgomery, Alabama.",
+      "The Salk polio vaccine is declared safe and effective by the FDA.",
+      "The first Guinness Book of World Records is published."
     ],
     "1956": [
-      "The Suez Crisis begins with the invasion of Egypt by Israel, the UK, and France.",
-      "The Hungarian Revolution against Soviet-imposed rule is suppressed by Soviet forces.",
-      "The U.S. Supreme Court rules that segregation on public buses is unconstitutional.",
+      "The Suez Crisis begins with the nationalization of the Suez Canal by Egypt.",
+      "The Hungarian Revolution against Soviet rule is brutally crushed by Soviet forces.",
+      "The U.S. Supreme Court's ruling in Browder v. Gayle ends bus segregation.",
       "Elvis Presley releases his first hit single, 'Heartbreak Hotel'.",
-      "The first transatlantic telephone cable system, TAT-1, is inaugurated.",
+      "The first transatlantic telephone cable system, TAT-1, is put into operation.",
       "IBM introduces the 305 RAMAC, the first computer with a hard disk drive."
     ],
     "1957": [
-      "The Soviet Union launches Sputnik 1, the first artificial satellite to orbit the Earth.",
-      "The 'Little Rock Nine,' a group of African American students, integrate Central High School in Arkansas.",
+      "The Soviet Union launches Sputnik 1, the first artificial satellite to orbit Earth.",
+      "The 'Little Rock Nine' integrate Central High School in Arkansas under federal troop protection.",
       "The Treaty of Rome is signed, establishing the European Economic Community.",
       "Ghana becomes the first sub-Saharan African country to gain independence from colonial rule.",
-      "The Civil Rights Act of 1957 is signed into law, the first such legislation since Reconstruction.",
-      "John Lennon and Paul McCartney meet for the first time in Liverpool, England."
+      "The Civil Rights Act of 1957, the first since Reconstruction, is signed into law.",
+      "John Lennon and Paul McCartney meet for the first time in Liverpool."
     ],
     "1958": [
       "The United States launches its first satellite, Explorer 1, into orbit.",
-      "NASA is created as the official space agency of the United States.",
+      "NASA is created, replacing the National Advisory Committee for Aeronautics.",
       "The European Economic Community (EEC) is established.",
-      "The 'Great Leap Forward,' a campaign to rapidly transform China's economy, begins.",
-      "The first successful transatlantic telephone cable, TAT-1, is inaugurated.",
-      "The popular toy, the hula hoop, is first marketed."
+      "Mao Zedong launches the 'Great Leap Forward' in China.",
+      "The first transatlantic passenger jet service is inaugurated by BOAC.",
+      "The hula hoop is first marketed, becoming a massive fad."
     ],
     "1959": [
       "Fidel Castro comes to power in Cuba after the overthrow of Fulgencio Batista.",
@@ -1683,141 +1831,138 @@
     "1962": [
       "The Cuban Missile Crisis brings the world to the brink of nuclear war.",
       "John Glenn becomes the first American to orbit the Earth.",
-      "Algeria gains independence from France after a brutal eight-year war.",
+      "Algeria gains independence from France after a long and brutal war.",
       "The Second Vatican Council is opened by Pope John XXIII in Rome.",
-      "Rachel Carson's book *Silent Spring* is published, launching the environmental movement.",
-      "Actress Marilyn Monroe is found dead in her home from a drug overdose.",
-      "The first James Bond film, *Dr. No*, starring Sean Connery, is released.",
-      "The Trans-Canada Highway, the world's longest, is officially opened."
+      "Rachel Carson's book 'Silent Spring' launches the environmental movement.",
+      "The first James Bond film, 'Dr. No', starring Sean Connery, is released."
     ],
     "1963": [
-      "John F. Kennedy assassinated in Dallas motorcade",
-      "March on Washington features King's Dream speech",
-      "Nuclear Test Ban Treaty signed by superpowers",
-      "Buddhist monk Thich Quang Duc self-immolates in Saigon",
-      "Lee Harvey Oswald kills president from book depository",
-      "Lyndon Johnson sworn in aboard Air Force One"
+      "President John F. Kennedy is assassinated in Dallas, Texas.",
+      "Martin Luther King Jr. delivers his 'I Have a Dream' speech at the March on Washington.",
+      "The Partial Nuclear Test Ban Treaty is signed by the U.S., UK, and Soviet Union.",
+      "A bombing at the 16th Street Baptist Church in Birmingham, Alabama, kills four young girls.",
+      "The 'hotline' is established between the White House and the Kremlin.",
+      "The Beatles release their first album, 'Please Please Me'."
     ],
     "1964": [
-      "The Civil Rights Act of 1964 is signed into law, outlawing discrimination in the United States.",
-      "The Beatles make their first appearance on The Ed Sullivan Show, launching the British Invasion.",
-      "The Gulf of Tonkin Resolution escalates U.S. involvement in the Vietnam War.",
-      "Nelson Mandela is sentenced to life in prison in South Africa.",
-      "The Ford Mustang is introduced to the public for the first time.",
-      "Dr. Martin Luther King Jr. is awarded the Nobel Peace Prize for his nonviolent activism."
+      "The Civil Rights Act of 1964 is signed into law, outlawing discrimination in the U.S.",
+      "The Beatles' appearance on 'The Ed Sullivan Show' launches the British Invasion.",
+      "The Gulf of Tonkin Resolution grants President Johnson broad war powers in Vietnam.",
+      "Nelson Mandela is sentenced to life imprisonment in South Africa.",
+      "The Ford Mustang is introduced at the New York World's Fair.",
+      "Dr. Martin Luther King Jr. receives the Nobel Peace Prize for his nonviolent activism."
     ],
     "1965": [
-      "The Voting Rights Act is signed into law, protecting minority voting rights.",
-      "Civil rights marchers are attacked by police on 'Bloody Sunday' in Selma, Alabama.",
-      "Astronaut Ed White becomes the first American to perform a spacewalk.",
-      "The first U.S. combat troops are deployed to South Vietnam.",
-      "The musical film *The Sound of Music*, starring Julie Andrews, is released.",
-      "Winston Churchill, former Prime Minister of the United Kingdom, dies."
+      "The Voting Rights Act of 1965 is signed into law by President Lyndon B. Johnson.",
+      "Civil rights marchers are attacked on 'Bloody Sunday' during the Selma to Montgomery marches.",
+      "The first U.S. combat troops arrive in South Vietnam, escalating the war.",
+      "The classic musical film 'The Sound of Music' premieres in New York City.",
+      "Black nationalist leader Malcolm X is assassinated in New York City.",
+      "The Gateway Arch in St. Louis, Missouri, is completed."
     ],
     "1966": [
       "Mao Zedong launches the Great Proletarian Cultural Revolution in China.",
-      "The Black Panther Party is founded by Huey Newton and Bobby Seale.",
+      "The U.S. Supreme Court's Miranda v. Arizona decision establishes rights for suspects.",
+      "The Black Panther Party for Self-Defense is founded by Huey Newton and Bobby Seale.",
       "The Soviet Union's Luna 9 probe achieves the first soft landing on the Moon.",
-      "The U.S. Supreme Court establishes Miranda rights for criminal suspects.",
-      "England wins the FIFA World Cup for the first time.",
-      "The iconic science fiction series Star Trek premieres on television."
+      "England wins the FIFA World Cup, defeating West Germany in the final.",
+      "The iconic science fiction series 'Star Trek' premieres on NBC."
     ],
     "1967": [
-      "Israel fights and wins the Six-Day War against a coalition of Arab states.",
-      "Dr. Christiaan Barnard performs the first successful human heart transplant.",
-      "Thurgood Marshall becomes the first African American Supreme Court Justice.",
-      "The 'Summer of Love' takes place in San Francisco's Haight-Ashbury district.",
-      "The Beatles release their influential album *Sgt. Pepper's Lonely Hearts Club Band*.",
-      "The Outer Space Treaty is signed, banning nuclear weapons in space."
+      "Israel launches a preemptive strike against Egypt, starting the Six-Day War.",
+      "Dr. Christiaan Barnard performs the first successful human-to-human heart transplant.",
+      "Thurgood Marshall becomes the first African American Justice on the U.S. Supreme Court.",
+      "The 'Summer of Love' brings thousands of young people to San Francisco's Haight-Ashbury district.",
+      "The Beatles release their influential album 'Sgt. Pepper's Lonely Hearts Club Band'.",
+      "The Outer Space Treaty, banning nuclear weapons in space, is signed."
     ],
     "1968": [
-      "North Korea captures the USS Pueblo intelligence ship.",
-      "The Tet Offensive begins in Vietnam, shocking American forces.",
-      "Martin Luther King Jr. is assassinated in Memphis.",
-      "Robert F. Kennedy is assassinated in Los Angeles.",
-      "Soviet tanks crush the Prague Spring in Czechoslovakia.",
-      "Apollo 8 astronauts become the first humans to orbit the Moon."
+      "The Tet Offensive turns American public opinion against the Vietnam War.",
+      "Civil rights leader Martin Luther King Jr. is assassinated in Memphis.",
+      "Presidential candidate Robert F. Kennedy is assassinated in Los Angeles.",
+      "Soviet tanks crush the 'Prague Spring' pro-democracy movement in Czechoslovakia.",
+      "Apollo 8 astronauts become the first humans to orbit the Moon.",
+      "The Civil Rights Act of 1968, also known as the Fair Housing Act, is signed into law."
     ],
     "1969": [
-      "Neil Armstrong becomes the first human to walk on the Moon during the Apollo 11 mission.",
-      "The Woodstock music festival is held in Bethel, New York, attracting over 400,000 people.",
-      "The Stonewall riots in New York City mark a turning point in the fight for LGBTQ+ rights.",
-      "The first node of the ARPANET, a precursor to the internet, is established at UCLA.",
-      "Richard Nixon is inaugurated as the 37th President of the United States.",
-      "The Beatles release their iconic album 'Abbey Road'."
+      "Astronaut Neil Armstrong is the first human to walk on the Moon.",
+      "The Woodstock music festival is held in Bethel, New York.",
+      "The Stonewall riots in New York City's Greenwich Village energize the gay rights movement.",
+      "The first node of the ARPANET is established at UCLA.",
+      "The Beatles perform their final public concert on the roof of Apple Corps headquarters.",
+      "Richard Nixon is inaugurated as the 37th President of the United States."
     ],
     "1970": [
-      "The Beatles officially break up.",
-      "The first Earth Day is celebrated in the United States.",
-      "Four students are killed by the National Guard at Kent State University.",
-      "The Apollo 13 mission suffers an in-flight emergency.",
-      "The Bhola cyclone devastates East Pakistan (now Bangladesh).",
-      "Brazil, led by Pelé, wins the FIFA World Cup in Mexico."
+      "The Beatles officially break up after Paul McCartney's departure.",
+      "The first Earth Day is celebrated across the United States.",
+      "Four students are killed by the National Guard during a protest at Kent State University.",
+      "The Apollo 13 mission suffers an in-flight emergency, but the crew returns safely.",
+      "The Bhola cyclone devastates East Pakistan, killing hundreds of thousands.",
+      "Brazil, led by Pelé, wins its third FIFA World Cup in Mexico."
     ],
     "1971": [
-      "The New York Times begins publishing the Pentagon Papers, a top-secret history of the Vietnam War.",
-      "The 26th Amendment to the U.S. Constitution is ratified, lowering the voting age to 18.",
-      "Intel releases the world's first microprocessor, the Intel 4004.",
-      "Walt Disney World opens in Orlando, Florida, becoming a major tourist destination.",
+      "The New York Times begins publishing the classified Pentagon Papers.",
+      "The 26th Amendment to the U.S. Constitution lowers the voting age to 18.",
+      "Intel releases the world's first commercially available microprocessor, the Intel 4004.",
+      "Walt Disney World opens in Orlando, Florida, with the Magic Kingdom as its first park.",
       "The environmental organization Greenpeace is founded in Vancouver, Canada.",
-      "The Indo-Pakistani War of 1971 leads to the creation of the nation of Bangladesh."
+      "The Indo-Pakistani War of 1971 leads to the creation of the independent nation of Bangladesh."
     ],
     "1972": [
-      "A break-in at the Watergate complex begins a major political scandal.",
-      "The Black September group murders eleven Israeli athletes at the Munich Olympics.",
-      "Apollo 17, the final Apollo mission, lands on the Moon.",
+      "The Watergate break-in occurs at the Democratic National Committee headquarters.",
+      "The Black September terrorist group kills eleven Israeli athletes at the Munich Olympics.",
+      "Apollo 17 marks the final manned mission to the Moon.",
       "President Richard Nixon makes a historic visit to the People's Republic of China.",
-      "The Magnavox Odyssey, the first home video game console, is released.",
-      "The iconic 'Blue Marble' photograph of the Earth is taken from space."
+      "Atari releases the pioneering video game 'Pong'.",
+      "The Dow Jones Industrial Average closes above 1,000 for the first time."
     ],
     "1973": [
-      "The Paris Peace Accords officially end U.S. involvement in Vietnam.",
-      "The Watergate scandal intensifies with resignations.",
-      "The Yom Kippur War begins in the Middle East.",
-      "OAPEC declares an oil embargo, causing a global energy crisis.",
-      "Roe v. Wade legalizes abortion nationwide in the United States.",
-      "Motorola engineer Martin Cooper makes the first mobile phone call.",
-      "The World Trade Center officially opens in New York City."
+      "The Paris Peace Accords are signed, officially ending U.S. involvement in the Vietnam War.",
+      "The Watergate scandal hearings are broadcast on live television.",
+      "The Yom Kippur War begins with a surprise attack on Israel by Egypt and Syria.",
+      "The OAPEC oil embargo leads to a global energy crisis and fuel shortages.",
+      "The U.S. Supreme Court's Roe v. Wade decision legalizes abortion nationwide.",
+      "The first handheld mobile phone call is made by Martin Cooper in New York City."
     ],
     "1974": [
-      "Richard Nixon becomes the first U.S. President to resign from office due to the Watergate scandal.",
-      "The 'Rumble in the Jungle' boxing match takes place in Zaire, with Muhammad Ali defeating George Foreman.",
-      "Farmers in China discover the Terracotta Army, a collection of sculptures depicting the armies of Qin Shi Huang.",
-      "The Carnation Revolution, a military coup in Portugal, ends the Estado Novo regime.",
-      "Emperor Haile Selassie of Ethiopia is deposed in a military coup.",
+      "Richard Nixon resigns from the U.S. presidency due to the Watergate scandal.",
+      "The 'Rumble in the Jungle' boxing match between Muhammad Ali and George Foreman is held in Zaire.",
+      "Farmers digging a well in China discover the Terracotta Army.",
+      "The Carnation Revolution, a military coup, ends the Estado Novo regime in Portugal.",
+      "Emperor Haile Selassie of Ethiopia is deposed by a military coup.",
       "The first issue of People magazine is published in the United States."
     ],
     "1975": [
-      "The Vietnam War ends with the fall of Saigon.",
-      "The Khmer Rouge captures Phnom Penh, beginning a reign of terror.",
-      "Bill Gates and Paul Allen found Microsoft.",
-      "The Apollo-Soyuz Test Project marks US-Soviet space cooperation.",
-      "The Suez Canal reopens after being closed for eight years.",
-      "Junko Tabei becomes the first woman to summit Mount Everest."
+      "The Vietnam War ends with the fall of Saigon to North Vietnamese forces on April 30th.",
+      "The Khmer Rouge, led by Pol Pot, captures Phnom Penh and begins a genocide.",
+      "Bill Gates and Paul Allen found Microsoft in Albuquerque, New Mexico.",
+      "The Apollo-Soyuz Test Project marks the first joint U.S.-Soviet space mission.",
+      "The Suez Canal reopens to international traffic after being closed for eight years.",
+      "Steven Spielberg's film 'Jaws' becomes the first summer blockbuster."
     ],
     "1976": [
-      "The United States celebrates its Bicentennial, marking 200 years of independence.",
-      "Apple Inc. is founded by Steve Jobs, Steve Wozniak, and Ronald Wayne.",
-      "The Concorde, the world's first supersonic passenger jet, makes its first commercial flight.",
+      "The United States celebrates its Bicentennial with nationwide festivities.",
+      "Apple Inc. is founded by Steve Jobs and Steve Wozniak in a garage in Cupertino.",
       "NASA's Viking 1 lander successfully touches down on Mars.",
-      "The 'Rumble in the Jungle' boxing match takes place in Zaire, with Muhammad Ali defeating George Foreman.",
-      "The film 'Rocky' is released, becoming a major box office success."
+      "The Concorde supersonic passenger jet makes its first commercial flight.",
+      "The film 'Rocky', starring Sylvester Stallone, is released.",
+      "The Soweto uprising in South Africa is a turning point in the anti-apartheid struggle."
     ],
     "1977": [
-      "The film Star Wars is released, becoming a cultural phenomenon.",
-      "The Apple II computer is released, helping to launch the personal computer revolution.",
+      "The film 'Star Wars' premieres, changing the landscape of science fiction films.",
+      "The Apple II, one of the first successful personal computers, is released.",
       "A major blackout in New York City leads to widespread looting and arson.",
-      "The 'King of Rock and Roll,' Elvis Presley, dies at his Graceland home.",
+      "Elvis Presley, the 'King of Rock and Roll', dies at his Graceland home.",
       "The Voyager 1 and 2 space probes are launched to explore the outer solar system.",
       "The deadliest aviation accident in history occurs at Tenerife Airport."
     ],
     "1978": [
-      "The Camp David Accords are signed by Israel's Menachem Begin and Egypt's Anwar Sadat.",
-      "Louise Brown, the world's first 'test-tube baby,' is born in England.",
-      "Over 900 members of the Peoples Temple die in the Jonestown massacre.",
-      "The comic strip *Garfield*, created by Jim Davis, is first published.",
-      "The musical film *Grease*, starring John Travolta and Olivia Newton-John, is released.",
-      "The first Navstar GPS satellite is launched into orbit."
+      "The Camp David Accords are signed by Israeli Prime Minister Menachem Begin and Egyptian President Anwar Sadat.",
+      "The world's first 'test-tube baby', Louise Brown, is born in Oldham, England.",
+      "Over 900 members of the Peoples Temple die in a mass murder-suicide in Jonestown, Guyana.",
+      "The comic strip 'Garfield', created by Jim Davis, is first published.",
+      "The musical film 'Grease', starring John Travolta and Olivia Newton-John, is released.",
+      "The first Navstar GPS satellite is launched into orbit by the United States."
     ],
     "1979": [
       "The Iranian Revolution overthrows the Shah, and Ayatollah Khomeini returns from exile.",
@@ -1845,215 +1990,237 @@
       "Sandra Day O'Connor becomes the first female Justice of the U.S. Supreme Court.",
       "The AIDS virus is identified for the first time by the Centers for Disease Control and Prevention."
     ],
+    "1982": [
+      "The United Kingdom and Argentina engage in the Falklands War.",
+      "The first permanent artificial heart is implanted into patient Barney Clark.",
+      "Michael Jackson releases the album 'Thriller'.",
+      "The Commodore 64 home computer is launched.",
+      "Disney's EPCOT Center opens in Florida.",
+      "The Vietnam Veterans Memorial is dedicated in Washington, D.C."
+    ],
     "1983": [
-      "A Soviet fighter jet shoots down Korean Air Lines Flight 007, killing all 269 people on board.",
-      "Sally Ride becomes the first American woman in space aboard the Space Shuttle Challenger.",
-      "The United States invades the Caribbean island of Grenada.",
-      "The final episode of the television series M*A*S*H becomes the most-watched in U.S. history.",
-      "The GNU Project is announced, launching the free software movement.",
-      "The rock band KISS appears in public without their signature makeup for the first time."
+      "The final episode of the TV series 'M*A*S*H' airs on CBS.",
+      "The film 'Scarface' is released, starring Al Pacino.",
+      "The rock band KISS appears without their makeup for the first time.",
+      "The video game 'Mario Bros.' is released in arcades.",
+      "The first commercial handheld cellular phone is introduced.",
+      "The original 'Star Wars' trilogy concludes with 'Return of the Jedi'."
     ],
     "1984": [
-      "The Apple Macintosh computer is introduced with a famous Super Bowl commercial.",
-      "A gas leak at a Union Carbide plant in Bhopal, India, causes a major industrial disaster.",
-      "Indian Prime Minister Indira Gandhi is assassinated by her bodyguards.",
-      "The Soviet Union and its allies boycott the Summer Olympics in Los Angeles.",
-      "The first untethered spacewalk is performed by NASA astronauts Bruce McCandless II and Robert L. Stewart.",
-      "The charity supergroup Band-Aid records the song 'Do They Know It's Christmas?' to raise money for famine relief in Ethiopia."
+      "The film 'Ghostbusters' is released and becomes a cultural phenomenon.",
+      "The sitcom 'The Cosby Show' premieres on NBC.",
+      "The film 'The Terminator' is released, starring Arnold Schwarzenegger.",
+      "The mockumentary 'This Is Spinal Tap' is released.",
+      "The video game 'Tetris' is first released.",
+      "The first 'Teenage Mutant Ninja Turtles' comic book is published."
     ],
     "1985": [
-      "The Live Aid benefit concert is held simultaneously in London and Philadelphia.",
-      "The wreckage of the RMS Titanic is discovered in the North Atlantic Ocean.",
-      "Mikhail Gorbachev becomes the leader of the Soviet Union.",
-      "The first version of the Windows operating system, Windows 1.0, is released.",
-      "The charity single 'We Are the World' is recorded by the supergroup USA for Africa.",
-      "The popular comic strip 'Calvin and Hobbes' by Bill Watterson debuts."
+      "The film 'Back to the Future' is the highest-grossing film of the year.",
+      "The sitcom 'The Golden Girls' premieres on NBC.",
+      "The first WrestleMania is held in New York City.",
+      "The comic strip 'Calvin and Hobbes' debuts.",
+      "The Live Aid benefit concert is held in London and Philadelphia.",
+      "Microsoft releases the first version of Windows."
     ],
     "1986": [
-      "The Space Shuttle *Challenger* breaks apart 73 seconds after liftoff.",
-      "A catastrophic nuclear accident occurs at the Chernobyl power plant in Ukraine.",
-      "The United States launches airstrikes against Libya in Operation El Dorado Canyon.",
-      "Halley's Comet makes its closest approach to the Sun, visible from Earth.",
-      "The first Martin Luther King Jr. Day is celebrated as a U.S. federal holiday.",
-      "Pixar Animation Studios is founded in California by Steve Jobs."
+      "The film 'Top Gun' is the highest-grossing film of the year.",
+      "The Oprah Winfrey Show begins its nationally syndicated run.",
+      "The first 'The Legend of Zelda' game is released in Japan.",
+      "The film 'Ferris Bueller's Day Off' is released.",
+      "The sitcom 'ALF' premieres on NBC.",
+      "The first Rock and Roll Hall of Fame induction ceremony is held."
+    ],
+    "1987": [
+      "The first 'The Simpsons' shorts air on 'The Tracey Ullman Show'.",
+      "The film 'RoboCop' is released in theaters.",
+      "The first 'Street Fighter' video game is released.",
+      "The TV series 'Star Trek: The Next Generation' premieres.",
+      "The film 'The Princess Bride' is released.",
+      "The first 'Final Fantasy' game is released in Japan."
     ],
     "1988": [
-      "Pan Am Flight 103 is bombed over Lockerbie, Scotland.",
-      "The Soviet Union begins its withdrawal from Afghanistan.",
-      "A ceasefire is reached in the Iran-Iraq War.",
-      "The first World AIDS Day is observed.",
-      "The Morris worm, one of the first computer worms, is released.",
-      "The Summer Olympics are held in Seoul, South Korea."
+      "The film 'Die Hard' is released, starring Bruce Willis.",
+      "The sitcom 'Roseanne' premieres on ABC.",
+      "The film 'Who Framed Roger Rabbit' is a box office success.",
+      "The first 'Mega Man' game is released in North America.",
+      "The TV series 'The Wonder Years' premieres on ABC.",
+      "The first World AIDS Day is observed."
     ],
     "1989": [
-      "The Berlin Wall is opened, leading to the reunification of Germany.",
-      "The Chinese government suppresses pro-democracy protests in Tiananmen Square.",
-      "The Exxon Valdez oil tanker runs aground, causing a massive oil spill in Alaska.",
-      "Tim Berners-Lee writes a proposal for a system of interlinked hypertext documents.",
-      "Nintendo releases the Game Boy, a handheld video game console.",
-      "The 'Velvet Revolution' peacefully ends communist rule in Czechoslovakia."
+      "The first full-length episode of 'The Simpsons' airs.",
+      "The film 'Batman', directed by Tim Burton, is released.",
+      "The Nintendo Game Boy is released in North America.",
+      "The sitcom 'Seinfeld' premieres on NBC.",
+      "The film 'Dead Poets Society' is released.",
+      "The first 'SimCity' video game is released."
     ],
     "1990": [
-      "The Hubble Space Telescope is deployed into orbit by the Space Shuttle *Discovery*.",
-      "Nelson Mandela is released from Victor Verster Prison after 27 years.",
-      "Iraq invades Kuwait, leading to the start of the Persian Gulf War.",
-      "East and West Germany are reunified, ending 45 years of division.",
-      "The Americans with Disabilities Act is signed into law by President George H.W. Bush.",
-      "Tim Berners-Lee writes the first web browser, laying the foundation for the World Wide Web."
+      "The film 'Home Alone' is a massive box office success.",
+      "The sitcom 'The Fresh Prince of Bel-Air' premieres.",
+      "The Hubble Space Telescope is launched into orbit.",
+      "The first season of 'The Simpsons' premieres on Fox.",
+      "The crime film 'Goodfellas' is released to critical acclaim.",
+      "The mystery drama 'Twin Peaks' premieres on ABC."
     ],
     "1991": [
-      "The Soviet Union is officially dissolved, ending the Cold War.",
-      "Operation Desert Storm is launched by a U.S.-led coalition to liberate Kuwait.",
-      "Tim Berners-Lee creates and releases the first public webpage.",
-      "The videotaped beating of Rodney King by Los Angeles police sparks outrage.",
-      "Nirvana's album *Nevermind* brings grunge music to a global audience.",
-      "The eruption of Mount Pinatubo in the Philippines is the second-largest of the 20th century."
+      "The film 'The Silence of the Lambs' is released.",
+      "The Super Nintendo Entertainment System is released in North America.",
+      "The first 'Sonic the Hedgehog' game is released.",
+      "The sitcom 'Home Improvement' premieres on ABC.",
+      "The animated film 'Beauty and the Beast' is released.",
+      "The grunge band Nirvana releases the album 'Nevermind'."
     ],
     "1992": [
-      "The Maastricht Treaty is signed, creating the European Union.",
-      "Riots erupt in Los Angeles following the acquittal of police officers in the Rodney King case.",
-      "The Cold War is officially declared over by the leaders of the United States and Russia.",
-      "The 'Dream Team,' the first U.S. Olympic basketball team with active NBA players, competes in Barcelona.",
-      "Hurricane Andrew, a powerful Category 5 storm, devastates Florida and Louisiana.",
-      "The first-ever text message is sent, reading 'Merry Christmas'."
+      "The film 'Aladdin' is released by Disney.",
+      "The first 'Mortal Kombat' video game is released.",
+      "The sitcom 'Martin' premieres on Fox.",
+      "The Mall of America opens in Bloomington, Minnesota.",
+      "The first text message is sent.",
+      "The film 'Reservoir Dogs' is released, directed by Quentin Tarantino."
     ],
     "1993": [
-      "A truck bomb explodes in the parking garage of the World Trade Center in New York.",
-      "The Waco siege ends with the deaths of 76 people, including leader David Koresh.",
-      "The 'Don't Ask, Don't Tell' policy is implemented for gay people in the U.S. military.",
-      "The Maastricht Treaty formally establishes the European Union.",
-      "The Oslo I Accord is signed at the White House by Israel and the PLO.",
-      "Colombian drug lord Pablo Escobar is killed in a shootout with police."
+      "The film 'Jurassic Park' is a massive box office success.",
+      "The TV series 'The X-Files' premieres on Fox.",
+      "The first-person shooter 'Doom' is released.",
+      "The film 'Schindler's List' wins the Academy Award for Best Picture.",
+      "The sitcom 'Frasier' premieres on NBC.",
+      "The World Wide Web is made available to the public for free."
     ],
     "1994": [
-      "Nelson Mandela is inaugurated as South Africa's first black president.",
-      "The Rwandan genocide results in the mass murder of hundreds of thousands.",
+      "Nelson Mandela is inaugurated as South Africa's first black president, marking the end of apartheid.",
+      "The Rwandan genocide results in the deaths of an estimated 800,000 people.",
       "The North American Free Trade Agreement (NAFTA) goes into effect.",
       "The Channel Tunnel, connecting the UK and France, is officially opened.",
-      "Jeff Bezos founds the online bookstore Amazon in his garage.",
-      "Sony releases its first PlayStation video game console in Japan."
+      "The first Sony PlayStation is released in Japan.",
+      "The popular television shows 'Friends' and 'ER' both debut."
     ],
     "1995": [
-      "A truck bomb destroys the Murrah Federal Building in Oklahoma City.",
-      "The Dayton Accords are signed in Ohio, ending the Bosnian War.",
-      "Israeli Prime Minister Yitzhak Rabin is assassinated by a right-wing extremist.",
-      "Microsoft releases the Windows 95 operating system with a massive marketing campaign.",
-      "The O.J. Simpson murder trial ends with a controversial 'not guilty' verdict.",
-      "The Aum Shinrikyo cult releases sarin nerve gas in the Tokyo subway system."
+      "The film 'Braveheart' wins the Academy Award for Best Picture.",
+      "The Rock and Roll Hall of Fame opens in Cleveland, Ohio.",
+      "The social satire 'Clueless' becomes a cultural phenomenon.",
+      "The first X Games are held in Newport, Rhode Island.",
+      "The James Bond franchise is revitalized with the film 'GoldenEye'.",
+      "The video game console Sony PlayStation is released in North America."
     ],
     "1996": [
-      "Bill Clinton is re-elected President of the United States, defeating Bob Dole.",
-      "The Comprehensive Nuclear-Test-Ban Treaty is adopted by the United Nations General Assembly.",
-      "The Taliban capture the Afghan capital of Kabul, imposing strict Islamic law.",
-      "NASA scientists announce the discovery of a meteorite from Mars with possible signs of life.",
-      "Dolly the sheep, the first mammal to be cloned from an adult cell, is born.",
-      "The British girl group the Spice Girls release their debut single, 'Wannabe'."
+      "The film 'Independence Day' is the highest-grossing film of the year.",
+      "The sitcom 'Everybody Loves Raymond' premieres on CBS.",
+      "The horror film 'Scream' revitalizes the slasher genre.",
+      "The Nintendo 64 is released in North America.",
+      "The final episode of 'The Fresh Prince of Bel-Air' airs.",
+      "The first 'Mission: Impossible' film is released."
     ],
     "1997": [
-      "The United Kingdom hands over sovereignty of Hong Kong to China.",
-      "Tony Blair is elected Prime Minister of the United Kingdom in a landslide victory.",
-      "The birth of Dolly the sheep, the first cloned mammal, is announced.",
-      "NASA's *Pathfinder* mission successfully lands on Mars and deploys the *Sojourner* rover.",
-      "IBM's Deep Blue computer defeats world chess champion Garry Kasparov.",
-      "Diana, Princess of Wales, is killed in a car crash in Paris.",
-      "J.K. Rowling's first Harry Potter book, *The Philosopher's Stone*, is published.",
-      "James Cameron's film *Titanic* is released, becoming a box-office phenomenon."
+      "The animated sitcom 'King of the Hill' premieres on Fox.",
+      "The first book in the 'Harry Potter' series is published.",
+      "The film 'Titanic' becomes a worldwide box office success.",
+      "The Notorious B.I.G. is killed in a drive-by shooting.",
+      "The TV show 'Buffy the Vampire Slayer' premieres.",
+      "The Spice Girls release their second album, 'Spiceworld'."
     ],
     "1998": [
-      "The Good Friday Agreement is signed in Northern Ireland.",
-      "Hurricane Mitch causes widespread devastation in Central America.",
-      "The European Central Bank is established in Frankfurt, Germany.",
-      "Google is founded by Larry Page and Sergey Brin.",
-      "The final episode of the sitcom 'Seinfeld' airs.",
-      "France wins the FIFA World Cup for the first time."
+      "The film 'Saving Private Ryan' wins the Academy Award for Best Picture.",
+      "The TV series 'Sex and the City' premieres on HBO.",
+      "The search engine Google is founded.",
+      "The film 'The Truman Show' is released.",
+      "The video game 'The Legend of Zelda: Ocarina of Time' is released.",
+      "The animated series 'The Powerpuff Girls' debuts on Cartoon Network."
     ],
     "1999": [
-      "The Euro is introduced as an electronic currency.",
-      "NATO launches a bombing campaign in Yugoslavia.",
-      "The world's population reaches six billion people.",
-      "The animated television series *SpongeBob SquarePants* debuts.",
-      "The territory of Nunavut is created in Canada.",
-      "The United States transfers control of the Panama Canal to Panama."
+      "The film 'The Matrix' is released to critical and commercial success.",
+      "The TV series 'The Sopranos' premieres on HBO.",
+      "The animated series 'SpongeBob SquarePants' debuts on Nickelodeon.",
+      "The first 'Tony Hawk's Pro Skater' video game is released.",
+      "The animated sitcom 'Family Guy' premieres on Fox.",
+      "The Euro is introduced as the new currency for many European countries."
     ],
     "2000": [
-      "The dot-com bubble bursts, causing the NASDAQ to crash.",
-      "The International Space Station welcomes its first resident crew.",
-      "The Tate Modern art gallery opens in London.",
-      "The \"ILOVEYOU\" computer virus spreads globally.",
-      "The United States presidential election is decided by the Supreme Court.",
-      "Sony releases the PlayStation 2 console."
+      "The reality TV show 'Survivor' premieres and becomes a cultural phenomenon.",
+      "The crime drama 'CSI: Crime Scene Investigation' debuts on CBS.",
+      "The martial arts film 'Crouching Tiger, Hidden Dragon' is released.",
+      "The sitcom 'Curb Your Enthusiasm' premieres on HBO.",
+      "The animated film 'Chicken Run' is a box office success.",
+      "The comedy-drama series 'Gilmore Girls' premieres on The WB."
     ],
     "2001": [
-      "Al-Qaeda terrorists hijack four planes on September 11th.",
-      "Wikipedia, a free online encyclopedia, is launched.",
-      "Apple releases the first iPod digital music player.",
-      "The Enron corporation collapses in a massive scandal.",
-      "A 7.7 magnitude earthquake strikes Gujarat, India.",
-      "The United States initiates the War on Terror."
+      "The first film in the 'Harry Potter' series premieres.",
+      "The animated film 'Shrek' is released in theaters.",
+      "The first 'Lord of the Rings' film is released.",
+      "The action TV series '24' premieres on Fox.",
+      "The sitcom 'The Office' (UK) premieres on BBC Two.",
+      "The spy-fi series 'Alias' premieres on ABC."
     ],
     "2002": [
-      "The Euro is introduced as the new currency for twelve European Union countries.",
-      "The 2002 Winter Olympics are held in Salt Lake City, Utah.",
-      "East Timor is recognized as an independent nation.",
-      "The International Criminal Court is established to prosecute international crimes.",
-      "Chechen rebels take hundreds of hostages in a Moscow theater.",
-      "The FIFA World Cup is co-hosted by South Korea and Japan."
+      "The reality competition show 'American Idol' premieres on Fox.",
+      "The crime drama 'The Wire' debuts on HBO.",
+      "The first 'Spider-Man' film, directed by Sam Raimi, is released.",
+      "The film 'My Big Fat Greek Wedding' is a sleeper hit.",
+      "The animated film 'Ice Age' is released in theaters.",
+      "The TV series 'The Shield' premieres on FX."
     ],
     "2003": [
-      "The Space Shuttle Columbia disintegrates upon reentry.",
-      "A United States-led coalition invades Iraq.",
-      "The Human Genome Project is declared complete.",
-      "Apple launches the iTunes Music Store.",
-      "The final classic Volkswagen Beetle is produced in Mexico.",
-      "The supersonic passenger jet Concorde makes its final flight."
+      "The sitcom 'Arrested Development' premieres on Fox.",
+      "The teen drama 'One Tree Hill' debuts on The WB.",
+      "The film 'Pirates of the Caribbean: The Curse of the Black Pearl' is released.",
+      "The animated film 'Finding Nemo' is a box office success.",
+      "The TV series 'NCIS' premieres on CBS.",
+      "The talk show 'The Ellen DeGeneres Show' debuts."
     ],
     "2004": [
-      "A massive undersea earthquake in the Indian Ocean triggers a devastating tsunami.",
-      "NASA's rovers, Spirit and Opportunity, land on Mars to explore the planet.",
-      "The social networking site Facebook is launched by Mark Zuckerberg.",
-      "The Summer Olympics are held in Athens, Greece.",
-      "The European Union undergoes its largest expansion with ten new member countries.",
+      "The TV show 'Lost' premieres on ABC.",
+      "The animated film 'The Incredibles' is released.",
+      "The final episode of the sitcom 'Friends' airs.",
+      "The social networking site Facebook is launched.",
+      "The medical drama 'House, M.D.' premieres on Fox.",
       "The Boston Red Sox win the World Series for the first time since 1918."
     ],
     "2005": [
-      "Hurricane Katrina devastates New Orleans",
-      "Angela Merkel becomes Germany's first female Chancellor",
-      "The video-sharing platform YouTube is launched",
-      "Coordinated suicide bombings strike London's public transport system",
-      "The Huygens probe lands on Saturn's moon Titan",
-      "The Kyoto Protocol, a climate change treaty, enters into force"
+      "The sitcom 'How I Met Your Mother' premieres on CBS.",
+      "The mockumentary series 'The Office' (US) premieres on NBC.",
+      "The medical drama 'Grey's Anatomy' debuts on ABC.",
+      "The animated series 'American Dad!' premieres on Fox.",
+      "The supernatural drama 'Supernatural' premieres on The WB.",
+      "The crime drama 'Criminal Minds' debuts on CBS."
     ],
     "2006": [
-      "Former Iraqi President Saddam Hussein is executed.",
-      "Twitter, the social media platform, is launched.",
-      "Google acquires the video-sharing platform YouTube.",
-      "North Korea conducts its first nuclear test.",
-      "The International Astronomical Union reclassifies Pluto as a dwarf planet.",
-      "Italy wins the FIFA World Cup in Germany."
+      "The film 'The Departed' wins the Academy Award for Best Picture.",
+      "The social media platform Twitter is launched.",
+      "The first 'High School Musical' film premieres on Disney Channel.",
+      "The TV series 'Heroes' premieres on NBC.",
+      "The sitcom '30 Rock' debuts on NBC.",
+      "The video game 'Gears of War' is released on the Xbox 360."
     ],
     "2007": [
-      "Apple releases the first iPhone.",
-      "Nancy Pelosi becomes the first female Speaker of the U.S. House of Representatives.",
-      "The final Harry Potter book, *Harry Potter and the Deathly Hallows*, is published.",
-      "A 8.0 magnitude earthquake strikes Peru.",
-      "Former Prime Minister Benazir Bhutto is assassinated in Pakistan.",
-      "The IPCC and Al Gore win the Nobel Peace Prize for climate change work."
+      "The final Harry Potter book, 'Harry Potter and the Deathly Hallows,' is published.",
+      "The TV series 'Mad Men' premieres on AMC.",
+      "The film 'No Country for Old Men' wins the Academy Award for Best Picture.",
+      "The video game 'BioShock' is released to critical acclaim.",
+      "The final episode of 'The Sopranos' airs on HBO.",
+      "The first iPhone is released by Apple."
     ],
     "2008": [
-      "Barack Obama is elected the first African American President of the United States.",
-      "The Large Hadron Collider is inaugurated at CERN.",
-      "A major financial crisis grips the global economy.",
-      "Cyclone Nargis devastates Myanmar.",
-      "The Summer Olympics are held in Beijing, China.",
-      "Marvel Studios releases its first film, *Iron Man*."
+      "The film 'The Dark Knight' is a critical and commercial success.",
+      "The TV series 'Breaking Bad' premieres on AMC.",
+      "The first Marvel Cinematic Universe film, 'Iron Man,' is released.",
+      "The animated film 'WALL-E' is released by Pixar.",
+      "The video game 'Grand Theft Auto IV' is a massive success.",
+      "The TV series 'Sons of Anarchy' premieres on FX."
+    ],
+    "2009": [
+      "The film 'Avatar' is released and becomes the highest-grossing film of all time.",
+      "The video game 'Minecraft' is first released to the public.",
+      "The TV show 'Glee' premieres on Fox.",
+      "The sitcom 'Modern Family' debuts on ABC.",
+      "The social game 'FarmVille' is released on Facebook.",
+      "The first 'Angry Birds' game is released on iOS."
     ],
     "2010": [
-      "A massive earthquake devastates the nation of Haiti.",
-      "The Deepwater Horizon oil spill causes an environmental catastrophe.",
-      "The Arab Spring begins with protests in Tunisia.",
-      "Thirty-three miners are rescued after being trapped in a Chilean mine.",
-      "Apple releases the first iPad, creating a new category of tablet computers.",
-      "The social media platform Instagram is launched."
+      "The film 'Inception' is released to critical acclaim.",
+      "The TV series 'The Walking Dead' premieres on AMC.",
+      "The video game 'Red Dead Redemption' is released.",
+      "The animated film 'Toy Story 3' is a box office success.",
+      "The TV series 'Sherlock' premieres on the BBC.",
+      "The final episode of the TV series 'Lost' airs."
     ]
   }
 }
