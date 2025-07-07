@@ -154,7 +154,7 @@ export function generateShareText(
       // Continue without closest guess message
     }
 
-    let result = `Chrondle: ${dateString} - ${score}${closestMessage}\n`;
+    let result = `${dateString} - ${score}${closestMessage}\n`;
 
     // Add first hint if available (directly below the top line)
     if (
@@ -195,15 +195,9 @@ export function generateEmojiTimeline(
 ): string {
   return guesses
     .map((guess) => {
-      const emoji = generateWordleBoxes(guess, targetYear);
-      // Add directional indicator unless it's a perfect match
-      if (guess === targetYear) {
-        return emoji; // Just 🎯, no arrow needed
-      }
-      const arrow = guess > targetYear ? "↓" : "↑";
-      return `${emoji} ${arrow}`;
+      return generateWordleBoxes(guess, targetYear);
     })
-    .join("\n");
+    .join(" ");
 }
 
 export interface StreakColorClasses {

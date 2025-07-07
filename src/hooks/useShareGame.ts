@@ -53,12 +53,8 @@ export function useShareGame(
       const textToShare =
         useDetailed || detailed ? detailedShareText : compactShareText;
 
-      // Use Web Share API if available, otherwise fallback to clipboard
-      const success = await share(
-        textToShare,
-        "Chrondle Results",
-        undefined, // Don't include URL in share data to avoid encoding issues
-      );
+      // Use clipboard for consistent UX
+      const success = await share(textToShare);
 
       if (success) {
         setShareStatus("success");

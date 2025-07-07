@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 
 export interface UseWebShareReturn {
-  share: (text: string, title?: string, url?: string) => Promise<boolean>;
+  share: (text: string) => Promise<boolean>;
   isSharing: boolean;
   canShare: boolean;
   lastShareSuccess: boolean | null;
@@ -26,49 +26,13 @@ export function useWebShare(): UseWebShareReturn {
     typeof navigator.share === "function";
 
   const share = useCallback(
-    async (
-      text: string,
-      title: string = "Chrondle Results",
-      url?: string,
-    ): Promise<boolean> => {
+    async (text: string): Promise<boolean> => {
       setIsSharing(true);
 
       try {
-        // Try Web Share API first if available
-        if (canShare) {
-          try {
-            // Prepare share data
-            const shareData: ShareData = {
-              title,
-              text,
-            };
+        // Skip Web Share API and use clipboard directly for consistent UX
 
-            // Only add URL if provided
-            if (url) {
-              shareData.url = url;
-            }
-
-            await navigator.share(shareData);
-            setShareMethod("webshare");
-            setLastShareSuccess(true);
-            return true;
-          } catch (error) {
-            // User cancelled or share failed
-            if (error instanceof Error && error.name === "AbortError") {
-              // User cancelled - this is not really a failure
-              setShareMethod("webshare");
-              setLastShareSuccess(false);
-              return false;
-            }
-            // Fall through to clipboard fallback
-            console.warn(
-              "Web Share API failed, falling back to clipboard:",
-              error,
-            );
-          }
-        }
-
-        // Fallback to clipboard
+        // Use clipboard for consistent UX
         if (navigator.clipboard && window.isSecureContext) {
           await navigator.clipboard.writeText(text);
           setShareMethod("clipboard");
@@ -101,7 +65,7 @@ export function useWebShare(): UseWebShareReturn {
         setIsSharing(false);
       }
     },
-    [canShare],
+    [], // No dependencies needed since we're using clipboard directly
   );
 
   return {

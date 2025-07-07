@@ -90,8 +90,8 @@ describe("Closest Guess Functionality", () => {
       expect(result).toContain("(Closest: 6 years off 🎖️)");
       expect(result).toContain("X/6");
       expect(result).toContain("♨️"); // Temperature emojis instead of boxes
-      expect(result).toContain("↓"); // Directional arrows
-      expect(result).toContain("↑");
+      // Temperature emojis should be on same line without arrows
+      expect(result).toContain("♨️ ♨️ 🔥");
     });
 
     it("should not include closest guess message for winning games", () => {
