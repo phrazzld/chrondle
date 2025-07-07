@@ -154,7 +154,7 @@ export function generateShareText(
       // Continue without closest guess message
     }
 
-    let result = `${dateString} - ${score}${closestMessage}\n`;
+    let result = `Chrondle: ${dateString} - ${score}${closestMessage}\n`;
 
     // Add first hint if available (directly below the top line)
     if (
