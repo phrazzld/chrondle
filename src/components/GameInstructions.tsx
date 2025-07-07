@@ -30,7 +30,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
   closestGuess,
 }) => {
   // Share functionality - always initialize hook (React hooks rule)
-  const { shareGame, shareStatus, shareMethod } = useShareGame(
+  const { shareGame, shareStatus, shareMethod, isSharing } = useShareGame(
     guesses,
     targetYear || 0,
     hasWon,
@@ -205,7 +205,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
           {/* Share Button */}
           <RippleButton
             onClick={() => shareGame()}
-            disabled={false}
+            disabled={isSharing}
             className={getShareButtonStyles()}
             rippleColor="rgba(255, 255, 255, 0.3)"
             aria-label="Share your results"

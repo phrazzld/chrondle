@@ -57,8 +57,8 @@ export function useWebShare(): UseWebShareReturn {
             if (error instanceof Error && error.name === "AbortError") {
               // User cancelled - this is not really a failure
               setShareMethod("webshare");
-              setLastShareSuccess(true);
-              return true;
+              setLastShareSuccess(false);
+              return false;
             }
             // Fall through to clipboard fallback
             console.warn(

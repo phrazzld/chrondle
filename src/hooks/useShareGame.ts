@@ -20,7 +20,7 @@ export function useShareGame(
   options?: UseShareGameOptions,
 ) {
   const { onSuccess, onError, detailed = false } = options || {};
-  const { share, canShare, shareMethod } = useWebShare();
+  const { share, canShare, shareMethod, isSharing } = useWebShare();
   const [shareStatus, setShareStatus] = useState<ShareStatus>("idle");
 
   // Generate both compact and detailed share text
@@ -93,5 +93,6 @@ export function useShareGame(
     emojiBarcode,
     canShare,
     shareMethod,
+    isSharing,
   };
 }
