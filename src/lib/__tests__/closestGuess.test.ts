@@ -87,7 +87,7 @@ describe("Closest Guess Functionality", () => {
 
       const result = generateShareText(guesses, target, hasWon);
 
-      expect(result).toContain("Great effort! 6 years off");
+      expect(result).toContain("(Closest: 6 years off 🎖️)");
       expect(result).toContain("X/6");
       expect(result).toContain("♨️"); // Temperature emojis instead of boxes
       expect(result).toContain("↓"); // Directional arrows
