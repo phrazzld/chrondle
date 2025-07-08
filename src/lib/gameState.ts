@@ -1,8 +1,123 @@
 // Game State Management for Chrondle
 // Static puzzle database with pre-curated historical events
 
-import { getPuzzleForYear, SUPPORTED_YEARS } from './puzzleData';
-import { logger } from './logger';
+import { getPuzzleForYear, SUPPORTED_YEARS } from "./puzzleData";
+import { logger } from "./logger";
+
+// --- EVENT SCORING FUNCTIONS ---
+// Moved from api.ts as part of codebase simplification
+
+function scoreEventRecognizability(event: string): number {
+  const text = event.toLowerCase();
+  let score = 0;
+
+  // High-recognition keywords (famous events, people, places)
+  const highRecognitionTerms = [
+    "moon",
+    "apollo",
+    "nasa",
+    "president",
+    "war",
+    "peace",
+    "treaty",
+    "independence",
+    "revolution",
+    "atomic",
+    "bomb",
+    "hitler",
+    "stalin",
+    "churchill",
+    "roosevelt",
+    "kennedy",
+    "lincoln",
+    "washington",
+    "napoleon",
+    "caesar",
+    "rome",
+    "paris",
+    "london",
+    "america",
+    "united states",
+    "world war",
+    "olympics",
+    "pearl harbor",
+    "berlin wall",
+    "cold war",
+    "vietnam",
+    "titanic",
+    "earthquake",
+    "discovery",
+    "invention",
+    "first",
+    "assassinated",
+    "founded",
+    "empire",
+    "king",
+    "queen",
+  ];
+
+  // Medium-recognition keywords
+  const mediumRecognitionTerms = [
+    "battle",
+    "siege",
+    "died",
+    "born",
+    "elected",
+    "crowned",
+    "signed",
+    "declared",
+    "defeated",
+    "conquered",
+    "expedition",
+    "voyage",
+    "constructed",
+    "completed",
+    "university",
+    "cathedral",
+    "castle",
+    "city",
+    "established",
+    "created",
+  ];
+
+  // Count high-recognition terms (worth 10 points each)
+  highRecognitionTerms.forEach((term) => {
+    if (text.includes(term)) score += 10;
+  });
+
+  // Count medium-recognition terms (worth 5 points each)
+  mediumRecognitionTerms.forEach((term) => {
+    if (text.includes(term)) score += 5;
+  });
+
+  // Bonus for shorter events (more concise = more recognizable)
+  if (text.length < 50) score += 5;
+  if (text.length < 30) score += 5;
+
+  // Penalty for very long events (likely too detailed/obscure)
+  if (text.length > 100) score -= 5;
+
+  return score;
+}
+
+export function sortEventsByRecognizability(events: string[]): string[] {
+  // Create array of events with their scores
+  const scoredEvents = events.map((event) => ({
+    event: event,
+    score: scoreEventRecognizability(event),
+  }));
+
+  // Sort by score (lowest first = most obscure first), then by length (longer first) as tiebreaker
+  scoredEvents.sort((a, b) => {
+    if (a.score !== b.score) {
+      return a.score - b.score; // Ascending = lowest scores first (most obscure)
+    }
+    return b.event.length - a.event.length; // Longer events first as tiebreaker
+  });
+
+  // Return just the sorted events
+  return scoredEvents.map((item) => item.event);
+}
 
 export interface Puzzle {
   year: number;
@@ -44,7 +159,10 @@ export function createInitialGameState(): GameState {
 }
 
 // Deterministic daily year selection from pre-curated puzzle database
-export function getDailyYear(debugYear?: string, isDebugMode?: boolean): number {
+export function getDailyYear(
+  debugYear?: string,
+  isDebugMode?: boolean,
+): number {
   // Handle debug mode forced year
   if (debugYear && isDebugMode) {
     const parsedYear = parseInt(debugYear, 10);
@@ -59,57 +177,64 @@ export function getDailyYear(debugYear?: string, isDebugMode?: boolean): number 
   }
 
   const today = new Date();
-  
-  
+
   // Reset time to midnight to ensure consistency across timezones
   today.setHours(0, 0, 0, 0);
-  
+
   // Generate deterministic hash from date
-  const dateHash = Math.abs([...today.toISOString().slice(0,10)].reduce((a,b)=>(a<<5)+a+b.charCodeAt(0),5381));
-  
+  const dateHash = Math.abs(
+    [...today.toISOString().slice(0, 10)].reduce(
+      (a, b) => (a << 5) + a + b.charCodeAt(0),
+      5381,
+    ),
+  );
+
   // Select from years that have puzzles (20 years)
   const yearIndex = dateHash % SUPPORTED_YEARS.length;
   const selectedYear = SUPPORTED_YEARS[yearIndex];
-  
-  
+
   return selectedYear;
 }
 
 // Initialize daily puzzle from static database
 export function initializePuzzle(
-  sortEventsByRecognizability: (events: string[]) => string[],
   debugYear?: string,
-  isDebugMode?: boolean
+  isDebugMode?: boolean,
 ): Puzzle {
-  
   // Get the daily year (with debug support)
   const targetYear = getDailyYear(debugYear, isDebugMode);
-  
+
   // Load events from static database
   const events = getPuzzleForYear(targetYear);
-  
+
   if (events.length === 0) {
     // This should never happen with a properly curated database
-    throw new Error(`No puzzle found for year ${targetYear}. This indicates a bug in the puzzle database or daily selection logic.`);
+    throw new Error(
+      `No puzzle found for year ${targetYear}. This indicates a bug in the puzzle database or daily selection logic.`,
+    );
   }
-  
-  logger.debug(`🔍 DEBUG: Loaded ${events.length} events for year ${targetYear} from static database`);
-  
+
+  logger.debug(
+    `🔍 DEBUG: Loaded ${events.length} events for year ${targetYear} from static database`,
+  );
+
   // Sort events by recognizability (most obscure first, easiest last)
   const sortedEvents = sortEventsByRecognizability(events);
-  logger.debug(`🔍 DEBUG: Sorted ${sortedEvents.length} events by difficulty (obscure to obvious) for year ${targetYear}`);
-  
+  logger.debug(
+    `🔍 DEBUG: Sorted ${sortedEvents.length} events by difficulty (obscure to obvious) for year ${targetYear}`,
+  );
+
   // Generate simple puzzle ID for today (just the date)
   const today = new Date();
   const dateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
-  
+
   // Create puzzle object
   const puzzle: Puzzle = {
     year: targetYear,
-    events: sortedEvents, // Already exactly 6 events from database
-    puzzleId: dateString
+    events: sortedEvents, // At least 6 events from database, sorted by recognizability
+    puzzleId: dateString,
   };
-  
+
   logger.debug(`🔍 DEBUG: Puzzle initialized successfully:`, puzzle);
   return puzzle;
 }
@@ -123,21 +248,24 @@ export function getStorageKey(): string {
   return storageKey;
 }
 
-export function saveProgress(gameState: GameState, isDebugMode?: boolean): void {
-  if (isDebugMode) { 
-    logger.debug('Debug mode: skipping localStorage save'); 
-    return; 
+export function saveProgress(
+  gameState: GameState,
+  isDebugMode?: boolean,
+): void {
+  if (isDebugMode) {
+    logger.debug("Debug mode: skipping localStorage save");
+    return;
   }
 
   // Calculate closest guess for persistence
   let closestGuess: number | undefined;
   let closestDistance: number | undefined;
-  
+
   if (gameState.guesses.length > 0 && gameState.puzzle) {
     try {
       let bestDistance = Infinity;
       let bestGuess = gameState.guesses[0];
-      
+
       for (const guess of gameState.guesses) {
         const distance = Math.abs(guess - gameState.puzzle.year);
         if (distance < bestDistance) {
@@ -145,11 +273,11 @@ export function saveProgress(gameState: GameState, isDebugMode?: boolean): void 
           bestGuess = guess;
         }
       }
-      
+
       closestGuess = bestGuess;
       closestDistance = bestDistance;
     } catch (error) {
-      console.warn('Failed to calculate closest guess for save:', error);
+      console.warn("Failed to calculate closest guess for save:", error);
     }
   }
 
@@ -160,61 +288,73 @@ export function saveProgress(gameState: GameState, isDebugMode?: boolean): void 
     puzzleYear: gameState.puzzle ? gameState.puzzle.year : null,
     timestamp: new Date().toISOString(),
     closestGuess,
-    closestDistance
+    closestDistance,
   };
-  
+
   logger.debug(`Saving progress:`, progress);
-  
-  if (typeof window !== 'undefined') {
+
+  if (typeof window !== "undefined") {
     localStorage.setItem(getStorageKey(), JSON.stringify(progress));
   }
 }
 
-export function loadProgress(gameState: GameState, isDebugMode?: boolean): void {
-  if (isDebugMode) { 
-    logger.debug('Debug mode: skipping localStorage load'); 
-    return; 
+export function loadProgress(
+  gameState: GameState,
+  isDebugMode?: boolean,
+): void {
+  if (isDebugMode) {
+    logger.debug("Debug mode: skipping localStorage load");
+    return;
   }
 
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
 
   const storageKey = getStorageKey();
   const savedProgress = localStorage.getItem(storageKey);
   logger.debug(`Loading progress for key: ${storageKey}`);
   logger.debug(`Found saved progress:`, savedProgress);
-  
+
   // DEBUG: Log all chrondle keys in localStorage
-  const allChrondles: Array<{key: string, value: string | null}> = [];
+  const allChrondles: Array<{ key: string; value: string | null }> = [];
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
-    if (key && key.startsWith('chrondle-')) {
-      allChrondles.push({key, value: localStorage.getItem(key)});
+    if (key && key.startsWith("chrondle-")) {
+      allChrondles.push({ key, value: localStorage.getItem(key) });
     }
   }
   logger.debug(`All chrondle localStorage entries:`, allChrondles);
-  
+
   if (savedProgress) {
     const progress: Progress = JSON.parse(savedProgress);
     logger.debug(`Parsed progress:`, progress);
-    
+
     // Validate that the saved progress matches the current puzzle
     const currentPuzzleId = gameState.puzzle ? gameState.puzzle.puzzleId : null;
     const currentPuzzleYear = gameState.puzzle ? gameState.puzzle.year : null;
-    
-    logger.debug(`Current puzzle - ID: ${currentPuzzleId}, Year: ${currentPuzzleYear}`);
-    logger.debug(`Saved puzzle - ID: ${progress.puzzleId}, Year: ${progress.puzzleYear}`);
-    
+
+    logger.debug(
+      `Current puzzle - ID: ${currentPuzzleId}, Year: ${currentPuzzleYear}`,
+    );
+    logger.debug(
+      `Saved puzzle - ID: ${progress.puzzleId}, Year: ${progress.puzzleYear}`,
+    );
+
     // Check if this progress belongs to the current puzzle
-    const isValidProgress = progress.puzzleId === currentPuzzleId && 
-                          progress.puzzleYear === currentPuzzleYear;
-    
+    const isValidProgress =
+      progress.puzzleId === currentPuzzleId &&
+      progress.puzzleYear === currentPuzzleYear;
+
     if (isValidProgress) {
       logger.debug(`Progress is valid for current puzzle`);
       gameState.guesses = progress.guesses || [];
       gameState.isGameOver = progress.isGameOver || false;
-      logger.debug(`Loaded ${gameState.guesses.length} guesses, game over: ${gameState.isGameOver}`);
+      logger.debug(
+        `Loaded ${gameState.guesses.length} guesses, game over: ${gameState.isGameOver}`,
+      );
     } else {
-      logger.debug(`Progress is invalid for current puzzle - clearing old progress`);
+      logger.debug(
+        `Progress is invalid for current puzzle - clearing old progress`,
+      );
       // Clear the invalid progress
       localStorage.removeItem(storageKey);
       // Reset game state to fresh start
@@ -228,15 +368,15 @@ export function loadProgress(gameState: GameState, isDebugMode?: boolean): void 
 
 // Settings Management
 export function saveSettings(settings: Settings): void {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('chrondle-settings', JSON.stringify(settings));
+  if (typeof window !== "undefined") {
+    localStorage.setItem("chrondle-settings", JSON.stringify(settings));
   }
 }
 
 export function loadSettings(): Settings | null {
-  if (typeof window === 'undefined') return null;
-  
-  const settingsData = localStorage.getItem('chrondle-settings');
+  if (typeof window === "undefined") return null;
+
+  const settingsData = localStorage.getItem("chrondle-settings");
   if (settingsData) {
     return JSON.parse(settingsData) as Settings;
   }
@@ -245,26 +385,26 @@ export function loadSettings(): Settings | null {
 
 // Storage cleanup
 export function cleanupOldStorage(): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
 
   const today = new Date().toISOString().slice(0, 10);
   const todayKey = `chrondle-progress-${today}`;
-  
+
   logger.debug(`Cleaning up old localStorage entries, keeping: ${todayKey}`);
-  
+
   const keysToRemove: string[] = [];
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
-    if (key && key.startsWith('chrondle-progress-') && key !== todayKey) {
+    if (key && key.startsWith("chrondle-progress-") && key !== todayKey) {
       keysToRemove.push(key);
     }
   }
-  
-  keysToRemove.forEach(key => {
+
+  keysToRemove.forEach((key) => {
     localStorage.removeItem(key);
     logger.debug(`🗑️ Removed old storage entry: ${key}`);
   });
-  
+
   if (keysToRemove.length > 0) {
     logger.debug(`Cleaned up ${keysToRemove.length} old entries`);
   }
@@ -274,61 +414,63 @@ export function cleanupOldStorage(): void {
 export function createDebugUtilities(gameState: GameState) {
   return {
     reset: () => {
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         window.location.reload();
       }
     },
-    state: () => logger.info('Game state:', gameState),
+    state: () => logger.info("Game state:", gameState),
     clearStorage: () => {
-      if (typeof window === 'undefined') return [];
-      
-      const keys = Object.keys(localStorage).filter(k => k.startsWith('chrondle-'));
-      keys.forEach(k => localStorage.removeItem(k)); 
-      logger.info(`🗑️ Cleared ${keys.length} chrondle storage entries:`, keys); 
+      if (typeof window === "undefined") return [];
+
+      const keys = Object.keys(localStorage).filter((k) =>
+        k.startsWith("chrondle-"),
+      );
+      keys.forEach((k) => localStorage.removeItem(k));
+      logger.info(`🗑️ Cleared ${keys.length} chrondle storage entries:`, keys);
       return keys;
     },
-    setYear: (year: number) => { 
+    setYear: (year: number) => {
       if (gameState.puzzle) {
-        gameState.puzzle.year = year; 
-        logger.info(`Forced year to ${year}`); 
+        gameState.puzzle.year = year;
+        logger.info(`Forced year to ${year}`);
       }
     },
     testYear: (year: number) => {
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         const url = new URL(window.location.href);
-        url.searchParams.set('debug', 'true');
-        url.searchParams.set('year', year.toString());
+        url.searchParams.set("debug", "true");
+        url.searchParams.set("year", year.toString());
         window.location.href = url.toString();
       }
     },
     debug: () => {
-      logger.info('🔍 Current date:', new Date().toISOString());
-      logger.info('🔍 Storage key:', getStorageKey());
-      logger.info('🔍 Game state:', gameState);
-      
-      if (typeof window !== 'undefined') {
-        const allChrondles: Array<{key: string, value: string | null}> = [];
+      logger.info("🔍 Current date:", new Date().toISOString());
+      logger.info("🔍 Storage key:", getStorageKey());
+      logger.info("🔍 Game state:", gameState);
+
+      if (typeof window !== "undefined") {
+        const allChrondles: Array<{ key: string; value: string | null }> = [];
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          if (key && key.startsWith('chrondle-')) {
-            allChrondles.push({key, value: localStorage.getItem(key)});
+          if (key && key.startsWith("chrondle-")) {
+            allChrondles.push({ key, value: localStorage.getItem(key) });
           }
         }
-        logger.info('🔍 All chrondle localStorage:', allChrondles);
+        logger.info("🔍 All chrondle localStorage:", allChrondles);
       }
-    }
+    },
   };
 }
 
 // Mark first time player
 export function markFirstTimePlayer(): void {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('chrondle-has-played', 'true');
+  if (typeof window !== "undefined") {
+    localStorage.setItem("chrondle-has-played", "true");
   }
 }
 
 // Check if player has played before
 export function hasPlayedBefore(): boolean {
-  if (typeof window === 'undefined') return false;
-  return localStorage.getItem('chrondle-has-played') === 'true';
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem("chrondle-has-played") === "true";
 }

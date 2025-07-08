@@ -5,7 +5,7 @@ import {
   createInitialGameState,
 } from "../gameState";
 import { getPuzzleForYear, SUPPORTED_YEARS } from "../puzzleData";
-import { sortEventsByRecognizability } from "../api";
+import { sortEventsByRecognizability } from "../gameState";
 import { logger } from "../logger";
 
 // Performance test configuration
@@ -67,11 +67,7 @@ describe("Performance Tests", () => {
 
       for (let i = 0; i < BENCHMARK_ITERATIONS; i++) {
         try {
-          initializePuzzle(
-            sortEventsByRecognizability,
-            testYear.toString(),
-            true,
-          );
+          initializePuzzle(testYear.toString(), true);
         } catch {
           // Expected if no puzzle data available, skip timing this iteration
           continue;

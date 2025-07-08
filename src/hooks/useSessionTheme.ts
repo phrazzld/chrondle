@@ -31,6 +31,12 @@ export function useSessionTheme(): UseSessionThemeReturn {
 
   // Detect system theme on mount and listen for changes
   useEffect(() => {
+    if (typeof window === "undefined") {
+      setSystemTheme("light");
+      setIsMounted(true);
+      return;
+    }
+
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
     const updateSystemTheme = () => {
