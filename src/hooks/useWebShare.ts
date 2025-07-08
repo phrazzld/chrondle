@@ -30,9 +30,18 @@ export function useWebShare(): UseWebShareReturn {
       setIsSharing(true);
 
       try {
-        // Skip Web Share API and use clipboard directly for consistent UX
+        // Prefer Web Share API for mobile devices (better UX, no URL encoding)
+        if (canShare && navigator.share) {
+          await navigator.share({
+            text: text,
+            title: "Chrondle",
+          });
+          setShareMethod("webshare");
+          setLastShareSuccess(true);
+          return true;
+        }
 
-        // Use clipboard for consistent UX
+        // Fallback to clipboard for desktop
         if (navigator.clipboard && window.isSecureContext) {
           await navigator.clipboard.writeText(text);
           setShareMethod("clipboard");
@@ -65,7 +74,7 @@ export function useWebShare(): UseWebShareReturn {
         setIsSharing(false);
       }
     },
-    [], // No dependencies needed since we're using clipboard directly
+    [canShare], // Include canShare dependency
   );
 
   return {
