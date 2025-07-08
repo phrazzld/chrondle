@@ -101,10 +101,12 @@ describe("Share Text Generation", () => {
 
     it("should generate fallback text on error", () => {
       // Pass invalid inputs to trigger error path
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = generateShareText(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         null as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "invalid" as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "not boolean" as any,
       );
 

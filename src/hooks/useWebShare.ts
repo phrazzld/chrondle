@@ -32,13 +32,22 @@ export function useWebShare(): UseWebShareReturn {
       try {
         // Prefer Web Share API for mobile devices (better UX, no URL encoding)
         if (canShare && navigator.share) {
-          await navigator.share({
-            text: text,
-            title: "Chrondle",
-          });
-          setShareMethod("webshare");
-          setLastShareSuccess(true);
-          return true;
+          try {
+            await navigator.share({
+              text: text,
+              title: "Chrondle",
+            });
+            setShareMethod("webshare");
+            setLastShareSuccess(true);
+            return true;
+          } catch (shareError) {
+            // Log and continue to clipboard fallback - critical fix
+            console.warn(
+              "Web Share failed, falling back to clipboard:",
+              shareError,
+            );
+            // Fall through to clipboard fallback
+          }
         }
 
         // Fallback to clipboard for desktop

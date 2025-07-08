@@ -5,11 +5,13 @@ import { useWebShare } from "../useWebShare";
 // Mock functions
 const mockShare = vi.fn();
 const mockWriteText = vi.fn();
-const mockExecCommand = vi.fn();
 
 describe("useWebShare", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Ensure DOM body exists and is clean
+    document.body.innerHTML = "";
 
     // Reset to default state with Web Share API available
     Object.defineProperty(global, "navigator", {
@@ -28,28 +30,13 @@ describe("useWebShare", () => {
       },
       writable: true,
     });
-
-    Object.defineProperty(global, "document", {
-      value: {
-        execCommand: mockExecCommand,
-        createElement: vi.fn(() => ({
-          value: "",
-          style: {},
-          focus: vi.fn(),
-          select: vi.fn(),
-        })),
-        body: {
-          appendChild: vi.fn(),
-          removeChild: vi.fn(),
-        },
-      },
-      writable: true,
-    });
   });
 
   describe("canShare detection", () => {
     it("should detect Web Share API availability", () => {
-      const { result } = renderHook(() => useWebShare());
+      const { result } = renderHook(() => useWebShare(), {
+        container: document.body.appendChild(document.createElement("div")),
+      });
       expect(result.current.canShare).toBe(true);
     });
 
@@ -160,7 +147,9 @@ describe("useWebShare", () => {
         writable: true,
       });
 
-      mockExecCommand.mockReturnValue(true);
+      // Mock document.execCommand as it doesn't exist in jsdom
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (document as any).execCommand = vi.fn().mockReturnValue(true);
 
       const testText = "Test share text";
       const { result } = renderHook(() => useWebShare());
@@ -170,7 +159,8 @@ describe("useWebShare", () => {
         expect(success).toBe(true);
       });
 
-      expect(mockExecCommand).toHaveBeenCalledWith("copy");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((document as any).execCommand).toHaveBeenCalledWith("copy");
       expect(result.current.shareMethod).toBe("clipboard");
     });
 
@@ -186,7 +176,9 @@ describe("useWebShare", () => {
         writable: true,
       });
 
-      mockExecCommand.mockReturnValue(false);
+      // Mock document.execCommand to return false (failure)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (document as any).execCommand = vi.fn().mockReturnValue(false);
 
       const testText = "Test share text";
       const { result } = renderHook(() => useWebShare());
