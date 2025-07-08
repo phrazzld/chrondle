@@ -45,6 +45,9 @@ beforeEach(() => {
     value: mockCrypto,
     writable: true,
   });
+
+  // Ensure DOM container exists for React Testing Library
+  document.body.innerHTML = '<div id="root"></div>';
 });
 
 // Optionally mock console during tests to reduce noise
