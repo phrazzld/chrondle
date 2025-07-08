@@ -1,8 +1,8 @@
 {
   "meta": {
     "version": "4.4",
-    "total_puzzles": 275,
-    "date_range": "-1200-2010"
+    "total_puzzles": 284,
+    "date_range": "-1200-2016"
   },
   "puzzles": {
     "-1200": [
@@ -94,20 +94,20 @@
       "The Kingdom of Aksum in East Africa emerges as a major trading power."
     ],
     "30": [
-      "Jesus of Nazareth is crucified in Jerusalem.",
+      "Pontius Pilate orders the crucifixion of Jesus of Nazareth in Jerusalem.",
       "John the Baptist is executed by order of Herod Antipas.",
-      "Agrippina the Elder is arrested and exiled by order of Sejanus.",
-      "The Kushan Empire is founded in Central and South Asia.",
-      "The Roman writer Velleius Paterculus completes his 'History of Rome'.",
-      "The Roman fabulist Phaedrus translates Aesop's fables into Latin."
+      "The Apostle Peter begins to preach in Jerusalem after Pentecost.",
+      "The Kushan Empire is founded by Kujula Kadphises in Central Asia.",
+      "Roman historian Velleius Paterculus completes his 'Historiarum' a history of Rome.",
+      "Roman fabulist Phaedrus releases his first book of Aesop's fables."
     ],
     "79": [
-      "Mount Vesuvius erupts, burying Pompeii and Herculaneum",
-      "Pliny the Elder dies while leading a rescue mission",
-      "The Colosseum's construction is nearing completion in Rome",
-      "Emperor Vespasian dies, succeeded by his son Titus",
-      "The Villa of the Papyri's library is preserved by ash",
-      "Agricola begins his conquest of northern Britain"
+      "Mount Vesuvius erupts, burying the cities of Pompeii and Herculaneum.",
+      "Emperor Vespasian dies and his son Titus assumes the imperial throne.",
+      "Roman general Gnaeus Julius Agricola consolidates control over northern Britain.",
+      "Pliny the Elder perishes while attempting to rescue citizens from Vesuvius's eruption.",
+      "In China, Empress Ma of the Han Dynasty dies.",
+      "The Roman fort Mamucium is established at the site of modern Manchester."
     ],
     "117": [
       "The Kitos War ends with the suppression of Jewish revolts",
@@ -118,31 +118,28 @@
       "The Pantheon is commissioned by Emperor Hadrian in Rome"
     ],
     "212": [
-      "The Constitutio Antoniniana grants citizenship to all free Roman men",
-      "Emperor Caracalla murders his brother Geta in their mother's arms",
-      "Papinian, a distinguished jurist, is executed for protesting the murder",
-      "Construction begins on the massive Baths of Caracalla in Rome",
-      "The warlord Ma Teng is executed in China",
-      "Caracalla prepares for a campaign against the Alemanni",
-      "Vologases VI of Parthia faces a rebellion from his brother Artabanus IV"
+      "The Constitutio Antoniniana grants Roman citizenship to all free men in the Empire.",
+      "Construction of the grand Baths of Caracalla begins in Rome.",
+      "The ancient city of Edessa in Mesopotamia becomes a Roman province.",
+      "Jurist Papinian is executed for protesting Emperor Caracalla's murder of his brother Geta.",
+      "Vologases VI of Parthia faces a major rebellion from his brother Artabanus IV.",
+      "The warlord Ma Teng is executed by Cao Cao in China."
     ],
     "313": [
-      "Constantine defeats Maxentius at the Milvian Bridge",
-      "The Chi-Rho symbol appears in Constantine's dream",
-      "Christian clergy are exempted from municipal obligations",
-      "Confiscated church properties are ordered to be returned",
-      "The Edict of Milan legalizes Christianity in the Roman Empire",
-      "Licinius and Constantine agree on a policy of religious tolerance",
-      "The Donatist schism is declared a heresy at the Lateran Synod"
+      "The Edict of Milan, issued by Constantine and Licinius, proclaims religious toleration throughout the Roman Empire.",
+      "Roman Emperor Diocletian, who established the Tetrarchy, dies in his palace at Salona.",
+      "A civil war erupts in the Eastern Roman Empire between co-emperors Licinius and Maximinus Daza.",
+      "In China, the Western Jin Dynasty is in decline, and Emperor Huai is executed.",
+      "The Battle of Tzirallum results in a decisive victory for the forces of Licinius.",
+      "Sima Ye ascends the throne as Emperor Min of Jin in the city of Chang'an."
     ],
     "330": [
-      "Constantine dedicates Constantinople as the new Roman capital",
-      "Ancient Byzantium is transformed into Nova Roma",
-      "The Eastern Roman Empire receives a permanent capital",
-      "Constantine leads a grand procession to dedicate the new city",
-      "The city is strategically located to control trade routes",
-      "The Goths devastate the city of Tanais",
-      "Frumentius becomes the first bishop of Ethiopia"
+      "Emperor Constantine inaugurates Constantinople as the new capital of the Roman Empire.",
+      "The influential Christian theologian Basil of Caesarea is born in Cappadocia.",
+      "King Tiridates III of Armenia, who made Christianity the state religion, dies.",
+      "Frumentius is ordained as the first Bishop of Aksum in modern-day Ethiopia.",
+      "The Gothic chieftain Alaric is born, who will later sack the city of Rome.",
+      "Khosrov III succeeds his father as the new king of Armenia."
     ],
     "410": [
       "Alaric's Visigoths capture and sack Rome for three days",
@@ -650,6 +647,14 @@
       "The world's first modern opera, *Euridice*, premieres in Florence.",
       "The Huaynaputina volcano in Peru erupts violently."
     ],
+    "1602": [
+      "The Dutch East India Company (VOC) is established in Amsterdam.",
+      "Shakespeare's comedy 'Twelfth Night' is first performed in London.",
+      "The Bodleian Library at Oxford University is opened to the public.",
+      "English explorer Bartholomew Gosnold lands on Cape Cod.",
+      "Shah Abbas I of Persia drives the Portuguese from Bahrain.",
+      "The Battle of Kinsale in Ireland concludes with an English victory."
+    ],
     "1603": [
       "Queen Elizabeth I of England dies, ending the Tudor dynasty.",
       "King James VI of Scotland accedes to the English throne as James I.",
@@ -915,6 +920,14 @@
       "The Montgolfier brothers launch the first manned hot-air balloon flight",
       "The United States is recognized as an independent nation"
     ],
+    "1784": [
+      "The Treaty of Paris is ratified, officially ending the American Revolution.",
+      "The state of Franklin is declared in what will become Tennessee.",
+      "Russia establishes its first permanent settlement in Alaska on Kodiak Island.",
+      "Pierre Beaumarchais's play 'The Marriage of Figaro' premieres in Paris.",
+      "Élisabeth Thible of France becomes the first woman to fly in a hot-air balloon.",
+      "Benjamin Franklin is credited with the invention of bifocal spectacles."
+    ],
     "1787": [
       "The Constitutional Convention in Philadelphia drafts the U.S. Constitution.",
       "The British establish a settlement for freed slaves in Sierra Leone.",
@@ -1085,12 +1098,12 @@
       "The first official United States postage stamps are issued."
     ],
     "1848": [
-      "Treaty of Guadalupe Hidalgo transfers Mexican territory to United States",
-      "Frankfurt Parliament establishes first German democracy",
-      "Marx and Engels publish Communist Manifesto in London",
-      "Gold discovered at Sutter's Mill sparking California Gold Rush",
-      "February Revolution establishes French Second Republic",
-      "Year of Revolutions transforms European world order"
+      "The Treaty of Guadalupe Hidalgo ends the Mexican-American War.",
+      "The Frankfurt Parliament convenes to draft a German constitution.",
+      "Karl Marx and Friedrich Engels publish 'The Communist Manifesto' in London.",
+      "James W. Marshall discovers gold at Sutter's Mill in California.",
+      "The February Revolution in Paris establishes the Second French Republic.",
+      "The Seneca Falls Convention for women's rights is held in New York."
     ],
     "1851": [
       "The Great Exhibition is held in the Crystal Palace in London.",
@@ -1179,6 +1192,14 @@
       "Thomas Edison invents the phonograph, a device for recording sound.",
       "The Lakota leader Crazy Horse surrenders to U.S. troops in Nebraska.",
       "Russia declares war on the Ottoman Empire, beginning the Russo-Turkish War."
+    ],
+    "1881": [
+      "U.S. President James A. Garfield is assassinated in Washington D.C.",
+      "Czar Alexander II of Russia is assassinated in Saint Petersburg.",
+      "The Gunfight at the O.K. Corral takes place in Tombstone, Arizona.",
+      "Clara Barton establishes the American Red Cross in the United States.",
+      "The Tuskegee Institute, a university for African Americans, is founded.",
+      "The first episodes of 'The Adventures of Pinocchio' are published in Italy."
     ],
     "1882": [
       "Germany, Austria-Hungary, and Italy form the Triple Alliance.",
@@ -1375,12 +1396,12 @@
       "The first Rotary Club is established in Chicago by Paul Harris."
     ],
     "1906": [
-      "A massive earthquake and fire devastate San Francisco, California.",
-      "The Pure Food and Drug Act is passed, creating the Food and Drug Administration.",
-      "Finland becomes the first European country to grant women the right to vote.",
-      "The first Grand Prix motor race is held in Le Mans, France.",
-      "The All-India Muslim League is founded in Dhaka.",
-      "The Azusa Street Revival begins in Los Angeles, sparking the Pentecostal movement."
+      "A massive earthquake and resulting fires devastate San Francisco.",
+      "The U.S. Congress passes the Pure Food and Drug Act.",
+      "Finland grants women the right to vote, a first in Europe.",
+      "The first Grand Prix motor race is held at Le Mans, France.",
+      "The All-India Muslim League is founded in Dhaka, British India.",
+      "The British Royal Navy launches the revolutionary battleship HMS Dreadnought."
     ],
     "1907": [
       "The first commercial color photography process, Autochrome Lumière, is introduced.",
@@ -1424,12 +1445,12 @@
       "The first Indianapolis 500-mile auto race is held."
     ],
     "1912": [
-      "The passenger liner RMS *Titanic* sinks on its maiden voyage.",
-      "The Republic of China is established, ending the Qing dynasty.",
-      "Woodrow Wilson is elected as the 28th President of the United States.",
+      "The passenger liner RMS Titanic sinks on its maiden voyage in the Atlantic.",
+      "The Republic of China is established, officially ending the Qing dynasty.",
+      "Woodrow Wilson is elected U.S. President after a three-way race.",
       "The First Balkan War begins between the Balkan League and the Ottoman Empire.",
-      "The South African Native National Congress, later the ANC, is founded.",
-      "The Piltdown Man, a fossil hoax, is presented to the Geological Society of London."
+      "The African National Congress (ANC) is founded in South Africa.",
+      "The Oreo cookie is introduced by the National Biscuit Company (Nabisco)."
     ],
     "1913": [
       "The Ford Motor Company introduces the first moving assembly line for the Model T.",
@@ -1496,12 +1517,12 @@
       "The Harlem Renaissance, a cultural movement, begins in New York City."
     ],
     "1921": [
-      "The Tulsa Race Massacre destroys the prosperous Greenwood District in Oklahoma.",
-      "The Irish War of Independence ends with the signing of the Anglo-Irish Treaty.",
-      "The Communist Party of China is founded in Shanghai.",
-      "Adolf Hitler becomes the leader of the Nazi Party.",
-      "Frederick Banting and Charles Best discover the hormone insulin at the University of Toronto.",
-      "Charlie Chaplin's first feature-length film, 'The Kid', is released."
+      "The Tulsa Race Massacre occurs in the Greenwood district of Tulsa, Oklahoma.",
+      "Frederick Banting and his team announce the discovery of insulin.",
+      "Benito Mussolini founds the National Fascist Party in Italy.",
+      "Adolf Hitler becomes the official leader of the Nazi Party in Germany.",
+      "The first live sporting event is broadcast on radio.",
+      "The perfume Chanel No. 5 is launched by Coco Chanel."
     ],
     "1922": [
       "The Irish Free State is established, leading to the Irish Civil War.",
@@ -1689,12 +1710,12 @@
       "The Battle of Leyte Gulf, the largest naval battle in history, is fought in the Pacific."
     ],
     "1945": [
-      "Soviet forces liberate Auschwitz-Birkenau death camp in January",
-      "Yalta Conference divides postwar Europe into spheres",
-      "B-29 bomber drops atomic weapon on Japanese city",
-      "Adolf Hitler commits suicide in Berlin bunker",
-      "United Nations Charter signed in San Francisco",
-      "V-J Day celebrations mark end of Second World War"
+      "Soviet troops liberate the Auschwitz-Birkenau concentration camp.",
+      "Roosevelt, Churchill, and Stalin meet at the Yalta Conference.",
+      "The bomber Enola Gay drops an atomic bomb on Hiroshima, Japan.",
+      "Adolf Hitler and Eva Braun commit suicide in the Führerbunker in Berlin.",
+      "The United Nations Charter is signed by 50 nations in San Francisco.",
+      "Japan surrenders, officially ending the Second World War."
     ],
     "1946": [
       "The Nuremberg Trials for Nazi war criminals conclude in Germany.",
@@ -1779,12 +1800,12 @@
       "The first Guinness Book of World Records is published."
     ],
     "1956": [
-      "The Suez Crisis begins with the nationalization of the Suez Canal by Egypt.",
-      "The Hungarian Revolution against Soviet rule is brutally crushed by Soviet forces.",
-      "The U.S. Supreme Court's ruling in Browder v. Gayle ends bus segregation.",
-      "Elvis Presley releases his first hit single, 'Heartbreak Hotel'.",
-      "The first transatlantic telephone cable system, TAT-1, is put into operation.",
-      "IBM introduces the 305 RAMAC, the first computer with a hard disk drive."
+      "The Suez Crisis erupts after Egypt nationalizes the Suez Canal.",
+      "The Hungarian Revolution against Soviet rule is crushed by military force.",
+      "The Montgomery Bus Boycott ends after a Supreme Court ruling.",
+      "\"In God We Trust\" is adopted as the official motto of the United States.",
+      "Actress Grace Kelly marries Prince Rainier III of Monaco.",
+      "Don Larsen of the New York Yankees pitches a perfect game in the World Series."
     ],
     "1957": [
       "The Soviet Union launches Sputnik 1, the first artificial satellite to orbit Earth.",
@@ -1999,12 +2020,12 @@
       "The Vietnam Veterans Memorial is dedicated in Washington, D.C."
     ],
     "1983": [
-      "The final episode of the TV series 'M*A*S*H' airs on CBS.",
-      "The film 'Scarface' is released, starring Al Pacino.",
-      "The rock band KISS appears without their makeup for the first time.",
-      "The video game 'Mario Bros.' is released in arcades.",
-      "The first commercial handheld cellular phone is introduced.",
-      "The original 'Star Wars' trilogy concludes with 'Return of the Jedi'."
+      "Korean Air Lines Flight 007 is shot down by a Soviet fighter jet.",
+      "Suicide bombers destroy U.S. Marine and French paratrooper barracks in Beirut.",
+      "The United States invades the Caribbean island of Grenada.",
+      "Sally Ride becomes the first American woman to travel to space.",
+      "The final episode of the TV series 'M*A*S*H' becomes the most-watched in history.",
+      "The first commercial handheld cellular phone, the DynaTAC 8000X, is introduced."
     ],
     "1984": [
       "The film 'Ghostbusters' is released and becomes a cultural phenomenon.",
@@ -2031,12 +2052,12 @@
       "The first Rock and Roll Hall of Fame induction ceremony is held."
     ],
     "1987": [
-      "The first 'The Simpsons' shorts air on 'The Tracey Ullman Show'.",
-      "The film 'RoboCop' is released in theaters.",
-      "The first 'Street Fighter' video game is released.",
-      "The TV series 'Star Trek: The Next Generation' premieres.",
-      "The film 'The Princess Bride' is released.",
-      "The first 'Final Fantasy' game is released in Japan."
+      "President Ronald Reagan urges Mikhail Gorbachev to \"tear down this wall\".",
+      "The First Intifada begins in the West Bank and Gaza Strip.",
+      "The animated series 'The Simpsons' first appears on television.",
+      "Global stock markets crash on a day known as \"Black Monday\".",
+      "The inaugural Rugby World Cup is held in Australia and New Zealand.",
+      "The USS Stark is struck by two Iraqi missiles in the Persian Gulf."
     ],
     "1988": [
       "The film 'Die Hard' is released, starring Bruce Willis.",
@@ -2055,12 +2076,12 @@
       "The first 'SimCity' video game is released."
     ],
     "1990": [
-      "The film 'Home Alone' is a massive box office success.",
-      "The sitcom 'The Fresh Prince of Bel-Air' premieres.",
-      "The Hubble Space Telescope is launched into orbit.",
-      "The first season of 'The Simpsons' premieres on Fox.",
-      "The crime film 'Goodfellas' is released to critical acclaim.",
-      "The mystery drama 'Twin Peaks' premieres on ABC."
+      "East and West Germany are reunified after 45 years of division.",
+      "Nelson Mandela is released from prison in South Africa after 27 years.",
+      "Iraq invades Kuwait, leading to the start of the Persian Gulf War.",
+      "The Hubble Space Telescope is launched into orbit by Space Shuttle Discovery.",
+      "The Human Genome Project is formally launched to map human DNA.",
+      "Tim Berners-Lee creates the first web server and web page."
     ],
     "1991": [
       "The film 'The Silence of the Lambs' is released.",
@@ -2071,12 +2092,12 @@
       "The grunge band Nirvana releases the album 'Nevermind'."
     ],
     "1992": [
-      "The film 'Aladdin' is released by Disney.",
-      "The first 'Mortal Kombat' video game is released.",
-      "The sitcom 'Martin' premieres on Fox.",
-      "The Mall of America opens in Bloomington, Minnesota.",
-      "The first text message is sent.",
-      "The film 'Reservoir Dogs' is released, directed by Quentin Tarantino."
+      "Riots erupt in Los Angeles after the acquittal of police officers in the Rodney King case.",
+      "The Maastricht Treaty is signed, formally creating the European Union.",
+      "U.S. President George H.W. Bush and Russian President Boris Yeltsin declare the Cold War over.",
+      "Hurricane Andrew, a Category 5 storm, devastates South Florida.",
+      "The Mall of America, the largest in the United States, opens in Minnesota.",
+      "The first-ever SMS text message is sent by engineer Neil Papworth."
     ],
     "1993": [
       "The film 'Jurassic Park' is a massive box office success.",
@@ -2103,12 +2124,12 @@
       "The video game console Sony PlayStation is released in North America."
     ],
     "1996": [
-      "The film 'Independence Day' is the highest-grossing film of the year.",
-      "The sitcom 'Everybody Loves Raymond' premieres on CBS.",
-      "The horror film 'Scream' revitalizes the slasher genre.",
-      "The Nintendo 64 is released in North America.",
-      "The final episode of 'The Fresh Prince of Bel-Air' airs.",
-      "The first 'Mission: Impossible' film is released."
+      "Dolly the sheep, the first mammal cloned from an adult cell, is born.",
+      "The Taliban capture Kabul, the capital of Afghanistan.",
+      "A pipe bomb explodes in Centennial Olympic Park during the Atlanta Olympics.",
+      "The Comprehensive Nuclear-Test-Ban Treaty is signed at the United Nations.",
+      "The Nintendo 64 gaming console is released in Japan and North America.",
+      "The science fiction film 'Independence Day' becomes a box office hit."
     ],
     "1997": [
       "The animated sitcom 'King of the Hill' premieres on Fox.",
@@ -2183,12 +2204,12 @@
       "The crime drama 'Criminal Minds' debuts on CBS."
     ],
     "2006": [
-      "The film 'The Departed' wins the Academy Award for Best Picture.",
-      "The social media platform Twitter is launched.",
-      "The first 'High School Musical' film premieres on Disney Channel.",
-      "The TV series 'Heroes' premieres on NBC.",
-      "The sitcom '30 Rock' debuts on NBC.",
-      "The video game 'Gears of War' is released on the Xbox 360."
+      "Former Iraqi President Saddam Hussein is executed by hanging.",
+      "The International Astronomical Union reclassifies Pluto as a dwarf planet.",
+      "The social media platform Twitter is launched to the public.",
+      "Google acquires the video-sharing platform YouTube for .65 billion.",
+      "Nintendo releases the Wii, a home video game console with motion controls.",
+      "Television personality and conservationist Steve Irwin dies."
     ],
     "2007": [
       "The final Harry Potter book, 'Harry Potter and the Deathly Hallows,' is published.",
@@ -2221,6 +2242,54 @@
       "The animated film 'Toy Story 3' is a box office success.",
       "The TV series 'Sherlock' premieres on the BBC.",
       "The final episode of the TV series 'Lost' airs."
+    ],
+    "2011": [
+      "The Arab Spring uprisings spread across the Middle East.",
+      "U.S. Navy SEALs kill al-Qaeda leader Osama bin Laden in Pakistan.",
+      "A massive earthquake and tsunami strike Japan, causing a nuclear disaster.",
+      "Prince William and Catherine Middleton marry at Westminster Abbey.",
+      "South Sudan gains independence from Sudan.",
+      "The final mission of the U.S. Space Shuttle program concludes."
+    ],
+    "2012": [
+      "Barack Obama is reelected as President of the United States.",
+      "Scientists at CERN announce the discovery of the Higgs boson.",
+      "NASA's Curiosity rover successfully lands on Mars.",
+      "The XXX Olympiad is held in London, United Kingdom.",
+      "Hurricane Sandy causes widespread damage across the U.S. East Coast.",
+      "Skydiver Felix Baumgartner breaks the sound barrier in a record-setting freefall."
+    ],
+    "2013": [
+      "Pope Benedict XVI resigns, becoming the first pope to do so in nearly 600 years.",
+      "Xi Jinping becomes the President of the People's Republic of China.",
+      "Two bombs explode near the finish line of the Boston Marathon.",
+      "The Rana Plaza garment factory collapses in Dhaka, Bangladesh.",
+      "Former NSA contractor Edward Snowden leaks classified documents.",
+      "Nelson Mandela, anti-apartheid leader, passes away at the age of 95."
+    ],
+    "2014": [
+      "The Winter Olympics are held in Sochi, Russia.",
+      "Russia annexes the Crimean Peninsula from Ukraine.",
+      "The Islamic State of Iraq and Syria (ISIS) declares a global caliphate.",
+      "Malaysia Airlines Flight 370 disappears en route to Beijing.",
+      "Germany wins the FIFA World Cup in Brazil.",
+      "The West African Ebola virus epidemic becomes the largest in history."
+    ],
+    "2015": [
+      "The United States and Cuba formally re-establish diplomatic relations.",
+      "NASA's New Horizons spacecraft performs a close flyby of Pluto.",
+      "The Paris Agreement on climate change is adopted by 196 countries.",
+      "A 7.8-magnitude earthquake strikes Nepal, causing widespread devastation.",
+      "Terrorist attacks in Paris on November 13th kill 130 people.",
+      "The Iran nuclear deal is signed between Iran and the P5+1 nations."
+    ],
+    "2016": [
+      "The United Kingdom votes to leave the European Union in the Brexit referendum.",
+      "Donald Trump is elected the 45th President of the United States.",
+      "The Chicago Cubs win the World Series for the first time since 1908.",
+      "A gunman kills 49 people at the Pulse nightclub in Orlando, Florida.",
+      "The Summer Olympics are held in Rio de Janeiro, Brazil.",
+      "The Zika virus outbreak is declared a global public health emergency."
     ]
   }
 }
