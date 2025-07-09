@@ -60,24 +60,63 @@ export function safeRemoveItem(key: string): boolean {
 
 // --- TYPE-SAFE STORAGE UTILITIES ---
 
+// Security: Enhanced JSON parsing with validation
 export function safeGetJSON<T>(key: string): T | null {
   const value = safeGetItem(key);
   if (!value) return null;
 
   try {
-    return JSON.parse(value) as T;
+    // Security: Validate JSON string before parsing
+    if (!isValidJSONString(value)) {
+      logger.warn(
+        `Invalid JSON detected for key ${key}, clearing corrupted data`,
+      );
+      safeRemoveItem(key);
+      return null;
+    }
+
+    const parsed = JSON.parse(value) as T;
+
+    // Security: Additional validation for parsed object
+    if (!isValidStorageObject(parsed)) {
+      logger.warn(
+        `Suspicious object structure detected for key ${key}, clearing data`,
+      );
+      safeRemoveItem(key);
+      return null;
+    }
+
+    return parsed;
   } catch (error) {
-    console.error(`Failed to parse JSON for key ${key}:`, error);
+    logger.error(`Failed to parse JSON for key ${key}:`, error);
+    // Security: Clear potentially malicious data
+    safeRemoveItem(key);
     return null;
   }
 }
 
 export function safeSetJSON<T>(key: string, value: T): boolean {
   try {
+    // Security: Validate input before serialization
+    if (!isValidStorageObject(value)) {
+      logger.error(`Invalid object structure prevented storage for key ${key}`);
+      return false;
+    }
+
     const serialized = JSON.stringify(value);
+
+    // Security: Check serialized size to prevent storage abuse
+    if (serialized.length > 10000) {
+      // 10KB limit per entry
+      logger.error(
+        `Object too large for storage (${serialized.length} bytes) for key ${key}`,
+      );
+      return false;
+    }
+
     return safeSetItem(key, serialized);
   } catch (error) {
-    console.error(`Failed to serialize JSON for key ${key}:`, error);
+    logger.error(`Failed to serialize JSON for key ${key}:`, error);
     return false;
   }
 }
@@ -452,7 +491,83 @@ export function shouldShowPermissionReminder(): boolean {
   return daysSinceAsk >= 3;
 }
 
-// --- VALIDATION UTILITIES ---
+// --- SECURITY VALIDATION UTILITIES ---
+
+// Security: Validate JSON string format before parsing
+function isValidJSONString(str: string): boolean {
+  // Basic checks for malicious patterns
+  if (
+    str.includes("__proto__") ||
+    str.includes("constructor") ||
+    str.includes("prototype")
+  ) {
+    return false;
+  }
+
+  // Check for excessive nesting that could cause DoS
+  const maxDepth = 10;
+  let depth = 0;
+  let maxFound = 0;
+
+  for (const char of str) {
+    if (char === "{" || char === "[") {
+      depth++;
+      maxFound = Math.max(maxFound, depth);
+      if (maxFound > maxDepth) {
+        return false;
+      }
+    } else if (char === "}" || char === "]") {
+      depth--;
+    }
+  }
+
+  return true;
+}
+
+// Security: Validate parsed object structure
+function isValidStorageObject(obj: unknown): boolean {
+  if (obj === null || obj === undefined) {
+    return true; // null/undefined are valid
+  }
+
+  if (
+    typeof obj === "string" ||
+    typeof obj === "number" ||
+    typeof obj === "boolean"
+  ) {
+    return true; // primitives are safe
+  }
+
+  if (Array.isArray(obj)) {
+    // Validate array contents and prevent excessive size
+    if (obj.length > 1000) return false;
+    return obj.every((item) => isValidStorageObject(item));
+  }
+
+  if (typeof obj === "object") {
+    // Check for prototype pollution attempts
+    if (
+      Object.prototype.hasOwnProperty.call(obj, "__proto__") ||
+      Object.prototype.hasOwnProperty.call(obj, "constructor") ||
+      Object.prototype.hasOwnProperty.call(obj, "prototype")
+    ) {
+      return false;
+    }
+
+    // Validate object properties and prevent excessive size
+    const entries = Object.entries(obj);
+    if (entries.length > 100) return false; // Limit object properties
+
+    return entries.every(([key, value]) => {
+      // Validate key is safe
+      if (typeof key !== "string" || key.length > 100) return false;
+      // Recursively validate value
+      return isValidStorageObject(value);
+    });
+  }
+
+  return false; // Functions, symbols, etc. are not allowed
+}
 
 export function validateStorageIntegrity(): boolean {
   if (!isLocalStorageAvailable()) {

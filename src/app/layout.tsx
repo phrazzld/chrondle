@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SessionThemeProvider } from "@/components/SessionThemeProvider";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +32,9 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <SessionThemeProvider>{children}</SessionThemeProvider>
+        <ErrorBoundary>
+          <SessionThemeProvider>{children}</SessionThemeProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

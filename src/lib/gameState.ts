@@ -263,10 +263,10 @@ export function getStorageKey(): string {
 export function saveProgress(
   gameState: GameState,
   isDebugMode?: boolean,
-): void {
+): boolean {
   if (isDebugMode) {
     logger.debug("Debug mode: skipping localStorage save");
-    return;
+    return true;
   }
 
   // Calculate closest guess for persistence
@@ -306,8 +306,10 @@ export function saveProgress(
   logger.debug(`Saving progress:`, progress);
 
   if (typeof window !== "undefined") {
-    saveGameProgress(progress, isDebugMode);
+    return saveGameProgress(progress, isDebugMode);
   }
+
+  return false;
 }
 
 export function loadProgress(

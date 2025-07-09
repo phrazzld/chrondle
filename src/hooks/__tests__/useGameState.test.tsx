@@ -56,7 +56,7 @@ describe("useGameState Hook", () => {
     });
     mockGameStateLib.initializePuzzle.mockReturnValue(mockPuzzle);
     mockGameStateLib.loadProgress.mockImplementation(() => {});
-    mockGameStateLib.saveProgress.mockImplementation(() => {});
+    mockGameStateLib.saveProgress.mockImplementation(() => true);
     mockGameStateLib.cleanupOldStorage.mockImplementation(() => {});
     mockPuzzleDataLib.getPuzzleForYear.mockReturnValue(mockPuzzleEvents);
     mockPuzzleDataLib.getSupportedYears.mockReturnValue([1969, 1970, 1971]);

@@ -26,6 +26,31 @@ const localStorageMock = (() => {
   };
 })();
 
+// CARMACK FIX: Mock Notification API to prevent real timer creation
+const mockNotification = vi.fn(() => ({
+  close: vi.fn(),
+  onclick: null,
+}));
+
+// Mock the Notification constructor and permission
+Object.defineProperty(mockNotification, "permission", {
+  value: "default",
+  writable: true,
+});
+
+Object.defineProperty(mockNotification, "requestPermission", {
+  value: vi.fn().mockResolvedValue("granted"),
+  writable: true,
+});
+
+// Mock Web Notification API completely
+Object.defineProperty(global, "Notification", {
+  value: mockNotification,
+  writable: true,
+});
+
+// Keep original timer functions for proper test execution
+
 // Mock crypto.randomUUID for consistent testing
 const mockCrypto = {
   randomUUID: () => "test-uuid-1234-5678-9abc-def123456789",
@@ -82,8 +107,10 @@ afterEach(async () => {
     // Notification service might not be initialized, ignore
   }
 
-  // Clear all timers (including long-running notification timeouts)
+  // Clear all Vitest timers
   vi.clearAllTimers();
+
+  // Clear any remaining timers (basic cleanup)
 
   // More aggressive timer cleanup for any missed timeouts/intervals
   if (typeof window !== "undefined") {
@@ -127,6 +154,8 @@ afterAll(async () => {
   vi.clearAllTimers();
   vi.clearAllMocks();
   vi.restoreAllMocks();
+
+  // Final timer cleanup
 
   // Clear any remaining timers and intervals (extended range for notification timers)
   if (typeof window !== "undefined") {

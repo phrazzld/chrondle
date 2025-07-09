@@ -232,11 +232,17 @@ describe("gameState Library Functions", () => {
       };
 
       const localStorageMock = window.localStorage as unknown as MockStorage;
+
+      // Clear any previous calls from setup/other tests
+      localStorageMock.setItem.mockClear();
+
       saveProgress(gameState);
 
-      expect(localStorageMock.setItem).toHaveBeenCalledTimes(1);
-      // Should save progress data, not the full game state
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+      // Two calls expected: 1 for localStorage availability test, 1 for actual save
+      expect(localStorageMock.setItem).toHaveBeenCalledTimes(2);
+      // Should save progress data on the second call (first is availability test)
+      expect(localStorageMock.setItem).toHaveBeenNthCalledWith(
+        2, // Second call
         expect.stringMatching(/chrondle-progress-/),
         expect.stringContaining('"guesses":[1950,1960]'),
       );
@@ -259,8 +265,9 @@ describe("gameState Library Functions", () => {
         throw new Error("QuotaExceededError");
       });
 
-      // The current implementation doesn't handle errors, so it will throw
-      expect(() => saveProgress(gameState)).toThrow("QuotaExceededError");
+      // Storage utilities handle quota errors gracefully and return false
+      const result = saveProgress(gameState);
+      expect(result).toBe(false);
     });
 
     it("should handle localStorage not available", () => {
@@ -281,8 +288,9 @@ describe("gameState Library Functions", () => {
         writable: true,
       });
 
-      // The current implementation doesn't handle errors, so it will throw
-      expect(() => saveProgress(gameState)).toThrow();
+      // Storage utilities handle missing localStorage gracefully and return false
+      const result = saveProgress(gameState);
+      expect(result).toBe(false);
     });
 
     it("should skip saving in debug mode", () => {
@@ -369,8 +377,14 @@ describe("gameState Library Functions", () => {
       const localStorageMock = window.localStorage as unknown as MockStorage;
       localStorageMock.getItem.mockReturnValue("invalid json");
 
-      // The current implementation doesn't handle JSON parsing errors
-      expect(() => loadProgress(gameState)).toThrow();
+      // Security enhancement: corrupted data should be cleared and not affect state
+      loadProgress(gameState);
+
+      // Game state should remain unchanged when corrupted data is encountered
+      expect(gameState.guesses).toEqual([]);
+
+      // Verify corrupted data was cleared
+      expect(localStorageMock.removeItem).toHaveBeenCalled();
     });
 
     it("should handle localStorage not available", () => {
@@ -391,8 +405,11 @@ describe("gameState Library Functions", () => {
         writable: true,
       });
 
-      // The current implementation doesn't handle missing localStorage
-      expect(() => loadProgress(gameState)).toThrow();
+      // Storage utilities handle missing localStorage gracefully
+      loadProgress(gameState);
+
+      // Game state should remain unchanged when localStorage is not available
+      expect(gameState.guesses).toEqual([]);
     });
 
     it("should skip loading in debug mode", () => {
