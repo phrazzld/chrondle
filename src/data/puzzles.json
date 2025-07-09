@@ -1,10 +1,20 @@
 {
   "meta": {
     "version": "4.4",
-    "total_puzzles": 284,
-    "date_range": "-1200-2016"
+    "total_puzzles": 295,
+    "date_range": "-2000-2025"
   },
   "puzzles": {
+    "-2000": [
+      "The construction of Stonehenge in England is largely completed.",
+      "The first Minoan palaces begin to appear on the island of Crete.",
+      "The Indus Valley Civilization begins its decline.",
+      "The Bronze Age begins in northern Ancient China.",
+      "Pharaoh Amenemhat I begins to rule, starting Egypt's Twelfth Dynasty.",
+      "Horses are tamed and used for transport in Central Asia.",
+      "The last woolly mammoths go extinct on Wrangel Island.",
+      "Babylonians develop a mathematical system based on units of 60."
+    ],
     "-1200": [
       "The Hittite capital of Hattusa is burned and abandoned.",
       "The port city of Ugarit in Syria is destroyed by the Sea Peoples.",
@@ -102,12 +112,13 @@
       "Roman fabulist Phaedrus releases his first book of Aesop's fables."
     ],
     "79": [
-      "Mount Vesuvius erupts, burying the cities of Pompeii and Herculaneum.",
-      "Emperor Vespasian dies and his son Titus assumes the imperial throne.",
-      "Roman general Gnaeus Julius Agricola consolidates control over northern Britain.",
-      "Pliny the Elder perishes while attempting to rescue citizens from Vesuvius's eruption.",
-      "In China, Empress Ma of the Han Dynasty dies.",
-      "The Roman fort Mamucium is established at the site of modern Manchester."
+      "Mount Vesuvius erupts, burying Pompeii and Herculaneum.",
+      "Emperor Vespasian dies, succeeded by his son Titus.",
+      "Gnaeus Julius Agricola campaigns in modern-day Scotland.",
+      "Pliny the Elder dies while investigating the Vesuvius eruption.",
+      "The Flavian Amphitheatre, the Colosseum, is under construction in Rome.",
+      "Empress Ma of the Han Dynasty dies in China.",
+      "The Roman fort Mamucium is established at modern Manchester."
     ],
     "117": [
       "The Kitos War ends with the suppression of Jewish revolts",
@@ -312,12 +323,14 @@
       "Ayyubid expansion threatens Frankish territorial control"
     ],
     "1204": [
-      "Maimonides dies in Cairo",
-      "Temujin defeats Naiman tribes completing steppe unification",
-      "Philip II conquers Normandy ending Angevin territorial control",
-      "Hagia Sophia converted to Roman Catholic cathedral temporarily",
-      "Fourth Crusade captures Constantinople instead of Jerusalem",
-      "Byzantine capital sacked by Crusaders fragmenting Eastern Roman Empire"
+      "The Fourth Crusade sacks Constantinople, the Byzantine capital.",
+      "The Latin Empire is established in Constantinople after its capture.",
+      "Eleanor of Aquitaine, Queen of France and England, dies.",
+      "The influential Jewish philosopher Maimonides dies in Cairo.",
+      "Philip II of France conquers Normandy from the English.",
+      "Theodore I Laskaris establishes the Empire of Nicaea.",
+      "Tsar Kaloyan of Bulgaria is recognized as king by Pope Innocent III.",
+      "The Kingdom of Thessalonica is founded by Boniface of Montferrat."
     ],
     "1206": [
       "Temüjin is proclaimed Genghis Khan, ruler of all Mongols.",
@@ -544,12 +557,13 @@
       "Henry VIII lands massive army at Calais beginning French invasion"
     ],
     "1517": [
-      "Johann Tetzel begins controversial indulgence trade",
-      "Ottoman Sultan Selim I conquers Egypt ending Mamluk Sultanate",
-      "Francisco Hernández de Córdoba discovers Yucatán Peninsula",
-      "Ottoman Empire gains control of Mecca and Medina holy cities",
-      "Martin Luther creates landmark 95 Theses",
-      "Protestant Reformation challenges Catholic church authority"
+      "Martin Luther posts his Ninety-five Theses in Wittenberg.",
+      "The Protestant Reformation begins, challenging the Catholic Church.",
+      "The Ottoman Sultan Selim I conquers the Mamluk Sultanate in Egypt.",
+      "The Ottoman Empire gains control of the holy cities of Mecca and Medina.",
+      "A Spanish expedition led by Francisco Hernández de Córdoba lands in Yucatán.",
+      "The Fifth Council of the Lateran, a Catholic Church council, concludes in Rome.",
+      "Portuguese merchant Fernão Pires de Andrade makes first contact with Ming China."
     ],
     "1519": [
       "Habsburg Charles defeats French candidate for empire",
@@ -694,6 +708,16 @@
       "The second part of Miguel de Cervantes' novel *Don Quixote* is published.",
       "The English explorer Henry Hudson is set adrift by his mutinous crew.",
       "The Dutch East India Company establishes a trading post in Japan."
+    ],
+    "1616": [
+      "William Shakespeare dies in Stratford-upon-Avon.",
+      "Miguel de Cervantes, author of *Don Quixote*, dies in Madrid.",
+      "The Catholic Church bans Copernicus's book on a heliocentric universe.",
+      "Pocahontas travels to England with her husband, John Rolfe.",
+      "Dirk Hartog makes the second European landing on Australia.",
+      "Sir Walter Raleigh is released from the Tower of London.",
+      "Ben Jonson receives a royal pension as poet laureate.",
+      "Nurhaci establishes the Later Jin dynasty in Manchuria."
     ],
     "1618": [
       "Bohemian nobles throw imperial governors from window",
@@ -1074,12 +1098,14 @@
       "Great Awakening coincides with communications revolution transforming information speed"
     ],
     "1845": [
-      "Potato blight fungus destroys Irish crop",
-      "Sir Robert Peel repeals Corn Laws",
-      "Texas annexed as twenty-eighth American state",
-      "Franklin expedition disappears in Arctic ice",
-      "Great Famine begins million Irish deaths",
-      "Manifest Destiny ideology drives westward expansion"
+      "A devastating potato blight strikes Ireland, leading to widespread famine.",
+      "Sir Robert Peel's government repeals the Corn Laws in Britain.",
+      "The Republic of Texas is annexed by the United States, becoming the 28th state.",
+      "Sir John Franklin's expedition to find the Northwest Passage disappears in the Arctic.",
+      "The Great Famine begins in Ireland, causing mass starvation and emigration.",
+      "The concept of Manifest Destiny fuels American westward expansion.",
+      "Florida is admitted as the 27th state of the United States.",
+      "Edgar Allan Poe publishes \"The Raven,\" a narrative poem."
     ],
     "1846": [
       "The United States declares war on Mexico, beginning the Mexican-American War.",
@@ -1100,10 +1126,13 @@
     "1848": [
       "The Treaty of Guadalupe Hidalgo ends the Mexican-American War.",
       "The Frankfurt Parliament convenes to draft a German constitution.",
-      "Karl Marx and Friedrich Engels publish 'The Communist Manifesto' in London.",
-      "James W. Marshall discovers gold at Sutter's Mill in California.",
+      "Karl Marx and Friedrich Engels publish *The Communist Manifesto*.",
+      "Gold is discovered by James W. Marshall at Sutter's Mill, California.",
       "The February Revolution in Paris establishes the Second French Republic.",
-      "The Seneca Falls Convention for women's rights is held in New York."
+      "The Seneca Falls Convention for women's rights is held in New York.",
+      "Uprisings occur in Vienna, leading to Metternich's resignation.",
+      "Lajos Kossuth leads a nationalist uprising in Hungary.",
+      "Revolutions for independence sweep across the Italian peninsula."
     ],
     "1851": [
       "The Great Exhibition is held in the Crystal Palace in London.",
@@ -1170,12 +1199,14 @@
       "Central Pacific and Union Pacific railroads meet"
     ],
     "1871": [
-      "Wilhelm I proclaimed German Kaiser at Versailles",
-      "Paris Commune seizes control of French capital",
-      "Otto von Bismarck achieves German unification",
-      "Great Chicago Fire destroys downtown area",
-      "Franco-Prussian War ends with Prussian victory",
-      "Henry Stanley finds David Livingstone in Africa"
+      "Wilhelm I is proclaimed German Kaiser at the Palace of Versailles.",
+      "The Paris Commune seizes control of the French capital.",
+      "Otto von Bismarck achieves the unification of Germany.",
+      "The Great Chicago Fire destroys much of the city.",
+      "The Franco-Prussian War ends with the Treaty of Frankfurt.",
+      "Henry Stanley finds David Livingstone in Ujiji, Africa.",
+      "The Peshtigo Fire, the deadliest in U.S. history, devastates Wisconsin.",
+      "The Ku Klux Klan Act is signed into law in the United States."
     ],
     "1876": [
       "Alexander Graham Bell patents telephone invention",
@@ -1461,12 +1492,14 @@
       "The first modern crossword puzzle is published in the 'New York World' newspaper."
     ],
     "1914": [
-      "The assassination of Archduke Franz Ferdinand in Sarajevo triggers the start of World War I.",
-      "Germany invades neutral Belgium, beginning the Western Front of the war.",
-      "The First Battle of the Marne halts the German advance on Paris, leading to trench warfare.",
-      "The Panama Canal is officially opened to traffic, connecting the Atlantic and Pacific oceans.",
-      "The first electric traffic light is installed in Cleveland, Ohio.",
-      "Charlie Chaplin's iconic character 'The Tramp' makes his first film appearance."
+      "Archduke Franz Ferdinand is assassinated in Sarajevo, triggering World War I.",
+      "Germany invades Belgium, beginning the Western Front of the war.",
+      "The First Battle of the Marne halts the German advance on Paris.",
+      "The Panama Canal officially opens for traffic.",
+      "The first scheduled commercial airline flight takes place in Florida.",
+      "Charlie Chaplin's character \"The Tramp\" makes his film debut.",
+      "The Christmas Truce occurs between German and British soldiers.",
+      "The Battle of Tannenberg is a decisive German victory on the Eastern Front."
     ],
     "1915": [
       "The Gallipoli Campaign begins with an Allied amphibious invasion of the Ottoman Empire.",
@@ -2290,6 +2323,96 @@
       "A gunman kills 49 people at the Pulse nightclub in Orlando, Florida.",
       "The Summer Olympics are held in Rio de Janeiro, Brazil.",
       "The Zika virus outbreak is declared a global public health emergency."
+    ],
+    "2017": [
+      "Donald Trump is inaugurated as the 45th U.S. President.",
+      "The United Kingdom triggers Article 50 to begin Brexit.",
+      "A total solar eclipse crosses the contiguous United States.",
+      "The #MeToo movement goes viral after allegations against Harvey Weinstein.",
+      "Scientists identify 'Oumuamua, an interstellar object.",
+      "Hurricane Harvey makes landfall in Texas as a Category 4 storm.",
+      "The Cassini spacecraft mission to Saturn ends in a planned descent.",
+      "The film \"The Shape of Water\" wins the Best Picture Oscar."
+    ],
+    "2018": [
+      "The United States and China engage in a trade war.",
+      "North and South Korea hold a historic summit at Panmunjom.",
+      "The US withdraws from the Iran nuclear deal (JCPOA).",
+      "A youth soccer team is rescued from a cave in Thailand.",
+      "Prince Harry marries Meghan Markle at Windsor Castle.",
+      "The \"yellow vest\" protests begin in France.",
+      "NASA's InSight lander arrives on Mars to study its interior.",
+      "The film \"Green Book\" wins the Best Picture Oscar."
+    ],
+    "2019": [
+      "The first image of a black hole is captured by the Event Horizon Telescope.",
+      "A major fire severely damages Notre-Dame Cathedral in Paris.",
+      "Greta Thunberg leads global climate strikes.",
+      "The Hong Kong protests begin against a proposed extradition bill.",
+      "The US House of Representatives impeaches President Donald Trump.",
+      "The Boeing 737 MAX is grounded worldwide after two fatal crashes.",
+      "The US withdraws from the Intermediate-Range Nuclear Forces Treaty.",
+      "The FIFA Women's World Cup is held in France."
+    ],
+    "2020": [
+      "The World Health Organization declares COVID-19 a global pandemic.",
+      "The United Kingdom formally withdraws from the European Union.",
+      "The murder of George Floyd sparks global Black Lives Matter protests.",
+      "Joe Biden is elected the 46th President of the United States.",
+      "SpaceX launches its first crewed mission, Crew Dragon Demo-2.",
+      "Massive bushfires burn across Australia, destroying millions of acres.",
+      "The film \"Parasite\" wins the Academy Award for Best Picture.",
+      "Basketball star Kobe Bryant dies in a helicopter crash."
+    ],
+    "2021": [
+      "Joe Biden is inaugurated as the 46th U.S. President.",
+      "A mob of Trump supporters storms the U.S. Capitol.",
+      "The Taliban recaptures control of Afghanistan.",
+      "The container ship *Ever Given* blocks the Suez Canal.",
+      "The COP26 climate summit is held in Glasgow, Scotland.",
+      "The James Webb Space Telescope is launched from French Guiana.",
+      "The film \"CODA\" wins the Academy Award for Best Picture.",
+      "The AUKUS security pact is formed by Australia, the UK, and the US."
+    ],
+    "2022": [
+      "Russia launches a full-scale invasion of Ukraine.",
+      "Queen Elizabeth II, the UK's longest-reigning monarch, dies.",
+      "The world population reaches eight billion people.",
+      "The US Supreme Court overturns the Roe v. Wade decision.",
+      "Protests erupt in Iran after the death of Mahsa Amini.",
+      "Elon Musk completes his acquisition of Twitter.",
+      "The film \"Everything Everywhere All at Once\" is released.",
+      "The FIFA World Cup is held in Qatar."
+    ],
+    "2023": [
+      "The Israel-Hamas War begins with Hamas attacks on Israel.",
+      "The World Health Organization declares an end to the COVID-19 global emergency.",
+      "India surpasses China as the world's most populous country.",
+      "Former U.S. President Donald Trump faces multiple criminal indictments.",
+      "Artificial intelligence (AI) sees gigantic development and public attention.",
+      "The Earth experiences its hottest year on record, with extreme weather events.",
+      "Major earthquakes strike Turkey and Syria, causing widespread devastation.",
+      "The BRICS group expands, adding new member countries."
+    ],
+    "2024": [
+      "Donald Trump wins the U.S. presidential election.",
+      "Claudia Sheinbaum becomes Mexico's first female president.",
+      "The Israel-Hamas War continues with expanded conflict.",
+      "The Russia-Ukraine War escalates with a Ukrainian raid into Kursk.",
+      "The regime of Bashar al-Assad collapses in Syria.",
+      "A new generation of AI personal assistants is launched.",
+      "The Earth experiences its hottest year on record.",
+      "The Summer Olympics are held in Paris, France."
+    ],
+    "2025": [
+      "World Expo 2025 is held in Osaka, Japan.",
+      "The FIFA Club World Cup is held in the United States.",
+      "The Catholic Jubilee Year is observed in Rome.",
+      "The G7 Summit is scheduled for Kananaskis, Canada.",
+      "A NATO Summit is held in The Hague, Netherlands.",
+      "The 80th session of the UN General Assembly opens in New York City.",
+      "The COP 30 climate summit is held in Belém, Brazil.",
+      "The World Athletics Championships are held in Tokyo."
     ]
   }
 }

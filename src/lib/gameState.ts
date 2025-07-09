@@ -3,6 +3,18 @@
 
 import { getPuzzleForYear, SUPPORTED_YEARS } from "./puzzleData";
 import { logger } from "./logger";
+import {
+  saveGameProgress,
+  loadGameProgress,
+  saveSettings as saveSettingsUtil,
+  loadSettings as loadSettingsUtil,
+  safeRemoveItem,
+  cleanupOldStorage as cleanupOldStorageUtil,
+  clearAllChronldeStorage,
+  getAllChronldeEntries,
+  markPlayerAsPlayed,
+  hasPlayerPlayedBefore,
+} from "./storage";
 
 // --- EVENT SCORING FUNCTIONS ---
 // Moved from api.ts as part of codebase simplification
@@ -294,7 +306,7 @@ export function saveProgress(
   logger.debug(`Saving progress:`, progress);
 
   if (typeof window !== "undefined") {
-    localStorage.setItem(getStorageKey(), JSON.stringify(progress));
+    saveGameProgress(progress, isDebugMode);
   }
 }
 
@@ -309,23 +321,9 @@ export function loadProgress(
 
   if (typeof window === "undefined") return;
 
-  const storageKey = getStorageKey();
-  const savedProgress = localStorage.getItem(storageKey);
-  logger.debug(`Loading progress for key: ${storageKey}`);
-  logger.debug(`Found saved progress:`, savedProgress);
+  const progress = loadGameProgress<Progress>(isDebugMode);
 
-  // DEBUG: Log all chrondle keys in localStorage
-  const allChrondles: Array<{ key: string; value: string | null }> = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key && key.startsWith("chrondle-")) {
-      allChrondles.push({ key, value: localStorage.getItem(key) });
-    }
-  }
-  logger.debug(`All chrondle localStorage entries:`, allChrondles);
-
-  if (savedProgress) {
-    const progress: Progress = JSON.parse(savedProgress);
+  if (progress) {
     logger.debug(`Parsed progress:`, progress);
 
     // Validate that the saved progress matches the current puzzle
@@ -356,7 +354,7 @@ export function loadProgress(
         `Progress is invalid for current puzzle - clearing old progress`,
       );
       // Clear the invalid progress
-      localStorage.removeItem(storageKey);
+      safeRemoveItem(getStorageKey());
       // Reset game state to fresh start
       gameState.guesses = [];
       gameState.isGameOver = false;
@@ -369,45 +367,21 @@ export function loadProgress(
 // Settings Management
 export function saveSettings(settings: Settings): void {
   if (typeof window !== "undefined") {
-    localStorage.setItem("chrondle-settings", JSON.stringify(settings));
+    saveSettingsUtil(settings);
   }
 }
 
 export function loadSettings(): Settings | null {
   if (typeof window === "undefined") return null;
 
-  const settingsData = localStorage.getItem("chrondle-settings");
-  if (settingsData) {
-    return JSON.parse(settingsData) as Settings;
-  }
-  return null;
+  return loadSettingsUtil<Settings>();
 }
 
 // Storage cleanup
 export function cleanupOldStorage(): void {
   if (typeof window === "undefined") return;
 
-  const today = new Date().toISOString().slice(0, 10);
-  const todayKey = `chrondle-progress-${today}`;
-
-  logger.debug(`Cleaning up old localStorage entries, keeping: ${todayKey}`);
-
-  const keysToRemove: string[] = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key && key.startsWith("chrondle-progress-") && key !== todayKey) {
-      keysToRemove.push(key);
-    }
-  }
-
-  keysToRemove.forEach((key) => {
-    localStorage.removeItem(key);
-    logger.debug(`🗑️ Removed old storage entry: ${key}`);
-  });
-
-  if (keysToRemove.length > 0) {
-    logger.debug(`Cleaned up ${keysToRemove.length} old entries`);
-  }
+  cleanupOldStorageUtil();
 }
 
 // Debug utilities (for window.chrondle object)
@@ -422,12 +396,7 @@ export function createDebugUtilities(gameState: GameState) {
     clearStorage: () => {
       if (typeof window === "undefined") return [];
 
-      const keys = Object.keys(localStorage).filter((k) =>
-        k.startsWith("chrondle-"),
-      );
-      keys.forEach((k) => localStorage.removeItem(k));
-      logger.info(`🗑️ Cleared ${keys.length} chrondle storage entries:`, keys);
-      return keys;
+      return clearAllChronldeStorage();
     },
     setYear: (year: number) => {
       if (gameState.puzzle) {
@@ -449,13 +418,7 @@ export function createDebugUtilities(gameState: GameState) {
       logger.info("🔍 Game state:", gameState);
 
       if (typeof window !== "undefined") {
-        const allChrondles: Array<{ key: string; value: string | null }> = [];
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.startsWith("chrondle-")) {
-            allChrondles.push({ key, value: localStorage.getItem(key) });
-          }
-        }
+        const allChrondles = getAllChronldeEntries();
         logger.info("🔍 All chrondle localStorage:", allChrondles);
       }
     },
@@ -465,12 +428,12 @@ export function createDebugUtilities(gameState: GameState) {
 // Mark first time player
 export function markFirstTimePlayer(): void {
   if (typeof window !== "undefined") {
-    localStorage.setItem("chrondle-has-played", "true");
+    markPlayerAsPlayed();
   }
 }
 
 // Check if player has played before
 export function hasPlayedBefore(): boolean {
   if (typeof window === "undefined") return false;
-  return localStorage.getItem("chrondle-has-played") === "true";
+  return hasPlayerPlayedBefore();
 }
