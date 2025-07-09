@@ -32,6 +32,21 @@ export function useHistoricalContext(
     ): Promise<void> => {
       if (!enabled) return;
 
+      // Validate inputs before making API call
+      if (
+        !targetYear ||
+        !Array.isArray(targetEvents) ||
+        targetEvents.length === 0
+      ) {
+        console.warn(
+          "useHistoricalContext: Invalid inputs - year:",
+          targetYear,
+          "events:",
+          targetEvents,
+        );
+        return;
+      }
+
       setLoading(true);
       setError(null);
 
@@ -78,7 +93,15 @@ export function useHistoricalContext(
 
   // Retry failed context generation
   const retryGeneration = useCallback(async (): Promise<void> => {
-    if (!year || !events || events.length === 0) return;
+    if (!year || !Array.isArray(events) || events.length === 0) {
+      console.warn(
+        "useHistoricalContext: Cannot retry - invalid inputs - year:",
+        year,
+        "events:",
+        events,
+      );
+      return;
+    }
     await generateContext(year, events);
   }, [year, events, generateContext]);
 
@@ -87,7 +110,7 @@ export function useHistoricalContext(
     setEnabled((prev) => !prev);
     if (!enabled) {
       // If re-enabling and we have year/events, generate context
-      if (year && events && events.length > 0) {
+      if (year && Array.isArray(events) && events.length > 0) {
         generateContext(year, events); // No abort signal for manual toggle
       }
     } else {
@@ -99,7 +122,8 @@ export function useHistoricalContext(
 
   // Auto-generate context when year/events change (if enabled)
   useEffect(() => {
-    if (!enabled || !year || !events || events.length === 0) return;
+    if (!enabled || !year || !Array.isArray(events) || events.length === 0)
+      return;
 
     // Create AbortController for this effect
     const abortController = new AbortController();
