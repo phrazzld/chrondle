@@ -3,6 +3,7 @@ import bundleAnalyzer from "@next/bundle-analyzer";
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
+  openAnalyzer: false, // Prevent automatic browser opening
 });
 
 const nextConfig: NextConfig = {

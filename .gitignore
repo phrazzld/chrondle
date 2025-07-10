@@ -58,3 +58,13 @@ tsconfig.tsbuildinfo
 
 thinktank.log
 /thinktank_*/
+
+# Bundle analysis reports (generated files)
+bundle-size-report.json
+bundle-analysis-report.json
+bundle-composition-report.json
+bundle-alerts-report.json
+bundle-size-history.json
+bundle-composition-history.json
+performance-report.json
+regression-report.json

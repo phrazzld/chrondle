@@ -110,17 +110,6 @@ afterEach(async () => {
   // Clear all Vitest timers
   vi.clearAllTimers();
 
-  // Clear any remaining timers (basic cleanup)
-
-  // More aggressive timer cleanup for any missed timeouts/intervals
-  if (typeof window !== "undefined") {
-    // Clear all possible timer IDs (increased range for long-running timers)
-    for (let i = 1; i < 10000; i++) {
-      clearTimeout(i);
-      clearInterval(i);
-    }
-  }
-
   // Clear all mocks to prevent accumulation
   vi.clearAllMocks();
 
@@ -154,16 +143,6 @@ afterAll(async () => {
   vi.clearAllTimers();
   vi.clearAllMocks();
   vi.restoreAllMocks();
-
-  // Final timer cleanup
-
-  // Clear any remaining timers and intervals (extended range for notification timers)
-  if (typeof window !== "undefined") {
-    for (let i = 1; i < 10000; i++) {
-      clearTimeout(i);
-      clearInterval(i);
-    }
-  }
 
   // Force final garbage collection
   if (global.gc) {

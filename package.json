@@ -22,6 +22,14 @@
     "test-puzzles": "node scripts/test-puzzle-system.js",
     "test-debug": "node scripts/test-debug-years.js",
     "validate-curated-years": "node scripts/validate-curated-years.js",
+    "monitor-bundle": "node scripts/monitor-bundle-size.js",
+    "monitor-performance": "node scripts/monitor-performance.js",
+    "detect-regressions": "node scripts/detect-regressions.js",
+    "validate-monitoring": "node scripts/validate-monitoring.js",
+    "analyze-bundle-changes": "node scripts/analyze-bundle-changes.js",
+    "track-bundle-composition": "node scripts/track-bundle-composition.js",
+    "bundle-alerts": "node scripts/bundle-alerts.js",
+    "bundle-analysis": "ANALYZE=true pnpm build",
     "prepare": "husky"
   },
   "dependencies": {
