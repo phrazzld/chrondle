@@ -155,14 +155,14 @@ let notificationService: NotificationService | null = null;
 export function getNotificationService(): NotificationService {
   if (!notificationService) {
     // Skip creating notification service in test environment to prevent long-running timers
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === "test") {
       // Return a no-op implementation for tests
       notificationService = {
-        requestPermission: async () => 'denied' as NotificationPermission,
+        requestPermission: async () => "denied" as NotificationPermission,
         scheduleDaily: async () => false,
         cancelDaily: async () => true,
         isSupported: () => false,
-        getPermissionStatus: () => 'denied' as NotificationPermission,
+        getPermissionStatus: () => "denied" as NotificationPermission,
       };
     } else {
       notificationService = new WebNotificationService();
@@ -257,9 +257,9 @@ export function getNotificationPermissionStatus(): NotificationPermission {
 // Initialize notifications when settings indicate they should be enabled
 export async function initializeNotifications(): Promise<void> {
   if (typeof window === "undefined") return;
-  
+
   // Skip initialization in test environment
-  if (process.env.NODE_ENV === 'test') return;
+  if (process.env.NODE_ENV === "test") return;
 
   const settings = loadNotificationSettings();
 
