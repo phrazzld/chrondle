@@ -1,10 +1,11 @@
 module.exports = {
-  // TypeScript and JavaScript files - lint and format
+  // TypeScript and JavaScript files - lint and format only changed files
   "**/*.{ts,tsx,js,jsx}": ["eslint --fix", "prettier --write"],
-
-  // TypeScript files only - run type checking (tests moved to CI for speed)
-  "**/*.{ts,tsx}": [() => "pnpm type-check"],
 
   // Other files - just format
   "**/*.{json,css,scss,md}": ["prettier --write"],
+
+  // Note: type-check moved to CI for speed
+  // Pre-commit now focuses only on immediate file issues (lint/format)
+  // This keeps commits fast (<3s) while CI ensures type safety
 };
