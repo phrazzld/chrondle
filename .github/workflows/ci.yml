@@ -24,6 +24,20 @@ jobs:
       with:
         version: 9.1.0
         
+    - name: Get pnpm store directory
+      id: pnpm-cache
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+        
+    - name: Cache pnpm store
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+          
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
       
@@ -33,8 +47,10 @@ jobs:
     - name: Run type checking
       run: pnpm type-check
       
-    - name: Run tests
+    - name: Run tests (parallel)
       run: pnpm test:ci
+      env:
+        NODE_ENV: test
       
     - name: Run puzzle validation
       run: pnpm validate-puzzles
@@ -57,320 +73,42 @@ jobs:
       with:
         version: 9.1.0
         
+    - name: Get pnpm store directory
+      id: pnpm-cache
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+        
+    - name: Cache pnpm store
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+          
+    - name: Cache Next.js build
+      uses: actions/cache@v4
+      with:
+        path: |
+          .next/cache
+          .next/.next-build-cache
+        key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/pnpm-lock.yaml') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+        restore-keys: |
+          ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/pnpm-lock.yaml') }}-
+          ${{ runner.os }}-nextjs-
+          
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
       
     - name: Build application
       run: pnpm build
       
+    - name: Check bundle size
+      run: pnpm size
+      
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: build-output
         path: .next/
-
-  performance-monitoring:
-    runs-on: ubuntu-latest
-    needs: build
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 9.1.0
-        
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-      
-    - name: Monitor bundle size
-      run: node scripts/monitor-bundle-size.js
-      
-    - name: Monitor performance metrics
-      run: node scripts/monitor-performance.js
-      
-    - name: Upload performance reports
-      uses: actions/upload-artifact@v4
-      with:
-        name: performance-reports
-        path: |
-          bundle-size-report.json
-          performance-report.json
-      
-    - name: Comment performance results on PR
-      if: github.event_name == 'pull_request'
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const fs = require('fs');
-          
-          // Read performance reports
-          let bundleReport = {};
-          let performanceReport = {};
-          
-          try {
-            bundleReport = JSON.parse(fs.readFileSync('bundle-size-report.json', 'utf8'));
-          } catch (e) {
-            console.log('No bundle size report found');
-          }
-          
-          try {
-            performanceReport = JSON.parse(fs.readFileSync('performance-report.json', 'utf8'));
-          } catch (e) {
-            console.log('No performance report found');
-          }
-          
-          // Generate comment
-          let comment = '## 📊 Performance Analysis\n\n';
-          
-          if (bundleReport.bundleSize) {
-            const size = bundleReport.bundleSize;
-            comment += `**Bundle Size**: ${size.current}KB (${size.difference > 0 ? '+' : ''}${size.difference.toFixed(1)}KB, ${size.percentChange}%)\n`;
-          }
-          
-          if (performanceReport.analysis) {
-            const analysis = performanceReport.analysis;
-            
-            if (analysis.buildTime) {
-              comment += `**Build Time**: ${analysis.buildTime.current}ms (${analysis.buildTime.difference > 0 ? '+' : ''}${analysis.buildTime.difference}ms, ${analysis.buildTime.percentChange}%)\n`;
-            }
-            
-            if (analysis.testSuiteTime) {
-              comment += `**Test Suite**: ${analysis.testSuiteTime.current}s (${analysis.testSuiteTime.difference > 0 ? '+' : ''}${analysis.testSuiteTime.difference.toFixed(1)}s, ${analysis.testSuiteTime.percentChange}%)\n`;
-            }
-            
-            if (analysis.regressions.length > 0) {
-              comment += '\n**⚠️ Regressions Detected:**\n';
-              analysis.regressions.forEach(regression => {
-                comment += `- ${regression}\n`;
-              });
-            }
-            
-            if (analysis.improvements.length > 0) {
-              comment += '\n**✅ Improvements:**\n';
-              analysis.improvements.forEach(improvement => {
-                comment += `- ${improvement}\n`;
-              });
-            }
-          }
-          
-          // Post comment
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: comment
-          });
-
-  bundle-analysis:
-    runs-on: ubuntu-latest
-    needs: build
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0 # Fetch full history for bundle change tracking
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 9.1.0
-        
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-      
-    - name: Restore bundle history
-      uses: actions/cache@v3
-      with:
-        path: |
-          bundle-size-history.json
-          bundle-composition-history.json
-        key: bundle-history-${{ github.repository }}-${{ github.ref }}
-        restore-keys: |
-          bundle-history-${{ github.repository }}-
-          bundle-history-
-      
-    - name: Analyze bundle changes
-      run: node scripts/analyze-bundle-changes.js
-      
-    - name: Track bundle composition
-      run: node scripts/track-bundle-composition.js
-      
-    - name: Generate bundle alerts
-      run: node scripts/bundle-alerts.js
-      
-    - name: Upload bundle analysis reports
-      uses: actions/upload-artifact@v4
-      with:
-        name: bundle-analysis-reports
-        path: |
-          .next/analyze/
-          bundle-analysis-report.json
-          bundle-composition-report.json
-          bundle-alerts-report.json
-          bundle-size-history.json
-          bundle-composition-history.json
-      
-    - name: Comment bundle analysis on PR
-      if: github.event_name == 'pull_request'
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const fs = require('fs');
-          
-          // Read bundle analysis reports
-          let bundleReport = {};
-          let compositionReport = {};
-          let alertsReport = {};
-          
-          try {
-            bundleReport = JSON.parse(fs.readFileSync('bundle-analysis-report.json', 'utf8'));
-          } catch (e) {
-            console.log('No bundle analysis report found');
-          }
-          
-          try {
-            compositionReport = JSON.parse(fs.readFileSync('bundle-composition-report.json', 'utf8'));
-          } catch (e) {
-            console.log('No composition report found');
-          }
-          
-          try {
-            alertsReport = JSON.parse(fs.readFileSync('bundle-alerts-report.json', 'utf8'));
-          } catch (e) {
-            console.log('No alerts report found');
-          }
-          
-          // Generate comprehensive comment
-          let comment = '## 📊 Bundle Analysis Report\n\n';
-          
-          // Bundle size summary
-          if (bundleReport.current) {
-            const current = bundleReport.current;
-            comment += `### 📦 Bundle Size Summary\n`;
-            comment += `- **Main Route**: ${current.bundles['/']?.size || 'N/A'}KB\n`;
-            comment += `- **Shared JS**: ${current.sharedSize}KB\n`;
-            comment += `- **Total First Load**: ${current.totalFirstLoad}KB\n\n`;
-          }
-          
-          // Budget status
-          if (bundleReport.analysis?.budgetViolations) {
-            if (bundleReport.analysis.budgetViolations.length > 0) {
-              comment += `### ❌ Budget Violations\n`;
-              bundleReport.analysis.budgetViolations.forEach(violation => {
-                comment += `- **${violation.type}**: ${violation.current}KB (budget: ${violation.budget}KB, overage: +${violation.overage.toFixed(1)}KB)\n`;
-              });
-              comment += '\n';
-            } else {
-              comment += `### ✅ All Bundle Budgets Passed\n\n`;
-            }
-          }
-          
-          // Size changes
-          if (bundleReport.analysis?.changes && bundleReport.analysis.changes.length > 0) {
-            comment += `### 📈 Size Changes\n`;
-            bundleReport.analysis.changes.forEach(change => {
-              const sign = change.sizeDiff > 0 ? '+' : '';
-              const emoji = change.sizeDiff > 0 ? '📈' : '📉';
-              comment += `- ${emoji} **${change.route}**: ${sign}${change.sizeDiff.toFixed(1)}KB (${change.percentChange}%)\n`;
-            });
-            comment += '\n';
-          }
-          
-          // Composition insights
-          if (compositionReport.insights) {
-            comment += `### 🧩 Bundle Composition\n`;
-            comment += `- **Total Chunks**: ${compositionReport.insights.totalChunks}\n`;
-            comment += `- **Average Chunk Size**: ${compositionReport.insights.averageChunkSize.toFixed(1)}KB\n`;
-            
-            if (compositionReport.insights.largestChunks.length > 0) {
-              comment += `- **Largest Chunks**: ${compositionReport.insights.largestChunks.slice(0, 3).map(c => `${c.name} (${c.size}KB)`).join(', ')}\n`;
-            }
-            comment += '\n';
-          }
-          
-          // Alerts summary
-          if (alertsReport.alerts && alertsReport.alerts.length > 0) {
-            comment += `### 🚨 Alerts\n`;
-            Object.entries(alertsReport.severityCounts).forEach(([severity, count]) => {
-              const emoji = severity === 'critical' ? '🚨' : severity === 'error' ? '❌' : severity === 'warning' ? '⚠️' : '📊';
-              comment += `- ${emoji} **${severity.toUpperCase()}**: ${count}\n`;
-            });
-            comment += '\n';
-            
-            // Show critical and error alerts
-            const criticalAlerts = alertsReport.alerts.filter(a => a.severity === 'critical' || a.severity === 'error');
-            if (criticalAlerts.length > 0) {
-              comment += `### 🚨 Critical Issues\n`;
-              criticalAlerts.forEach(alert => {
-                comment += `- **${alert.title}**: ${alert.message}\n`;
-              });
-              comment += '\n';
-            }
-          }
-          
-          // Analysis links
-          comment += `### 📊 Detailed Analysis\n`;
-          comment += `- [Bundle Analyzer Reports](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})\n`;
-          comment += `- [Download Analysis Reports](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})\n\n`;
-          
-          comment += `<details><summary>📋 View Full Bundle Analysis Data</summary>\n\n`;
-          comment += `\`\`\`json\n${JSON.stringify({
-            bundleSize: bundleReport.current || {},
-            composition: compositionReport.insights || {},
-            alerts: alertsReport.severityCounts || {}
-          }, null, 2)}\`\`\`\n\n`;
-          comment += `</details>\n`;
-          
-          // Post comment
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: comment
-          });
-      
-    - name: Save bundle history
-      uses: actions/cache@v3
-      with:
-        path: |
-          bundle-size-history.json
-          bundle-composition-history.json
-        key: bundle-history-${{ github.repository }}-${{ github.ref }}-${{ github.run_number }}
-    
-    - name: Create bundle analysis summary
-      run: |
-        echo "## 📊 Bundle Analysis Summary" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        
-        if [ -f "bundle-analysis-report.json" ]; then
-          echo "### Bundle Size" >> $GITHUB_STEP_SUMMARY
-          node -e "
-            const report = JSON.parse(require('fs').readFileSync('bundle-analysis-report.json', 'utf8'));
-            if (report.current) {
-              console.log('- Main Route: ' + (report.current.bundles['/']?.size || 'N/A') + 'KB');
-              console.log('- Shared JS: ' + report.current.sharedSize + 'KB');
-              console.log('- Total First Load: ' + report.current.totalFirstLoad + 'KB');
-            }
-          " >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 📊 Reports Generated" >> $GITHUB_STEP_SUMMARY
-        echo "- Bundle Analysis Report: \`bundle-analysis-report.json\`" >> $GITHUB_STEP_SUMMARY
-        echo "- Composition Report: \`bundle-composition-report.json\`" >> $GITHUB_STEP_SUMMARY
-        echo "- Alerts Report: \`bundle-alerts-report.json\`" >> $GITHUB_STEP_SUMMARY
-        echo "- Bundle Analyzer: \`.next/analyze/\`" >> $GITHUB_STEP_SUMMARY
