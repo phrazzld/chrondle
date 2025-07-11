@@ -1,4 +1,4 @@
-module.exports = [
+export default [
   {
     name: "Main JS (App)",
     path: ".next/static/chunks/main-app-*.js",
