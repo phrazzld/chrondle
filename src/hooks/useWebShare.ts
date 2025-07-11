@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { getShareStrategy, type ShareStrategy } from "@/lib/platformDetection";
 
 export interface UseWebShareReturn {
   share: (text: string) => Promise<boolean>;
   isSharing: boolean;
   canShare: boolean;
   lastShareSuccess: boolean | null;
-  shareMethod: "webshare" | "clipboard" | null;
+  shareMethod: "webshare" | "clipboard" | "fallback" | null;
+  shareStrategy: ShareStrategy;
 }
 
 export function useWebShare(): UseWebShareReturn {
@@ -16,49 +18,52 @@ export function useWebShare(): UseWebShareReturn {
     null,
   );
   const [shareMethod, setShareMethod] = useState<
-    "webshare" | "clipboard" | null
+    "webshare" | "clipboard" | "fallback" | null
   >(null);
 
-  // Check if Web Share API is available
-  const canShare =
-    typeof navigator !== "undefined" &&
-    "share" in navigator &&
-    typeof navigator.share === "function";
+  // Get platform-appropriate sharing strategy
+  const shareStrategy = getShareStrategy();
+  const canShare = shareStrategy !== "fallback";
 
   const share = useCallback(
     async (text: string): Promise<boolean> => {
       setIsSharing(true);
 
       try {
-        // Prefer Web Share API for mobile devices (better UX, no URL encoding)
-        if (canShare && navigator.share) {
-          try {
-            await navigator.share({
-              text: text,
-              title: "Chrondle",
-            });
-            setShareMethod("webshare");
-            setLastShareSuccess(true);
-            return true;
-          } catch (shareError) {
-            // Log and continue to clipboard fallback - critical fix
-            console.warn(
-              "Web Share failed, falling back to clipboard:",
-              shareError,
-            );
-            // Fall through to clipboard fallback
+        // Use platform-appropriate sharing strategy
+        if (shareStrategy === "native") {
+          // Use Web Share API only on mobile devices
+          if (navigator.share) {
+            try {
+              await navigator.share({
+                text: text,
+                title: "Chrondle",
+              });
+              setShareMethod("webshare");
+              setLastShareSuccess(true);
+              return true;
+            } catch (shareError) {
+              // User cancelled or share failed, fall back to clipboard
+              console.warn(
+                "Web Share cancelled or failed, falling back to clipboard:",
+                shareError,
+              );
+              // Fall through to clipboard fallback
+            }
           }
         }
 
-        // Fallback to clipboard for desktop
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(text);
-          setShareMethod("clipboard");
-          setLastShareSuccess(true);
-          return true;
+        // Use clipboard for desktop or Web Share fallback
+        if (shareStrategy === "clipboard" || shareStrategy === "native") {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+            setShareMethod("clipboard");
+            setLastShareSuccess(true);
+            return true;
+          }
         }
 
-        // Legacy clipboard fallback
+        // Legacy clipboard fallback for older browsers
         const textarea = document.createElement("textarea");
         textarea.value = text;
         textarea.style.position = "fixed";
@@ -72,7 +77,7 @@ export function useWebShare(): UseWebShareReturn {
         const success = document.execCommand("copy");
         document.body.removeChild(textarea);
 
-        setShareMethod("clipboard");
+        setShareMethod("fallback");
         setLastShareSuccess(success);
         return success;
       } catch (error) {
@@ -83,7 +88,7 @@ export function useWebShare(): UseWebShareReturn {
         setIsSharing(false);
       }
     },
-    [canShare], // Include canShare dependency
+    [shareStrategy], // Include shareStrategy dependency
   );
 
   return {
@@ -92,5 +97,6 @@ export function useWebShare(): UseWebShareReturn {
     canShare,
     lastShareSuccess,
     shareMethod,
+    shareStrategy,
   };
 }

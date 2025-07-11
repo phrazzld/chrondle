@@ -53,8 +53,23 @@ ALIGN-CONTEXT.md
 BACKLOG.md
 TASK.md
 
-# TypeScript build info
-tsconfig.tsbuildinfo
 
 thinktank.log
 /thinktank_*/
+
+# Bundle analysis reports (generated files)
+bundle-size-report.json
+bundle-analysis-report.json
+bundle-composition-report.json
+bundle-alerts-report.json
+bundle-size-history.json
+bundle-composition-history.json
+performance-report.json
+regression-report.json
+
+# Lighthouse CI
+.lighthouseci/
+lighthouse-metrics.json
+lighthouse-summary.md
+# Code review temporary files
+thinktank_*/

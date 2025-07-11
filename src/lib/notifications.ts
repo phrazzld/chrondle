@@ -1,13 +1,13 @@
 // Daily reminder notification system for Chrondle
 // Uses Web Notifications API for local scheduled reminders
 
-import { NOTIFICATION_CONFIG } from './constants';
-import { logger } from './logger';
-import { 
-  loadNotificationSettings, 
-  saveNotificationSettings, 
-  updateNotificationPermission
-} from './storage';
+import { NOTIFICATION_CONFIG } from "./constants";
+import { logger } from "./logger";
+import {
+  loadNotificationSettings,
+  saveNotificationSettings,
+  updateNotificationPermission,
+} from "./storage";
 
 export interface NotificationService {
   requestPermission(): Promise<NotificationPermission>;
@@ -19,19 +19,19 @@ export interface NotificationService {
 
 class WebNotificationService implements NotificationService {
   private timeoutId: number | null = null;
-  
+
   isSupported(): boolean {
-    return typeof window !== 'undefined' && 'Notification' in window;
+    return typeof window !== "undefined" && "Notification" in window;
   }
 
   getPermissionStatus(): NotificationPermission {
-    if (!this.isSupported()) return 'denied';
+    if (!this.isSupported()) return "denied";
     return Notification.permission;
   }
 
   async requestPermission(): Promise<NotificationPermission> {
     if (!this.isSupported()) {
-      return 'denied';
+      return "denied";
     }
 
     try {
@@ -39,14 +39,14 @@ class WebNotificationService implements NotificationService {
       updateNotificationPermission(permission);
       return permission;
     } catch (error) {
-      console.error('Error requesting notification permission:', error);
-      updateNotificationPermission('denied');
-      return 'denied';
+      console.error("Error requesting notification permission:", error);
+      updateNotificationPermission("denied");
+      return "denied";
     }
   }
 
   async scheduleDaily(time: string): Promise<boolean> {
-    if (!this.isSupported() || this.getPermissionStatus() !== 'granted') {
+    if (!this.isSupported() || this.getPermissionStatus() !== "granted") {
       return false;
     }
 
@@ -60,7 +60,7 @@ class WebNotificationService implements NotificationService {
       const delay = targetTime - now;
 
       if (delay <= 0) {
-        console.warn('Calculated notification delay is non-positive:', delay);
+        console.warn("Calculated notification delay is non-positive:", delay);
         return false;
       }
 
@@ -71,10 +71,12 @@ class WebNotificationService implements NotificationService {
         this.scheduleDaily(time);
       }, delay);
 
-      logger.info(`📅 Daily reminder scheduled for ${new Date(targetTime).toLocaleString()}`);
+      logger.info(
+        `📅 Daily reminder scheduled for ${new Date(targetTime).toLocaleString()}`,
+      );
       return true;
     } catch (error) {
-      console.error('Error scheduling daily notification:', error);
+      console.error("Error scheduling daily notification:", error);
       return false;
     }
   }
@@ -83,28 +85,28 @@ class WebNotificationService implements NotificationService {
     if (this.timeoutId !== null) {
       window.clearTimeout(this.timeoutId);
       this.timeoutId = null;
-      logger.info('📅 Daily reminder cancelled');
+      logger.info("📅 Daily reminder cancelled");
     }
     return true;
   }
 
   private getNextNotificationTime(time: string): number {
-    const [hours, minutes] = time.split(':').map(Number);
+    const [hours, minutes] = time.split(":").map(Number);
     const now = new Date();
     const target = new Date();
-    
+
     target.setHours(hours, minutes, 0, 0);
-    
+
     // If target time has already passed today, schedule for tomorrow
     if (target.getTime() <= now.getTime()) {
       target.setDate(target.getDate() + 1);
     }
-    
+
     return target.getTime();
   }
 
   private showDailyReminder(): void {
-    if (!this.isSupported() || this.getPermissionStatus() !== 'granted') {
+    if (!this.isSupported() || this.getPermissionStatus() !== "granted") {
       return;
     }
 
@@ -113,18 +115,21 @@ class WebNotificationService implements NotificationService {
     const message = messages[Math.floor(Math.random() * messages.length)];
 
     try {
-      const notification = new Notification('Chrondle - Daily History Challenge', {
-        body: message,
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
-        tag: 'chrondle-daily-reminder',
-        requireInteraction: false,
-        silent: false,
-        data: {
-          url: window.location.origin,
-          timestamp: Date.now()
-        }
-      });
+      const notification = new Notification(
+        "Chrondle - Daily History Challenge",
+        {
+          body: message,
+          icon: "/favicon.ico",
+          badge: "/favicon.ico",
+          tag: "chrondle-daily-reminder",
+          requireInteraction: false,
+          silent: false,
+          data: {
+            url: window.location.origin,
+            timestamp: Date.now(),
+          },
+        },
+      );
 
       // Auto-close after 10 seconds
       setTimeout(() => {
@@ -137,9 +142,9 @@ class WebNotificationService implements NotificationService {
         notification.close();
       };
 
-      logger.info('📅 Daily reminder notification shown:', message);
+      logger.info("📅 Daily reminder notification shown:", message);
     } catch (error) {
-      console.error('Error showing notification:', error);
+      console.error("Error showing notification:", error);
     }
   }
 }
@@ -149,31 +154,53 @@ let notificationService: NotificationService | null = null;
 
 export function getNotificationService(): NotificationService {
   if (!notificationService) {
-    notificationService = new WebNotificationService();
+    // Skip creating notification service in test environment to prevent long-running timers
+    if (process.env.NODE_ENV === "test") {
+      // Return a no-op implementation for tests
+      notificationService = {
+        requestPermission: async () => "denied" as NotificationPermission,
+        scheduleDaily: async () => false,
+        cancelDaily: async () => true,
+        isSupported: () => false,
+        getPermissionStatus: () => "denied" as NotificationPermission,
+      };
+    } else {
+      notificationService = new WebNotificationService();
+    }
   }
   return notificationService;
 }
 
+// TEST ONLY: Reset singleton for test cleanup
+export function __resetNotificationServiceForTesting(): void {
+  if (notificationService && "cancelDaily" in notificationService) {
+    void notificationService.cancelDaily();
+  }
+  notificationService = null;
+}
+
 // Utility functions for components
-export async function enableDailyReminders(time: string = NOTIFICATION_CONFIG.DEFAULT_TIME): Promise<boolean> {
+export async function enableDailyReminders(
+  time: string = NOTIFICATION_CONFIG.DEFAULT_TIME,
+): Promise<boolean> {
   const service = getNotificationService();
-  
+
   if (!service.isSupported()) {
-    console.warn('Notifications not supported in this browser');
+    console.warn("Notifications not supported in this browser");
     return false;
   }
 
   // Request permission if needed
   const permission = await service.requestPermission();
-  if (permission !== 'granted') {
-    console.warn('Notification permission not granted:', permission);
+  if (permission !== "granted") {
+    console.warn("Notification permission not granted:", permission);
     return false;
   }
 
   // Schedule daily reminders
   const scheduled = await service.scheduleDaily(time);
   if (!scheduled) {
-    console.error('Failed to schedule daily reminders');
+    console.error("Failed to schedule daily reminders");
     return false;
   }
 
@@ -199,8 +226,8 @@ export async function disableDailyReminders(): Promise<void> {
 
 export async function updateReminderTime(time: string): Promise<boolean> {
   const settings = loadNotificationSettings();
-  
-  if (!settings.enabled || settings.permission !== 'granted') {
+
+  if (!settings.enabled || settings.permission !== "granted") {
     // Just update the time preference, don't schedule
     settings.time = time;
     saveNotificationSettings(settings);
@@ -210,12 +237,12 @@ export async function updateReminderTime(time: string): Promise<boolean> {
   // Reschedule with new time
   const service = getNotificationService();
   const scheduled = await service.scheduleDaily(time);
-  
+
   if (scheduled) {
     settings.time = time;
     saveNotificationSettings(settings);
   }
-  
+
   return scheduled;
 }
 
@@ -229,24 +256,27 @@ export function getNotificationPermissionStatus(): NotificationPermission {
 
 // Initialize notifications when settings indicate they should be enabled
 export async function initializeNotifications(): Promise<void> {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
+
+  // Skip initialization in test environment
+  if (process.env.NODE_ENV === "test") return;
 
   const settings = loadNotificationSettings();
-  
-  if (settings.enabled && settings.permission === 'granted') {
+
+  if (settings.enabled && settings.permission === "granted") {
     // Verify permission is still granted (user might have changed it in browser settings)
     const currentPermission = getNotificationPermissionStatus();
-    
-    if (currentPermission === 'granted') {
+
+    if (currentPermission === "granted") {
       const service = getNotificationService();
       await service.scheduleDaily(settings.time);
-      logger.info('📅 Daily reminders initialized on app startup');
+      logger.info("📅 Daily reminders initialized on app startup");
     } else {
       // Permission was revoked, update our records
       updateNotificationPermission(currentPermission);
       settings.enabled = false;
       saveNotificationSettings(settings);
-      logger.info('📅 Notification permission revoked, disabled reminders');
+      logger.info("📅 Notification permission revoked, disabled reminders");
     }
   }
 }

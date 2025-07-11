@@ -15,6 +15,14 @@ const eslintConfig = [
     rules: {
       "no-console": ["error", { "allow": ["warn", "error"] }]
     }
+  },
+  {
+    files: ["scripts/**/*.js", "scripts/**/*.mjs"],
+    rules: {
+      "no-console": "off",
+      "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/no-unused-vars": "warn"
+    }
   }
 ];
 

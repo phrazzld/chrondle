@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useMemo } from 'react';
-import { createDebugUtilities } from '@/lib/gameState';
-import { GameState } from '@/lib/gameState';
-import { URL_PARAMS } from '@/lib/constants';
-import { logger } from '@/lib/logger';
+import { useState, useEffect, useMemo } from "react";
+import { createDebugUtilities } from "@/lib/gameState";
+import { GameState } from "@/lib/gameState";
+import { URL_PARAMS } from "@/lib/constants";
+import { logger } from "@/lib/logger";
 
 export interface UseDebugModeReturn {
   isDebugMode: boolean;
   debugYear: string | null;
   scenario: string | null;
   debugParams: string;
-  
+
   // Debug utilities
   debugUtilities: ReturnType<typeof createDebugUtilities> | null;
 }
@@ -21,7 +21,7 @@ export function useDebugMode(gameState: GameState): UseDebugModeReturn {
 
   // Initialize URL params on client side
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       setUrlParams(params);
     }
@@ -34,25 +34,27 @@ export function useDebugMode(gameState: GameState): UseDebugModeReturn {
         isDebugMode: false,
         debugYear: null,
         scenario: null,
-        debugParams: ''
+        debugParams: "",
       };
     }
 
-    const isDebugMode = urlParams.get(URL_PARAMS.DEBUG) === 'true';
+    const isDebugMode = urlParams.get(URL_PARAMS.DEBUG) === "true";
     const debugYear = urlParams.get(URL_PARAMS.YEAR);
     const scenario = urlParams.get(URL_PARAMS.SCENARIO);
-    
+
     // Build debug params string
     const activeParams: string[] = [];
     if (debugYear) activeParams.push(`year=${debugYear}`);
     if (scenario) activeParams.push(`scenario=${scenario}`);
-    const debugParams = activeParams.length ? activeParams.join(' | ') : 'Basic debug mode';
+    const debugParams = activeParams.length
+      ? activeParams.join(" | ")
+      : "Basic debug mode";
 
     return {
       isDebugMode,
       debugYear,
       scenario,
-      debugParams
+      debugParams,
     };
   }, [urlParams]);
 
@@ -62,45 +64,54 @@ export function useDebugMode(gameState: GameState): UseDebugModeReturn {
     return createDebugUtilities(gameState);
   }, [debugState.isDebugMode, gameState]);
 
-  // Set up global debug utilities
+  // Set up global debug utilities (DEVELOPMENT ONLY)
   useEffect(() => {
-    if (typeof window !== 'undefined' && debugUtilities) {
-      // @ts-expect-error - Adding debug utilities to window
+    // Security: Only expose debug utilities in development
+    if (process.env.NODE_ENV !== "development") {
+      return; // No debug utilities in production
+    }
+
+    if (typeof window !== "undefined" && debugUtilities) {
+      // @ts-expect-error - Adding debug utilities to window (dev only)
       window.chrondle = debugUtilities;
-      
+
       if (debugState.isDebugMode) {
-        logger.info('🔧 Debug mode active. Use window.chrondle for utilities.');
+        logger.info("🔧 Debug mode active. Use window.chrondle for utilities.");
       } else {
-        logger.info('🔧 Debug utilities available: window.chrondle.debug(), window.chrondle.clearStorage()');
+        logger.info(
+          "🔧 Debug utilities available: window.chrondle.debug(), window.chrondle.clearStorage()",
+        );
       }
     }
 
     // Cleanup on unmount
     return () => {
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         // @ts-expect-error - Delete debug utilities from window object
         delete window.chrondle;
       }
     };
   }, [debugUtilities, debugState.isDebugMode]);
 
-  // Set up debug keyboard shortcuts
+  // Set up debug keyboard shortcuts (DEVELOPMENT ONLY)
   useEffect(() => {
-    if (!debugState.isDebugMode || typeof window === 'undefined') return;
+    // Security: Only enable debug shortcuts in development
+    if (process.env.NODE_ENV !== "development") return;
+    if (!debugState.isDebugMode || typeof window === "undefined") return;
 
     function handleDebugShortcuts(e: KeyboardEvent) {
       if (e.ctrlKey || e.metaKey) {
         switch (e.key) {
-          case 'r':
+          case "r":
             e.preventDefault();
             window.location.reload();
             break;
-          case 'c':
+          case "c":
             e.preventDefault();
             debugUtilities?.clearStorage();
             window.location.reload();
             break;
-          case 'd':
+          case "d":
             e.preventDefault();
             debugUtilities?.state();
             break;
@@ -108,16 +119,18 @@ export function useDebugMode(gameState: GameState): UseDebugModeReturn {
       }
     }
 
-    document.addEventListener('keydown', handleDebugShortcuts);
-    logger.info('⌨️  Debug shortcuts: Ctrl+R (reset), Ctrl+C (clear storage), Ctrl+D (dump state)');
+    document.addEventListener("keydown", handleDebugShortcuts);
+    logger.info(
+      "⌨️  Debug shortcuts: Ctrl+R (reset), Ctrl+C (clear storage), Ctrl+D (dump state)",
+    );
 
     return () => {
-      document.removeEventListener('keydown', handleDebugShortcuts);
+      document.removeEventListener("keydown", handleDebugShortcuts);
     };
   }, [debugState.isDebugMode, debugUtilities]);
 
   return {
     ...debugState,
-    debugUtilities
+    debugUtilities,
   };
 }
