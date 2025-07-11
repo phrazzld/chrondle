@@ -71,3 +71,5 @@ regression-report.json
 .lighthouseci/
 lighthouse-metrics.json
 lighthouse-summary.md
+# Code review temporary files
+thinktank_*/
