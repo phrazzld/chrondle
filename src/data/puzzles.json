@@ -1,7 +1,7 @@
 {
   "meta": {
     "version": "4.4",
-    "total_puzzles": 295,
+    "total_puzzles": 298,
     "date_range": "-2000-2025"
   },
   "puzzles": {
@@ -65,11 +65,11 @@
     ],
     "-221": [
       "Qin Shi Huang unifies China, ending the Warring States period.",
-      "The title of 'Emperor' (Huangdi) is created for the new ruler of China.",
-      "A unified system of writing, currency, and measurements is established in China.",
-      "Construction begins on a unified Great Wall of China by connecting existing walls.",
-      "The Carthaginian general Hannibal Barca is active in the Iberian Peninsula.",
-      "The Mauryan Empire in India, under the rule of Emperor Ashoka, is at its peak."
+      "The title 'Huangdi' is created for the new Emperor of China.",
+      "China begins standardizing its writing, currency, and measurements.",
+      "Hannibal Barca takes command of Carthaginian forces in Spain.",
+      "Ptolemy IV Philopator becomes the new ruler of Egypt.",
+      "Satrap Molon of Media revolts against Seleucid King Antiochus III."
     ],
     "-146": [
       "Roman general Scipio Aemilianus captures and destroys the city of Carthage.",
@@ -103,13 +103,29 @@
       "The city of Teotihuacan in Mesoamerica begins construction of its pyramids.",
       "The Kingdom of Aksum in East Africa emerges as a major trading power."
     ],
+    "14": [
+      "Augustus, the first Roman Emperor, dies in Nola",
+      "Tiberius succeeds his stepfather Augustus as Roman Emperor",
+      "The Roman Senate deifies the deceased Emperor Augustus",
+      "A census records 4,973,000 Roman citizens",
+      "Germanicus quells a mutiny among the Rhine legions",
+      "A famine in China leads to instances of cannibalism"
+    ],
     "30": [
-      "Pontius Pilate orders the crucifixion of Jesus of Nazareth in Jerusalem.",
-      "John the Baptist is executed by order of Herod Antipas.",
-      "The Apostle Peter begins to preach in Jerusalem after Pentecost.",
-      "The Kushan Empire is founded by Kujula Kadphises in Central Asia.",
-      "Roman historian Velleius Paterculus completes his 'Historiarum' a history of Rome.",
-      "Roman fabulist Phaedrus releases his first book of Aesop's fables."
+      "Pontius Pilate orders the crucifixion of Jesus of Nazareth.",
+      "Herod Antipas has John the Baptist executed.",
+      "The Apostle Peter begins his ministry in Jerusalem.",
+      "Kujula Kadphises establishes the Kushan Empire in Bactria.",
+      "Roman historian Velleius Paterculus publishes his history of Rome.",
+      "The Roman fabulist Phaedrus releases his first collection of fables."
+    ],
+    "64": [
+      "A great fire destroys much of Rome over six days",
+      "Emperor Nero begins the first major persecution of Christians",
+      "Gaius Calpurnius Piso conspires to assassinate Emperor Nero",
+      "The city of Lyon in Gaul suffers a devastating fire",
+      "The First Epistle of Peter is traditionally written",
+      "Nero initiates a new urban development plan for Rome"
     ],
     "79": [
       "Mount Vesuvius erupts, burying Pompeii and Herculaneum.",
@@ -267,12 +283,13 @@
       "The Great Schism permanently separates Eastern Orthodoxy and Roman Catholicism."
     ],
     "1066": [
-      "King Edward the Confessor of England dies, triggering a succession crisis.",
-      "Halley's Comet appears and is depicted on the Bayeux Tapestry.",
-      "Harald Hardrada of Norway is defeated and killed at the Battle of Stamford Bridge.",
-      "William the Conqueror's Norman army defeats the English at the Battle of Hastings.",
-      "A Muslim mob storms the royal palace in Granada, crucifying the Jewish vizier.",
-      "The Chinese historian Sima Guang begins compiling his masterwork, the *Zizhi Tongjian*."
+      "King Edward the Confessor dies, leaving the English throne contested.",
+      "The Witan elects Harold Godwinson as the new King of England.",
+      "Halley's Comet appears, later depicted on the Bayeux Tapestry.",
+      "Harald Hardrada of Norway is defeated at the Battle of Stamford Bridge.",
+      "William of Normandy defeats Harold Godwinson at the Battle of Hastings.",
+      "A Muslim mob crucifies Jewish vizier Joseph ibn Naghrela in Granada.",
+      "Historian Sima Guang begins compiling his comprehensive history of China."
     ],
     "1071": [
       "The Battle of Manzikert results in a decisive Byzantine defeat.",
@@ -761,11 +778,12 @@
     ],
     "1648": [
       "The Peace of Westphalia ends the Thirty Years' War in Europe.",
-      "The Dutch Republic gains independence from Spain.",
-      "Pride's Purge removes members from the English Parliament.",
-      "The construction of the Red Fort in Delhi is completed.",
-      "The Religious Society of Friends, or Quakers, is founded by George Fox.",
-      "The Fronde, a series of civil wars, begins in France."
+      "The Treaty of Münster recognizes the Dutch Republic's independence.",
+      "Colonel Thomas Pride purges the English Long Parliament of members.",
+      "The Fronde civil war erupts in Paris against Cardinal Mazarin.",
+      "The Khmelnytsky Uprising begins in the Polish-Lithuanian Commonwealth.",
+      "Shah Jahan completes the construction of the Red Fort in Delhi.",
+      "George Fox founds the Religious Society of Friends, or Quakers."
     ],
     "1649": [
       "Oliver Cromwell launches brutal campaign against Irish Catholics",
@@ -1165,6 +1183,15 @@
       "The First Battle of Bull Run, the first major battle of the Civil War, is a Confederate victory.",
       "Jefferson Davis is elected the first and only President of the Confederate States of America.",
       "The first transcontinental telegraph line is completed in the United States."
+    ],
+    "1862": [
+      "President Lincoln issues the preliminary Emancipation Proclamation.",
+      "The Homestead Act is passed, encouraging westward expansion.",
+      "The Battle of Antietam becomes the bloodiest single day in American history.",
+      "Victor Hugo's novel Les Misérables is published in Paris.",
+      "The USS Monitor and CSS Virginia clash in the Battle of Hampton Roads.",
+      "Otto von Bismarck is appointed Minister President of Prussia.",
+      "Richard Gatling patents his revolutionary rapid-fire gun."
     ],
     "1863": [
       "President Abraham Lincoln issues the Emancipation Proclamation.",
@@ -1598,12 +1625,13 @@
       "Magician Harry Houdini dies on Halloween."
     ],
     "1927": [
-      "Charles Lindbergh completes the first solo, nonstop transatlantic flight.",
-      "The film 'The Jazz Singer' is released, marking the end of the silent film era.",
-      "The Great Mississippi Flood of 1927 is one of the most destructive in U.S. history.",
-      "Work begins on the Mount Rushmore National Memorial in South Dakota.",
-      "The Harlem Globetrotters basketball team plays its first game.",
-      "The first transatlantic telephone call is made from New York City to London."
+      "Charles Lindbergh flies the Spirit of St. Louis across the Atlantic.",
+      "The film 'The Jazz Singer' introduces synchronized sound to movies.",
+      "The Great Mississippi Flood inundates 27,000 square miles.",
+      "Philo T. Farnsworth transmits the first all-electronic television image.",
+      "Leon Trotsky is expelled from the Communist Party by Joseph Stalin.",
+      "Gutzon Borglum begins sculpting the Mount Rushmore monument.",
+      "The first transatlantic telephone service connects New York and London."
     ],
     "1928": [
       "The Kellogg-Briand Pact, outlawing war, is signed by 15 nations in Paris.",
