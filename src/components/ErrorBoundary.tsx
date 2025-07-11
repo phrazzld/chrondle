@@ -2,6 +2,7 @@
 
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { logger } from "@/lib/logger";
+import { clearAllChrondleStorage } from "@/lib/storage";
 
 interface Props {
   children: ReactNode;
@@ -101,7 +102,7 @@ export class ErrorBoundary extends Component<Props, State> {
     if (
       confirm("Clear all game data and reload? This will reset your progress.")
     ) {
-      localStorage.clear();
+      clearAllChrondleStorage();
       window.location.reload();
     }
   };

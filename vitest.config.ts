@@ -20,8 +20,8 @@ const baseConfig = {
       "**/dist/**",
       "**/cypress/**",
       "**/.{idea,git,cache,output,temp}/**",
-      "src/lib/__tests__/themeSupport.integration.test.ts", // Temporarily excluded - hanging issue
-      "src/lib/__tests__/performance.integration.test.ts", // Temporarily excluded - may be hanging
+      "src/lib/__tests__/themeSupport.integration.test.ts",
+      "src/lib/__tests__/performance.integration.test.ts",
     ],
   },
   resolve: {

@@ -357,7 +357,7 @@ export function cleanupOldStorage(): void {
   }
 }
 
-export function clearAllChronldeStorage(): string[] {
+export function clearAllChrondleStorage(): string[] {
   if (!isLocalStorageAvailable()) return [];
 
   const keys: string[] = [];

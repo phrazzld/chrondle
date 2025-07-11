@@ -49,12 +49,12 @@ All configuration files have been converted to ESM-compatible formats:
 
 ## Dependency Version Pinning
 
-To prevent future version conflicts (like the Vitest 3.2.4 + Vite 7.0.0 ESM issue), critical dependencies are pinned:
+To prevent future version conflicts and invalid version issues, critical dependencies are carefully managed:
 
 ### Test Dependencies (Pinned)
 
-- `vitest: 3.2.4` (exact version to prevent Vite conflicts)
-- `@vitest/coverage-v8: 3.2.4` (matches vitest version)
+- `vitest: ^1.6.0` (stable v1.x version)
+- `@vitest/coverage-v8: ^1.6.0` (matches vitest version)
 - `@testing-library/react: 16.3.0`
 - `jsdom: 26.1.0`
 
@@ -165,7 +165,7 @@ If you encounter dependency version conflicts:
 
 The project was migrated from mixed CJS/ESM to pure ESM to resolve:
 
-- Vitest 3.2.4 + Vite 7.0.0 compatibility issues
+- Vitest version compatibility issues
 - Node.js 18 vs 20+ ESM handling differences
 - Configuration file import/export conflicts
 

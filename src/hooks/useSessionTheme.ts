@@ -1,17 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { safeGetJSON, safeSetJSON } from "@/lib/storage";
 
 /**
- * Session-only theme override hook
+ * Theme override hook with localStorage persistence
  *
- * Follows Carmack's principle: CSS handles system theme detection,
- * JavaScript only manages temporary session overrides.
+ * CSS handles system theme detection via media queries.
+ * JavaScript manages user theme preferences with persistence.
  *
  * Behavior:
- * - Page load: Always start with system theme (no override)
- * - User toggle: Override to opposite theme for current session
- * - Refresh: Back to system theme (no persistence)
+ * - Page load: Check localStorage for saved preference, otherwise use system theme
+ * - User toggle: Override to opposite theme and persist to localStorage
+ * - Refresh: Restore saved preference if exists
  */
 
 type ThemeOverride = "light" | "dark" | null;
@@ -23,6 +24,8 @@ interface UseSessionThemeReturn {
   toggle: () => void;
   isMounted: boolean;
 }
+
+const THEME_STORAGE_KEY = "chrondle-theme-preference";
 
 export function useSessionTheme(): UseSessionThemeReturn {
   const [override, setOverride] = useState<ThemeOverride>(null);
@@ -45,6 +48,13 @@ export function useSessionTheme(): UseSessionThemeReturn {
 
     // Set initial system theme
     updateSystemTheme();
+
+    // Load saved theme preference from localStorage
+    const savedTheme = safeGetJSON<ThemeOverride>(THEME_STORAGE_KEY);
+    if (savedTheme) {
+      setOverride(savedTheme);
+    }
+
     setIsMounted(true);
 
     // Listen for system theme changes
@@ -58,9 +68,11 @@ export function useSessionTheme(): UseSessionThemeReturn {
   // Current resolved theme: override takes precedence, otherwise system
   const currentTheme = override || systemTheme;
 
-  // Toggle: set override to opposite of current theme
+  // Toggle: set override to opposite of current theme and persist
   const toggle = () => {
-    setOverride(currentTheme === "light" ? "dark" : "light");
+    const newTheme = currentTheme === "light" ? "dark" : "light";
+    setOverride(newTheme);
+    safeSetJSON(THEME_STORAGE_KEY, newTheme);
   };
 
   return {
