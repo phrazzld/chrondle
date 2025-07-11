@@ -10,7 +10,7 @@ import {
   loadSettings as loadSettingsUtil,
   safeRemoveItem,
   cleanupOldStorage as cleanupOldStorageUtil,
-  clearAllChronldeStorage,
+  clearAllChrondleStorage,
   getAllChronldeEntries,
   markPlayerAsPlayed,
   hasPlayerPlayedBefore,
@@ -398,7 +398,7 @@ export function createDebugUtilities(gameState: GameState) {
     clearStorage: () => {
       if (typeof window === "undefined") return [];
 
-      return clearAllChronldeStorage();
+      return clearAllChrondleStorage();
     },
     setYear: (year: number) => {
       if (gameState.puzzle) {
