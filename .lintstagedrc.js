@@ -1,4 +1,4 @@
-module.exports = {
+const config = {
   // TypeScript and JavaScript files - lint and format only changed files
   "**/*.{ts,tsx,js,jsx}": ["eslint --fix", "prettier --write"],
 
@@ -9,3 +9,5 @@ module.exports = {
   // Pre-commit now focuses only on immediate file issues (lint/format)
   // This keeps commits fast (<3s) while CI ensures type safety
 };
+
+export default config;

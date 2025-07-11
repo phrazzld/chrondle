@@ -2,6 +2,15 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useWebShare } from "../useWebShare";
 
+// Mock platform detection
+vi.mock("../../lib/platformDetection", () => ({
+  getShareStrategy: vi.fn(() => "native"), // Default to native for most tests
+}));
+
+// Import the mocked function
+import { getShareStrategy } from "../../lib/platformDetection";
+const mockGetShareStrategy = vi.mocked(getShareStrategy);
+
 // Mock functions
 const mockShare = vi.fn();
 const mockWriteText = vi.fn();
@@ -9,6 +18,9 @@ const mockWriteText = vi.fn();
 describe("useWebShare", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Reset platform detection to default (native)
+    mockGetShareStrategy.mockReturnValue("native");
 
     // Ensure DOM body exists and is clean
     document.body.innerHTML = "";
@@ -41,6 +53,9 @@ describe("useWebShare", () => {
     });
 
     it("should handle missing Web Share API", () => {
+      // Set strategy to fallback when no good sharing options
+      mockGetShareStrategy.mockReturnValue("fallback");
+
       Object.defineProperty(global, "navigator", {
         value: { clipboard: { writeText: mockWriteText } },
         writable: true,
@@ -115,6 +130,9 @@ describe("useWebShare", () => {
     });
 
     it("should use clipboard when Web Share API is not available", async () => {
+      // Set strategy to clipboard for desktop
+      mockGetShareStrategy.mockReturnValue("clipboard");
+
       Object.defineProperty(global, "navigator", {
         value: {
           clipboard: {
@@ -136,6 +154,9 @@ describe("useWebShare", () => {
     });
 
     it("should fall back to execCommand when clipboard API is not available", async () => {
+      // Set strategy to fallback when modern APIs aren't available
+      mockGetShareStrategy.mockReturnValue("fallback");
+
       Object.defineProperty(global, "navigator", {
         value: {},
         writable: true,
@@ -161,7 +182,7 @@ describe("useWebShare", () => {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((document as any).execCommand).toHaveBeenCalledWith("copy");
-      expect(result.current.shareMethod).toBe("clipboard");
+      expect(result.current.shareMethod).toBe("fallback");
     });
 
     it("should handle complete failure gracefully", async () => {

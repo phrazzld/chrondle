@@ -54,6 +54,9 @@ jobs:
       
     - name: Run puzzle validation
       run: pnpm validate-puzzles
+      
+    - name: Test module system compatibility
+      run: pnpm test-module-system
 
   build:
     runs-on: ubuntu-latest
