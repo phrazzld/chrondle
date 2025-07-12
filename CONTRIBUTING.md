@@ -169,6 +169,8 @@ src/
 
 For comprehensive troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
+For CI/CD pipeline issues, see [CI_DEBUGGING_PLAYBOOK.md](CI_DEBUGGING_PLAYBOOK.md).
+
 ### Quick Fixes
 
 - **Tests hanging?** → `pkill -f node` and check for timers
