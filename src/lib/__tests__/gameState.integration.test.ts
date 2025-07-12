@@ -45,6 +45,11 @@ describe("gameState Library Functions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
+    // Use fake timers for consistent date/time behavior across all tests
+    vi.useFakeTimers();
+    // Set a consistent time for all tests unless overridden
+    vi.setSystemTime(new Date("2024-01-15T10:00:00Z"));
+
     // Mock localStorage
     const localStorageMock: MockStorage = {
       getItem: vi.fn(),
@@ -66,15 +71,14 @@ describe("gameState Library Functions", () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
   describe("getDailyYear", () => {
     it("should return consistent year for same date", () => {
       // Mock consistent date
-      const mockDate = new Date("2024-01-15");
-      vi.spyOn(Date, "now").mockReturnValue(mockDate.getTime());
-      vi.spyOn(global, "Date").mockImplementation(() => mockDate);
+      vi.setSystemTime(new Date("2024-01-15"));
 
       const year1 = getDailyYear();
       const year2 = getDailyYear();
@@ -84,14 +88,12 @@ describe("gameState Library Functions", () => {
     });
 
     it("should return different years for different dates", () => {
-      // Test multiple dates
-      const date1 = new Date("2024-01-15");
-      const date2 = new Date("2024-01-16");
-
-      vi.spyOn(global, "Date").mockImplementationOnce(() => date1);
+      // Test with first date
+      vi.setSystemTime(new Date("2024-01-15"));
       const year1 = getDailyYear();
 
-      vi.spyOn(global, "Date").mockImplementationOnce(() => date2);
+      // Test with second date
+      vi.setSystemTime(new Date("2024-01-16"));
       const year2 = getDailyYear();
 
       // Should be different years (high probability)
@@ -117,8 +119,7 @@ describe("gameState Library Functions", () => {
     });
 
     it("should use deterministic hash algorithm", () => {
-      const mockDate = new Date("2024-01-15");
-      vi.spyOn(global, "Date").mockImplementation(() => mockDate);
+      vi.setSystemTime(new Date("2024-01-15"));
 
       // Test that algorithm produces consistent results
       const iterations = 10; // Reduced from 100 to prevent console output bottleneck
@@ -132,13 +133,11 @@ describe("gameState Library Functions", () => {
 
     it("should handle timezone differences consistently", () => {
       // Test with different timezone offsets
-      const utcDate = new Date("2024-01-15T12:00:00Z");
-      const localDate = new Date("2024-01-15T08:00:00-04:00"); // Same day, different timezone
-
-      vi.spyOn(global, "Date").mockImplementationOnce(() => utcDate);
+      // Note: When using setSystemTime, the date is normalized to the system timezone
+      vi.setSystemTime(new Date("2024-01-15T12:00:00Z"));
       const year1 = getDailyYear();
 
-      vi.spyOn(global, "Date").mockImplementationOnce(() => localDate);
+      vi.setSystemTime(new Date("2024-01-15T08:00:00-04:00")); // Same day, different timezone
       const year2 = getDailyYear();
 
       // Should be same year since it's the same calendar date
@@ -146,13 +145,10 @@ describe("gameState Library Functions", () => {
     });
 
     it("should handle year boundaries correctly", () => {
-      const endOfYear = new Date("2024-12-31T23:59:59Z");
-      const startOfYear = new Date("2025-01-01T00:00:00Z");
-
-      vi.spyOn(global, "Date").mockImplementationOnce(() => endOfYear);
+      vi.setSystemTime(new Date("2024-12-31T23:59:59Z"));
       const year1 = getDailyYear();
 
-      vi.spyOn(global, "Date").mockImplementationOnce(() => startOfYear);
+      vi.setSystemTime(new Date("2025-01-01T00:00:00Z"));
       const year2 = getDailyYear();
 
       // Should be different years for different dates
