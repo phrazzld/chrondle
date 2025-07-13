@@ -1,138 +1,249 @@
-# Chrondle TODO
+# Chrondle Convex DB & Premium Archive Implementation TODO
 
-## ✅ Completed Tasks
+Generated from TASK.md on 2025-01-13
 
-### CI/Build Infrastructure
+## Critical Path Items (Must complete in order)
 
-- **Fixed CI test failures**: Upgraded Node.js 18→20, resolved Vitest 3.2.4 ESM/CJS issues
-- **Full ESM migration**: Converted all config files to ESM (.mjs), added "type": "module"
-- **Test suite optimization**: Separated unit/integration tests, parallel execution (<2s total)
-- **Pre-commit hooks**: Optimized to <1s (lint/format only, no type-check)
-- **Bundle monitoring**: Replaced 12 custom scripts with size-limit (110KB/170KB limit)
-- **Lighthouse CI**: Automated performance tracking on main branch merges
+### Phase 1: Foundation Setup
 
-### Developer Experience
+- [ ] Initialize Convex project and configuration
 
-- **Fixed test hanging**: Resolved 24-hour timer issue in notification service
-- **CI stability**: Pinned critical dependencies, added module system validation
-- **Documentation**: Created docs/guides/contributing.md, docs/operations/emergency.md, docs/operations/troubleshooting.md
+  - Success criteria: `npx convex dev` runs successfully, convex/ directory created
+  - Dependencies: Convex package installed
+  - Estimated complexity: SIMPLE
 
-### Platform Improvements
+- [ ] Set up environment variables for Convex
 
-- **Share UX fix**: Desktop now uses clipboard+toast (no more "Plain Text" dialog)
-- **Platform detection**: Proper mobile/desktop routing for share functionality
+  - Success criteria: .env.local contains NEXT_PUBLIC_CONVEX_URL
+  - Dependencies: Convex project initialized
+  - Estimated complexity: SIMPLE
 
-### CI/Test Fixes
+- [ ] Create Convex database schema (convex/schema.ts)
 
-- **Fixed Date mocking in gameState tests**: Replaced manual mocks with Vitest's `vi.useFakeTimers()` (28 tests passing)
+  - Success criteria: Schema defines dailyPuzzles, userGames, and users tables with proper TypeScript types
+  - Dependencies: Convex project initialized
+  - Estimated complexity: MEDIUM
 
-## 🚀 Remaining Tasks
+- [ ] Install and configure Clerk authentication
 
-### Merge Blockers (Must Fix Before Merge)
+  - Success criteria: Clerk providers added to layout.tsx, environment variables set
+  - Dependencies: None
+  - Estimated complexity: MEDIUM
 
-- [x] **Fix timeout race condition in OpenRouterService**
-  - Remove internal AbortController/setTimeout from `makeRequest()` method
-  - Accept optional `AbortSignal` parameter instead
-  - Pass signal directly to fetch: `await fetch(url, { signal })`
-  - Location: `src/lib/openrouter.ts` lines 142-143, 160-161
-  - Why: Creates potential race conditions between competing timeouts
+- [ ] Create Clerk → Convex webhook integration
+  - Success criteria: User creation in Clerk triggers user record in Convex
+  - Dependencies: Clerk configured, Convex schema created
+  - Estimated complexity: MEDIUM
 
-## Task: Fix timeout race condition in OpenRouterService [x]
+### Phase 2: Core Database Integration
 
-### Complexity: SIMPLE
+- [ ] Implement getTodaysPuzzle Convex query
 
-### Started: 2025-07-13 09:04
+  - Success criteria: Returns today's puzzle without auth, maintains < 100ms load time
+  - Dependencies: Convex schema created
+  - Estimated complexity: MEDIUM
 
-### Completed: 2025-07-13 09:17
+- [ ] Create puzzle data migration script
 
-### Context Discovery
+  - Success criteria: All 298 puzzles from JSON imported to Convex with data validation
+  - Dependencies: Convex schema created
+  - Estimated complexity: COMPLEX
 
-- OpenRouterService is a client-side service that calls local API route `/api/historical-context`
-- The API route then calls the actual OpenRouter API
-- Hook passes AbortSignal to service, but service was creating its own timeout
+- [ ] Update puzzleData.ts to use Convex queries
 
-### Execution Log
+  - Success criteria: Game works with Convex data source, fallback to JSON if offline
+  - Dependencies: getTodaysPuzzle query, migration complete
+  - Estimated complexity: COMPLEX
 
-[09:04] Examined OpenRouterService implementation in src/lib/openrouter.ts
-[09:06] Checked API route to understand full timeout flow
-[09:08] Identified dual timeout management issue
-[09:10] Removed internal AbortController/setTimeout logic from makeRequest()
-[09:12] Updated test expecting AbortSignal to match new behavior
-[09:17] All tests passing (17 passed, 1 skipped)
+- [ ] Implement user progress mutations
+  - Success criteria: Authenticated users' game progress saves to database
+  - Dependencies: Clerk auth working
+  - Estimated complexity: MEDIUM
 
-### Approach Decisions
+## Parallel Work Streams
 
-- Simplified makeRequest() to only use provided AbortSignal
-- Removed all internal timeout management
-- Let caller (hook/API route) control timeouts entirely
+### Stream A: UI Components
 
-### Learnings
+- [ ] Create sign-in/sign-up UI components
 
-- Service was creating unnecessary complexity with dual timeout management
-- Tests needed updating to reflect simpler signal passing behavior
-- Removing code often improves reliability
+  - Success criteria: Clean auth UI in header, doesn't disrupt anonymous play
+  - Can start: After Clerk setup
+  - Estimated complexity: SIMPLE
 
-## Task: Align Node.js version to v20 in Lighthouse workflow [x]
+- [ ] Build archive page route (/archive)
 
-### Status: COMPLETED AND PUSHED
+  - Success criteria: New page accessible from navigation
+  - Can start: Immediately
+  - Estimated complexity: SIMPLE
 
-### Complexity: SIMPLE
+- [ ] Design and implement archive grid/calendar view
 
-### Started: 2025-07-13 10:42
+  - Success criteria: Shows all past puzzles with year and date
+  - Dependencies: Archive page exists
+  - Estimated complexity: MEDIUM
 
-### Completed: 2025-07-13 10:43
+- [ ] Create locked puzzle state UI
 
-### Context Discovery
+  - Success criteria: Non-premium users see grayed out past puzzles
+  - Dependencies: Archive grid exists
+  - Estimated complexity: SIMPLE
 
-- Found Node.js version set to '18' in `.github/workflows/lighthouse.yml` line 22
-- Rest of project uses Node.js 20+ (confirmed in README and other CI workflows)
+- [ ] Build premium upgrade prompt component
+  - Success criteria: Clear CTA with pricing ($0.99/mo or $5.99/yr)
+  - Dependencies: Archive page exists
+  - Estimated complexity: SIMPLE
 
-### Execution Log
+### Stream B: Authentication & User Data
 
-[10:42] Located Lighthouse workflow file
-[10:43] Updated node-version from '18' to '20' on line 22
-[10:43] Task completed - version alignment achieved
+- [ ] Implement localStorage → Convex migration on first auth
 
-### Approach Decisions
+  - Success criteria: User's existing progress transfers to account
+  - Dependencies: User progress mutations
+  - Estimated complexity: MEDIUM
 
-- Direct config update as specified
-- No additional changes needed
+- [ ] Add user stats calculation functions
 
-### Learnings
+  - Success criteria: Accurate streak and completion tracking
+  - Dependencies: User game history in database
+  - Estimated complexity: MEDIUM
 
-- Simple config alignment prevents CI environment inconsistencies
-- All GitHub workflows should use consistent Node.js versions
+- [ ] Create useUser and useAuth hooks
+  - Success criteria: Clean API for auth state in components
+  - Dependencies: Clerk configured
+  - Estimated complexity: SIMPLE
 
-- [x] **Align Node.js version to v20 in Lighthouse workflow**
-  - Update `.github/workflows/lighthouse.yml` line 18
-  - Change from `node-version: '18'` to `node-version: '20'`
-  - Why: Environment inconsistency can cause CI-specific bugs
+### Stream C: Premium Features
 
-### Documentation
+- [ ] Implement getArchivePuzzle query with auth check
 
-- [x] Update README with new module requirements
-- [x] Add CI debugging playbook
-- [x] Document emergency procedures in detail
+  - Success criteria: Only premium users can access past puzzles
+  - Dependencies: User auth working
+  - Estimated complexity: MEDIUM
 
-### Future Optimizations (Not Blocking This PR)
+- [ ] Create user statistics dashboard component
 
-- [ ] Add Node.js version matrix testing in CI
-- [ ] Configure Dependabot for careful dependency updates
-- [ ] Add mobile Lighthouse CI testing
-- [ ] Implement version pinning strategy for remaining dependencies
-- [ ] Remove duplicate validation from useHistoricalContext hook
-- [ ] Complete platform detection centralization
-- [ ] Standardize logging (replace console.\* with logger)
-- [ ] Convert lighthouserc.cjs to ESM if supported
+  - Success criteria: Shows streaks, total completed, average guesses
+  - Dependencies: User stats calculations
+  - Estimated complexity: MEDIUM
 
-## 📊 Success Metrics Achieved
+- [ ] Build game history view
+  - Success criteria: Premium users see all past attempts
+  - Dependencies: User game data available
+  - Estimated complexity: MEDIUM
 
-- ✅ Pre-commit: <1s (was 3-4s)
-- ✅ CI pipeline: ~2min (parallel jobs)
-- ✅ Test suite: <2s (was timing out)
-- ✅ Bundle size: 110KB (limit: 170KB)
-- ✅ Zero developer friction
+## Phase 3: Monetization
 
----
+- [ ] Set up Stripe account and products
 
-Remember: If it slows you down, delete it. Speed wins.
+  - Success criteria: Two products created ($0.99/mo, $5.99/yr)
+  - Dependencies: None
+  - Estimated complexity: SIMPLE
+
+- [ ] Create Stripe checkout API endpoint
+
+  - Success criteria: Redirects to Stripe checkout with correct pricing
+  - Dependencies: Stripe account setup
+  - Estimated complexity: MEDIUM
+
+- [ ] Implement Stripe webhook handler
+
+  - Success criteria: Updates user premium status on subscription events
+  - Dependencies: Stripe checkout working
+  - Estimated complexity: COMPLEX
+
+- [ ] Add subscription management UI
+  - Success criteria: Premium users can view/cancel subscription
+  - Dependencies: Stripe integration complete
+  - Estimated complexity: MEDIUM
+
+## Testing & Validation
+
+- [ ] Write tests for Convex queries and mutations
+
+  - Success criteria: 90%+ coverage on database functions
+  - Dependencies: Core integration complete
+  - Estimated complexity: MEDIUM
+
+- [ ] Test auth flows (sign up, sign in, anonymous → authenticated)
+
+  - Success criteria: All paths work without breaking game
+  - Dependencies: Auth implementation complete
+  - Estimated complexity: MEDIUM
+
+- [ ] Test payment flows (subscribe, cancel, resubscribe)
+
+  - Success criteria: Stripe test mode transactions update user status correctly
+  - Dependencies: Stripe integration complete
+  - Estimated complexity: MEDIUM
+
+- [ ] Performance testing for database queries
+
+  - Success criteria: Today's puzzle loads < 100ms, archive pagination < 200ms
+  - Dependencies: Core integration complete
+  - Estimated complexity: SIMPLE
+
+- [ ] Test offline fallback behavior
+  - Success criteria: Game playable offline with localStorage
+  - Dependencies: Fallback logic implemented
+  - Estimated complexity: SIMPLE
+
+## Documentation & Cleanup
+
+- [ ] Update README with premium features and setup instructions
+
+  - Success criteria: Clear docs for auth, subscription, and archive
+  - Dependencies: All features implemented
+  - Estimated complexity: SIMPLE
+
+- [ ] Create environment variables template
+
+  - Success criteria: .env.example with all required vars documented
+  - Dependencies: All integrations complete
+  - Estimated complexity: SIMPLE
+
+- [ ] Add feature flag for gradual rollout
+
+  - Success criteria: Can toggle between old and new system
+  - Dependencies: Core integration complete
+  - Estimated complexity: MEDIUM
+
+- [ ] Code review and refactoring pass
+  - Success criteria: Consistent patterns, < 1000 lines new code
+  - Dependencies: All features implemented
+  - Estimated complexity: MEDIUM
+
+## Future Enhancements (BACKLOG.md candidates)
+
+- [ ] Add puzzle difficulty ratings based on aggregate completion data
+- [ ] Implement puzzle search and filtering in archive
+- [ ] Create shareable links for specific past puzzles
+- [ ] Add achievement badges for milestones
+- [ ] Build puzzle statistics page (most/least guessed correctly)
+- [ ] Add custom color scheme options for premium users
+- [ ] Implement puzzle of the week/month highlights
+- [ ] Create puzzle recommendation engine based on play history
+
+## Risk Mitigation Tasks
+
+- [ ] Create database backup strategy
+
+  - Success criteria: Daily backups of puzzle and user data
+  - Dependencies: Migration complete
+  - Estimated complexity: SIMPLE
+
+- [ ] Implement rate limiting for API endpoints
+
+  - Success criteria: Prevents abuse of auth and payment endpoints
+  - Dependencies: API endpoints created
+  - Estimated complexity: SIMPLE
+
+- [ ] Add comprehensive error boundaries
+
+  - Success criteria: Database failures don't crash the app
+  - Dependencies: Core integration complete
+  - Estimated complexity: SIMPLE
+
+- [ ] Create rollback plan documentation
+  - Success criteria: Clear steps to revert to JSON-only version
+  - Dependencies: Feature flag implemented
+  - Estimated complexity: SIMPLE
