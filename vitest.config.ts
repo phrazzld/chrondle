@@ -15,6 +15,9 @@ const baseConfig = {
         minThreads: 2,
       },
     },
+    // Prevent tests from hanging
+    testTimeout: 10000, // 10 second timeout per test
+    hookTimeout: 10000, // 10 second timeout for hooks
     exclude: [
       "**/node_modules/**",
       "**/dist/**",

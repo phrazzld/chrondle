@@ -64,8 +64,9 @@ pnpm test:integration:watch # Watch mode
 #### All Tests
 
 ```bash
-pnpm test       # Run all tests
-pnpm test:ci    # CI mode (no watch)
+pnpm test       # Run all tests once and exit
+pnpm test:watch # Run all tests in watch mode
+pnpm test:ci    # Same as test (for CI compatibility)
 ```
 
 ### Code Quality Commands

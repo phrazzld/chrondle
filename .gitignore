@@ -48,10 +48,14 @@ next-env.d.ts
 
 # Temporary data files
 temp-data/
-TODO.md
 ALIGN-CONTEXT.md
-BACKLOG.md
-TASK.md
+
+# Project documentation that should stay in docs/
+/*_AUDIT.md
+/*_REVIEW*.md
+/*_METRICS.md
+/*_PLAYBOOK.md
+/*_GUIDE.md
 
 
 thinktank.log
