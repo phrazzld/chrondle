@@ -28,6 +28,15 @@ This project is built with:
 - **TypeScript:** For type safety and improved developer experience.
 - **Vitest:** For unit and integration testing.
 
+## Requirements
+
+- **Node.js 20+**: This project requires Node.js version 20 or higher. Use the `.nvmrc` file with nvm:
+  ```bash
+  nvm use
+  ```
+- **pnpm**: This project uses pnpm exclusively as the package manager. npm and yarn are not supported.
+- **ESM Modules**: The codebase uses ES modules throughout. All configuration files use `.mjs` extensions or TypeScript.
+
 ## Getting Started
 
 To run Chrondle locally:

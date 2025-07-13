@@ -92,7 +92,7 @@ def list_puzzles():
     """Lists all the years present in the puzzles file."""
     puzzles = read_puzzles()
     sorted_years = sorted(puzzles.keys(), key=int)
-    print("Years available in puzzles.json:")
+    print("The following years have hints defined in puzzles.json:")
     # Print in multiple columns for better readability
     col_width = 8
     cols = 10
