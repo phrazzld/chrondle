@@ -106,7 +106,7 @@ describe("OpenRouter Service", () => {
           year: 1969,
           events: ["Moon landing", "Woodstock"],
         }),
-        signal: expect.any(AbortSignal),
+        signal: undefined,
       });
     });
 

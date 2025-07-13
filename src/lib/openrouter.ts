@@ -149,15 +149,6 @@ export class OpenRouterService {
     request: AIContextRequest,
     abortSignal?: AbortSignal,
   ): Promise<AIContextResponse> {
-    // Use external abort signal if provided, otherwise create our own for timeout
-    const controller = abortSignal ? undefined : new AbortController();
-    const finalSignal = abortSignal || controller?.signal;
-
-    // Set up timeout only if we created our own controller
-    const timeoutId = !abortSignal
-      ? setTimeout(() => controller?.abort(), this.config.timeout)
-      : undefined;
-
     try {
       const response = await fetch(this.config.apiEndpoint, {
         method: "POST",
@@ -165,10 +156,8 @@ export class OpenRouterService {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(request),
-        signal: finalSignal,
+        signal: abortSignal,
       });
-
-      if (timeoutId) clearTimeout(timeoutId);
 
       // Handle non-success HTTP status codes
       if (!response || !response.ok) {
@@ -183,13 +172,9 @@ export class OpenRouterService {
       const data = await response.json();
       return this.validateResponse(data);
     } catch (error) {
-      if (timeoutId) clearTimeout(timeoutId);
-
-      // Handle AbortController timeout first
+      // Handle AbortController timeout
       if (error instanceof Error && error.name === "AbortError") {
-        throw new OpenRouterTimeoutError(
-          `Request timed out after ${this.config.timeout}ms`,
-        );
+        throw new OpenRouterTimeoutError(`Request timed out`);
       }
 
       // Handle network errors that might return null response
