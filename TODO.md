@@ -1,249 +1,140 @@
-# Chrondle Convex DB & Premium Archive Implementation TODO
+# Chrondle CSP & Authentication Recovery TODO
 
-Generated from TASK.md on 2025-01-13
+Updated 2025-07-14 based on root cause analysis
 
-## Critical Path Items (Must complete in order)
+## 🚨 CRITICAL: Fix CSP Blocking Authentication & Workers
 
-### Phase 1: Foundation Setup
+### Root Cause Analysis
 
-- [ ] Initialize Convex project and configuration
+- **Issue**: CSP missing `worker-src blob:` directive causing Clerk authentication and canvas-confetti to fail with SecurityError when creating workers from blob URLs
+- **Issue**: CSP blocking Clerk API calls to healthy-doe-23.clerk.accounts.dev causing 'Refused to connect' errors
+- **Issue**: Unused API Ninjas endpoints still in CSP and codebase creating unnecessary attack surface
+- **Result**: Authentication completely broken, confetti effects non-functional, console spam masking real issues
 
-  - Success criteria: `npx convex dev` runs successfully, convex/ directory created
-  - Dependencies: Convex package installed
-  - Estimated complexity: SIMPLE
+## Phase 1: Critical CSP Fixes (BLOCKING)
 
-- [ ] Set up environment variables for Convex
+- [x] Add worker-src directive to CSP in next.config.ts to fix web worker blocking
 
-  - Success criteria: .env.local contains NEXT_PUBLIC_CONVEX_URL
-  - Dependencies: Convex project initialized
-  - Estimated complexity: SIMPLE
+  - Root cause: CSP missing 'worker-src blob:' directive causing Clerk authentication and canvas-confetti to fail with SecurityError when creating workers from blob URLs
+  - Impact: Authentication completely broken, confetti effects non-functional, console spam
+  - Files: next.config.ts line 38-48
+  - Success criteria: No 'Refused to create a worker' errors in console
+  - **COMPLETED**: Added worker-src 'self' blob: to CSP
 
-- [ ] Create Convex database schema (convex/schema.ts)
+- [x] Add complete Clerk authentication endpoints to CSP connect-src directive
 
-  - Success criteria: Schema defines dailyPuzzles, userGames, and users tables with proper TypeScript types
-  - Dependencies: Convex project initialized
-  - Estimated complexity: MEDIUM
+  - Root cause: CSP blocking Clerk API calls to healthy-doe-23.clerk.accounts.dev causing 'Refused to connect' errors
+  - Impact: Auth state stuck at isLoaded:false, login/signup broken
+  - Files: next.config.ts line 44
+  - Add: https://healthy-doe-23.clerk.accounts.dev to connect-src
+  - Success criteria: Clerk auth loads, isLoaded becomes true
+  - **COMPLETED**: Added Clerk endpoints to connect-src
 
-- [ ] Install and configure Clerk authentication
+- [x] Remove unused API Ninjas endpoint from CSP connect-src directive
+  - Dead code cleanup: https://api.api-ninjas.com no longer used but still in CSP
+  - Files: next.config.ts line 44
+  - Remove: https://api.api-ninjas.com from connect-src array
+  - Success criteria: CSP only contains active endpoints
+  - **COMPLETED**: Removed API Ninjas from CSP
 
-  - Success criteria: Clerk providers added to layout.tsx, environment variables set
-  - Dependencies: None
-  - Estimated complexity: MEDIUM
+## Phase 2: API Ninjas Cleanup
 
-- [ ] Create Clerk → Convex webhook integration
-  - Success criteria: User creation in Clerk triggers user record in Convex
-  - Dependencies: Clerk configured, Convex schema created
-  - Estimated complexity: MEDIUM
+- [x] Remove API_NINJAS_KEY and API_NINJAS endpoint from constants.ts
 
-### Phase 2: Core Database Integration
+  - Dead code cleanup: API_NINJAS_KEY hardcoded on line 8, API_NINJAS endpoint in API_ENDPOINTS object line 12
+  - Files: src/lib/constants.ts lines 6-8, 12
+  - Remove: export const API_NINJAS_KEY and API_NINJAS from API_ENDPOINTS
+  - Success criteria: No API Ninjas references in constants
+  - **COMPLETED**: Removed API_NINJAS_KEY and API_NINJAS endpoint
 
-- [ ] Implement getTodaysPuzzle Convex query
+- [x] Remove API_NINJAS_API_KEY from environment files
+  - Dead code cleanup: API_NINJAS_API_KEY=O8VgZplfhWSNdCsgoeVaZg==2bwPJnxstEQPzmvn in .env.local line 7
+  - Files: .env.local, .env.example
+  - Remove: API_NINJAS_API_KEY entries and related comments
+  - Success criteria: No API Ninjas in environment config
+  - **COMPLETED**: Removed API_NINJAS_API_KEY from .env.local
 
-  - Success criteria: Returns today's puzzle without auth, maintains < 100ms load time
-  - Dependencies: Convex schema created
-  - Estimated complexity: MEDIUM
+## Phase 3: Confetti Worker Fixes
 
-- [ ] Create puzzle data migration script
+- [x] Disable web workers in canvas-confetti default config to prevent CSP errors
 
-  - Success criteria: All 298 puzzles from JSON imported to Convex with data validation
-  - Dependencies: Convex schema created
-  - Estimated complexity: COMPLEX
+  - Root cause: confetti defaults to useWorker:true on line 44 but CSP blocks workers causing repeated SecurityErrors
+  - Files: src/components/magicui/confetti.tsx line 44
+  - Change: globalOptions = { resize: true, useWorker: false }
+  - Success criteria: Confetti works without worker errors
+  - **COMPLETED**: Changed default to useWorker: false
 
-- [ ] Update puzzleData.ts to use Convex queries
+- [x] Improve confetti error handling to reduce console noise
+  - Current: SecurityError logs spam console making debugging harder
+  - Files: src/components/magicui/confetti.tsx lines 55-66
+  - Add: try-catch around confetti.create() with graceful fallback
+  - Success criteria: One clear error message instead of spam
+  - **COMPLETED**: Added try-catch with graceful worker fallback
 
-  - Success criteria: Game works with Convex data source, fallback to JSON if offline
-  - Dependencies: getTodaysPuzzle query, migration complete
-  - Estimated complexity: COMPLEX
+## Phase 4: Next.js 15 Metadata Migration
 
-- [ ] Implement user progress mutations
-  - Success criteria: Authenticated users' game progress saves to database
-  - Dependencies: Clerk auth working
-  - Estimated complexity: MEDIUM
+- [x] Move viewport from metadata export to generateViewport function in layout.tsx
 
-## Parallel Work Streams
+  - Next.js 15 deprecation: 'Unsupported metadata viewport is configured in metadata export'
+  - Files: src/app/layout.tsx line 27
+  - Create: export const viewport = 'width=device-width, initial-scale=1'
+  - Remove: viewport from metadata
+  - Success criteria: No viewport deprecation warning
+  - **COMPLETED**: Migrated to export const viewport
 
-### Stream A: UI Components
+- [x] Move themeColor from metadata export to generateViewport function in layout.tsx
+  - Next.js 15 deprecation: 'Unsupported metadata themeColor is configured in metadata export'
+  - Files: src/app/layout.tsx lines 23-26
+  - Move: themeColor array to generateViewport return
+  - Success criteria: No themeColor deprecation warning
+  - **COMPLETED**: Moved themeColor to viewport export
 
-- [ ] Create sign-in/sign-up UI components
+## Phase 5: Verification & Testing
 
-  - Success criteria: Clean auth UI in header, doesn't disrupt anonymous play
-  - Can start: After Clerk setup
-  - Estimated complexity: SIMPLE
+- [ ] Test Clerk authentication initialization after CSP fixes
 
-- [ ] Build archive page route (/archive)
+  - Verification: Ensure auth buttons render and isLoaded becomes true
+  - Test: Load app, check AuthButtons.tsx console logs show isLoaded:true, verify sign-in button appears
+  - Success criteria: Clerk Auth State shows isLoaded:true, user can see auth buttons
 
-  - Success criteria: New page accessible from navigation
-  - Can start: Immediately
-  - Estimated complexity: SIMPLE
+- [ ] Test confetti effects work without console errors after worker fixes
 
-- [ ] Design and implement archive grid/calendar view
+  - Verification: Ensure confetti animation plays on game completion without SecurityErrors
+  - Test: Complete a puzzle, verify confetti animation appears, check console for worker errors
+  - Success criteria: Confetti plays smoothly, no SecurityError messages
 
-  - Success criteria: Shows all past puzzles with year and date
-  - Dependencies: Archive page exists
-  - Estimated complexity: MEDIUM
+- [ ] Test Google Fonts load without ancient UI flash after CSP fixes
 
-- [ ] Create locked puzzle state UI
+  - Verification: Ensure fonts load properly and no font flash occurs
+  - Test: Hard refresh app, observe if UI flashes from fallback to Google Fonts
+  - Success criteria: Smooth font loading, no visible flash from system fonts to Google Fonts
 
-  - Success criteria: Non-premium users see grayed out past puzzles
-  - Dependencies: Archive grid exists
-  - Estimated complexity: SIMPLE
+- [ ] Verify CSP console is completely clean after all fixes
+  - Verification: No CSP violation errors in browser console
+  - Test: Open DevTools, refresh app, check for any 'Refused to connect', 'Refused to create worker', or CSP violation messages
+  - Success criteria: Zero CSP-related errors in console
 
-- [ ] Build premium upgrade prompt component
-  - Success criteria: Clear CTA with pricing ($0.99/mo or $5.99/yr)
-  - Dependencies: Archive page exists
-  - Estimated complexity: SIMPLE
+## Key Principles
 
-### Stream B: Authentication & User Data
+1. **Fail Fast**: Clear CSP errors instead of silent failures
+2. **Security First**: Remove unused endpoints to reduce attack surface
+3. **Performance**: Minimize console noise to improve debugging
+4. **User Experience**: Smooth authentication and visual effects
 
-- [ ] Implement localStorage → Convex migration on first auth
+## Expected Results After Completion
 
-  - Success criteria: User's existing progress transfers to account
-  - Dependencies: User progress mutations
-  - Estimated complexity: MEDIUM
+- ✅ Clerk authentication fully functional with proper isLoaded state
+- ✅ Clean console with zero CSP violation errors
+- ✅ Smooth font loading without UI flash
+- ✅ Functional confetti effects without SecurityErrors
+- ✅ No Next.js deprecation warnings
+- ✅ Cleaner, more secure CSP with only required endpoints
+- ✅ Removed dead API Ninjas code
 
-- [ ] Add user stats calculation functions
+## Total Estimated Time: 50 minutes
 
-  - Success criteria: Accurate streak and completion tracking
-  - Dependencies: User game history in database
-  - Estimated complexity: MEDIUM
+**Risk Level: Low** - All changes are configuration fixes and cleanup with no breaking changes to business logic.
 
-- [ ] Create useUser and useAuth hooks
-  - Success criteria: Clean API for auth state in components
-  - Dependencies: Clerk configured
-  - Estimated complexity: SIMPLE
+## Next Immediate Action
 
-### Stream C: Premium Features
-
-- [ ] Implement getArchivePuzzle query with auth check
-
-  - Success criteria: Only premium users can access past puzzles
-  - Dependencies: User auth working
-  - Estimated complexity: MEDIUM
-
-- [ ] Create user statistics dashboard component
-
-  - Success criteria: Shows streaks, total completed, average guesses
-  - Dependencies: User stats calculations
-  - Estimated complexity: MEDIUM
-
-- [ ] Build game history view
-  - Success criteria: Premium users see all past attempts
-  - Dependencies: User game data available
-  - Estimated complexity: MEDIUM
-
-## Phase 3: Monetization
-
-- [ ] Set up Stripe account and products
-
-  - Success criteria: Two products created ($0.99/mo, $5.99/yr)
-  - Dependencies: None
-  - Estimated complexity: SIMPLE
-
-- [ ] Create Stripe checkout API endpoint
-
-  - Success criteria: Redirects to Stripe checkout with correct pricing
-  - Dependencies: Stripe account setup
-  - Estimated complexity: MEDIUM
-
-- [ ] Implement Stripe webhook handler
-
-  - Success criteria: Updates user premium status on subscription events
-  - Dependencies: Stripe checkout working
-  - Estimated complexity: COMPLEX
-
-- [ ] Add subscription management UI
-  - Success criteria: Premium users can view/cancel subscription
-  - Dependencies: Stripe integration complete
-  - Estimated complexity: MEDIUM
-
-## Testing & Validation
-
-- [ ] Write tests for Convex queries and mutations
-
-  - Success criteria: 90%+ coverage on database functions
-  - Dependencies: Core integration complete
-  - Estimated complexity: MEDIUM
-
-- [ ] Test auth flows (sign up, sign in, anonymous → authenticated)
-
-  - Success criteria: All paths work without breaking game
-  - Dependencies: Auth implementation complete
-  - Estimated complexity: MEDIUM
-
-- [ ] Test payment flows (subscribe, cancel, resubscribe)
-
-  - Success criteria: Stripe test mode transactions update user status correctly
-  - Dependencies: Stripe integration complete
-  - Estimated complexity: MEDIUM
-
-- [ ] Performance testing for database queries
-
-  - Success criteria: Today's puzzle loads < 100ms, archive pagination < 200ms
-  - Dependencies: Core integration complete
-  - Estimated complexity: SIMPLE
-
-- [ ] Test offline fallback behavior
-  - Success criteria: Game playable offline with localStorage
-  - Dependencies: Fallback logic implemented
-  - Estimated complexity: SIMPLE
-
-## Documentation & Cleanup
-
-- [ ] Update README with premium features and setup instructions
-
-  - Success criteria: Clear docs for auth, subscription, and archive
-  - Dependencies: All features implemented
-  - Estimated complexity: SIMPLE
-
-- [ ] Create environment variables template
-
-  - Success criteria: .env.example with all required vars documented
-  - Dependencies: All integrations complete
-  - Estimated complexity: SIMPLE
-
-- [ ] Add feature flag for gradual rollout
-
-  - Success criteria: Can toggle between old and new system
-  - Dependencies: Core integration complete
-  - Estimated complexity: MEDIUM
-
-- [ ] Code review and refactoring pass
-  - Success criteria: Consistent patterns, < 1000 lines new code
-  - Dependencies: All features implemented
-  - Estimated complexity: MEDIUM
-
-## Future Enhancements (BACKLOG.md candidates)
-
-- [ ] Add puzzle difficulty ratings based on aggregate completion data
-- [ ] Implement puzzle search and filtering in archive
-- [ ] Create shareable links for specific past puzzles
-- [ ] Add achievement badges for milestones
-- [ ] Build puzzle statistics page (most/least guessed correctly)
-- [ ] Add custom color scheme options for premium users
-- [ ] Implement puzzle of the week/month highlights
-- [ ] Create puzzle recommendation engine based on play history
-
-## Risk Mitigation Tasks
-
-- [ ] Create database backup strategy
-
-  - Success criteria: Daily backups of puzzle and user data
-  - Dependencies: Migration complete
-  - Estimated complexity: SIMPLE
-
-- [ ] Implement rate limiting for API endpoints
-
-  - Success criteria: Prevents abuse of auth and payment endpoints
-  - Dependencies: API endpoints created
-  - Estimated complexity: SIMPLE
-
-- [ ] Add comprehensive error boundaries
-
-  - Success criteria: Database failures don't crash the app
-  - Dependencies: Core integration complete
-  - Estimated complexity: SIMPLE
-
-- [ ] Create rollback plan documentation
-  - Success criteria: Clear steps to revert to JSON-only version
-  - Dependencies: Feature flag implemented
-  - Estimated complexity: SIMPLE
+Continue with API Ninjas cleanup in constants.ts and environment files.

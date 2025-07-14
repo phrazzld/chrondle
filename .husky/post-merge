@@ -1,0 +1,19 @@
+#!/bin/sh
+# Post-merge hook: Clear cache after merging to prevent stale cache issues
+
+echo "🔄 Merge detected..."
+
+# Check if critical files were modified in the merge
+if git diff-tree -r --name-only HEAD@{1} HEAD | grep -qE "(package\.json|next\.config\.|tailwind\.config\.|tsconfig\.json)"; then
+  echo "📦 Critical configuration files changed in merge, clearing cache..."
+  rm -rf .next tsconfig.tsbuildinfo
+  
+  # Also check if package.json changed and suggest reinstall
+  if git diff-tree -r --name-only HEAD@{1} HEAD | grep -q "package\.json"; then
+    echo "⚠️  package.json changed - consider running 'pnpm install' to update dependencies"
+  fi
+  
+  echo "✅ Cache cleared successfully"
+else
+  echo "ℹ️  No critical config changes detected in merge, cache preserved"
+fi

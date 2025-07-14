@@ -1,9 +1,18 @@
 import type { Metadata } from "next";
-import { SessionThemeProvider } from "@/components/SessionThemeProvider";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { Providers } from "@/components/providers";
+import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#1a1a1a" },
+  ],
+};
 
 export const metadata: Metadata = {
   title: "Chrondle - The Daily History Game",
@@ -20,11 +29,6 @@ export const metadata: Metadata = {
       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#1a1a1a" },
-  ],
-  viewport: "width=device-width, initial-scale=1",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -53,9 +57,8 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <ErrorBoundary>
-          <SessionThemeProvider>{children}</SessionThemeProvider>
-        </ErrorBoundary>
+        <Providers>{children}</Providers>
+        <Toaster />
       </body>
     </html>
   );

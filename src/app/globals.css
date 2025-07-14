@@ -153,6 +153,45 @@ html.dark {
   }
 }
 
+/* Enhanced fallback for smoother theme loading - covers hydration period */
+@media (prefers-color-scheme: light) {
+  html:not(.dark):not(.light) {
+    /* Use light theme colors when system preference is light and no class set yet */
+    /* This covers the brief period during SSR/hydration before theme classes apply */
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.3211 0 0);
+    --surface: #ffffff;
+    --muted-foreground: oklch(0.551 0.0234 264.3637);
+  }
+}
+
+/* Transition optimization for smooth theme switching */
+html {
+  /* Add smooth transition for theme changes, but only after content loads */
+  transition: none;
+}
+
+html.theme-loaded {
+  /* Enable transitions after theme is fully loaded to avoid flash */
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+/* Ensure fonts load smoothly without layout shift */
+body {
+  /* Improved font fallback chain for smoother loading */
+  font-family:
+    var(--font-sans),
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+}
+
 /* Essential game-specific animations */
 @keyframes bounce-once {
   0%,

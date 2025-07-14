@@ -3,13 +3,8 @@
 
 // --- API CONFIGURATION ---
 
-// API Ninjas Key - exposed in client-side code for prototype
-// The API has rate limits (50k requests/month) and only provides historical data
-export const API_NINJAS_KEY = "O8VgZplfhWSNdCsgoeVaZg==2bwPJnxstEQPzmvn";
-
 // API Endpoints
 export const API_ENDPOINTS = {
-  API_NINJAS: "https://api.api-ninjas.com/v1/historicalevents",
   WIKIDATA_SPARQL: "https://query.wikidata.org/sparql",
   OPENAI: "https://api.openai.com/v1/chat/completions",
   WIKIPEDIA_ON_THIS_DAY:

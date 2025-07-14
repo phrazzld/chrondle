@@ -27,9 +27,16 @@
     "test-module-system": "node scripts/test-module-system.mjs",
     "bundle-analysis": "ANALYZE=true pnpm build",
     "size": "size-limit",
-    "prepare": "husky"
+    "prepare": "husky",
+    "clean": "rm -rf .next node_modules/.cache tsconfig.tsbuildinfo",
+    "clean:next": "rm -rf .next tsconfig.tsbuildinfo",
+    "clean:dev": "pnpm clean:next && pnpm dev",
+    "fresh": "pnpm clean && pnpm install && pnpm dev",
+    "check-cache": "node scripts/check-cache-age.mjs",
+    "predev": "node scripts/check-cache-age.mjs || true"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.24.0",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-progress": "^1.1.7",
@@ -47,6 +54,7 @@
     "next": "15.3.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "svix": "^1.69.0",
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
@@ -60,6 +68,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitest/coverage-v8": "^1.6.0",
+    "dotenv": "^17.2.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
     "husky": "9.1.7",

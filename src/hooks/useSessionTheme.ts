@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useLayoutEffect } from "react";
 import { safeGetJSON, safeSetJSON } from "@/lib/storage";
 
 /**
@@ -27,15 +27,45 @@ interface UseSessionThemeReturn {
 
 const THEME_STORAGE_KEY = "chrondle-theme-preference";
 
+// Helper function to detect system theme synchronously
+function getInitialSystemTheme(): "light" | "dark" {
+  if (typeof window === "undefined") {
+    return "light";
+  }
+
+  try {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  } catch {
+    return "light";
+  }
+}
+
+// Helper function to get initial override synchronously
+function getInitialOverride(): ThemeOverride {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    return safeGetJSON<ThemeOverride>(THEME_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
 export function useSessionTheme(): UseSessionThemeReturn {
-  const [override, setOverride] = useState<ThemeOverride>(null);
-  const [systemTheme, setSystemTheme] = useState<"light" | "dark">("light");
+  // Initialize with synchronously detected values to reduce flashing
+  const [override, setOverride] = useState<ThemeOverride>(getInitialOverride);
+  const [systemTheme, setSystemTheme] = useState<"light" | "dark">(
+    getInitialSystemTheme,
+  );
   const [isMounted, setIsMounted] = useState(false);
 
-  // Detect system theme on mount and listen for changes
-  useEffect(() => {
+  // Use layout effect for theme-critical initialization that affects rendering
+  useLayoutEffect(() => {
     if (typeof window === "undefined") {
-      setSystemTheme("light");
       setIsMounted(true);
       return;
     }
@@ -46,12 +76,12 @@ export function useSessionTheme(): UseSessionThemeReturn {
       setSystemTheme(mediaQuery.matches ? "dark" : "light");
     };
 
-    // Set initial system theme
+    // Re-check system theme in case it changed since initial detection
     updateSystemTheme();
 
-    // Load saved theme preference from localStorage
+    // Re-check saved override in case it changed
     const savedTheme = safeGetJSON<ThemeOverride>(THEME_STORAGE_KEY);
-    if (savedTheme) {
+    if (savedTheme !== override) {
       setOverride(savedTheme);
     }
 
@@ -63,7 +93,7 @@ export function useSessionTheme(): UseSessionThemeReturn {
     return () => {
       mediaQuery.removeEventListener("change", updateSystemTheme);
     };
-  }, []);
+  }, [override]); // Run when override changes
 
   // Current resolved theme: override takes precedence, otherwise system
   const currentTheme = override || systemTheme;

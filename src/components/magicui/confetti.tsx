@@ -41,7 +41,7 @@ const ConfettiContext = createContext<Api>({} as Api);
 const ConfettiComponent = forwardRef<ConfettiRef, Props>((props, ref) => {
   const {
     options,
-    globalOptions = { resize: true, useWorker: true },
+    globalOptions = { resize: true, useWorker: false },
     manualstart = false,
     children,
     ...rest
@@ -52,10 +52,27 @@ const ConfettiComponent = forwardRef<ConfettiRef, Props>((props, ref) => {
     (node: HTMLCanvasElement) => {
       if (node !== null) {
         if (instanceRef.current) return;
-        instanceRef.current = confetti.create(node, {
-          ...globalOptions,
-          resize: true,
-        });
+        try {
+          instanceRef.current = confetti.create(node, {
+            ...globalOptions,
+            resize: true,
+          });
+        } catch (error) {
+          console.warn("🎊 Could not load worker", error);
+          // Fallback: try without worker if CSP blocks it
+          try {
+            instanceRef.current = confetti.create(node, {
+              ...globalOptions,
+              resize: true,
+              useWorker: false,
+            });
+          } catch (fallbackError) {
+            console.error(
+              "🎊 Confetti initialization failed completely",
+              fallbackError,
+            );
+          }
+        }
       } else {
         if (instanceRef.current) {
           instanceRef.current.reset();
