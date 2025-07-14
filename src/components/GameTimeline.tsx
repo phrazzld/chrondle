@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { formatYear } from '@/lib/utils';
-import { Badge } from '@/components/ui/Badge';
-import { Card, CardContent, CardHeader } from '@/components/ui/Card';
-import { Check } from 'lucide-react';
+import React from "react";
+import { formatYear } from "@/lib/utils";
+import { Badge } from "@/components/ui/Badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { Check } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 interface GameTimelineProps {
   events: string[];
@@ -37,13 +38,15 @@ const CompactTimelineItem: React.FC<CompactTimelineItemProps> = ({
   hintNumber,
   hintText,
   guess,
-  targetYear
+  targetYear,
 }) => {
   if (!hintText || guess === undefined || !targetYear) {
     return (
       <Card className="bg-destructive/10 border-destructive/20">
         <CardContent className="p-3">
-          <span className="text-destructive font-medium">#{hintNumber}: [DATA MISSING]</span>
+          <span className="text-destructive font-medium">
+            #{hintNumber}: [DATA MISSING]
+          </span>
         </CardContent>
       </Card>
     );
@@ -51,21 +54,27 @@ const CompactTimelineItem: React.FC<CompactTimelineItemProps> = ({
 
   const isCorrect = guess === targetYear;
   const isEarlier = guess > targetYear;
-  const badgeVariant = isEarlier ? 'earlier' : 'later';
-  const badgeText = isEarlier ? 'EARLIER' : 'LATER';
+  const badgeVariant = isEarlier ? "earlier" : "later";
+  const badgeText = isEarlier ? "EARLIER" : "LATER";
 
   if (isCorrect) {
     return (
       <Card className="bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800">
         <CardContent className="p-4">
           <div className="flex items-center gap-3 mb-2">
-            <span className="text-sm font-medium text-muted-foreground">#{hintNumber}</span>
+            <span className="text-sm font-medium text-muted-foreground">
+              #{hintNumber}
+            </span>
             <Badge className="bg-green-500 hover:bg-green-600 text-white">
               CORRECT
             </Badge>
-            <span className="font-bold text-lg text-green-700 dark:text-green-300">{formatYear(guess)}</span>
+            <span className="font-bold text-lg text-green-700 dark:text-green-300">
+              {formatYear(guess)}
+            </span>
           </div>
-          <p className="text-sm text-green-600 dark:text-green-400 pl-8">{hintText}</p>
+          <p className="text-sm text-green-600 dark:text-green-400 pl-8">
+            {hintText}
+          </p>
         </CardContent>
       </Card>
     );
@@ -75,10 +84,10 @@ const CompactTimelineItem: React.FC<CompactTimelineItemProps> = ({
     <Card className="bg-muted/30">
       <CardContent className="p-4">
         <div className="flex items-center gap-3 mb-2">
-          <span className="text-sm font-medium text-muted-foreground">#{hintNumber}</span>
-          <Badge variant={badgeVariant}>
-            {badgeText}
-          </Badge>
+          <span className="text-sm font-medium text-muted-foreground">
+            #{hintNumber}
+          </span>
+          <Badge variant={badgeVariant}>{badgeText}</Badge>
           <span className="font-semibold text-lg">{formatYear(guess)}</span>
         </div>
         <p className="text-sm text-muted-foreground pl-8">{hintText}</p>
@@ -90,7 +99,7 @@ const CompactTimelineItem: React.FC<CompactTimelineItemProps> = ({
 const ActiveTimelineItem: React.FC<ActiveTimelineItemProps> = ({
   hintNumber,
   hintText,
-  isLoading
+  isLoading,
 }) => {
   return (
     <Card className="border-2 border-primary/20 shadow-md bg-gradient-to-br from-primary/5 to-primary/10">
@@ -111,13 +120,15 @@ const ActiveTimelineItem: React.FC<ActiveTimelineItemProps> = ({
       </CardHeader>
       <CardContent className="pt-0">
         {isLoading ? (
-          <div className="flex items-center text-muted-foreground">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-3"></div>
-            <span className="text-lg font-medium">Loading hint...</span>
+          <div className="flex items-center gap-3">
+            <LoadingSpinner size="sm" />
+            <span className="text-lg font-medium text-muted-foreground">
+              Loading hint...
+            </span>
           </div>
         ) : (
           <p className="text-lg leading-relaxed font-medium">
-            {hintText || 'No hint available'}
+            {hintText || "No hint available"}
           </p>
         )}
       </CardContent>
@@ -126,12 +137,15 @@ const ActiveTimelineItem: React.FC<ActiveTimelineItemProps> = ({
 };
 
 const PlaceholderTimelineItem: React.FC<PlaceholderTimelineItemProps> = ({
-  hintNumbers
+  hintNumbers,
 }) => {
   return (
     <div className="space-y-2">
       {hintNumbers.map((num) => (
-        <Card key={num} className="bg-muted/20 border-dashed border-muted-foreground/30">
+        <Card
+          key={num}
+          className="bg-muted/20 border-dashed border-muted-foreground/30"
+        >
           <CardContent className="p-3 flex items-center gap-3">
             <div className="w-6 h-6 bg-muted rounded-full flex items-center justify-center text-xs font-medium text-muted-foreground">
               {num}
@@ -153,7 +167,7 @@ export const GameTimeline: React.FC<GameTimelineProps> = ({
   currentHintIndex,
   isLoading,
   error,
-  className = ''
+  className = "",
 }) => {
   if (error) {
     return (
@@ -188,10 +202,15 @@ export const GameTimeline: React.FC<GameTimelineProps> = ({
     );
   }
 
-  const isGameWon = guesses.length > 0 && guesses[guesses.length - 1] === targetYear;
-  
+  const isGameWon =
+    guesses.length > 0 && guesses[guesses.length - 1] === targetYear;
+
   // Create timeline sections using currentHintIndex as source of truth
-  const pastItems: Array<{ hintNumber: number; hintText: string; guess: number }> = [];
+  const pastItems: Array<{
+    hintNumber: number;
+    hintText: string;
+    guess: number;
+  }> = [];
   const futureHintNumbers: number[] = [];
 
   // Build past items
@@ -200,7 +219,7 @@ export const GameTimeline: React.FC<GameTimelineProps> = ({
       pastItems.push({
         hintNumber: i + 1,
         hintText: events[i],
-        guess: guesses[i]
+        guess: guesses[i],
       });
     }
   }
@@ -208,7 +227,7 @@ export const GameTimeline: React.FC<GameTimelineProps> = ({
   // Current item
   const currentItem = {
     hintNumber: currentHintIndex + 1,
-    hintText: events[currentHintIndex]
+    hintText: events[currentHintIndex],
   };
 
   // Build future hint numbers
@@ -229,10 +248,9 @@ export const GameTimeline: React.FC<GameTimelineProps> = ({
                 Game Progress
               </h2>
               <p className="text-sm text-muted-foreground">
-                {isGameWon 
-                  ? 'Puzzle Complete!' 
-                  : `${currentHintIndex + 1} of 6 hints revealed`
-                }
+                {isGameWon
+                  ? "Puzzle Complete!"
+                  : `${currentHintIndex + 1} of 6 hints revealed`}
               </p>
             </div>
             <div className="flex gap-1">
@@ -241,8 +259,8 @@ export const GameTimeline: React.FC<GameTimelineProps> = ({
                   key={i}
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${
                     i < currentHintIndex + 1
-                      ? 'bg-primary'
-                      : 'bg-muted-foreground/30'
+                      ? "bg-primary"
+                      : "bg-muted-foreground/30"
                   }`}
                 />
               ))}
@@ -301,7 +319,8 @@ export const GameTimeline: React.FC<GameTimelineProps> = ({
               Congratulations!
             </h3>
             <p className="text-green-600 dark:text-green-400 text-lg">
-              You solved today&apos;s puzzle in {guesses.length} guess{guesses.length === 1 ? '' : 'es'}!
+              You solved today&apos;s puzzle in {guesses.length} guess
+              {guesses.length === 1 ? "" : "es"}!
             </p>
           </CardContent>
         </Card>
