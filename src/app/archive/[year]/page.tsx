@@ -1,12 +1,13 @@
 import { redirect } from "next/navigation";
 import { getPuzzleByYear } from "@/lib/puzzleData";
 
-export default function ArchiveGamePage({
+export default async function ArchiveGamePage({
   params,
 }: {
-  params: { year: string };
+  params: Promise<{ year: string }>;
 }) {
-  const year = parseInt(params.year);
+  const { year: yearString } = await params;
+  const year = parseInt(yearString);
 
   if (isNaN(year)) {
     return redirect("/archive");

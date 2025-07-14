@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 
-export function ArchiveContextBar(): JSX.Element {
+export function ArchiveContextBar() {
   return (
     <div className="w-full h-10 border-y border-border bg-card">
       <div className="max-w-2xl mx-auto px-6 sm:px-0 h-full">

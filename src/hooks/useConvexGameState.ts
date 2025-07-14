@@ -96,15 +96,13 @@ export function useConvexGameState(
   const { isSignedIn } = useUser();
 
   // Try to use Convex - these will be undefined if provider not available
-  // Use archive year if provided, otherwise get today's puzzle
-  const todaysPuzzle = useQuery(
-    archiveYear ? api.puzzles.getPuzzleByYear : api.puzzles.getTodaysPuzzle,
-    archiveYear ? { year: archiveYear } : {},
-  );
+  // Only fetch today's puzzle if not in archive mode
+  const todaysPuzzle = useQuery(api.puzzles.getTodaysPuzzle);
   const recordGuessMutation = useMutation(api.puzzles.recordGuess);
   const updateStreakMutation = useMutation(api.users.updateUserStreak);
 
-  const puzzleLoading = todaysPuzzle === undefined;
+  // In archive mode, we don't wait for Convex puzzle
+  const puzzleLoading = !archiveYear && todaysPuzzle === undefined;
 
   // Initialize puzzle on mount or when Convex puzzle loads
   useEffect(() => {
@@ -138,8 +136,8 @@ export function useConvexGameState(
 
         if (savedState) {
           setGameState(savedState);
-        } else if (todaysPuzzle) {
-          // Initialize with Convex puzzle
+        } else if (todaysPuzzle && !archiveYear) {
+          // Initialize with Convex puzzle (daily mode only)
           const newState = {
             ...createInitialGameState(),
             puzzle: {
@@ -150,7 +148,7 @@ export function useConvexGameState(
           };
           setGameState(newState);
           saveProgress(newState, debugMode, archiveYear);
-        } else if (!puzzleLoading) {
+        } else if (!puzzleLoading || archiveYear) {
           // Fallback to traditional initialization
           const puzzle = initializePuzzle(
             archiveYear ? archiveYear.toString() : undefined,

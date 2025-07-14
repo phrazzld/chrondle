@@ -122,9 +122,9 @@ export function getPuzzleByYear(year: number): Puzzle | null {
   if (!events) return null;
 
   return {
-    date: year.toString(),
     year,
     events,
+    puzzleId: year.toString(),
   };
 }
 
