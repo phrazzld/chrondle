@@ -3,6 +3,10 @@
 
 import puzzleDataJson from "@/data/puzzles.json";
 import { logger } from "./logger";
+import type { Puzzle } from "./gameState";
+
+// Re-export Puzzle type for convenience
+export type { Puzzle } from "./gameState";
 
 // --- TYPE DEFINITIONS ---
 
@@ -96,6 +100,32 @@ export function getPuzzleForYear(year: number): string[] {
   );
 
   return selectedEvents;
+}
+
+/**
+ * Get all available puzzle years in descending order
+ * @returns Array of years that have puzzles, sorted newest to oldest
+ */
+export function getPuzzleYears(): number[] {
+  return Object.keys(puzzleData.puzzles)
+    .map(Number)
+    .sort((a, b) => b - a);
+}
+
+/**
+ * Get puzzle data for a specific year
+ * @param year - The year to get puzzle for
+ * @returns Puzzle object with date, year, and events, or null if not found
+ */
+export function getPuzzleByYear(year: number): Puzzle | null {
+  const events = puzzleData.puzzles[year.toString()];
+  if (!events) return null;
+
+  return {
+    date: year.toString(),
+    year,
+    events,
+  };
 }
 
 /**

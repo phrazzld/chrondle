@@ -22,6 +22,7 @@ import { Timeline } from "@/components/Timeline";
 import { Footer } from "@/components/Footer";
 import { Confetti, ConfettiRef } from "@/components/magicui/confetti";
 import { ProximityDisplay } from "@/components/ui/ProximityDisplay";
+import { ArchiveContextBar } from "@/components/ArchiveContextBar";
 
 // Force dynamic rendering to prevent SSR issues with theme context
 export const dynamic = "force-dynamic";
@@ -311,6 +312,8 @@ export default function ChronldePage() {
           currentStreak={streakData.currentStreak}
         />
 
+        <ArchiveContextBar />
+
         {/* Use the EXACT same layout as loaded state */}
         <main className="min-h-screen">
           <div className="max-w-6xl mx-auto px-6 py-6">
@@ -383,6 +386,8 @@ export default function ChronldePage() {
         currentStreak={streakData.currentStreak}
         isDebugMode={debugMode}
       />
+
+      <ArchiveContextBar />
 
       {/* Main Content Area */}
       <main

@@ -1,18 +1,24 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { getPuzzleYears } from "@/lib/puzzleData";
 import { useUser } from "@clerk/nextjs";
 import { useUserData } from "@/hooks/useUserData";
 import { AppHeader } from "@/components/AppHeader";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/Card";
-import { Lock, Calendar, TrendingUp, Archive } from "lucide-react";
+import { Lock, Calendar, Archive } from "lucide-react";
 
 export default function ArchivePage() {
   const { isLoaded, isSignedIn } = useUser();
   const { isPremium, userStats } = useUserData();
+  const [puzzleYears, setPuzzleYears] = useState<number[]>([]);
+
+  useEffect(() => {
+    setPuzzleYears(getPuzzleYears());
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -120,32 +126,19 @@ export default function ArchivePage() {
           </div>
         )}
 
-        {/* Premium User Archive */}
-        {isLoaded && isSignedIn && isPremium && (
-          <div className="space-y-8">
-            <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-semibold flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-primary" />
-                    Premium Member
-                  </h2>
-                  <p className="text-muted-foreground">
-                    Full access to all {/* will be dynamic */}298 puzzles
-                  </p>
-                </div>
-                <Button variant="outline" size="sm">
-                  Manage Subscription
-                </Button>
-              </div>
-            </Card>
-
-            {/* Archive grid will go here */}
-            <div className="text-center py-12 text-muted-foreground">
-              Archive grid coming soon...
-            </div>
-          </div>
-        )}
+        {/* Archive grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {puzzleYears.map((year) => (
+            <Link key={year} href={`/archive/${year}`}>
+              <Card className="h-32 p-6 hover:border-primary transition-colors cursor-pointer">
+                <h3 className="text-2xl font-bold mb-2">{year}</h3>
+                <p className="text-muted-foreground">
+                  Historical events from {year}
+                </p>
+              </Card>
+            </Link>
+          ))}
+        </div>
       </main>
 
       <Footer />

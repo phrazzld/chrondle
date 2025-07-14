@@ -263,6 +263,7 @@ export function getStorageKey(): string {
 export function saveProgress(
   gameState: GameState,
   isDebugMode?: boolean,
+  archiveYear?: number,
 ): boolean {
   if (isDebugMode) {
     logger.debug("Debug mode: skipping localStorage save");
@@ -306,7 +307,7 @@ export function saveProgress(
   logger.debug(`Saving progress:`, progress);
 
   if (typeof window !== "undefined") {
-    return saveGameProgress(progress, isDebugMode);
+    return saveGameProgress(progress, isDebugMode, archiveYear);
   }
 
   return false;

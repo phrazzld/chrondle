@@ -79,8 +79,15 @@ function findClosestGuess(
   }
 }
 
+/**
+ * Hook to manage game state with Convex backend integration
+ * @param debugMode - Enable debug mode for testing
+ * @param archiveYear - Optional year for archive mode (loads specific year instead of daily)
+ * @returns Game state and actions
+ */
 export function useConvexGameState(
   debugMode: boolean = false,
+  archiveYear?: number,
 ): UseGameStateReturn {
   const [gameState, setGameState] = useState<GameState>(createInitialGameState);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,7 +96,11 @@ export function useConvexGameState(
   const { isSignedIn } = useUser();
 
   // Try to use Convex - these will be undefined if provider not available
-  const todaysPuzzle = useQuery(api.puzzles.getTodaysPuzzle);
+  // Use archive year if provided, otherwise get today's puzzle
+  const todaysPuzzle = useQuery(
+    archiveYear ? api.puzzles.getPuzzleByYear : api.puzzles.getTodaysPuzzle,
+    archiveYear ? { year: archiveYear } : {},
+  );
   const recordGuessMutation = useMutation(api.puzzles.recordGuess);
   const updateStreakMutation = useMutation(api.users.updateUserStreak);
 
@@ -106,7 +117,10 @@ export function useConvexGameState(
         cleanupOldStorage();
 
         // First try to load from localStorage
-        const savedProgress = loadGameProgress<Progress>();
+        const savedProgress = loadGameProgress<Progress>(
+          debugMode,
+          archiveYear,
+        );
         let savedState: GameState | null = null;
 
         if (savedProgress && savedProgress.puzzleYear) {
@@ -135,16 +149,19 @@ export function useConvexGameState(
             },
           };
           setGameState(newState);
-          saveProgress(newState, debugMode);
+          saveProgress(newState, debugMode, archiveYear);
         } else if (!puzzleLoading) {
           // Fallback to traditional initialization
-          const puzzle = initializePuzzle(undefined, debugMode);
+          const puzzle = initializePuzzle(
+            archiveYear ? archiveYear.toString() : undefined,
+            debugMode,
+          );
           const initializedState = {
             ...createInitialGameState(),
             puzzle,
           };
           setGameState(initializedState);
-          saveProgress(initializedState, debugMode);
+          saveProgress(initializedState, debugMode, archiveYear);
         }
       } catch (err) {
         console.error("Game initialization error:", err);
@@ -152,13 +169,16 @@ export function useConvexGameState(
           err instanceof Error ? err.message : "Failed to initialize game",
         );
         // Fallback on error
-        const puzzle = initializePuzzle(undefined, debugMode);
+        const puzzle = initializePuzzle(
+          archiveYear ? archiveYear.toString() : undefined,
+          debugMode,
+        );
         const fallbackState = {
           ...createInitialGameState(),
           puzzle,
         };
         setGameState(fallbackState);
-        saveProgress(fallbackState, debugMode);
+        saveProgress(fallbackState, debugMode, archiveYear);
       } finally {
         if (!puzzleLoading) {
           setIsLoading(false);
@@ -170,14 +190,14 @@ export function useConvexGameState(
     if (!puzzleLoading) {
       initGame();
     }
-  }, [debugMode, todaysPuzzle, puzzleLoading]);
+  }, [debugMode, todaysPuzzle, puzzleLoading, archiveYear]);
 
   // Save progress whenever game state changes
   useEffect(() => {
     if (gameState.puzzle && !isLoading) {
-      saveProgress(gameState, debugMode);
+      saveProgress(gameState, debugMode, archiveYear);
     }
-  }, [gameState, debugMode, isLoading]);
+  }, [gameState, debugMode, isLoading, archiveYear]);
 
   // Make a guess
   const makeGuess = useCallback(

@@ -1,140 +1,258 @@
-# Chrondle CSP & Authentication Recovery TODO
+# Chrondle Archive Implementation TODO
 
-Updated 2025-07-14 based on root cause analysis
+Updated 2025-07-14 - Focus: Ship working archive feature
 
-## 🚨 CRITICAL: Fix CSP Blocking Authentication & Workers
+## Phase 1: Make Archive Visible Above The Fold
 
-### Root Cause Analysis
+- [x] Create ArchiveContextBar component file at src/components/ArchiveContextBar.tsx
 
-- **Issue**: CSP missing `worker-src blob:` directive causing Clerk authentication and canvas-confetti to fail with SecurityError when creating workers from blob URLs
-- **Issue**: CSP blocking Clerk API calls to healthy-doe-23.clerk.accounts.dev causing 'Refused to connect' errors
-- **Issue**: Unused API Ninjas endpoints still in CSP and codebase creating unnecessary attack surface
-- **Result**: Authentication completely broken, confetti effects non-functional, console spam masking real issues
+  - File location: src/components/ArchiveContextBar.tsx (new file)
+  - Import: React, Link from next/link
+  - Component signature: export function ArchiveContextBar(): JSX.Element
+  - Return basic div with height 40px (h-10 class)
+  - Success criteria: File exists, TypeScript compiles without errors
+  - **COMPLETED**: Created basic component structure with required imports
 
-## Phase 1: Critical CSP Fixes (BLOCKING)
+- [x] Implement ArchiveContextBar JSX structure with hardcoded puzzle count
 
-- [x] Add worker-src directive to CSP in next.config.ts to fix web worker blocking
+  - Add outer div: className="w-full h-10 border-y border-border bg-card"
+  - Add inner div: className="max-w-2xl mx-auto px-6 sm:px-0 h-full"
+  - Add Link wrapper: href="/archive" className="flex items-center justify-center h-full hover:bg-muted/50 transition-colors"
+  - Add text content: "Today's Puzzle | Archive (298 puzzles)"
+  - Success criteria: Renders 40px bar with centered text and borders
+  - **COMPLETED**: Implemented full JSX structure with all specified classes and text
 
-  - Root cause: CSP missing 'worker-src blob:' directive causing Clerk authentication and canvas-confetti to fail with SecurityError when creating workers from blob URLs
-  - Impact: Authentication completely broken, confetti effects non-functional, console spam
-  - Files: next.config.ts line 38-48
-  - Success criteria: No 'Refused to create a worker' errors in console
-  - **COMPLETED**: Added worker-src 'self' blob: to CSP
+- [x] Import and render ArchiveContextBar in src/app/page.tsx
+  - Add import at line ~22: import { ArchiveContextBar } from "@/components/ArchiveContextBar"
+  - Insert component after AppHeader closing tag (find </AppHeader>)
+  - Placement: Between header and main content div
+  - Success criteria: Archive bar visible between header and game content
+  - **COMPLETED**: Added import and rendered component in both loading and main states
 
-- [x] Add complete Clerk authentication endpoints to CSP connect-src directive
+## Phase 2: Load Puzzle Data For Archive
 
-  - Root cause: CSP blocking Clerk API calls to healthy-doe-23.clerk.accounts.dev causing 'Refused to connect' errors
-  - Impact: Auth state stuck at isLoaded:false, login/signup broken
-  - Files: next.config.ts line 44
-  - Add: https://healthy-doe-23.clerk.accounts.dev to connect-src
-  - Success criteria: Clerk auth loads, isLoaded becomes true
-  - **COMPLETED**: Added Clerk endpoints to connect-src
+- [x] Create getPuzzleYears utility function in src/lib/puzzleData.ts
 
-- [x] Remove unused API Ninjas endpoint from CSP connect-src directive
-  - Dead code cleanup: https://api.api-ninjas.com no longer used but still in CSP
-  - Files: next.config.ts line 44
-  - Remove: https://api.api-ninjas.com from connect-src array
-  - Success criteria: CSP only contains active endpoints
-  - **COMPLETED**: Removed API Ninjas from CSP
+  - Function signature: export function getPuzzleYears(): number[]
+  - Implementation: Object.keys(puzzlesData).map(Number).sort((a, b) => b - a)
+  - Return type: number[] in descending order (newest first)
+  - Location: Add after line 87 in puzzleData.ts
+  - Success criteria: Returns array like [2025, 2008, 2007, ..., -776]
+  - **COMPLETED**: Added function with JSDoc after line 98
 
-## Phase 2: API Ninjas Cleanup
+- [x] Create getPuzzleByYear function in src/lib/puzzleData.ts
 
-- [x] Remove API_NINJAS_KEY and API_NINJAS endpoint from constants.ts
+  - Function signature: export function getPuzzleByYear(year: number): Puzzle | null
+  - Implementation: const events = puzzlesData[year]; if (!events) return null;
+  - Return: { date: year.toString(), year, events }
+  - Add after getPuzzleYears function
+  - Success criteria: Returns puzzle object or null for invalid years
+  - **COMPLETED**: Added function with JSDoc and proper Puzzle type import
 
-  - Dead code cleanup: API_NINJAS_KEY hardcoded on line 8, API_NINJAS endpoint in API_ENDPOINTS object line 12
-  - Files: src/lib/constants.ts lines 6-8, 12
-  - Remove: export const API_NINJAS_KEY and API_NINJAS from API_ENDPOINTS
-  - Success criteria: No API Ninjas references in constants
-  - **COMPLETED**: Removed API_NINJAS_KEY and API_NINJAS endpoint
+- [x] Add type export for Puzzle in src/lib/puzzleData.ts if not exists
+  - Check if Puzzle type is exported at top of file
+  - If not, add: export type { Puzzle } from "./gameState"
+  - Ensure consistent type usage across archive features
+  - Success criteria: Puzzle type available for import in other files
+  - **COMPLETED**: Added re-export of Puzzle type for convenience
 
-- [x] Remove API_NINJAS_API_KEY from environment files
-  - Dead code cleanup: API_NINJAS_API_KEY=O8VgZplfhWSNdCsgoeVaZg==2bwPJnxstEQPzmvn in .env.local line 7
-  - Files: .env.local, .env.example
-  - Remove: API_NINJAS_API_KEY entries and related comments
-  - Success criteria: No API Ninjas in environment config
-  - **COMPLETED**: Removed API_NINJAS_API_KEY from .env.local
+## Phase 3: Build Archive Grid Page
 
-## Phase 3: Confetti Worker Fixes
+- [x] Import required functions in src/app/archive/page.tsx
 
-- [x] Disable web workers in canvas-confetti default config to prevent CSP errors
+  - Add at line 3: import { getPuzzleYears } from "@/lib/puzzleData"
+  - Remove premium user check section (lines 124-148)
+  - Keep basic page structure and header
+  - Success criteria: Can access puzzle year data in component
+  - **COMPLETED**: Added import and removed premium-only section
 
-  - Root cause: confetti defaults to useWorker:true on line 44 but CSP blocks workers causing repeated SecurityErrors
-  - Files: src/components/magicui/confetti.tsx line 44
-  - Change: globalOptions = { resize: true, useWorker: false }
-  - Success criteria: Confetti works without worker errors
-  - **COMPLETED**: Changed default to useWorker: false
+- [x] Create state for puzzle years in archive page component
 
-- [x] Improve confetti error handling to reduce console noise
-  - Current: SecurityError logs spam console making debugging harder
-  - Files: src/components/magicui/confetti.tsx lines 55-66
-  - Add: try-catch around confetti.create() with graceful fallback
-  - Success criteria: One clear error message instead of spam
-  - **COMPLETED**: Added try-catch with graceful worker fallback
+  - Add after line 15: const [puzzleYears, setPuzzleYears] = useState<number[]>([])
+  - Add useEffect to load years: useEffect(() => { setPuzzleYears(getPuzzleYears()) }, [])
+  - Import useState, useEffect from React
+  - Success criteria: puzzleYears state populated with year array
+  - **COMPLETED**: Added state and useEffect to load puzzle years on mount
 
-## Phase 4: Next.js 15 Metadata Migration
+- [x] Replace "Archive grid coming soon..." with year grid at line 144
 
-- [x] Move viewport from metadata export to generateViewport function in layout.tsx
+  - Remove placeholder div (lines 143-146)
+  - Add grid container: <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  - Map over puzzleYears: {puzzleYears.map(year => (...))}
+  - Success criteria: Grid container renders with proper responsive classes
+  - **COMPLETED**: Replaced placeholder with responsive grid mapping over puzzleYears
 
-  - Next.js 15 deprecation: 'Unsupported metadata viewport is configured in metadata export'
-  - Files: src/app/layout.tsx line 27
-  - Create: export const viewport = 'width=device-width, initial-scale=1'
-  - Remove: viewport from metadata
-  - Success criteria: No viewport deprecation warning
-  - **COMPLETED**: Migrated to export const viewport
+- [x] Create puzzle year card inside grid map
+  - Card structure: <Link key={year} href={`/archive/${year}`}><Card>...</Card></Link>
+  - Card content: Year as heading, "Historical events from {year}"
+  - Add hover state: className="hover:border-primary transition-colors cursor-pointer"
+  - Height: Fixed height with h-32 for consistent grid
+  - Success criteria: Each year displays as clickable card
+  - **COMPLETED**: Created styled cards with Link wrapper, hover effects, and consistent height
 
-- [x] Move themeColor from metadata export to generateViewport function in layout.tsx
-  - Next.js 15 deprecation: 'Unsupported metadata themeColor is configured in metadata export'
-  - Files: src/app/layout.tsx lines 23-26
-  - Move: themeColor array to generateViewport return
-  - Success criteria: No themeColor deprecation warning
-  - **COMPLETED**: Moved themeColor to viewport export
+## Phase 4: Create Archive Game Route
 
-## Phase 5: Verification & Testing
+- [x] Create directory structure for dynamic archive route
 
-- [ ] Test Clerk authentication initialization after CSP fixes
+  - Create folder: src/app/archive/[year]
+  - Create file: src/app/archive/[year]/page.tsx
+  - Ensure Next.js recognizes dynamic route pattern
+  - Success criteria: Route structure exists in file system
+  - **COMPLETED**: Created directory and basic page component
 
-  - Verification: Ensure auth buttons render and isLoaded becomes true
-  - Test: Load app, check AuthButtons.tsx console logs show isLoaded:true, verify sign-in button appears
-  - Success criteria: Clerk Auth State shows isLoaded:true, user can see auth buttons
+- [x] Implement basic archive game page component
 
-- [ ] Test confetti effects work without console errors after worker fixes
+  - Component signature: export default function ArchiveGamePage({ params }: { params: { year: string } })
+  - Parse year: const year = parseInt(params.year)
+  - Add validation: if (isNaN(year)) return redirect("/archive")
+  - Import redirect from next/navigation
+  - Success criteria: Component accepts year parameter and validates
+  - **COMPLETED**: Implemented component with params, year parsing, and validation
 
-  - Verification: Ensure confetti animation plays on game completion without SecurityErrors
-  - Test: Complete a puzzle, verify confetti animation appears, check console for worker errors
-  - Success criteria: Confetti plays smoothly, no SecurityError messages
+- [x] Load puzzle data for specific year in archive game page
+  - Import getPuzzleByYear from puzzleData.ts
+  - Add: const puzzle = getPuzzleByYear(year)
+  - Check if puzzle exists: if (!puzzle) return redirect("/archive")
+  - Success criteria: Valid puzzles load, invalid years redirect
+  - **COMPLETED**: Added puzzle loading with validation and redirect for invalid years
 
-- [ ] Test Google Fonts load without ancient UI flash after CSP fixes
+## Phase 5: Adapt Game State For Archive Mode
 
-  - Verification: Ensure fonts load properly and no font flash occurs
-  - Test: Hard refresh app, observe if UI flashes from fallback to Google Fonts
-  - Success criteria: Smooth font loading, no visible flash from system fonts to Google Fonts
+- [x] Add optional year parameter to useConvexGameState hook signature
 
-- [ ] Verify CSP console is completely clean after all fixes
-  - Verification: No CSP violation errors in browser console
-  - Test: Open DevTools, refresh app, check for any 'Refused to connect', 'Refused to create worker', or CSP violation messages
-  - Success criteria: Zero CSP-related errors in console
+  - File: src/hooks/useConvexGameState.ts line 44
+  - Change: export function useConvexGameState(debugMode = false)
+  - To: export function useConvexGameState(debugMode = false, archiveYear?: number)
+  - Update JSDoc to document new parameter
+  - Success criteria: Hook accepts optional year parameter
+  - **COMPLETED**: Added archiveYear parameter and comprehensive JSDoc
 
-## Key Principles
+- [x] Modify puzzle loading logic to use archiveYear when provided
 
-1. **Fail Fast**: Clear CSP errors instead of silent failures
-2. **Security First**: Remove unused endpoints to reduce attack surface
-3. **Performance**: Minimize console noise to improve debugging
-4. **User Experience**: Smooth authentication and visual effects
+  - Location: useConvexGameState.ts around line 140-145
+  - Current: Loads daily puzzle based on date
+  - Change: if (archiveYear) load specific year, else load daily
+  - Update convex query to accept optional year parameter
+  - Success criteria: Hook loads archive puzzle when year provided
+  - **COMPLETED**: Modified query to use getPuzzleByYear when archiveYear provided, updated all fallbacks
 
-## Expected Results After Completion
+- [x] Create separate localStorage key for archive games
 
-- ✅ Clerk authentication fully functional with proper isLoaded state
-- ✅ Clean console with zero CSP violation errors
-- ✅ Smooth font loading without UI flash
-- ✅ Functional confetti effects without SecurityErrors
-- ✅ No Next.js deprecation warnings
-- ✅ Cleaner, more secure CSP with only required endpoints
-- ✅ Removed dead API Ninjas code
+  - Current key: "convex-game-state" (line 184)
+  - New logic: const storageKey = archiveYear ? `convex-game-state-${archiveYear}` : "convex-game-state"
+  - Apply to both save and load operations
+  - Success criteria: Archive games save to separate storage keys
+  - **COMPLETED**: Modified getProgressKey, saveGameProgress, and loadGameProgress to use archive-specific keys
 
-## Total Estimated Time: 50 minutes
+- [x] Pass archiveYear through to game state initialization
+  - Update createInitialGameState call if needed
+  - Ensure puzzle date reflects archive year not today
+  - Prevent daily puzzle logic from overriding archive selection
+  - Success criteria: Archive games initialize with correct year
+  - **COMPLETED**: Already handled - archiveYear passed to initializePuzzle and Convex queries
 
-**Risk Level: Low** - All changes are configuration fixes and cleanup with no breaking changes to business logic.
+## Phase 6: Integrate Archive Game Components
+
+- [ ] Import game components in archive/[year]/page.tsx
+
+  - Add imports from main game: HintsDisplay, GuessInput, GameProgress
+  - Import useConvexGameState with archive support
+  - Import any other required game UI components
+  - Success criteria: All game components available in archive page
+
+- [ ] Create game UI structure in archive game page
+
+  - Copy basic structure from src/app/page.tsx
+  - Remove daily-specific features (countdown, today's puzzle references)
+  - Pass year to useConvexGameState: useConvexGameState(false, year)
+  - Success criteria: Game UI renders for archive puzzle
+
+- [ ] Add archive-specific game header
+
+  - Show "Archive Puzzle: Year {year}" instead of "Today's Puzzle"
+  - Add breadcrumb: Home > Archive > {year}
+  - Include back to archive link
+  - Success criteria: Clear indication this is archive mode
+
+- [ ] Disable streak updates for archive games
+  - In streak update logic, check if in archive mode
+  - Skip updateStreak call when archiveYear is provided
+  - Add comment explaining why streaks don't apply to archive
+  - Success criteria: Completing archive puzzles doesn't affect streaks
+
+## Phase 7: Add Completion Tracking
+
+- [ ] Create utility to check puzzle completion status
+
+  - Function: isPuzzleCompleted(year: number): boolean
+  - Check localStorage for key: `convex-game-state-${year}`
+  - Parse and check if gameState.isGameOver === true
+  - Return false if key doesn't exist or parse fails
+  - Success criteria: Can determine if any puzzle is completed
+
+- [ ] Add completion status to archive grid cards
+
+  - Import Check icon from lucide-react
+  - Call isPuzzleCompleted(year) for each card
+  - Conditionally render check icon in top-right corner
+  - Add different border color for completed puzzles
+  - Success criteria: Visual indication of completed puzzles
+
+- [ ] Calculate and display completion statistics
+  - Count total completed: puzzleYears.filter(isPuzzleCompleted).length
+  - Display at top of archive page: "Completed: {count} of 298"
+  - Add progress bar: width percentage based on completion
+  - Success criteria: Users see their archive progress
+
+## Phase 8: Handle Edge Cases
+
+- [ ] Add loading state while puzzle years load
+
+  - Show skeleton cards during initial load
+  - Use similar loading pattern as main game
+  - Prevent layout shift when data arrives
+  - Success criteria: No blank screen while loading
+
+- [ ] Handle navigation between archive and daily game
+
+  - Test switching from daily to archive and back
+  - Ensure game states remain separate
+  - Verify no state pollution between modes
+  - Success criteria: Can switch between modes without issues
+
+- [ ] Add error boundary around archive routes
+
+  - Wrap archive components in error boundary
+  - Show "Return to Archive" button on error
+  - Log errors for debugging
+  - Success criteria: Archive errors don't break entire app
+
+- [ ] Validate year parameter strictly in dynamic route
+  - Check year is within valid puzzle range
+  - Handle string years like "abc" gracefully
+  - Redirect to /archive with error toast for invalid years
+  - Success criteria: No 500 errors for bad URLs
+
+## Success Metrics
+
+- Archive link visible without scrolling
+- Can click through to see all 298 puzzles
+- Can play any historical puzzle
+- Progress saves independently per puzzle
+- Completed puzzles show visual indicator
+- Daily game completely unaffected
+
+## Implementation Order
+
+1. Context bar (visibility)
+2. Archive grid (browsing)
+3. Dynamic route (playing)
+4. Game state adaptation (persistence)
+5. Completion tracking (progress)
+6. Edge cases (robustness)
+
+## Estimated Time: 6 hours focused work
 
 ## Next Immediate Action
 
-Continue with API Ninjas cleanup in constants.ts and environment files.
+Start with creating ArchiveContextBar.tsx component file.
