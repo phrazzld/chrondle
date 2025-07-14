@@ -12,12 +12,13 @@ export function AuthButtons() {
     return (
       <Button
         variant="ghost"
-        size="sm"
-        className="gap-2 h-8 opacity-50"
+        size="icon"
+        className="h-10 w-10 rounded-full opacity-50"
         disabled
+        title="Sign in to save progress"
+        aria-label="Sign in - loading"
       >
-        <LogIn className="h-4 w-4" />
-        <span>Sign In</span>
+        <LogIn className="h-5 w-5" />
       </Button>
     );
   }
@@ -25,25 +26,33 @@ export function AuthButtons() {
   // User is signed in - show user button
   if (isSignedIn) {
     return (
-      <UserButton
-        afterSignOutUrl="/"
-        appearance={{
-          elements: {
-            avatarBox: "w-8 h-8",
-            userButtonPopoverCard: "shadow-lg",
-          },
-        }}
-      />
+      <div className="flex items-center justify-center w-10 h-10">
+        <UserButton
+          afterSignOutUrl="/"
+          appearance={{
+            elements: {
+              avatarBox: "w-8 h-8",
+              userButtonPopoverCard: "shadow-lg",
+              userButtonTrigger:
+                "focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-full",
+            },
+          }}
+        />
+      </div>
     );
   }
 
   // User is not signed in - show sign in button
   return (
     <SignInButton mode="modal">
-      <Button variant="ghost" size="sm" className="gap-2 h-8">
-        <LogIn className="h-4 w-4" />
-        <span className="hidden sm:inline">Sign In</span>
-        <span className="sm:hidden">Sign In</span>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-10 w-10 rounded-full"
+        title="Sign in to save progress and access archive"
+        aria-label="Sign in to your account"
+      >
+        <LogIn className="h-5 w-5" />
       </Button>
     </SignInButton>
   );

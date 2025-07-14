@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { AuthButtons } from "@/components/AuthButtons";
@@ -26,8 +27,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       <div className="max-w-2xl mx-auto px-6 sm:px-0">
         <div className="flex items-center justify-between min-h-[40px]">
           {/* Logo/Brand - Clean and uncluttered */}
-          <div className="flex items-center h-10">
-            <h1 className="text-2xl md:text-3xl font-heading font-bold text-primary m-0 flex items-center">
+          <Link href="/" className="flex items-center h-10">
+            <h1 className="text-2xl md:text-3xl font-heading font-bold text-primary m-0 flex items-center hover:opacity-80 transition-opacity cursor-pointer">
               <span className="sm:hidden flex items-center justify-center w-10 h-10">
                 C
               </span>
@@ -40,7 +41,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 />
               )}
             </h1>
-          </div>
+          </Link>
 
           {/* Action Buttons with Streak Counter */}
           <div className="flex items-center gap-3 h-10">
@@ -70,9 +71,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             {/* Theme Toggle */}
             <ThemeToggle />
 
-            {/* Auth Buttons */}
-            <AuthButtons />
-
             <Button
               onClick={onShowSettings}
               variant="ghost"
@@ -83,6 +81,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             >
               <Settings className="h-5 w-5" />
             </Button>
+
+            {/* Auth Buttons - Rightmost */}
+            <AuthButtons />
           </div>
         </div>
       </div>
