@@ -5,19 +5,24 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { AuthButtons } from "@/components/AuthButtons";
-import { Settings, Flame } from "lucide-react";
-import { getStreakColorClasses } from "@/lib/utils";
+import { Settings, Flame, Archive } from "lucide-react";
+import { getStreakColorClasses, cn } from "@/lib/utils";
+import { formatPuzzleNumber } from "@/lib/puzzleUtils";
 
 interface AppHeaderProps {
   onShowSettings: () => void;
   currentStreak?: number;
   isDebugMode?: boolean;
+  puzzleNumber?: number;
+  isArchive?: boolean;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
   onShowSettings,
   currentStreak,
   isDebugMode = false,
+  puzzleNumber,
+  isArchive = false,
 }) => {
   const streakColors = currentStreak
     ? getStreakColorClasses(currentStreak)
@@ -33,6 +38,18 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 C
               </span>
               <span className="hidden sm:inline">CHRONDLE</span>
+              {puzzleNumber && (
+                <span
+                  className={cn(
+                    "text-sm font-mono ml-2",
+                    isArchive
+                      ? "text-muted-foreground italic"
+                      : "text-foreground/70",
+                  )}
+                >
+                  {formatPuzzleNumber(puzzleNumber)}
+                </span>
+              )}
               {isDebugMode && (
                 <span
                   className="ml-2 w-2 h-2 rounded-full bg-orange-600 opacity-75"
@@ -67,6 +84,20 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                   </span>
                 </div>
               )}
+
+            {/* Archive Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              title="Browse puzzle archive"
+              aria-label="Browse puzzle archive"
+              className="h-10 w-10 rounded-full"
+            >
+              <Link href="/archive">
+                <Archive className="h-5 w-5" />
+              </Link>
+            </Button>
 
             {/* Theme Toggle */}
             <ThemeToggle />

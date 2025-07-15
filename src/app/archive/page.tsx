@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/Card";
 import { Lock, Calendar, Archive, Check } from "lucide-react";
 import { ArchiveErrorBoundary } from "@/components/ArchiveErrorBoundary";
+import { getPuzzleNumberForYear } from "@/lib/puzzleUtils";
 
 function ArchivePageContent() {
   const { isLoaded, isSignedIn } = useUser();
@@ -172,6 +173,7 @@ function ArchivePageContent() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {puzzleYears.map((year) => {
               const isCompleted = isPuzzleCompleted(year);
+              const puzzleNumber = getPuzzleNumberForYear(year);
               return (
                 <Link key={year} href={`/archive/${year}`}>
                   <Card
@@ -188,7 +190,12 @@ function ArchivePageContent() {
                         </div>
                       </div>
                     )}
-                    <h3 className="text-2xl font-bold mb-2">{year}</h3>
+                    <div className="flex items-baseline gap-2 mb-2">
+                      <span className="text-sm font-mono text-muted-foreground">
+                        #{puzzleNumber}
+                      </span>
+                      <h3 className="text-2xl font-bold">{year}</h3>
+                    </div>
                     <p className="text-muted-foreground">
                       Historical events from {year}
                     </p>

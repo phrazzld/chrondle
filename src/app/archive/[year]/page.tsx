@@ -16,6 +16,7 @@ import { LiveAnnouncer } from "@/components/ui/LiveAnnouncer";
 import { formatYear, getGuessDirectionInfo } from "@/lib/utils";
 import { getEnhancedProximityFeedback } from "@/lib/enhancedFeedback";
 import { SettingsModal } from "@/components/modals/SettingsModal";
+import { getPuzzleNumberForYear } from "@/lib/puzzleUtils";
 import { HintReviewModal } from "@/components/modals/HintReviewModal";
 import { BackgroundAnimation } from "@/components/BackgroundAnimation";
 import { Confetti, ConfettiRef } from "@/components/magicui/confetti";
@@ -60,6 +61,9 @@ function ArchiveGamePageContent({ params }: { params: { year: string } }) {
   // Validate year parameter immediately
   const validation = isValidYear(params.year);
   const year = validation.year || 0; // Default to 0 if invalid
+
+  // Calculate puzzle number for this archive year
+  const puzzleNumber = year ? getPuzzleNumberForYear(year) : null;
 
   // SSR state
   const [mounted, setMounted] = useState(false);
@@ -231,6 +235,8 @@ function ArchiveGamePageContent({ params }: { params: { year: string } }) {
         <AppHeader
           onShowSettings={() => setShowSettingsModal(true)}
           currentStreak={0}
+          puzzleNumber={puzzleNumber || undefined}
+          isArchive={true}
         />
 
         {/* Error state */}
@@ -261,6 +267,8 @@ function ArchiveGamePageContent({ params }: { params: { year: string } }) {
         <AppHeader
           onShowSettings={() => setShowSettingsModal(true)}
           currentStreak={0}
+          puzzleNumber={puzzleNumber || undefined}
+          isArchive={true}
         />
 
         {/* Loading state */}
@@ -300,6 +308,8 @@ function ArchiveGamePageContent({ params }: { params: { year: string } }) {
       <AppHeader
         onShowSettings={() => setShowSettingsModal(true)}
         currentStreak={0} // No streaks in archive mode
+        puzzleNumber={puzzleNumber || undefined}
+        isArchive={true}
       />
 
       {/* Main Content Area */}

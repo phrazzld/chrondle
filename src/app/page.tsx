@@ -22,7 +22,7 @@ import { Timeline } from "@/components/Timeline";
 import { Footer } from "@/components/Footer";
 import { Confetti, ConfettiRef } from "@/components/magicui/confetti";
 import { ProximityDisplay } from "@/components/ui/ProximityDisplay";
-import { ArchiveContextBar } from "@/components/ArchiveContextBar";
+import { getTodaysPuzzleNumber } from "@/lib/puzzleUtils";
 
 // Force dynamic rendering to prevent SSR issues with theme context
 export const dynamic = "force-dynamic";
@@ -39,6 +39,12 @@ export default function ChronldePage() {
 
   // Always try Convex first, but show appropriate UI based on auth state
   const gameLogic = useConvexGameState(debugMode);
+
+  // Calculate puzzle number for display
+  const puzzleNumber = getTodaysPuzzleNumber(
+    debugMode ? gameLogic.gameState.puzzle?.year.toString() : undefined,
+    debugMode,
+  );
 
   // Streak system
   const {
@@ -310,9 +316,9 @@ export default function ChronldePage() {
         <AppHeader
           onShowSettings={() => setShowSettingsModal(true)}
           currentStreak={streakData.currentStreak}
+          puzzleNumber={puzzleNumber}
+          isDebugMode={debugMode}
         />
-
-        <ArchiveContextBar />
 
         {/* Use the EXACT same layout as loaded state */}
         <main className="min-h-screen">
@@ -385,9 +391,8 @@ export default function ChronldePage() {
         onShowSettings={() => setShowSettingsModal(true)}
         currentStreak={streakData.currentStreak}
         isDebugMode={debugMode}
+        puzzleNumber={puzzleNumber}
       />
-
-      <ArchiveContextBar />
 
       {/* Main Content Area */}
       <main
