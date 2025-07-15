@@ -1,26 +1,14 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Github, Archive } from "lucide-react";
+import { Github } from "lucide-react";
 
 export const Footer: React.FC = () => {
   return (
     <footer className="w-full py-4 bg-background border-t border-border">
       <div className="max-w-2xl mx-auto px-6 sm:px-0">
-        <div className="flex items-center justify-center gap-4">
-          <Link href="/archive">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-foreground gap-2 h-auto py-2"
-            >
-              <Archive className="h-4 w-4" />
-              <span className="text-sm">Archive</span>
-            </Button>
-          </Link>
-
+        <div className="flex items-center justify-center">
           <Button
             variant="ghost"
             size="sm"

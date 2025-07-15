@@ -32,8 +32,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       <div className="max-w-2xl mx-auto px-6 sm:px-0">
         <div className="flex items-center justify-between min-h-[40px]">
           {/* Logo/Brand - Clean and uncluttered */}
-          <Link href="/" className="flex items-center h-10">
-            <h1 className="text-2xl md:text-3xl font-heading font-bold text-primary m-0 flex items-center hover:opacity-80 transition-opacity cursor-pointer">
+          <Link href="/" className="flex items-end h-10">
+            <h1 className="text-2xl md:text-3xl font-heading font-bold text-primary m-0 flex items-end hover:opacity-80 transition-opacity cursor-pointer">
               <span className="sm:hidden flex items-center justify-center w-10 h-10">
                 C
               </span>
@@ -41,7 +41,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               {puzzleNumber && (
                 <span
                   className={cn(
-                    "text-sm font-mono ml-2",
+                    "text-xs font-mono ml-2 mb-0.5 pb-0.5",
                     isArchive
                       ? "text-muted-foreground italic"
                       : "text-foreground/70",
@@ -52,7 +52,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               )}
               {isDebugMode && (
                 <span
-                  className="ml-2 w-2 h-2 rounded-full bg-orange-600 opacity-75"
+                  className="ml-2 mb-1 w-2 h-2 rounded-full bg-orange-600 opacity-75"
                   title="Debug mode active"
                   aria-label="Debug mode indicator"
                 />
