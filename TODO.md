@@ -153,79 +153,124 @@ Updated 2025-07-14 - Focus: Ship working archive feature
 
 ## Phase 6: Integrate Archive Game Components
 
-- [ ] Import game components in archive/[year]/page.tsx
+- [x] Import game components in archive/[year]/page.tsx
 
   - Add imports from main game: HintsDisplay, GuessInput, GameProgress
   - Import useConvexGameState with archive support
   - Import any other required game UI components
   - Success criteria: All game components available in archive page
+  - **COMPLETED**: Imported all game components, modals, utilities, and converted to client component
 
-- [ ] Create game UI structure in archive game page
+- [x] Create game UI structure in archive game page
 
   - Copy basic structure from src/app/page.tsx
   - Remove daily-specific features (countdown, today's puzzle references)
   - Pass year to useConvexGameState: useConvexGameState(false, year)
   - Success criteria: Game UI renders for archive puzzle
+  - **COMPLETED**: Implemented full game UI with archive adaptations, client-side validation, and archive header
 
-- [ ] Add archive-specific game header
+- [x] Add archive-specific game header
 
   - Show "Archive Puzzle: Year {year}" instead of "Today's Puzzle"
   - Add breadcrumb: Home > Archive > {year}
   - Include back to archive link
   - Success criteria: Clear indication this is archive mode
+  - **COMPLETED**: Added header with year display and breadcrumb navigation in previous task
 
-- [ ] Disable streak updates for archive games
+- [x] Disable streak updates for archive games
   - In streak update logic, check if in archive mode
   - Skip updateStreak call when archiveYear is provided
   - Add comment explaining why streaks don't apply to archive
   - Success criteria: Completing archive puzzles doesn't affect streaks
+  - **COMPLETED**: Archive page correctly omits streak logic, added documentation comment
 
 ## Phase 7: Add Completion Tracking
 
-- [ ] Create utility to check puzzle completion status
+- [x] Create utility to check puzzle completion status
 
   - Function: isPuzzleCompleted(year: number): boolean
   - Check localStorage for key: `convex-game-state-${year}`
   - Parse and check if gameState.isGameOver === true
   - Return false if key doesn't exist or parse fails
   - Success criteria: Can determine if any puzzle is completed
+  - **COMPLETED**: Added isPuzzleCompleted to storage.ts, uses existing getProgressKey utility
 
-- [ ] Add completion status to archive grid cards
+- [x] Add completion status to archive grid cards
 
   - Import Check icon from lucide-react
   - Call isPuzzleCompleted(year) for each card
   - Conditionally render check icon in top-right corner
   - Add different border color for completed puzzles
   - Success criteria: Visual indication of completed puzzles
+  - **COMPLETED**: Added green border/background and check icon for completed puzzles
 
-- [ ] Calculate and display completion statistics
+- [x] Calculate and display completion statistics
   - Count total completed: puzzleYears.filter(isPuzzleCompleted).length
   - Display at top of archive page: "Completed: {count} of 298"
   - Add progress bar: width percentage based on completion
   - Success criteria: Users see their archive progress
+  - **COMPLETED**: Added completion stats with count, percentage, and animated progress bar
 
 ## Phase 8: Handle Edge Cases
 
-- [ ] Add loading state while puzzle years load
+### Task: Add error boundary around archive routes [x]
+
+### Complexity: MEDIUM
+
+### Started: 2025-07-15 10:55
+
+### Completed: 2025-07-15 11:05
+
+### Context Discovery
+
+- Existing ErrorBoundary component found at src/components/ErrorBoundary.tsx
+- Archive pages located at src/app/archive/page.tsx and src/app/archive/[year]/page.tsx
+- Both pages using client components with React hooks
+
+### Execution Log
+
+[10:55] Analyzed existing ErrorBoundary implementation
+[10:57] Created specialized ArchiveErrorBoundary component
+[10:59] Wrapped both archive pages with error boundary
+[11:02] Fixed TypeScript errors (Next.js 15 async params, touch handlers)
+[11:05] Verified type checking passes
+
+### Approach Decisions
+
+- Created specialized ArchiveErrorBoundary extending base ErrorBoundary
+- Added custom fallback UI with "Return to Archive", "Go to Today's Puzzle", and "Try Again" buttons
+- Included year context in error logging for better debugging
+- Used composition pattern to wrap existing page components
+
+### Learnings
+
+- Next.js 15 requires params to be Promise<{ year: string }> in dynamic routes
+- Error boundaries provide essential protection for production stability
+- Specialized error boundaries improve user experience with context-aware recovery options
+
+- [x] Add loading state while puzzle years load
 
   - Show skeleton cards during initial load
   - Use similar loading pattern as main game
   - Prevent layout shift when data arrives
   - Success criteria: No blank screen while loading
+  - **COMPLETED**: Added skeleton cards with animate-pulse, prevented layout shift with same h-32 height
 
-- [ ] Handle navigation between archive and daily game
+- [x] Handle navigation between archive and daily game
 
   - Test switching from daily to archive and back
   - Ensure game states remain separate
   - Verify no state pollution between modes
   - Success criteria: Can switch between modes without issues
+  - **COMPLETED**: Navigation works via ArchiveContextBar, AppHeader, and breadcrumbs. State isolation ensured by different localStorage key patterns
 
-- [ ] Add error boundary around archive routes
+- [x] Add error boundary around archive routes
 
   - Wrap archive components in error boundary
   - Show "Return to Archive" button on error
   - Log errors for debugging
   - Success criteria: Archive errors don't break entire app
+  - **COMPLETED**: Created ArchiveErrorBoundary component with custom fallback UI featuring "Return to Archive", "Go to Today's Puzzle", and "Try Again" buttons. Wrapped both archive pages. Includes error logging with year context.
 
 - [ ] Validate year parameter strictly in dynamic route
   - Check year is within valid puzzle range

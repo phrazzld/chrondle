@@ -3,21 +3,29 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { getPuzzleYears } from "@/lib/puzzleData";
+import { isPuzzleCompleted } from "@/lib/storage";
 import { useUser } from "@clerk/nextjs";
 import { useUserData } from "@/hooks/useUserData";
 import { AppHeader } from "@/components/AppHeader";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/Card";
-import { Lock, Calendar, Archive } from "lucide-react";
+import { Lock, Calendar, Archive, Check } from "lucide-react";
+import { ArchiveErrorBoundary } from "@/components/ArchiveErrorBoundary";
 
-export default function ArchivePage() {
+function ArchivePageContent() {
   const { isLoaded, isSignedIn } = useUser();
   const { isPremium, userStats } = useUserData();
   const [puzzleYears, setPuzzleYears] = useState<number[]>([]);
+  const [completedCount, setCompletedCount] = useState(0);
 
   useEffect(() => {
-    setPuzzleYears(getPuzzleYears());
+    const years = getPuzzleYears();
+    setPuzzleYears(years);
+
+    // Calculate completed puzzles
+    const completed = years.filter(isPuzzleCompleted).length;
+    setCompletedCount(completed);
   }, []);
 
   return (
@@ -36,6 +44,28 @@ export default function ArchivePage() {
             Explore and play past Chrondle puzzles
           </p>
         </div>
+
+        {/* Completion Statistics */}
+        {puzzleYears.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-foreground font-medium">
+                Completed: {completedCount} of {puzzleYears.length}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                {Math.round((completedCount / puzzleYears.length) * 100)}%
+              </span>
+            </div>
+            <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-green-600 h-full transition-all duration-300 ease-out"
+                style={{
+                  width: `${(completedCount / puzzleYears.length) * 100}%`,
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Loading State */}
         {!isLoaded && (
@@ -127,21 +157,58 @@ export default function ArchivePage() {
         )}
 
         {/* Archive grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {puzzleYears.map((year) => (
-            <Link key={year} href={`/archive/${year}`}>
-              <Card className="h-32 p-6 hover:border-primary transition-colors cursor-pointer">
-                <h3 className="text-2xl font-bold mb-2">{year}</h3>
-                <p className="text-muted-foreground">
-                  Historical events from {year}
-                </p>
+        {puzzleYears.length === 0 ? (
+          // Loading skeleton cards
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(12)].map((_, i) => (
+              <Card key={i} className="h-32 p-6 animate-pulse">
+                <div className="h-8 bg-muted rounded w-24 mb-2" />
+                <div className="h-4 bg-muted rounded w-3/4" />
               </Card>
-            </Link>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          // Actual archive grid
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {puzzleYears.map((year) => {
+              const isCompleted = isPuzzleCompleted(year);
+              return (
+                <Link key={year} href={`/archive/${year}`}>
+                  <Card
+                    className={`h-32 p-6 transition-colors cursor-pointer relative ${
+                      isCompleted
+                        ? "border-green-600/30 hover:border-green-600/50 bg-green-600/5"
+                        : "hover:border-primary"
+                    }`}
+                  >
+                    {isCompleted && (
+                      <div className="absolute top-3 right-3">
+                        <div className="bg-green-600 rounded-full p-1">
+                          <Check className="h-4 w-4 text-white" />
+                        </div>
+                      </div>
+                    )}
+                    <h3 className="text-2xl font-bold mb-2">{year}</h3>
+                    <p className="text-muted-foreground">
+                      Historical events from {year}
+                    </p>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </main>
 
       <Footer />
     </div>
+  );
+}
+
+export default function ArchivePage() {
+  return (
+    <ArchiveErrorBoundary>
+      <ArchivePageContent />
+    </ArchiveErrorBoundary>
   );
 }

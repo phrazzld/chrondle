@@ -171,6 +171,23 @@ export function loadGameProgress<T = Record<string, unknown>>(
   return savedData;
 }
 
+// Check if a puzzle for a given year is completed
+export function isPuzzleCompleted(year: number): boolean {
+  try {
+    // Get the storage key for this archive year
+    const key = getProgressKey(year);
+
+    // Load the game state
+    const gameState = safeGetJSON<{ isGameOver?: boolean }>(key);
+
+    // Check if the game exists and is completed
+    return gameState?.isGameOver === true;
+  } catch (error) {
+    logger.debug(`Error checking completion for year ${year}:`, error);
+    return false;
+  }
+}
+
 // Settings storage
 export function saveSettings<T>(settings: T): boolean {
   return safeSetJSON(STORAGE_KEYS.SETTINGS, settings);
