@@ -46,27 +46,37 @@ export function getPuzzleForYear(year: number): string[] {
   const events = puzzleData.puzzles[yearStr];
 
   if (!events) {
-    console.warn(`🔍 DEBUG: No puzzle found for year ${year}`);
+    if (process.env.NODE_ENV === "development") {
+      console.warn(`🔍 DEBUG: No puzzle found for year ${year}`);
+    }
     return [];
   }
 
   if (events.length < 6) {
-    console.error(
-      `🔍 DEBUG: Invalid puzzle for year ${year}: expected at least 6 events, got ${events.length}`,
-    );
+    if (process.env.NODE_ENV === "development") {
+      console.error(
+        `🔍 DEBUG: Invalid puzzle for year ${year}: expected at least 6 events, got ${events.length}`,
+      );
+    }
     return [];
   }
 
   // If exactly 6 events, return all
   if (events.length === 6) {
-    logger.debug(`Loaded puzzle for year ${year} with ${events.length} events`);
+    if (process.env.NODE_ENV === "development") {
+      logger.debug(
+        `Loaded puzzle for year ${year} with ${events.length} events`,
+      );
+    }
     return [...events]; // Return copy to prevent mutations
   }
 
   // If more than 6 events, deterministically select 6
-  logger.debug(
-    `Year ${year} has ${events.length} events, selecting 6 deterministically`,
-  );
+  if (process.env.NODE_ENV === "development") {
+    logger.debug(
+      `Year ${year} has ${events.length} events, selecting 6 deterministically`,
+    );
+  }
 
   // Create deterministic selection based on current date and year
   const today = new Date();
