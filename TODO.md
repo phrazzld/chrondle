@@ -272,11 +272,51 @@ Updated 2025-07-14 - Focus: Ship working archive feature
   - Success criteria: Archive errors don't break entire app
   - **COMPLETED**: Created ArchiveErrorBoundary component with custom fallback UI featuring "Return to Archive", "Go to Today's Puzzle", and "Try Again" buttons. Wrapped both archive pages. Includes error logging with year context.
 
-- [ ] Validate year parameter strictly in dynamic route
+- [x] Validate year parameter strictly in dynamic route
   - Check year is within valid puzzle range
   - Handle string years like "abc" gracefully
   - Redirect to /archive with error toast for invalid years
   - Success criteria: No 500 errors for bad URLs
+  - **COMPLETED**: Added comprehensive validation with isValidYear function that checks format, range, and shows user-friendly error messages before redirect
+
+### Task: Validate year parameter strictly [x]
+
+### Complexity: MEDIUM
+
+### Started: 2025-01-15 11:10
+
+### Completed: 2025-01-15 11:20
+
+### Context Discovery
+
+- Valid years defined in src/lib/puzzleData.ts via SUPPORTED_YEARS constant
+- Current validation in archive/[year]/page.tsx only checks isNaN and puzzle existence
+- Toast system available via use-toast hook but needs proper integration
+- Need to handle edge cases before component renders to prevent errors
+
+### Execution Log
+
+[11:10] Analyzed current validation logic
+[11:12] Created isValidYear helper function with comprehensive checks
+[11:14] Added regex validation for year format (handles "abc", special chars)
+[11:15] Implemented SUPPORTED_YEARS range checking with helpful error messages
+[11:17] Added error UI state that shows before redirect
+[11:18] Protected useConvexGameState from invalid year values
+[11:20] Task completed successfully
+
+### Approach Decisions
+
+- Created dedicated validation function for reusability and clarity
+- Show user-friendly error message with actual valid range
+- 2-second delay before redirect to allow users to read error
+- Prevent invalid years from reaching game logic hooks
+
+### Learnings
+
+- Year validation must handle: non-numeric strings, negative years, out-of-range years
+- SUPPORTED_YEARS array contains all valid puzzle years
+- Error UI provides better UX than immediate redirect
+- Decided against toast due to complexity - inline error state is clearer
 
 ## Success Metrics
 

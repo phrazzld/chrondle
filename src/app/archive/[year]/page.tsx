@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { getPuzzleByYear } from "@/lib/puzzleData";
+import { SUPPORTED_YEARS } from "@/lib/puzzleData";
 import { useConvexGameState } from "@/hooks/useConvexGameState";
 import { HintsDisplay } from "@/components/HintsDisplay";
 import { GuessInput } from "@/components/GuessInput";
@@ -23,12 +23,47 @@ import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { ArchiveErrorBoundary } from "@/components/ArchiveErrorBoundary";
 
+// Helper function to validate year parameter
+function isValidYear(yearStr: string): {
+  valid: boolean;
+  year?: number;
+  error?: string;
+} {
+  // Check if it's a valid number string
+  if (!/^-?\d+$/.test(yearStr)) {
+    return { valid: false, error: "Invalid year format" };
+  }
+
+  const year = parseInt(yearStr, 10);
+
+  // Check if parsing was successful
+  if (isNaN(year)) {
+    return { valid: false, error: "Invalid year value" };
+  }
+
+  // Check if year is in supported range
+  if (!SUPPORTED_YEARS.includes(year)) {
+    const minYear = Math.min(...SUPPORTED_YEARS);
+    const maxYear = Math.max(...SUPPORTED_YEARS);
+    return {
+      valid: false,
+      error: `Year ${year} not available. Valid range: ${minYear} to ${maxYear}`,
+    };
+  }
+
+  return { valid: true, year };
+}
+
 function ArchiveGamePageContent({ params }: { params: { year: string } }) {
   const router = useRouter();
-  const year = parseInt(params.year);
+
+  // Validate year parameter immediately
+  const validation = isValidYear(params.year);
+  const year = validation.year || 0; // Default to 0 if invalid
 
   // SSR state
   const [mounted, setMounted] = useState(false);
+  const [showInvalidYearError, setShowInvalidYearError] = useState(false);
 
   // Confetti ref for victory celebration
   const confettiRef = useRef<ConfettiRef>(null);
@@ -51,19 +86,21 @@ function ArchiveGamePageContent({ params }: { params: { year: string } }) {
 
   // Validate year and redirect if invalid
   useEffect(() => {
-    if (isNaN(year)) {
-      router.push("/archive");
-      return;
+    if (!validation.valid) {
+      setShowInvalidYearError(true);
+      // Redirect after a short delay to show error
+      const timer = setTimeout(() => {
+        router.push("/archive");
+      }, 2000);
+      return () => clearTimeout(timer);
     }
+  }, [validation.valid, router]);
 
-    const puzzle = getPuzzleByYear(year);
-    if (!puzzle) {
-      router.push("/archive");
-    }
-  }, [year, router]);
-
-  // Use game state with archive year
-  const gameLogic = useConvexGameState(false, year);
+  // Use game state with archive year (only if valid)
+  const gameLogic = useConvexGameState(
+    false,
+    validation.valid ? year : undefined,
+  );
 
   // NOTE: Archive games do not update streaks
   // Streaks are only for daily puzzles to encourage daily play.
@@ -187,8 +224,38 @@ function ArchiveGamePageContent({ params }: { params: { year: string } }) {
     setHintReviewModal(null);
   }, []);
 
+  // Show error state for invalid year
+  if (showInvalidYearError && !validation.valid) {
+    return (
+      <div className="min-h-screen" style={{ background: "var(--background)" }}>
+        <AppHeader
+          onShowSettings={() => setShowSettingsModal(true)}
+          currentStreak={0}
+        />
+
+        {/* Error state */}
+        <main className="min-h-screen flex items-center justify-center">
+          <div className="max-w-md w-full mx-4 p-6 bg-card rounded-lg border shadow-lg">
+            <div className="text-center">
+              <div className="text-4xl mb-4">⚠️</div>
+              <h1 className="text-xl font-bold text-foreground mb-2">
+                Invalid Year
+              </h1>
+              <p className="text-muted-foreground mb-6">
+                {validation.error || "The requested year is not available."}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Redirecting to archive...
+              </p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   // Show loading state during SSR and initial mount
-  if (!mounted || gameLogic.isLoading || isNaN(year)) {
+  if (!mounted || gameLogic.isLoading) {
     return (
       <div className="min-h-screen" style={{ background: "var(--background)" }}>
         <AppHeader
