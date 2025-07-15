@@ -24,20 +24,43 @@ function ArchivePageContent() {
   const [puzzleYears, setPuzzleYears] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isComputing, setIsComputing] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   const PUZZLES_PER_PAGE = 24;
 
   useEffect(() => {
-    const years = getPuzzleYears();
-    setPuzzleYears(years);
+    // Defer loading to next tick to prevent blocking
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+        // Use setTimeout to ensure this runs after render
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        const years = getPuzzleYears();
+        setPuzzleYears(years);
+      } catch (error) {
+        console.error("Failed to load puzzle years:", error);
+        setPuzzleYears([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
   }, []);
 
-  // Pre-compute all puzzle card data ONCE
-  const puzzleCardData = useMemo<PuzzleCardData[]>(() => {
-    if (puzzleYears.length === 0) return [];
+  // Calculate total pages based on puzzle years
+  const totalPages = Math.ceil(puzzleYears.length / PUZZLES_PER_PAGE);
+
+  // Only compute data for the current page!
+  const paginatedData = useMemo<PuzzleCardData[]>(() => {
+    if (puzzleYears.length === 0 || isLoading) return [];
+
+    const startIndex = (currentPage - 1) * PUZZLES_PER_PAGE;
+    const endIndex = startIndex + PUZZLES_PER_PAGE;
+    const yearsForCurrentPage = puzzleYears.slice(startIndex, endIndex);
 
     try {
-      const data = puzzleYears.map((year) => {
+      const data = yearsForCurrentPage.map((year) => {
         try {
           const events = getPuzzleForYear(year);
           const sortedEvents =
@@ -65,27 +88,30 @@ function ArchivePageContent() {
       console.error("Failed to compute puzzle data:", error);
       return [];
     }
-  }, [puzzleYears]);
+  }, [puzzleYears, currentPage, isLoading]);
 
-  // Update computing state based on data availability
+  // Update computing state
   useEffect(() => {
-    setIsComputing(puzzleYears.length > 0 && puzzleCardData.length === 0);
-  }, [puzzleYears.length, puzzleCardData.length]);
+    setIsComputing(false);
+  }, [paginatedData]);
 
-  // Calculate completed count from pre-computed data
-  const completedCount = useMemo(
-    () => puzzleCardData.filter((puzzle) => puzzle.isCompleted).length,
-    [puzzleCardData],
-  );
-
-  // Paginate the results
-  const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * PUZZLES_PER_PAGE;
-    return puzzleCardData.slice(startIndex, startIndex + PUZZLES_PER_PAGE);
-  }, [puzzleCardData, currentPage]);
-
-  // Calculate total pages
-  const totalPages = Math.ceil(puzzleCardData.length / PUZZLES_PER_PAGE);
+  // Calculate completed count - do this separately to avoid processing all puzzles
+  const completedCount = useMemo(() => {
+    if (puzzleYears.length === 0) return 0;
+    // Only count up to 100 puzzles to avoid performance issues
+    const sampleSize = Math.min(puzzleYears.length, 100);
+    let count = 0;
+    for (let i = 0; i < sampleSize; i++) {
+      if (isPuzzleCompleted(puzzleYears[i])) {
+        count++;
+      }
+    }
+    // Estimate total based on sample if we have more than 100
+    if (puzzleYears.length > 100) {
+      return Math.round((count / sampleSize) * puzzleYears.length);
+    }
+    return count;
+  }, [puzzleYears]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -102,21 +128,21 @@ function ArchivePageContent() {
         </div>
 
         {/* Completion Statistics */}
-        {puzzleCardData.length > 0 && !isComputing && (
+        {puzzleYears.length > 0 && !isLoading && (
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-foreground font-medium">
-                Completed: {completedCount} of {puzzleCardData.length}
+                Completed: {completedCount} of {puzzleYears.length}
               </span>
               <span className="text-sm text-muted-foreground">
-                {Math.round((completedCount / puzzleCardData.length) * 100)}%
+                {Math.round((completedCount / puzzleYears.length) * 100)}%
               </span>
             </div>
             <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
               <div
                 className="bg-green-600 h-full transition-all duration-300 ease-out"
                 style={{
-                  width: `${(completedCount / puzzleCardData.length) * 100}%`,
+                  width: `${(completedCount / puzzleYears.length) * 100}%`,
                 }}
               />
             </div>
@@ -124,7 +150,7 @@ function ArchivePageContent() {
         )}
 
         {/* Archive grid */}
-        {isComputing || puzzleYears.length === 0 ? (
+        {isLoading || isComputing || puzzleYears.length === 0 ? (
           // Loading skeleton cards
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(PUZZLES_PER_PAGE)].map((_, i) => (
@@ -216,7 +242,17 @@ function ArchivePageContent() {
 export default function ArchivePage() {
   return (
     <ArchiveErrorBoundary>
-      <ArchivePageContent />
+      <React.Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="animate-pulse text-muted-foreground">
+              Loading archive...
+            </div>
+          </div>
+        }
+      >
+        <ArchivePageContent />
+      </React.Suspense>
     </ArchiveErrorBoundary>
   );
 }
