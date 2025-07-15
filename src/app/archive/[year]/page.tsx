@@ -471,14 +471,15 @@ function ArchiveGamePageContent({ params }: { params: { year: string } }) {
   );
 }
 
-export default function ArchiveGamePage({
+export default async function ArchiveGamePage({
   params,
 }: {
-  params: { year: string };
+  params: Promise<{ year: string }>;
 }) {
+  const resolvedParams = await params;
   return (
-    <ArchiveErrorBoundary year={params.year}>
-      <ArchiveGamePageContent params={params} />
+    <ArchiveErrorBoundary year={resolvedParams.year}>
+      <ArchiveGamePageContent params={resolvedParams} />
     </ArchiveErrorBoundary>
   );
 }
