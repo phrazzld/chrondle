@@ -180,15 +180,96 @@ Updated: 2025-07-16
 - [x] Error boundaries and loading states
 - [x] Strict year validation with user-friendly errors
 
+## ✅ Completed: Archive Puzzle UX Issues
+
+### Fixed Async Client Component Error
+
+- [x] Updated archive puzzle page to use React's `use()` hook for unwrapping params Promise
+- [x] Removed async/await pattern that was incompatible with "use client" directive
+- [x] Maintained Next.js 15 params pattern while fixing the error
+
+### Fixed State Pollution Bug
+
+- [x] Updated useConvexGameState to use `getPuzzleByYear` for archive mode
+- [x] Fixed incorrect usage of `initializePuzzle` which was loading daily puzzle for all archives
+- [x] Each archive puzzle now correctly loads its own historical data
+
+## 🔥 Critical: Fix Archive Puzzle UX Issues
+
+### Root Cause Analysis
+
+**PROBLEM**: Archive puzzle page duplicates homepage layout with 400+ lines of code, leading to:
+
+1. Component order divergence (hints at top vs bottom)
+2. Confetti behavior differences (auto-fire bug)
+3. Maintenance burden of keeping two implementations in sync
+
+**SOLUTION**: Don't fix symptoms - fix the architecture
+
+## 🏗️ System Design Fix
+
+### Phase 1: Create Shared Game Layout Component
+
+- [ ] Extract common game layout pattern into `src/components/GameLayout.tsx`
+  - **INTERFACE**:
+    ```typescript
+    interface GameLayoutProps {
+      gameState: ConvexGameState;
+      onGuess: (year: number) => void;
+      headerContent?: React.ReactNode; // For archive navigation controls
+      debugMode?: boolean;
+      confettiConfig?: {
+        enabled: boolean;
+        onVictory?: () => void;
+      };
+    }
+    ```
+  - **COMPONENT ORDER** (enforce correct layout):
+    1. Header content (passed as prop)
+    2. GameInstructions
+    3. GuessInput
+    4. Timeline (show after first guess)
+    5. ProximityDisplay (show after first guess)
+    6. GameProgress
+    7. HintsDisplay
+    8. Confetti (with manualstart=true)
+  - **BENEFITS**: Single source of truth, impossible for layouts to diverge
+
+### Phase 2: Implement GameLayout in Both Pages
+
+- [ ] Replace homepage layout (`/src/app/page.tsx`)
+
+  - **REMOVE**: Lines ~400-500 of duplicated component rendering
+  - **REPLACE WITH**: `<GameLayout gameState={gameLogic} onGuess={gameLogic.makeGuess} headerContent={<AppHeader />} />`
+  - **VERIFY**: Exact same behavior as current implementation
+  - **TEST**: Run full test suite to ensure no regressions
+
+- [ ] Replace archive puzzle layout (`/src/app/archive/puzzle/[id]/page.tsx`)
+  - **REMOVE**: Lines ~230-320 of duplicated component rendering
+  - **REPLACE WITH**: `<GameLayout gameState={gameState} onGuess={handleGuess} headerContent={navigationControls} />`
+  - **VERIFY**: Components now in correct order, confetti behavior fixed
+  - **TEST**: No confetti on page load, correct layout order
+
+### Phase 3: Extract Victory Logic
+
+- [ ] Create `src/hooks/useVictoryConfetti.ts` to standardize victory handling
+  - **HANDLES**: Confetti trigger, reduced motion preferences, "just won" vs "already won" state
+  - **PREVENTS**: Auto-fire on mount, duplicate triggers, accessibility issues
+  - **USAGE**: Both pages use same hook, ensuring consistent behavior
+
 ## 🎯 Next Steps
 
 1. ~~**Immediate**: Fix HintsDisplay crash~~ ✅ COMPLETED
 2. ~~**High**: Update to Next.js 15 async params pattern~~ ✅ COMPLETED
 3. ~~**High**: Remove unsupported routes~~ ✅ COMPLETED
-4. **Medium**: Resolve hydration mismatch
-5. **Low**: Add type safety and testing
+4. **Immediate**: Fix archive puzzle layout and confetti bugs
+5. **High**: Create shared GameLayout component
+6. **Medium**: Resolve hydration mismatch
+7. **Low**: Add type safety and testing
 
 ## 📋 Testing Checklist
+
+### Basic Functionality
 
 - [ ] Navigate to /archive - grid loads without errors
 - [ ] Click any puzzle - loads and plays without crashes
@@ -196,3 +277,24 @@ Updated: 2025-07-16
 - [ ] Navigate between multiple puzzles - no state pollution
 - [ ] Check browser console - zero errors/warnings
 - [ ] Verify hydration - no mismatches on page load
+
+### Layout Verification
+
+- [ ] Archive puzzle page shows components in correct order (top to bottom):
+  1. Navigation controls (Back to Archive, Previous/Next, Puzzle #)
+  2. Game instructions ("Guess the year...")
+  3. Guess input box
+  4. Timeline visualization (after first guess)
+  5. Proximity display (after first guess)
+  6. Game progress dots
+  7. Hints display at bottom
+- [ ] Layout matches homepage exactly (except for navigation controls)
+
+### Confetti Behavior
+
+- [ ] Open a fresh puzzle - NO confetti on page load
+- [ ] Make incorrect guesses - NO confetti
+- [ ] Make correct guess - confetti fires ONCE
+- [ ] Navigate away and back to won puzzle - NO confetti on return
+- [ ] Click Previous/Next to another won puzzle - NO confetti on navigation
+- [ ] Only see confetti when actively solving a puzzle

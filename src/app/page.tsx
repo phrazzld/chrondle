@@ -10,18 +10,13 @@ import { useCountdown } from "@/hooks/useCountdown";
 import { logger } from "@/lib/logger";
 import { SettingsModal } from "@/components/modals/SettingsModal";
 import { HintReviewModal } from "@/components/modals/HintReviewModal";
-import { GameProgress } from "@/components/GameProgress";
-import { HintsDisplay } from "@/components/HintsDisplay";
-import { GuessInput } from "@/components/GuessInput";
-import { GameInstructions } from "@/components/GameInstructions";
+import { GameLayout } from "@/components/GameLayout";
 import { AppHeader } from "@/components/AppHeader";
 import { LiveAnnouncer } from "@/components/ui/LiveAnnouncer";
 import { AchievementModal } from "@/components/modals/AchievementModal";
 import { BackgroundAnimation } from "@/components/BackgroundAnimation";
-import { Timeline } from "@/components/Timeline";
 import { Footer } from "@/components/Footer";
-import { Confetti, ConfettiRef } from "@/components/magicui/confetti";
-import { ProximityDisplay } from "@/components/ui/ProximityDisplay";
+import { ConfettiRef } from "@/components/magicui/confetti";
 import { getTodaysPuzzleNumber } from "@/lib/puzzleUtils";
 
 // Force dynamic rendering to prevent SSR issues with theme context
@@ -56,7 +51,7 @@ export default function ChronldePage() {
   } = useStreak();
 
   // Countdown for next puzzle
-  const { timeString } = useCountdown();
+  useCountdown(); // Just for the countdown functionality
 
   // UI state
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -313,58 +308,30 @@ export default function ChronldePage() {
   if (!mounted || gameLogic.isLoading) {
     return (
       <div className="min-h-screen" style={{ background: "var(--background)" }}>
-        <AppHeader
-          onShowSettings={() => setShowSettingsModal(true)}
-          currentStreak={streakData.currentStreak}
-          puzzleNumber={puzzleNumber}
-          isDebugMode={debugMode}
+        {/* Use GameLayout for loading state */}
+        <GameLayout
+          gameState={{
+            puzzle: null,
+            guesses: [],
+            isGameOver: false,
+          }}
+          currentHintIndex={0}
+          isGameComplete={false}
+          hasWon={false}
+          isLoading={true}
+          error={null}
+          onGuess={() => {}}
+          onValidationError={() => {}}
+          headerContent={
+            <AppHeader
+              onShowSettings={() => setShowSettingsModal(true)}
+              currentStreak={streakData.currentStreak}
+              isDebugMode={debugMode}
+              puzzleNumber={puzzleNumber}
+            />
+          }
+          footerContent={<Footer />}
         />
-
-        {/* Use the EXACT same layout as loaded state */}
-        <main className="min-h-screen">
-          <div className="max-w-6xl mx-auto px-6 py-6">
-            <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
-              {/* Use the REAL GameInstructions component - it doesn't need loading */}
-              <GameInstructions
-                isGameComplete={false}
-                hasWon={false}
-                targetYear={undefined}
-                guesses={[]}
-                timeString={timeString}
-                currentStreak={streakData.currentStreak}
-                puzzleEvents={[]}
-                closestGuess={null}
-              />
-
-              {/* Use the REAL GuessInput component - just disabled */}
-              <GuessInput
-                onGuess={() => {}}
-                disabled={true}
-                remainingGuesses={6}
-                onValidationError={() => {}}
-              />
-
-              {/* Use the REAL GameProgress component */}
-              <GameProgress
-                currentHintIndex={0}
-                isGameWon={false}
-                isGameComplete={false}
-                guessCount={0}
-              />
-
-              {/* Use the REAL HintsDisplay component with loading state */}
-              <HintsDisplay
-                events={[]}
-                guesses={[]}
-                targetYear={0}
-                currentHintIndex={0}
-                isGameComplete={false}
-                isLoading={true}
-                error={null}
-              />
-            </div>
-          </div>
-        </main>
       </div>
     );
   }
@@ -387,102 +354,28 @@ export default function ChronldePage() {
         Skip to main content
       </a>
 
-      <AppHeader
-        onShowSettings={() => setShowSettingsModal(true)}
-        currentStreak={streakData.currentStreak}
-        isDebugMode={debugMode}
-        puzzleNumber={puzzleNumber}
+      {/* Use GameLayout with homepage-specific header */}
+      <GameLayout
+        gameState={gameLogic.gameState}
+        currentHintIndex={gameLogic.currentHintIndex}
+        isGameComplete={gameLogic.isGameComplete}
+        hasWon={gameLogic.hasWon}
+        isLoading={gameLogic.isLoading}
+        error={gameLogic.error}
+        onGuess={gameLogic.makeGuess}
+        onValidationError={handleValidationError}
+        confettiRef={confettiRef}
+        debugMode={debugMode}
+        headerContent={
+          <AppHeader
+            onShowSettings={() => setShowSettingsModal(true)}
+            currentStreak={streakData.currentStreak}
+            isDebugMode={debugMode}
+            puzzleNumber={puzzleNumber}
+          />
+        }
+        footerContent={<Footer />}
       />
-
-      {/* Main Content Area */}
-      <main
-        id="main-content"
-        className={`min-h-screen ${gameLogic.gameState.guesses.length > 0 ? "gesture-enabled" : ""}`}
-        role="main"
-        aria-label="Historical guessing game"
-      >
-        <div className="max-w-6xl mx-auto px-6 py-6">
-          {/* Single Column Game Layout */}
-          <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
-            {/* Game Instructions */}
-            <GameInstructions
-              isGameComplete={gameLogic.isGameComplete}
-              hasWon={gameLogic.hasWon}
-              targetYear={gameLogic.gameState.puzzle?.year}
-              guesses={gameLogic.gameState.guesses}
-              timeString={timeString}
-              currentStreak={streakData.currentStreak}
-              puzzleEvents={gameLogic.gameState.puzzle?.events || []}
-              closestGuess={gameLogic.closestGuess}
-            />
-
-            {/* Input Section - Hidden when game complete */}
-            {!gameLogic.isGameComplete && (
-              <GuessInput
-                onGuess={gameLogic.makeGuess}
-                disabled={gameLogic.isGameComplete || gameLogic.isLoading}
-                remainingGuesses={gameLogic.remainingGuesses}
-                onValidationError={handleValidationError}
-              />
-            )}
-
-            {/* Timeline Visualization - Universal Design */}
-            <Timeline
-              minYear={-2000}
-              maxYear={new Date().getFullYear()}
-              guesses={gameLogic.gameState.guesses}
-              targetYear={gameLogic.gameState.puzzle?.year || null}
-              isGameComplete={gameLogic.isGameComplete}
-              hasWon={gameLogic.hasWon}
-            />
-
-            {/* Proximity Display - Show closest guess during active gameplay */}
-            {!gameLogic.isGameComplete &&
-              gameLogic.gameState.guesses.length > 0 &&
-              !gameLogic.hasWon &&
-              gameLogic.gameState.puzzle && (
-                <ProximityDisplay
-                  currentGuess={
-                    gameLogic.gameState.guesses[
-                      gameLogic.gameState.guesses.length - 1
-                    ]
-                  }
-                  currentDistance={Math.abs(
-                    gameLogic.gameState.guesses[
-                      gameLogic.gameState.guesses.length - 1
-                    ] - gameLogic.gameState.puzzle.year,
-                  )}
-                  targetYear={gameLogic.gameState.puzzle.year}
-                  hasWon={gameLogic.hasWon}
-                  guessCount={gameLogic.gameState.guesses.length}
-                  className="animate-fade-in"
-                />
-              )}
-
-            {/* Progress Section */}
-            <GameProgress
-              currentHintIndex={gameLogic.currentHintIndex}
-              isGameWon={gameLogic.hasWon}
-              isGameComplete={gameLogic.isGameComplete}
-              guessCount={gameLogic.gameState.guesses.length}
-            />
-
-            {/* Hints Section */}
-            <HintsDisplay
-              events={gameLogic.gameState.puzzle?.events || []}
-              guesses={gameLogic.gameState.guesses}
-              targetYear={gameLogic.gameState.puzzle?.year || 0}
-              currentHintIndex={gameLogic.currentHintIndex}
-              isGameComplete={gameLogic.isGameComplete}
-              isLoading={gameLogic.isLoading}
-              error={gameLogic.error}
-            />
-          </div>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <Footer />
 
       {/* Validation Error Feedback */}
       {validationError && (
@@ -527,19 +420,7 @@ export default function ChronldePage() {
         achievement={newAchievement || ""}
       />
 
-      {/* Victory Confetti */}
-      <Confetti
-        ref={confettiRef}
-        className="fixed inset-0 z-50 pointer-events-none"
-        style={{
-          width: "100vw",
-          height: "100vh",
-          left: 0,
-          top: 0,
-        }}
-        manualstart={true}
-        aria-hidden="true"
-      />
+      {/* Confetti is now handled by GameLayout */}
     </div>
   );
 }

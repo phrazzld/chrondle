@@ -12,6 +12,7 @@ import {
   saveProgress,
   cleanupOldStorage,
 } from "@/lib/gameState";
+import { getPuzzleByYear } from "@/lib/puzzleData";
 import { loadGameProgress } from "@/lib/storage";
 import { GAME_CONFIG } from "@/lib/constants";
 
@@ -123,7 +124,15 @@ export function useConvexGameState(
 
         if (savedProgress && savedProgress.puzzleYear) {
           // Reconstruct game state from saved progress
-          const puzzle = initializePuzzle(undefined, debugMode);
+          let puzzle;
+          if (archiveYear) {
+            // For archive mode, load the specific year's puzzle
+            puzzle = getPuzzleByYear(archiveYear);
+          } else {
+            // For daily mode, use the daily puzzle logic
+            puzzle = initializePuzzle(undefined, debugMode);
+          }
+
           if (puzzle && puzzle.year === savedProgress.puzzleYear) {
             savedState = {
               ...createInitialGameState(),
@@ -150,16 +159,25 @@ export function useConvexGameState(
           saveProgress(newState, debugMode, archiveYear);
         } else if (!puzzleLoading || archiveYear) {
           // Fallback to traditional initialization
-          const puzzle = initializePuzzle(
-            archiveYear ? archiveYear.toString() : undefined,
-            debugMode,
-          );
-          const initializedState = {
-            ...createInitialGameState(),
-            puzzle,
-          };
-          setGameState(initializedState);
-          saveProgress(initializedState, debugMode, archiveYear);
+          let puzzle;
+          if (archiveYear) {
+            // For archive mode, load the specific year's puzzle
+            puzzle = getPuzzleByYear(archiveYear);
+          } else {
+            // For daily mode, use the daily puzzle logic
+            puzzle = initializePuzzle(undefined, debugMode);
+          }
+
+          if (puzzle) {
+            const initializedState = {
+              ...createInitialGameState(),
+              puzzle,
+            };
+            setGameState(initializedState);
+            saveProgress(initializedState, debugMode, archiveYear);
+          } else {
+            setError(`No puzzle found for year ${archiveYear}`);
+          }
         }
       } catch (err) {
         console.error("Game initialization error:", err);
@@ -167,16 +185,21 @@ export function useConvexGameState(
           err instanceof Error ? err.message : "Failed to initialize game",
         );
         // Fallback on error
-        const puzzle = initializePuzzle(
-          archiveYear ? archiveYear.toString() : undefined,
-          debugMode,
-        );
-        const fallbackState = {
-          ...createInitialGameState(),
-          puzzle,
-        };
-        setGameState(fallbackState);
-        saveProgress(fallbackState, debugMode, archiveYear);
+        let puzzle;
+        if (archiveYear) {
+          puzzle = getPuzzleByYear(archiveYear);
+        } else {
+          puzzle = initializePuzzle(undefined, debugMode);
+        }
+
+        if (puzzle) {
+          const fallbackState = {
+            ...createInitialGameState(),
+            puzzle,
+          };
+          setGameState(fallbackState);
+          saveProgress(fallbackState, debugMode, archiveYear);
+        }
       } finally {
         if (!puzzleLoading) {
           setIsLoading(false);
