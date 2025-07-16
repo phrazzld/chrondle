@@ -2,8 +2,6 @@
 
 ## Miscellaneous
 
-- integrate effect
-  - https://effect.website/
 - paywall puzzle archive with stripe
 
 ## Critical Priority - Security & Production Readiness
