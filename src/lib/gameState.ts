@@ -1,7 +1,7 @@
 // Game State Management for Chrondle
 // Static puzzle database with pre-curated historical events
 
-import { getPuzzleForYear, SUPPORTED_YEARS } from "./puzzleData";
+import { getPuzzleForYear, ALL_PUZZLE_YEARS } from "./puzzleData";
 import { logger } from "./logger";
 import {
   saveGameProgress,
@@ -15,121 +15,6 @@ import {
   markPlayerAsPlayed,
   hasPlayerPlayedBefore,
 } from "./storage";
-
-// --- EVENT SCORING FUNCTIONS ---
-// Moved from api.ts as part of codebase simplification
-
-function scoreEventRecognizability(event: string): number {
-  const text = event.toLowerCase();
-  let score = 0;
-
-  // High-recognition keywords (famous events, people, places)
-  const highRecognitionTerms = [
-    "moon",
-    "apollo",
-    "nasa",
-    "president",
-    "war",
-    "peace",
-    "treaty",
-    "independence",
-    "revolution",
-    "atomic",
-    "bomb",
-    "hitler",
-    "stalin",
-    "churchill",
-    "roosevelt",
-    "kennedy",
-    "lincoln",
-    "washington",
-    "napoleon",
-    "caesar",
-    "rome",
-    "paris",
-    "london",
-    "america",
-    "united states",
-    "world war",
-    "olympics",
-    "pearl harbor",
-    "berlin wall",
-    "cold war",
-    "vietnam",
-    "titanic",
-    "earthquake",
-    "discovery",
-    "invention",
-    "first",
-    "assassinated",
-    "founded",
-    "empire",
-    "king",
-    "queen",
-  ];
-
-  // Medium-recognition keywords
-  const mediumRecognitionTerms = [
-    "battle",
-    "siege",
-    "died",
-    "born",
-    "elected",
-    "crowned",
-    "signed",
-    "declared",
-    "defeated",
-    "conquered",
-    "expedition",
-    "voyage",
-    "constructed",
-    "completed",
-    "university",
-    "cathedral",
-    "castle",
-    "city",
-    "established",
-    "created",
-  ];
-
-  // Count high-recognition terms (worth 10 points each)
-  highRecognitionTerms.forEach((term) => {
-    if (text.includes(term)) score += 10;
-  });
-
-  // Count medium-recognition terms (worth 5 points each)
-  mediumRecognitionTerms.forEach((term) => {
-    if (text.includes(term)) score += 5;
-  });
-
-  // Bonus for shorter events (more concise = more recognizable)
-  if (text.length < 50) score += 5;
-  if (text.length < 30) score += 5;
-
-  // Penalty for very long events (likely too detailed/obscure)
-  if (text.length > 100) score -= 5;
-
-  return score;
-}
-
-export function sortEventsByRecognizability(events: string[]): string[] {
-  // Create array of events with their scores
-  const scoredEvents = events.map((event) => ({
-    event: event,
-    score: scoreEventRecognizability(event),
-  }));
-
-  // Sort by score (lowest first = most obscure first), then by length (longer first) as tiebreaker
-  scoredEvents.sort((a, b) => {
-    if (a.score !== b.score) {
-      return a.score - b.score; // Ascending = lowest scores first (most obscure)
-    }
-    return b.event.length - a.event.length; // Longer events first as tiebreaker
-  });
-
-  // Return just the sorted events
-  return scoredEvents.map((item) => item.event);
-}
 
 export interface Puzzle {
   year: number;
@@ -180,9 +65,12 @@ export function getDailyYear(
     const parsedYear = parseInt(debugYear, 10);
     if (!isNaN(parsedYear)) {
       // Check if debug year has a puzzle in the static database
-      if (SUPPORTED_YEARS.includes(parsedYear)) {
+      if (ALL_PUZZLE_YEARS.includes(parsedYear)) {
         return parsedYear;
       } else {
+        console.warn(
+          `🔍 DEBUG: Debug year ${debugYear} (${parsedYear}) not found in puzzle database.`,
+        );
       }
     } else {
     }
@@ -201,9 +89,9 @@ export function getDailyYear(
     ),
   );
 
-  // Select from years that have puzzles (20 years)
-  const yearIndex = dateHash % SUPPORTED_YEARS.length;
-  const selectedYear = SUPPORTED_YEARS[yearIndex];
+  // Select from all available puzzle years
+  const yearIndex = dateHash % ALL_PUZZLE_YEARS.length;
+  const selectedYear = ALL_PUZZLE_YEARS[yearIndex];
 
   return selectedYear;
 }
@@ -230,12 +118,6 @@ export function initializePuzzle(
     `🔍 DEBUG: Loaded ${events.length} events for year ${targetYear} from static database`,
   );
 
-  // Sort events by recognizability (most obscure first, easiest last)
-  const sortedEvents = sortEventsByRecognizability(events);
-  logger.debug(
-    `🔍 DEBUG: Sorted ${sortedEvents.length} events by difficulty (obscure to obvious) for year ${targetYear}`,
-  );
-
   // Generate simple puzzle ID for today (just the date)
   const today = new Date();
   const dateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
@@ -243,7 +125,7 @@ export function initializePuzzle(
   // Create puzzle object
   const puzzle: Puzzle = {
     year: targetYear,
-    events: sortedEvents, // At least 6 events from database, sorted by recognizability
+    events: events, // Events are already in the correct order in the database!
     puzzleId: dateString,
   };
 

@@ -4,8 +4,7 @@ import {
   initializePuzzle,
   createInitialGameState,
 } from "../gameState";
-import { getPuzzleForYear, SUPPORTED_YEARS } from "../puzzleData";
-import { sortEventsByRecognizability } from "../gameState";
+import { getPuzzleForYear, ALL_PUZZLE_YEARS } from "../puzzleData";
 import { logger } from "../logger";
 
 // Performance test configuration
@@ -61,7 +60,7 @@ describe("Performance Tests", () => {
   describe("initializePuzzle Performance", () => {
     it("should initialize puzzle within performance threshold", () => {
       // Use a year that has puzzle data
-      const testYear = SUPPORTED_YEARS[0];
+      const testYear = ALL_PUZZLE_YEARS[0];
 
       const start = performance.now();
 
@@ -88,7 +87,7 @@ describe("Performance Tests", () => {
 
   describe("getPuzzleForYear Performance", () => {
     it("should retrieve puzzle data efficiently", () => {
-      const testYear = SUPPORTED_YEARS[0];
+      const testYear = ALL_PUZZLE_YEARS[0];
 
       const start = performance.now();
 
@@ -105,35 +104,6 @@ describe("Performance Tests", () => {
 
       expect(averageTime).toBeLessThan(PERFORMANCE_THRESHOLD_MS);
       expect(averageTime).toBeLessThan(50); // Should be very fast for data lookup
-    });
-  });
-
-  describe("sortEventsByRecognizability Performance", () => {
-    it("should sort events efficiently", () => {
-      const testEvents = [
-        "First lunar landing by Apollo 11",
-        "Vietnam War escalation continues",
-        "Woodstock music festival occurs",
-        "ARPANET first connection established",
-        "Nixon becomes president",
-        "Beatles release Abbey Road album",
-      ];
-
-      const start = performance.now();
-
-      for (let i = 0; i < BENCHMARK_ITERATIONS; i++) {
-        sortEventsByRecognizability(testEvents);
-      }
-
-      const end = performance.now();
-      const averageTime = (end - start) / BENCHMARK_ITERATIONS;
-
-      logger.debug(
-        `sortEventsByRecognizability average execution time: ${averageTime.toFixed(2)}ms`,
-      );
-
-      expect(averageTime).toBeLessThan(PERFORMANCE_THRESHOLD_MS);
-      expect(averageTime).toBeLessThan(200); // Should be under 200ms for 6 events
     });
   });
 

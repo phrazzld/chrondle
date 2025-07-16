@@ -5,7 +5,7 @@ import {
   filterPuzzlesByTheme,
   type Theme,
 } from "../themeSupport";
-import { getPuzzleForYear, SUPPORTED_YEARS } from "../puzzleData";
+import { getPuzzleForYear, ALL_PUZZLE_YEARS } from "../puzzleData";
 
 describe("Theme Support", () => {
   describe("Phase 1: Theme Classification", () => {
@@ -74,7 +74,7 @@ describe("Theme Support", () => {
       );
 
       // Each year should be classified into exactly one theme
-      expect(totalThemeYears).toBe(SUPPORTED_YEARS.length);
+      expect(totalThemeYears).toBe(ALL_PUZZLE_YEARS.length);
     });
   });
 
@@ -114,7 +114,7 @@ describe("Theme Support", () => {
         .map((theme) => filterPuzzlesByTheme(theme))
         .flat();
 
-      expect(allFilteredPuzzles).toHaveLength(SUPPORTED_YEARS.length);
+      expect(allFilteredPuzzles).toHaveLength(ALL_PUZZLE_YEARS.length);
     });
   });
 
@@ -133,7 +133,7 @@ describe("Theme Support", () => {
         .flatMap((theme) => theme.years)
         .sort((a, b) => a - b);
 
-      expect(allThemeYears).toEqual(SUPPORTED_YEARS);
+      expect(allThemeYears).toEqual(ALL_PUZZLE_YEARS);
     });
   });
 
@@ -142,7 +142,7 @@ describe("Theme Support", () => {
       const startTime = performance.now();
 
       // Classify all supported years
-      SUPPORTED_YEARS.forEach((year) => {
+      ALL_PUZZLE_YEARS.forEach((year) => {
         const events = getPuzzleForYear(year);
         classifyPuzzleTheme(year, events);
       });

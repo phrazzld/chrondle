@@ -1,13 +1,13 @@
-import { SUPPORTED_YEARS } from "./puzzleData";
+import { getIndexFromYear, ALL_PUZZLE_YEARS } from "./puzzleData";
 import { getDailyYear } from "./gameState";
 
 /**
- * Calculate puzzle number for a given year based on its position in SUPPORTED_YEARS
+ * Calculate puzzle number for a given year based on its position in ALL_PUZZLE_YEARS
  * @param year The year to get puzzle number for
  * @returns Puzzle number (1-indexed) or null if year not found
  */
 export function getPuzzleNumberForYear(year: number): number | null {
-  const index = SUPPORTED_YEARS.indexOf(year);
+  const index = getIndexFromYear(year);
   return index !== -1 ? index + 1 : null;
 }
 
@@ -41,8 +41,8 @@ export function formatPuzzleNumber(num: number): string {
  */
 export function getYearFromPuzzleNumber(puzzleNumber: number): number | null {
   const index = puzzleNumber - 1;
-  if (index >= 0 && index < SUPPORTED_YEARS.length) {
-    return SUPPORTED_YEARS[index];
+  if (index >= 0 && index < ALL_PUZZLE_YEARS.length) {
+    return ALL_PUZZLE_YEARS[index];
   }
   return null;
 }

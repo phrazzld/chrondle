@@ -1,343 +1,198 @@
-# Chrondle Archive Implementation TODO
+# Chrondle TODO
 
-Updated 2025-07-14 - Focus: Ship working archive feature
+Updated: 2025-07-16
 
-## Phase 1: Make Archive Visible Above The Fold
+## 🚨 Critical: Fix Archive Puzzle Crashes
 
-- [x] Create ArchiveContextBar component file at src/components/ArchiveContextBar.tsx
+### HintsDisplay Component Interface Mismatch
 
-  - File location: src/components/ArchiveContextBar.tsx (new file)
-  - Import: React, Link from next/link
-  - Component signature: export function ArchiveContextBar(): JSX.Element
-  - Return basic div with height 40px (h-10 class)
-  - Success criteria: File exists, TypeScript compiles without errors
-  - **COMPLETED**: Created basic component structure with required imports
+- [x] Fix HintsDisplay props in `/src/app/archive/puzzle/[id]/page.tsx` (~line 180)
 
-- [x] Implement ArchiveContextBar JSX structure with hardcoded puzzle count
-
-  - Add outer div: className="w-full h-10 border-y border-border bg-card"
-  - Add inner div: className="max-w-2xl mx-auto px-6 sm:px-0 h-full"
-  - Add Link wrapper: href="/archive" className="flex items-center justify-center h-full hover:bg-muted/50 transition-colors"
-  - Add text content: "Today's Puzzle | Archive (298 puzzles)"
-  - Success criteria: Renders 40px bar with centered text and borders
-  - **COMPLETED**: Implemented full JSX structure with all specified classes and text
-
-- [x] Import and render ArchiveContextBar in src/app/page.tsx
-  - Add import at line ~22: import { ArchiveContextBar } from "@/components/ArchiveContextBar"
-  - Insert component after AppHeader closing tag (find </AppHeader>)
-  - Placement: Between header and main content div
-  - Success criteria: Archive bar visible between header and game content
-  - **COMPLETED**: Added import and rendered component in both loading and main states
-
-## Phase 2: Load Puzzle Data For Archive
-
-- [x] Create getPuzzleYears utility function in src/lib/puzzleData.ts
-
-  - Function signature: export function getPuzzleYears(): number[]
-  - Implementation: Object.keys(puzzlesData).map(Number).sort((a, b) => b - a)
-  - Return type: number[] in descending order (newest first)
-  - Location: Add after line 87 in puzzleData.ts
-  - Success criteria: Returns array like [2025, 2008, 2007, ..., -776]
-  - **COMPLETED**: Added function with JSDoc after line 98
-
-- [x] Create getPuzzleByYear function in src/lib/puzzleData.ts
-
-  - Function signature: export function getPuzzleByYear(year: number): Puzzle | null
-  - Implementation: const events = puzzlesData[year]; if (!events) return null;
-  - Return: { date: year.toString(), year, events }
-  - Add after getPuzzleYears function
-  - Success criteria: Returns puzzle object or null for invalid years
-  - **COMPLETED**: Added function with JSDoc and proper Puzzle type import
-
-- [x] Add type export for Puzzle in src/lib/puzzleData.ts if not exists
-  - Check if Puzzle type is exported at top of file
-  - If not, add: export type { Puzzle } from "./gameState"
-  - Ensure consistent type usage across archive features
-  - Success criteria: Puzzle type available for import in other files
-  - **COMPLETED**: Added re-export of Puzzle type for convenience
-
-## Phase 3: Build Archive Grid Page
-
-- [x] Import required functions in src/app/archive/page.tsx
-
-  - Add at line 3: import { getPuzzleYears } from "@/lib/puzzleData"
-  - Remove premium user check section (lines 124-148)
-  - Keep basic page structure and header
-  - Success criteria: Can access puzzle year data in component
-  - **COMPLETED**: Added import and removed premium-only section
-
-- [x] Create state for puzzle years in archive page component
-
-  - Add after line 15: const [puzzleYears, setPuzzleYears] = useState<number[]>([])
-  - Add useEffect to load years: useEffect(() => { setPuzzleYears(getPuzzleYears()) }, [])
-  - Import useState, useEffect from React
-  - Success criteria: puzzleYears state populated with year array
-  - **COMPLETED**: Added state and useEffect to load puzzle years on mount
-
-- [x] Replace "Archive grid coming soon..." with year grid at line 144
-
-  - Remove placeholder div (lines 143-146)
-  - Add grid container: <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-  - Map over puzzleYears: {puzzleYears.map(year => (...))}
-  - Success criteria: Grid container renders with proper responsive classes
-  - **COMPLETED**: Replaced placeholder with responsive grid mapping over puzzleYears
-
-- [x] Create puzzle year card inside grid map
-  - Card structure: <Link key={year} href={`/archive/${year}`}><Card>...</Card></Link>
-  - Card content: Year as heading, "Historical events from {year}"
-  - Add hover state: className="hover:border-primary transition-colors cursor-pointer"
-  - Height: Fixed height with h-32 for consistent grid
-  - Success criteria: Each year displays as clickable card
-  - **COMPLETED**: Created styled cards with Link wrapper, hover effects, and consistent height
-
-## Phase 4: Create Archive Game Route
-
-- [x] Create directory structure for dynamic archive route
-
-  - Create folder: src/app/archive/[year]
-  - Create file: src/app/archive/[year]/page.tsx
-  - Ensure Next.js recognizes dynamic route pattern
-  - Success criteria: Route structure exists in file system
-  - **COMPLETED**: Created directory and basic page component
-
-- [x] Implement basic archive game page component
-
-  - Component signature: export default function ArchiveGamePage({ params }: { params: { year: string } })
-  - Parse year: const year = parseInt(params.year)
-  - Add validation: if (isNaN(year)) return redirect("/archive")
-  - Import redirect from next/navigation
-  - Success criteria: Component accepts year parameter and validates
-  - **COMPLETED**: Implemented component with params, year parsing, and validation
-
-- [x] Load puzzle data for specific year in archive game page
-  - Import getPuzzleByYear from puzzleData.ts
-  - Add: const puzzle = getPuzzleByYear(year)
-  - Check if puzzle exists: if (!puzzle) return redirect("/archive")
-  - Success criteria: Valid puzzles load, invalid years redirect
-  - **COMPLETED**: Added puzzle loading with validation and redirect for invalid years
-
-## Phase 5: Adapt Game State For Archive Mode
-
-- [x] Add optional year parameter to useConvexGameState hook signature
-
-  - File: src/hooks/useConvexGameState.ts line 44
-  - Change: export function useConvexGameState(debugMode = false)
-  - To: export function useConvexGameState(debugMode = false, archiveYear?: number)
-  - Update JSDoc to document new parameter
-  - Success criteria: Hook accepts optional year parameter
-  - **COMPLETED**: Added archiveYear parameter and comprehensive JSDoc
-
-- [x] Modify puzzle loading logic to use archiveYear when provided
-
-  - Location: useConvexGameState.ts around line 140-145
-  - Current: Loads daily puzzle based on date
-  - Change: if (archiveYear) load specific year, else load daily
-  - Update convex query to accept optional year parameter
-  - Success criteria: Hook loads archive puzzle when year provided
-  - **COMPLETED**: Modified query to use getPuzzleByYear when archiveYear provided, updated all fallbacks
-
-- [x] Create separate localStorage key for archive games
-
-  - Current key: "convex-game-state" (line 184)
-  - New logic: const storageKey = archiveYear ? `convex-game-state-${archiveYear}` : "convex-game-state"
-  - Apply to both save and load operations
-  - Success criteria: Archive games save to separate storage keys
-  - **COMPLETED**: Modified getProgressKey, saveGameProgress, and loadGameProgress to use archive-specific keys
-
-- [x] Pass archiveYear through to game state initialization
-  - Update createInitialGameState call if needed
-  - Ensure puzzle date reflects archive year not today
-  - Prevent daily puzzle logic from overriding archive selection
-  - Success criteria: Archive games initialize with correct year
-  - **COMPLETED**: Already handled - archiveYear passed to initializePuzzle and Convex queries
-
-## Phase 6: Integrate Archive Game Components
-
-- [x] Import game components in archive/[year]/page.tsx
-
-  - Add imports from main game: HintsDisplay, GuessInput, GameProgress
-  - Import useConvexGameState with archive support
-  - Import any other required game UI components
-  - Success criteria: All game components available in archive page
-  - **COMPLETED**: Imported all game components, modals, utilities, and converted to client component
-
-- [x] Create game UI structure in archive game page
-
-  - Copy basic structure from src/app/page.tsx
-  - Remove daily-specific features (countdown, today's puzzle references)
-  - Pass year to useConvexGameState: useConvexGameState(false, year)
-  - Success criteria: Game UI renders for archive puzzle
-  - **COMPLETED**: Implemented full game UI with archive adaptations, client-side validation, and archive header
-
-- [x] Add archive-specific game header
-
-  - Show "Archive Puzzle: Year {year}" instead of "Today's Puzzle"
-  - Add breadcrumb: Home > Archive > {year}
-  - Include back to archive link
-  - Success criteria: Clear indication this is archive mode
-  - **COMPLETED**: Added header with year display and breadcrumb navigation in previous task
-
-- [x] Disable streak updates for archive games
-  - In streak update logic, check if in archive mode
-  - Skip updateStreak call when archiveYear is provided
-  - Add comment explaining why streaks don't apply to archive
-  - Success criteria: Completing archive puzzles doesn't affect streaks
-  - **COMPLETED**: Archive page correctly omits streak logic, added documentation comment
-
-## Phase 7: Add Completion Tracking
-
-- [x] Create utility to check puzzle completion status
-
-  - Function: isPuzzleCompleted(year: number): boolean
-  - Check localStorage for key: `convex-game-state-${year}`
-  - Parse and check if gameState.isGameOver === true
-  - Return false if key doesn't exist or parse fails
-  - Success criteria: Can determine if any puzzle is completed
-  - **COMPLETED**: Added isPuzzleCompleted to storage.ts, uses existing getProgressKey utility
-
-- [x] Add completion status to archive grid cards
-
-  - Import Check icon from lucide-react
-  - Call isPuzzleCompleted(year) for each card
-  - Conditionally render check icon in top-right corner
-  - Add different border color for completed puzzles
-  - Success criteria: Visual indication of completed puzzles
-  - **COMPLETED**: Added green border/background and check icon for completed puzzles
-
-- [x] Calculate and display completion statistics
-  - Count total completed: puzzleYears.filter(isPuzzleCompleted).length
-  - Display at top of archive page: "Completed: {count} of 298"
-  - Add progress bar: width percentage based on completion
-  - Success criteria: Users see their archive progress
-  - **COMPLETED**: Added completion stats with count, percentage, and animated progress bar
-
-## Phase 8: Handle Edge Cases
-
-### Task: Add error boundary around archive routes [x]
+## Task: Fix HintsDisplay Component Interface Mismatch [x]
 
 ### Complexity: MEDIUM
 
-### Started: 2025-07-15 10:55
+### Started: 2025-07-16 10:45
 
-### Completed: 2025-07-15 11:05
-
-### Context Discovery
-
-- Existing ErrorBoundary component found at src/components/ErrorBoundary.tsx
-- Archive pages located at src/app/archive/page.tsx and src/app/archive/[year]/page.tsx
-- Both pages using client components with React hooks
-
-### Execution Log
-
-[10:55] Analyzed existing ErrorBoundary implementation
-[10:57] Created specialized ArchiveErrorBoundary component
-[10:59] Wrapped both archive pages with error boundary
-[11:02] Fixed TypeScript errors (Next.js 15 async params, touch handlers)
-[11:05] Verified type checking passes
-
-### Approach Decisions
-
-- Created specialized ArchiveErrorBoundary extending base ErrorBoundary
-- Added custom fallback UI with "Return to Archive", "Go to Today's Puzzle", and "Try Again" buttons
-- Included year context in error logging for better debugging
-- Used composition pattern to wrap existing page components
-
-### Learnings
-
-- Next.js 15 requires params to be Promise<{ year: string }> in dynamic routes
-- Error boundaries provide essential protection for production stability
-- Specialized error boundaries improve user experience with context-aware recovery options
-
-- [x] Add loading state while puzzle years load
-
-  - Show skeleton cards during initial load
-  - Use similar loading pattern as main game
-  - Prevent layout shift when data arrives
-  - Success criteria: No blank screen while loading
-  - **COMPLETED**: Added skeleton cards with animate-pulse, prevented layout shift with same h-32 height
-
-- [x] Handle navigation between archive and daily game
-
-  - Test switching from daily to archive and back
-  - Ensure game states remain separate
-  - Verify no state pollution between modes
-  - Success criteria: Can switch between modes without issues
-  - **COMPLETED**: Navigation works via ArchiveContextBar, AppHeader, and breadcrumbs. State isolation ensured by different localStorage key patterns
-
-- [x] Add error boundary around archive routes
-
-  - Wrap archive components in error boundary
-  - Show "Return to Archive" button on error
-  - Log errors for debugging
-  - Success criteria: Archive errors don't break entire app
-  - **COMPLETED**: Created ArchiveErrorBoundary component with custom fallback UI featuring "Return to Archive", "Go to Today's Puzzle", and "Try Again" buttons. Wrapped both archive pages. Includes error logging with year context.
-
-- [x] Validate year parameter strictly in dynamic route
-  - Check year is within valid puzzle range
-  - Handle string years like "abc" gracefully
-  - Redirect to /archive with error toast for invalid years
-  - Success criteria: No 500 errors for bad URLs
-  - **COMPLETED**: Added comprehensive validation with isValidYear function that checks format, range, and shows user-friendly error messages before redirect
-
-### Task: Validate year parameter strictly [x]
-
-### Complexity: MEDIUM
-
-### Started: 2025-01-15 11:10
-
-### Completed: 2025-01-15 11:20
+### Completed: 2025-07-16 10:56
 
 ### Context Discovery
 
-- Valid years defined in src/lib/puzzleData.ts via SUPPORTED_YEARS constant
-- Current validation in archive/[year]/page.tsx only checks isNaN and puzzle existence
-- Toast system available via use-toast hook but needs proper integration
-- Need to handle edge cases before component renders to prevent errors
+- HintsDisplay interface found at src/components/HintsDisplay.tsx:16-25
+- Current incorrect usage at src/app/archive/puzzle/[id]/page.tsx:225-231
+- Required props: events, guesses, targetYear, currentHintIndex, isGameComplete, isLoading, error
+- All required data available from gameState and existing variables
 
 ### Execution Log
 
-[11:10] Analyzed current validation logic
-[11:12] Created isValidYear helper function with comprehensive checks
-[11:14] Added regex validation for year format (handles "abc", special chars)
-[11:15] Implemented SUPPORTED_YEARS range checking with helpful error messages
-[11:17] Added error UI state that shows before redirect
-[11:18] Protected useConvexGameState from invalid year values
-[11:20] Task completed successfully
+[10:45] Found HintsDisplay interface definition
+[10:46] Located incorrect prop usage in archive puzzle page
+[10:47] Verified all required data is available from gameState
+[10:48] Implementing fix with correct props
+[10:50] Fixed HintsDisplay props - now using correct interface
+[10:52] Fixed useConvexGameState hook call - was passing wrong parameters  
+[10:53] Fixed ProximityDisplay, Timeline, GameProgress, GuessInput props
+[10:54] Fixed BackgroundAnimation, SettingsModal, LiveAnnouncer props
+[10:55] Fixed getGuessDirectionInfo usage - checking direction === "correct"
+[10:56] Temporarily disabled HintReviewModal - needs proper implementation
 
 ### Approach Decisions
 
-- Created dedicated validation function for reusability and clarity
-- Show user-friendly error message with actual valid range
-- 2-second delay before redirect to allow users to read error
-- Prevent invalid years from reaching game logic hooks
+- Fixed all component prop mismatches to match their TypeScript interfaces
+- Corrected useConvexGameState call from (targetYear, true, key) to (false, targetYear)
+- Added null safety for puzzle?.events
+- Temporarily disabled HintReviewModal as it needs different implementation
 
 ### Learnings
 
-- Year validation must handle: non-numeric strings, negative years, out-of-range years
-- SUPPORTED_YEARS array contains all valid puzzle years
-- Error UI provides better UX than immediate redirect
-- Decided against toast due to complexity - inline error state is clearer
+- Archive page was using outdated component APIs from earlier implementation
+- useConvexGameState takes (debugMode, archiveYear) not arbitrary parameters
+- Components have evolved but archive page wasn't updated
+- HintReviewModal is designed for single hint review, not bulk review
 
-## Success Metrics
+  ```typescript
+  // WRONG (current):
+  <HintsDisplay
+    currentHint={puzzle.events[currentHintIndex]}
+    hintIndex={currentHintIndex}
+    maxHints={puzzle.events.length}
+    showAllHints={isGameComplete}
+    allHints={puzzle.events}
+  />
 
-- Archive link visible without scrolling
-- Can click through to see all 298 puzzles
-- Can play any historical puzzle
-- Progress saves independently per puzzle
-- Completed puzzles show visual indicator
-- Daily game completely unaffected
+  // CORRECT (required):
+  <HintsDisplay
+    events={gameState.puzzle?.events || []}
+    guesses={gameState.guesses}
+    targetYear={gameState.puzzle?.year || 0}
+    currentHintIndex={gameState.currentHintIndex}
+    isGameComplete={gameState.isGameOver || hasWon}
+    isLoading={isLoading}
+    error={error}
+  />
+  ```
 
-## Implementation Order
+### Next.js 15 Async Params
 
-1. Context bar (visibility)
-2. Archive grid (browsing)
-3. Dynamic route (playing)
-4. Game state adaptation (persistence)
-5. Completion tracking (progress)
-6. Edge cases (robustness)
+- [ ] ~~Update `/archive/[year]/page.tsx`~~ **NOT SUPPORTED** - We only support homepage, archive grid, and puzzle by ID routes
+- [x] Update `/archive/puzzle/[id]/page.tsx`: `{ params }: { params: Promise<{ id: string }> }`
 
-## Estimated Time: 6 hours focused work
+## Task: Update archive puzzle page for Next.js 15 async params [x]
 
-## Next Immediate Action
+### Complexity: SIMPLE
 
-Start with creating ArchiveContextBar.tsx component file.
+### Started: 2025-07-16 11:00
+
+### Completed: 2025-07-16 11:03
+
+### Context Discovery
+
+- Current structure: Client component with "use client" directive
+- Page export wraps client component in error boundary
+- Need to handle async params at page level, pass resolved params to client
+
+### Execution Log
+
+[11:00] Found page structure - client component wrapped by page export
+[11:01] Implementing async params pattern for Next.js 15
+[11:02] Updated interface from ArchivePuzzlePageProps to ArchivePuzzleContentProps
+[11:02] Changed component to accept id prop instead of params
+[11:03] Updated page export to async function with params: Promise<{ id: string }>
+[11:03] TypeScript compilation successful - only unrelated error remains
+
+### Approach Decisions
+
+- Split params handling: async at page level, resolved params passed to client component
+- Clean interface separation between page and content component
+
+### Learnings
+
+- Next.js 15 async params work with client components by handling at page level
+- Page component can be async while child components remain client-side
+
+### AppHeader Hydration Mismatch
+
+- [ ] Investigate Button component with `asChild` prop rendering differently on server/client
+- [ ] Check archive button in AppHeader (~line 92-100) for conditional rendering issues
+
+## 🏗️ Architecture Cleanup
+
+### Archive Route Architecture
+
+- [x] **DECISION**: We do NOT support `/archive/[year]/` routes - only puzzle by ID
+- [x] **SUPPORTED ROUTES**:
+  - `/` - Homepage with today's puzzle
+  - `/archive` - Archive grid showing all puzzles
+  - `/archive/puzzle/[id]` - Play specific puzzle by ID (1-based)
+- [x] Remove `/archive/[year]/` route entirely to avoid confusion
+
+## Task: Remove unsupported /archive/[year]/ route [x]
+
+### Complexity: SIMPLE
+
+### Started: 2025-07-16 11:05
+
+### Completed: 2025-07-16 11:09
+
+### Context Discovery
+
+- Route marked as NOT SUPPORTED in architecture decisions
+- Causing TypeScript errors in Next.js type generation
+- Need to remove directory and all files
+
+### Execution Log
+
+[11:05] Found [year] directory with page.tsx file
+[11:06] Checked for references to year routes - none found
+[11:06] Removing directory and its contents
+[11:07] Directory removed successfully
+[11:07] TypeScript still showing errors from cached .next types
+[11:08] Cleaning .next directory to regenerate types
+[11:08] Removed cached types for deleted route
+[11:09] TypeScript compilation now successful - no errors!
+
+### Approach Decisions
+
+- Simple removal of unsupported route directory
+- Cleaned cached Next.js types to prevent stale errors
+
+### Learnings
+
+- Next.js caches route types in .next/types directory
+- Need to clean cached types after removing routes
+- No other code references the year-based routes
+
+### Add Type Safety
+
+- [ ] Enable strict TypeScript checking for archive routes
+- [ ] Add runtime prop validation for critical components
+- [ ] Create tests for component interfaces
+
+## ✅ Completed Archive Features
+
+### Phase 1-8: Core Archive Implementation
+
+- [x] Archive context bar visible above fold
+- [x] Archive grid with all 298 puzzles
+- [x] Dynamic routes for playing historical puzzles
+- [x] Separate localStorage keys for archive games
+- [x] Completion tracking with visual indicators
+- [x] Error boundaries and loading states
+- [x] Strict year validation with user-friendly errors
+
+## 🎯 Next Steps
+
+1. ~~**Immediate**: Fix HintsDisplay crash~~ ✅ COMPLETED
+2. ~~**High**: Update to Next.js 15 async params pattern~~ ✅ COMPLETED
+3. ~~**High**: Remove unsupported routes~~ ✅ COMPLETED
+4. **Medium**: Resolve hydration mismatch
+5. **Low**: Add type safety and testing
+
+## 📋 Testing Checklist
+
+- [ ] Navigate to /archive - grid loads without errors
+- [ ] Click any puzzle - loads and plays without crashes
+- [ ] Complete an archive puzzle - saves progress correctly
+- [ ] Navigate between multiple puzzles - no state pollution
+- [ ] Check browser console - zero errors/warnings
+- [ ] Verify hydration - no mismatches on page load

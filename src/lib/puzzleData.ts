@@ -25,91 +25,43 @@ export interface PuzzleDatabase {
 
 export const puzzleData: PuzzleDatabase = puzzleDataJson;
 
-// Pre-computed supported years for efficient daily selection (only years with ≥6 events, but can have more)
-export const SUPPORTED_YEARS = Object.keys(puzzleData.puzzles)
+// Pre-computed array of all puzzles for index-based access
+// Sorted by year (ascending) for consistent ordering
+export const ALL_PUZZLE_YEARS = Object.keys(puzzleData.puzzles)
   .map(Number)
-  .filter((year) => {
-    const events = puzzleData.puzzles[year.toString()];
-    return events && events.length >= 6;
-  })
   .sort((a, b) => a - b);
+
+// Create a map for O(1) year to index lookup
+export const YEAR_TO_INDEX_MAP = new Map<number, number>(
+  ALL_PUZZLE_YEARS.map((year, index) => [year, index]),
+);
+
+// Total number of puzzles
+export const TOTAL_PUZZLES = ALL_PUZZLE_YEARS.length;
+
+// Backwards compatibility alias (to be removed)
+export const SUPPORTED_YEARS = ALL_PUZZLE_YEARS;
 
 // --- CORE FUNCTIONS ---
 
 /**
  * Get puzzle events for a specific year
  * @param year - The year to get events for
- * @returns Array of exactly 6 events, or empty array if year not supported
+ * @returns Array of events, or empty array if year not found
  */
 export function getPuzzleForYear(year: number): string[] {
   const yearStr = year.toString();
   const events = puzzleData.puzzles[yearStr];
 
-  if (!events) {
+  if (!events || events.length === 0) {
     if (process.env.NODE_ENV === "development") {
       console.warn(`🔍 DEBUG: No puzzle found for year ${year}`);
     }
     return [];
   }
 
-  if (events.length < 6) {
-    if (process.env.NODE_ENV === "development") {
-      console.error(
-        `🔍 DEBUG: Invalid puzzle for year ${year}: expected at least 6 events, got ${events.length}`,
-      );
-    }
-    return [];
-  }
-
-  // If exactly 6 events, return all
-  if (events.length === 6) {
-    if (process.env.NODE_ENV === "development") {
-      logger.debug(
-        `Loaded puzzle for year ${year} with ${events.length} events`,
-      );
-    }
-    return [...events]; // Return copy to prevent mutations
-  }
-
-  // If more than 6 events, deterministically select 6
-  if (process.env.NODE_ENV === "development") {
-    logger.debug(
-      `Year ${year} has ${events.length} events, selecting 6 deterministically`,
-    );
-  }
-
-  // Create deterministic selection based on current date and year
-  const today = new Date();
-  const dateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
-
-  // Generate hash from date + year for consistent selection
-  const seedString = `${dateString}-${year}`;
-  const seed = Math.abs(
-    [...seedString].reduce((a, b) => (a << 5) + a + b.charCodeAt(0), 5381),
-  );
-
-  // Select 6 unique indices deterministically
-  const selectedIndices: number[] = [];
-  let currentSeed = seed;
-
-  while (selectedIndices.length < 6) {
-    const index = currentSeed % events.length;
-    if (!selectedIndices.includes(index)) {
-      selectedIndices.push(index);
-    }
-    // Update seed for next iteration
-    currentSeed = Math.abs((currentSeed * 1103515245 + 12345) % 2 ** 31);
-  }
-
-  // Sort indices to maintain consistent order
-  selectedIndices.sort((a, b) => a - b);
-
-  const selectedEvents = selectedIndices.map((i) => events[i]);
-  logger.debug(
-    `Selected events at indices [${selectedIndices.join(", ")}] for year ${year}`,
-  );
-
-  return selectedEvents;
+  // Just return the events as-is - they're already curated!
+  return [...events]; // Return copy to prevent mutations
 }
 
 /**
@@ -152,7 +104,48 @@ export function hasPuzzleForYear(year: number): boolean {
  * @returns Sorted array of all years with puzzles
  */
 export function getSupportedYears(): number[] {
-  return [...SUPPORTED_YEARS]; // Return copy to prevent mutations
+  return [...ALL_PUZZLE_YEARS]; // Return copy to prevent mutations
+}
+
+// --- NEW INDEX-BASED FUNCTIONS ---
+
+/**
+ * Get puzzle by index (0-based)
+ * @param index - The puzzle index (0 to TOTAL_PUZZLES-1)
+ * @returns Puzzle object or null if index is invalid
+ */
+export function getPuzzleByIndex(index: number): Puzzle | null {
+  if (index < 0 || index >= TOTAL_PUZZLES) return null;
+
+  const year = ALL_PUZZLE_YEARS[index];
+  const events = puzzleData.puzzles[year.toString()];
+
+  if (!events || events.length === 0) return null;
+
+  return {
+    year,
+    events: [...events], // Return copy to prevent mutations
+    puzzleId: `puzzle-${index + 1}`, // 1-based puzzle ID for display
+  };
+}
+
+/**
+ * Get puzzle index from year
+ * @param year - The year to look up
+ * @returns 0-based index or -1 if year not found
+ */
+export function getIndexFromYear(year: number): number {
+  return YEAR_TO_INDEX_MAP.get(year) ?? -1;
+}
+
+/**
+ * Get year from puzzle index
+ * @param index - The puzzle index (0-based)
+ * @returns Year or null if index is invalid
+ */
+export function getYearFromIndex(index: number): number | null {
+  if (index < 0 || index >= TOTAL_PUZZLES) return null;
+  return ALL_PUZZLE_YEARS[index];
 }
 
 /**

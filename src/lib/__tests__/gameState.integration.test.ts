@@ -14,7 +14,7 @@ vi.mock("../puzzleData", () => ({
   getPuzzleForYear: vi.fn(),
   getSupportedYears: vi.fn(),
   hasPuzzleForYear: vi.fn(),
-  SUPPORTED_YEARS: [1969, 1970, 1971, 1972, 1973],
+  ALL_PUZZLE_YEARS: [1969, 1970, 1971, 1972, 1973],
 }));
 
 const mockPuzzleDataLib = vi.mocked(puzzleDataLib);
@@ -174,35 +174,29 @@ describe("gameState Library Functions", () => {
       expect(() => initializePuzzle()).toThrow("No puzzle found for year");
     });
 
-    it("should sort events by recognizability (most obscure first)", () => {
-      const unsortedEvents = [
+    it("should preserve event order from database", () => {
+      const orderedEvents = [
         "Obscure political treaty signed",
-        "Moon landing by Apollo 11",
         "Minor administrative change",
-        "World War II memorial dedicated",
         "Local election held",
+        "World War II memorial dedicated",
         "Beatles release Abbey Road",
+        "Moon landing by Apollo 11",
       ];
 
-      mockPuzzleDataLib.getPuzzleForYear.mockReturnValue(unsortedEvents);
+      mockPuzzleDataLib.getPuzzleForYear.mockReturnValue(orderedEvents);
 
       const puzzle = initializePuzzle();
 
-      // Verify sorting logic: less recognizable events should come first
-      expect(puzzle.events).toEqual(expect.arrayContaining(unsortedEvents));
-      expect(puzzle.events.length).toBe(unsortedEvents.length);
+      // Events should be in the exact same order as in the database
+      expect(puzzle.events).toEqual(orderedEvents);
+      expect(puzzle.events.length).toBe(orderedEvents.length);
 
-      // The most famous event (moon landing) should be last
-      expect(puzzle.events[puzzle.events.length - 1]).toContain("Moon landing");
-
-      // Less famous events should come earlier
-      const moonIndex = puzzle.events.findIndex((e) =>
-        e.includes("Moon landing"),
+      // The database already has events ordered from obscure to famous
+      expect(puzzle.events[0]).toBe("Obscure political treaty signed");
+      expect(puzzle.events[puzzle.events.length - 1]).toBe(
+        "Moon landing by Apollo 11",
       );
-      const adminIndex = puzzle.events.findIndex((e) =>
-        e.includes("administrative"),
-      );
-      expect(adminIndex).toBeLessThan(moonIndex);
     });
 
     it("should handle error during puzzle initialization", () => {
