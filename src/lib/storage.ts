@@ -123,8 +123,11 @@ export function safeSetJSON<T>(key: string, value: T): boolean {
 
 // --- CHRONDLE-SPECIFIC STORAGE OPERATIONS ---
 
-// Game progress storage (daily)
-export function getProgressKey(): string {
+// Game progress storage (daily or archive)
+export function getProgressKey(archiveYear?: number): string {
+  if (archiveYear) {
+    return `convex-game-state-${archiveYear}`;
+  }
   const today = new Date();
   const dateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
   return `${STORAGE_KEYS.PROGRESS_PREFIX}${dateString}`;
@@ -133,13 +136,14 @@ export function getProgressKey(): string {
 export function saveGameProgress<T>(
   progress: T,
   debugMode: boolean = false,
+  archiveYear?: number,
 ): boolean {
   if (debugMode) {
     logger.debug("Debug mode: skipping localStorage save");
     return true;
   }
 
-  const key = getProgressKey();
+  const key = getProgressKey(archiveYear);
   const progressWithTimestamp = {
     ...progress,
     timestamp: new Date().toISOString(),
@@ -151,19 +155,37 @@ export function saveGameProgress<T>(
 
 export function loadGameProgress<T = Record<string, unknown>>(
   debugMode: boolean = false,
+  archiveYear?: number,
 ): T | null {
   if (debugMode) {
     logger.debug("Debug mode: skipping localStorage load");
     return null;
   }
 
-  const key = getProgressKey();
+  const key = getProgressKey(archiveYear);
   const savedData = safeGetJSON<T>(key);
 
   logger.debug(`Loading progress for key: ${key}`);
   logger.debug(`Found saved progress:`, savedData);
 
   return savedData;
+}
+
+// Check if a puzzle for a given year is completed
+export function isPuzzleCompleted(year: number): boolean {
+  try {
+    // Get the storage key for this archive year
+    const key = getProgressKey(year);
+
+    // Load the game state
+    const gameState = safeGetJSON<{ isGameOver?: boolean }>(key);
+
+    // Check if the game exists and is completed
+    return gameState?.isGameOver === true;
+  } catch (error) {
+    logger.debug(`Error checking completion for year ${year}:`, error);
+    return false;
+  }
 }
 
 // Settings storage

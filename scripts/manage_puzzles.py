@@ -1,6 +1,7 @@
 import argparse
 import json
 import sys
+import random
 from pathlib import Path
 
 # Define the absolute path to the puzzles.json file
@@ -17,7 +18,6 @@ def read_puzzles():
         # The top-level structure is a dictionary, and the puzzles are under the "puzzles" key.
         data = json.load(f)
         return data.get("puzzles", {})
-
 
 def write_puzzles(data):
     """Writes data to the puzzles.json file with pretty printing."""
@@ -60,6 +60,30 @@ def read_full_json():
     with open(PUZZLES_FILE_PATH, 'r', encoding='utf-8') as f:
         return json.load(f)
 
+def find_year_without_puzzle():
+    """Finds a random year between -2000 and 2025 that does not have a puzzle."""
+    puzzles = read_puzzles()
+    defined_years = {int(year) for year in puzzles.keys()}
+    
+    available_years = [year for year in range(-2000, 2026) if year not in defined_years]
+    
+    if not available_years:
+        print("All years between -2000 and 2025 have puzzles defined.", file=sys.stderr)
+        sys.exit(1)
+        
+    print(random.choice(available_years))
+
+def find_year_with_puzzle():
+    """Finds a random year that has a puzzle defined."""
+    puzzles = read_puzzles()
+    defined_years = list(puzzles.keys())
+    
+    if not defined_years:
+        print("No puzzles are defined in the file.", file=sys.stderr)
+        sys.exit(1)
+        
+    print(random.choice(defined_years))
+
 def add_puzzle(year, hints):
     """Adds a new puzzle to the file."""
     file_content = read_full_json()
@@ -98,7 +122,6 @@ def list_puzzles():
     cols = 10
     for i in range(0, len(sorted_years), cols):
         print("".join(f"{year: <{col_width}}" for year in sorted_years[i:i+cols]))
-
 
 def show_puzzle(year):
     """Shows the hints for a specific year."""
@@ -146,6 +169,12 @@ def main():
     # 'count' command
     subparsers.add_parser("count", help="Count the total number of puzzles.")
 
+    # 'find-year-with-puzzle' command
+    subparsers.add_parser("find-year-with-puzzle", help="Find a random year that has a puzzle defined.")
+
+    # 'find-year-without-puzzle' command
+    subparsers.add_parser("find-year-without-puzzle", help="Find a random year between -2000 and 2025 that does not have a puzzle.")
+
 
     args = parser.parse_args()
 
@@ -159,6 +188,10 @@ def main():
         show_puzzle(args.year)
     elif args.command == "count":
         count_puzzles()
+    elif args.command == "find-year-with-puzzle":
+        find_year_with_puzzle()
+    elif args.command == "find-year-without-puzzle":
+        find_year_without_puzzle()
 
 
 if __name__ == "__main__":
