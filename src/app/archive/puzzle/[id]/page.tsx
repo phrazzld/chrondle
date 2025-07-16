@@ -64,7 +64,6 @@ function ArchivePuzzleContent({
   const [showSuccess, setShowSuccess] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const [isValidated, setIsValidated] = useState(false);
-  const [currentHintIndex, setCurrentHintIndex] = useState(0);
 
   // Get puzzle data using index (convert 1-based ID to 0-based index)
   const puzzleIndex = validation.valid && validation.id ? validation.id - 1 : 0;
@@ -76,15 +75,6 @@ function ArchivePuzzleContent({
     false, // debugMode
     targetYear, // archiveYear
   );
-
-  // Update hint index based on guesses
-  useEffect(() => {
-    if (gameState.guesses.length > 0) {
-      setCurrentHintIndex(
-        Math.min(gameState.guesses.length, puzzle?.events.length || 0) - 1,
-      );
-    }
-  }, [gameState.guesses, puzzle?.events.length]);
 
   // Handle validation effect
   useEffect(() => {
@@ -202,7 +192,6 @@ function ArchivePuzzleContent({
       {/* Use GameLayout with archive-specific header */}
       <GameLayout
         gameState={gameState}
-        currentHintIndex={currentHintIndex}
         isGameComplete={isGameComplete}
         hasWon={hasWon}
         isLoading={false}

@@ -52,10 +52,7 @@ export function validateGameLayoutProps(
     warn(componentName, "onGuess must be a function");
   }
 
-  // Check numeric props
-  if (typeof p.currentHintIndex !== "number") {
-    warn(componentName, "currentHintIndex must be a number");
-  }
+  // Check numeric props (removed currentHintIndex - now calculated internally)
 
   // Check boolean props
   const booleanProps = ["isGameComplete", "hasWon", "isLoading"];

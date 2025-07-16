@@ -265,7 +265,6 @@ export default function ChronldePage() {
             guesses: [],
             isGameOver: false,
           }}
-          currentHintIndex={0}
           isGameComplete={false}
           hasWon={false}
           isLoading={true}
@@ -307,7 +306,6 @@ export default function ChronldePage() {
       {/* Use GameLayout with homepage-specific header */}
       <GameLayout
         gameState={gameLogic.gameState}
-        currentHintIndex={gameLogic.currentHintIndex}
         isGameComplete={gameLogic.isGameComplete}
         hasWon={gameLogic.hasWon}
         isLoading={gameLogic.isLoading}

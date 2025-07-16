@@ -21,7 +21,6 @@ export interface GameLayoutProps {
     guesses: number[];
     isGameOver: boolean;
   };
-  currentHintIndex: number;
   isGameComplete: boolean;
   hasWon: boolean;
   isLoading: boolean;
@@ -52,7 +51,6 @@ export function GameLayout(props: GameLayoutProps) {
 
   const {
     gameState,
-    currentHintIndex,
     isGameComplete,
     hasWon,
     isLoading,
@@ -63,6 +61,9 @@ export function GameLayout(props: GameLayoutProps) {
     onValidationError,
     confettiRef,
   } = props;
+
+  // Calculate currentHintIndex from gameState
+  const currentHintIndex = Math.min(gameState.guesses.length, 5);
   const remainingGuesses = 6 - gameState.guesses.length;
   const showProximity = gameState.guesses.length > 0 && !hasWon;
   const targetYear = gameState.puzzle?.year || 0;
