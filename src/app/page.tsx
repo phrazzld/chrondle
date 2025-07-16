@@ -7,6 +7,7 @@ import { useConvexGameState } from "@/hooks/useConvexGameState";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { useStreak } from "@/hooks/useStreak";
 import { useCountdown } from "@/hooks/useCountdown";
+import { useVictoryConfetti } from "@/hooks/useVictoryConfetti";
 import { logger } from "@/lib/logger";
 import { SettingsModal } from "@/components/modals/SettingsModal";
 import { HintReviewModal } from "@/components/modals/HintReviewModal";
@@ -86,65 +87,14 @@ export default function ChronldePage() {
     debugMode,
   ]);
 
-  // Trigger confetti celebration on victory
-  useEffect(() => {
-    if (
-      gameLogic.hasWon &&
-      gameLogic.isGameComplete &&
-      mounted &&
-      confettiRef.current
-    ) {
-      // Check for reduced motion preference
-      const prefersReducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-
-      if (prefersReducedMotion) {
-        // Simple, less intensive confetti for users who prefer reduced motion
-        const triggerReducedConfetti = async () => {
-          try {
-            await confettiRef.current?.fire({
-              particleCount: 30,
-              spread: 45,
-              origin: { x: 0.5, y: 0.6 },
-              colors: ["#d4a574", "#27ae60"],
-              gravity: 1.2,
-              drift: 0,
-            });
-          } catch (error) {
-            console.error("Victory confetti error:", error);
-          }
-        };
-        triggerReducedConfetti();
-      } else {
-        // Full confetti celebration for users who enjoy motion
-        const triggerVictoryConfetti = async () => {
-          try {
-            // First burst from center
-            await confettiRef.current?.fire({
-              particleCount: 100,
-              spread: 70,
-              origin: { x: 0.5, y: 0.6 },
-              colors: ["#d4a574", "#27ae60", "#3498db", "#f39c12"],
-            });
-
-            // Second burst with different spread
-            setTimeout(async () => {
-              await confettiRef.current?.fire({
-                particleCount: 50,
-                spread: 120,
-                origin: { x: 0.5, y: 0.7 },
-                colors: ["#d4a574", "#27ae60", "#3498db", "#f39c12"],
-              });
-            }, 250);
-          } catch (error) {
-            console.error("Victory confetti error:", error);
-          }
-        };
-        triggerVictoryConfetti();
-      }
-    }
-  }, [gameLogic.hasWon, gameLogic.isGameComplete, mounted]);
+  // Use victory confetti hook for celebration
+  useVictoryConfetti(confettiRef, {
+    hasWon: gameLogic.hasWon,
+    isGameComplete: gameLogic.isGameComplete,
+    isMounted: mounted,
+    guessCount: gameLogic.gameState.guesses.length,
+    disabled: debugMode, // Don't fire confetti in debug mode
+  });
 
   // Announce guess feedback for screen readers
   useEffect(() => {

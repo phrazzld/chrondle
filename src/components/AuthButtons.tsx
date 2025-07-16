@@ -3,28 +3,17 @@
 import { useUser, SignInButton, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function AuthButtons() {
   const { isLoaded, isSignedIn } = useUser();
 
-  // Show sign in button even while loading
-  if (!isLoaded) {
-    return (
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-10 w-10 rounded-full opacity-50"
-        disabled
-        title="Sign in to save progress"
-        aria-label="Sign in - loading"
-      >
-        <LogIn className="h-5 w-5" />
-      </Button>
-    );
-  }
+  // Always show the same structure initially to prevent hydration mismatch
+  // The button will be disabled and slightly transparent while loading
+  const isLoading = !isLoaded;
 
   // User is signed in - show user button
-  if (isSignedIn) {
+  if (isLoaded && isSignedIn) {
     return (
       <div className="flex items-center justify-center w-10 h-10">
         <UserButton
@@ -42,15 +31,20 @@ export function AuthButtons() {
     );
   }
 
-  // User is not signed in - show sign in button
+  // Show sign in button (disabled while loading to prevent hydration mismatch)
   return (
     <SignInButton mode="modal">
       <Button
         variant="ghost"
         size="icon"
-        className="h-10 w-10 rounded-full"
-        title="Sign in to save progress and access archive"
-        aria-label="Sign in to your account"
+        className={cn("h-10 w-10 rounded-full", isLoading && "opacity-50")}
+        disabled={isLoading}
+        title={
+          isLoading
+            ? "Loading..."
+            : "Sign in to save progress and access archive"
+        }
+        aria-label={isLoading ? "Sign in - loading" : "Sign in to your account"}
       >
         <LogIn className="h-5 w-5" />
       </Button>

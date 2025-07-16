@@ -8,6 +8,7 @@ import { GameLayout } from "@/components/GameLayout";
 import { AppHeader } from "@/components/AppHeader";
 import { Footer } from "@/components/Footer";
 import { LiveAnnouncer } from "@/components/ui/LiveAnnouncer";
+import { useVictoryConfetti } from "@/hooks/useVictoryConfetti";
 import { formatYear, getGuessDirectionInfo } from "@/lib/utils";
 import { getEnhancedProximityFeedback } from "@/lib/enhancedFeedback";
 import { SettingsModal } from "@/components/modals/SettingsModal";
@@ -92,14 +93,22 @@ function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps) {
     setIsValidated(true);
   }, [validation, puzzle]);
 
-  // Handle game completion - only fire confetti on NEW wins
+  // Use victory confetti hook for celebration
+  useVictoryConfetti(confettiRef, {
+    hasWon,
+    isGameComplete,
+    isMounted: isValidated, // Use isValidated as mounted state
+    guessCount: gameState.guesses.length,
+    disabled: false,
+  });
+
+  // Handle victory announcement
   useEffect(() => {
     if (hasWon && !showSuccess && gameState.guesses.length > 0) {
       // Check if this is a fresh win (last guess was just made)
       const lastGuess = gameState.guesses[gameState.guesses.length - 1];
       if (lastGuess === targetYear) {
         setShowSuccess(true);
-        confettiRef.current?.fire();
         setAnnouncement(`Correct! The year was ${formatYear(targetYear)}`);
       }
     }
