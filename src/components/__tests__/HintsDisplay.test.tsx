@@ -56,11 +56,12 @@ describe("HintsDisplay Component Interface", () => {
       "Nixon becomes president",
       "Beatles release Abbey Road album",
     ],
-    guesses: [],
+    guesses: [] as number[],
     targetYear: 1969,
     currentHintIndex: 0,
+    isGameComplete: false,
     isLoading: false,
-    error: null,
+    error: null as string | null,
   });
 
   beforeEach(() => {
@@ -154,8 +155,7 @@ describe("HintsDisplay Component Interface", () => {
     });
 
     it("shows error message when error is present", () => {
-      const props = createDefaultProps();
-      props.error = "Failed to load hints";
+      const props = { ...createDefaultProps(), error: "Failed to load hints" };
 
       render(<HintsDisplay {...props} />);
 
@@ -163,9 +163,11 @@ describe("HintsDisplay Component Interface", () => {
     });
 
     it("prioritizes error over loading state", () => {
-      const props = createDefaultProps();
-      props.isLoading = true;
-      props.error = "Error occurred";
+      const props = {
+        ...createDefaultProps(),
+        isLoading: true,
+        error: "Error occurred",
+      };
 
       render(<HintsDisplay {...props} />);
 
