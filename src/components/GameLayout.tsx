@@ -9,6 +9,7 @@ import { GameProgress } from "@/components/GameProgress";
 import { HintsDisplay } from "@/components/HintsDisplay";
 import { Confetti, ConfettiRef } from "@/components/magicui/confetti";
 import { formatYear } from "@/lib/utils";
+import { validateGameLayoutProps } from "@/lib/propValidation";
 
 export interface GameLayoutProps {
   // Core game state
@@ -45,19 +46,23 @@ export interface GameLayoutProps {
   debugMode?: boolean;
 }
 
-export function GameLayout({
-  gameState,
-  currentHintIndex,
-  isGameComplete,
-  hasWon,
-  isLoading,
-  error,
-  onGuess,
-  headerContent,
-  footerContent,
-  onValidationError,
-  confettiRef,
-}: GameLayoutProps) {
+export function GameLayout(props: GameLayoutProps) {
+  // Validate props in development
+  validateGameLayoutProps(props);
+
+  const {
+    gameState,
+    currentHintIndex,
+    isGameComplete,
+    hasWon,
+    isLoading,
+    error,
+    onGuess,
+    headerContent,
+    footerContent,
+    onValidationError,
+    confettiRef,
+  } = props;
   const remainingGuesses = 6 - gameState.guesses.length;
   const showProximity = gameState.guesses.length > 0 && !hasWon;
   const targetYear = gameState.puzzle?.year || 0;

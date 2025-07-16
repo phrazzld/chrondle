@@ -18,11 +18,11 @@ interface PuzzleCardData {
   isCompleted: boolean;
 }
 
-function ArchivePageContent() {
-  const [currentPage, setCurrentPage] = useState(1);
+function ArchivePageContent(): React.ReactElement {
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
-  const PUZZLES_PER_PAGE = 24;
-  const totalPages = Math.ceil(TOTAL_PUZZLES / PUZZLES_PER_PAGE);
+  const PUZZLES_PER_PAGE = 24 as const;
+  const totalPages = Math.ceil(TOTAL_PUZZLES / PUZZLES_PER_PAGE) as number;
 
   // Simple pagination - just slice indices
   const paginatedData = useMemo<PuzzleCardData[]>(() => {
@@ -60,7 +60,7 @@ function ArchivePageContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <AppHeader onShowSettings={() => {}} currentStreak={0} />
+      <AppHeader onShowSettings={(): void => {}} currentStreak={0} />
 
       <main className="flex-grow max-w-2xl mx-auto w-full py-8">
         <div className="mb-8">
@@ -154,7 +154,9 @@ function ArchivePageContent() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  onClick={(): void =>
+                    setCurrentPage(Math.max(1, currentPage - 1))
+                  }
                   disabled={currentPage === 1}
                 >
                   <ChevronLeft className="h-4 w-4" />
@@ -167,7 +169,7 @@ function ArchivePageContent() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() =>
+                  onClick={(): void =>
                     setCurrentPage(Math.min(totalPages, currentPage + 1))
                   }
                   disabled={currentPage === totalPages}
@@ -185,7 +187,7 @@ function ArchivePageContent() {
   );
 }
 
-export default function ArchivePage() {
+export default function ArchivePage(): React.ReactElement {
   return (
     <ArchiveErrorBoundary>
       <React.Suspense

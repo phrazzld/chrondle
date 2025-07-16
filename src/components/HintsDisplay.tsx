@@ -12,6 +12,7 @@ import {
   useReducedMotion,
 } from "motion/react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { validateHintsDisplayProps } from "@/lib/propValidation";
 
 interface HintsDisplayProps {
   events: string[];
@@ -245,16 +246,20 @@ const FutureHint: React.FC<FutureHintProps> = ({
   );
 };
 
-export const HintsDisplay: React.FC<HintsDisplayProps> = ({
-  events,
-  guesses,
-  targetYear,
-  currentHintIndex,
-  isGameComplete = false,
-  isLoading,
-  error,
-  className = "",
-}) => {
+export const HintsDisplay: React.FC<HintsDisplayProps> = (props) => {
+  // Validate props in development
+  validateHintsDisplayProps(props);
+
+  const {
+    events,
+    guesses,
+    targetYear,
+    currentHintIndex,
+    isGameComplete = false,
+    isLoading,
+    error,
+    className = "",
+  } = props;
   const containerRef = useRef<HTMLDivElement>(null);
   const prevGuessCount = useRef(guesses.length);
   const shouldReduceMotion = useReducedMotion();

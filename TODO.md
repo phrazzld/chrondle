@@ -233,9 +233,106 @@ Updated: 2025-07-16
 
 ### Add Type Safety
 
-- [ ] Enable strict TypeScript checking for archive routes
-- [ ] Add runtime prop validation for critical components
+- [x] Enable strict TypeScript checking for archive routes
+- [x] Add runtime prop validation for critical components
 - [ ] Create tests for component interfaces
+
+## Task: Add runtime prop validation for critical components [x]
+
+### Complexity: MEDIUM
+
+### Started: 2025-07-16 16:53
+
+### Completed: 2025-07-16 17:14
+
+### Context Discovery
+
+- No validation libraries currently installed (no zod, yup, joi, etc.)
+- Critical components identified: GameLayout, GuessInput, HintsDisplay
+- Project uses TypeScript for compile-time checking
+- Need lightweight runtime validation for development
+
+### Execution Log
+
+[16:54] Analyzed package.json - no validation libraries installed
+[16:55] Identified critical components with complex props
+[16:56] Decided on custom validation utility approach
+[16:57] Creating lightweight runtime validation helpers
+[17:05] Initial validation approach too complex with TypeScript types
+[17:06] Pivoting to simpler runtime checks for critical props only
+[17:08] Created propValidation.ts with simple warning-based validation
+[17:10] Updated GameLayout, GuessInput, HintsDisplay components
+[17:12] Fixed arguments reference issue in arrow functions
+[17:13] All type checks pass, all unit tests pass
+
+### Approach Decisions
+
+- Created simple runtime validation without complex type system
+- Used console.warn for development-only prop warnings
+- Focused on critical props: arrays, numbers, functions, booleans
+- No external dependencies added - keeping bundle size minimal
+
+### Implementation Results
+
+- Created src/lib/propValidation.ts with validation helpers
+- Added validation to 3 critical components
+- Validation only runs in development mode
+- TypeScript compilation successful
+- All 107 unit tests passing
+
+### Learnings
+
+- Full schema validation is overkill when TypeScript provides compile-time checks
+- Simple runtime checks for critical props are sufficient
+- Console warnings are better than throwing errors for prop validation
+- Focus on validating structure (arrays, functions) rather than exact types
+
+## Task: Enable strict TypeScript checking for archive routes [x]
+
+### Complexity: MEDIUM
+
+### Started: 2025-07-16 16:23
+
+### Completed: 2025-07-16 16:35
+
+### Context Discovery
+
+- TypeScript strict mode already enabled globally in tsconfig.json
+- Archive routes: page.tsx and puzzle/[id]/page.tsx
+- Current type checking passes without errors
+- Opportunities for enhanced type safety identified
+
+### Execution Log
+
+[16:24] Examined tsconfig.json - strict mode already enabled
+[16:25] Analyzed archive route files for type safety improvements
+[16:26] Ran type-check - no existing errors found
+[16:27] Identified areas for enhanced type safety:
+
+- Add explicit return types to all functions
+- Improve event handler typing
+- Add type guards for data validation
+- Remove implicit any types
+  [16:28] Added explicit return types to all functions in archive page
+  [16:30] Added type annotations to state variables and constants
+  [16:31] Improved event handler typing with explicit void returns
+  [16:32] Enhanced puzzle ID validation with discriminated union type
+  [16:33] Applied const assertions for immutable values
+  [16:34] All type checks pass successfully
+
+### Approach Decisions
+
+- Added explicit return types (React.ReactElement) to all components
+- Used discriminated union type for validation result (never properties)
+- Added void return types to all event handlers for clarity
+- Applied const assertions to prevent mutation of literal values
+
+### Learnings
+
+- TypeScript strict mode was already enabled, task was about enhancing type annotations
+- Discriminated unions with never properties provide better type narrowing
+- Explicit void returns on event handlers improve code clarity
+- Const assertions help TypeScript infer literal types
 
 ## ✅ Completed Archive Features
 

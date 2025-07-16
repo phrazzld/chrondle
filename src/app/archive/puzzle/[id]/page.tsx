@@ -18,22 +18,23 @@ import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { ArchiveErrorBoundary } from "@/components/ArchiveErrorBoundary";
 
+// Type for validation result
+type PuzzleIdValidation =
+  | { valid: true; id: number; error?: never }
+  | { valid: false; id?: never; error: string };
+
 // Helper function to validate puzzle ID parameter
-function isValidPuzzleId(idStr: string): {
-  valid: boolean;
-  id?: number;
-  error?: string;
-} {
+function isValidPuzzleId(idStr: string): PuzzleIdValidation {
   // Check if it's a valid number string
   if (!/^\d+$/.test(idStr)) {
-    return { valid: false, error: "Invalid puzzle ID format" };
+    return { valid: false, error: "Invalid puzzle ID format" } as const;
   }
 
   const id = parseInt(idStr, 10);
 
   // Check if parsing was successful
   if (isNaN(id) || id < 1) {
-    return { valid: false, error: "Invalid puzzle ID value" };
+    return { valid: false, error: "Invalid puzzle ID value" } as const;
   }
 
   // Check if ID is in valid range (1-based)
@@ -41,17 +42,19 @@ function isValidPuzzleId(idStr: string): {
     return {
       valid: false,
       error: `Puzzle #${id} does not exist. We have ${TOTAL_PUZZLES} puzzles.`,
-    };
+    } as const;
   }
 
-  return { valid: true, id };
+  return { valid: true, id } as const;
 }
 
 interface ArchivePuzzleContentProps {
   id: string;
 }
 
-function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps) {
+function ArchivePuzzleContent({
+  id,
+}: ArchivePuzzleContentProps): React.ReactElement {
   const router = useRouter();
   const validation = isValidPuzzleId(id);
   const confettiRef = useRef<ConfettiRef>(null);
@@ -116,7 +119,7 @@ function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps) {
 
   // Handle guess submission
   const handleGuess = useCallback(
-    (guess: number) => {
+    (guess: number): void => {
       if (!puzzle || isGameComplete) return;
 
       makeGuess(guess);
@@ -139,7 +142,7 @@ function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps) {
   );
 
   // Handle navigation
-  const handleNavigate = (direction: "prev" | "next") => {
+  const handleNavigate = (direction: "prev" | "next"): void => {
     if (!validation.valid || !validation.id) return;
 
     const currentId = validation.id;
@@ -155,7 +158,7 @@ function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <AppHeader
-          onShowSettings={() => setShowSettings(true)}
+          onShowSettings={(): void => setShowSettings(true)}
           currentStreak={0}
         />
 
@@ -205,12 +208,12 @@ function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps) {
         isLoading={false}
         error={null}
         onGuess={handleGuess}
-        onValidationError={(msg) => setAnnouncement(msg)}
+        onValidationError={(msg: string): void => setAnnouncement(msg)}
         confettiRef={confettiRef}
         headerContent={
           <>
             <AppHeader
-              onShowSettings={() => setShowSettings(true)}
+              onShowSettings={(): void => setShowSettings(true)}
               currentStreak={0}
             />
             {/* Archive Navigation */}
@@ -225,7 +228,7 @@ function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps) {
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => handleNavigate("prev")}
+                    onClick={(): void => handleNavigate("prev")}
                     disabled={validation.id === 1}
                     className="px-3 py-1 text-sm rounded-md border border-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted"
                   >
@@ -237,7 +240,7 @@ function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps) {
                   </span>
 
                   <button
-                    onClick={() => handleNavigate("next")}
+                    onClick={(): void => handleNavigate("next")}
                     disabled={validation.id === TOTAL_PUZZLES}
                     className="px-3 py-1 text-sm rounded-md border border-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted"
                   >
@@ -254,7 +257,7 @@ function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps) {
       {/* Modals */}
       <SettingsModal
         isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
+        onClose={(): void => setShowSettings(false)}
       />
 
       {/* Hint review modal temporarily disabled - needs proper implementation */}
@@ -271,7 +274,9 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default function ArchivePuzzlePage({ params }: PageProps) {
+export default function ArchivePuzzlePage({
+  params,
+}: PageProps): React.ReactElement {
   const { id } = use(params);
 
   return (
