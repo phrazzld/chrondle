@@ -3,8 +3,9 @@ import {
   query,
   mutation,
   internalMutation,
-  DatabaseReader,
+  DatabaseWriter,
 } from "./_generated/server";
+import { Id } from "./_generated/dataModel";
 
 // Internal mutation for cron job to generate daily puzzle
 export const generateDailyPuzzle = internalMutation({
@@ -237,8 +238,8 @@ export const submitGuess = mutation({
 
 // Helper function to update puzzle statistics
 async function updatePuzzleStats(
-  ctx: { db: DatabaseReader },
-  puzzleId: string,
+  ctx: { db: DatabaseWriter },
+  puzzleId: Id<"puzzles">,
 ) {
   // Get all completed plays for this puzzle
   const completedPlays = await ctx.db
