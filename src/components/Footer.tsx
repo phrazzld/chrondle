@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Github } from 'lucide-react';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Github } from "lucide-react";
 
 export const Footer: React.FC = () => {
   return (

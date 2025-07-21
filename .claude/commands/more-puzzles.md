@@ -44,6 +44,7 @@ Continuously expand and improve `puzzles.json` by:
    - WRONG: "Roman general" → CORRECT: "Julius Caesar"
      • Vary domains (politics, science, culture, tech, sports, etc.).
      • Ensure every hint is unique across the entire file.
+     • **Avoid year-revealing hints:** Hints must not contain the puzzle's year or phrases that make the year obvious (e.g., for 1999, avoid "Y2K bug preparations intensify").
      • **Each year must have a minimum of six high-quality hints.**
      • **If more than six distinct, high-quality events can be found for a year, please add them. This enriches the data and allows for future puzzle variations.**
 
@@ -71,6 +72,22 @@ Continuously expand and improve `puzzles.json` by:
 # USING THE `manage_puzzles.py` SCRIPT
 
 To safely interact with `puzzles.json`, use the `manage_puzzles.py` script located in the `scripts/` directory. It provides several commands to help you manage the puzzle data.
+
+**To find a year that does not yet have a puzzle:**
+
+This command will pick a random year between -2000 and 2025 (inclusive) that is not yet present in `puzzles.json`.
+
+```bash
+python3 scripts/manage_puzzles.py find-year-without-puzzle
+```
+
+**To find a year that already has a puzzle:**
+
+This command will pick a random year that is already present in `puzzles.json`.
+
+```bash
+python3 scripts/manage_puzzles.py find-year-with-puzzle
+```
 
 **To add a new year:**
 
