@@ -18,15 +18,10 @@ export function useConvexPuzzle(date?: string): {
   const [isLoadingFallback, setIsLoadingFallback] = useState(false);
 
   // Try to get puzzle from Convex
-  const convexPuzzle = useQuery(
-    api.puzzles.getPuzzleByDate,
-    date ? { date } : "skip",
-  );
+  // TODO: getPuzzleByDate doesn't exist in new schema - need to implement or refactor
+  const convexPuzzle = null; // Temporarily disabled
 
-  const todaysPuzzle = useQuery(
-    api.puzzles.getTodaysPuzzle,
-    date ? "skip" : {},
-  );
+  const todaysPuzzle = useQuery(api.puzzles.getDailyPuzzle, date ? "skip" : {});
 
   const puzzle = date ? convexPuzzle : todaysPuzzle;
 
@@ -63,7 +58,10 @@ export function useConvexPuzzle(date?: string): {
   return {
     puzzle: finalPuzzle
       ? {
-          year: finalPuzzle.year,
+          year:
+            "targetYear" in finalPuzzle
+              ? finalPuzzle.targetYear
+              : finalPuzzle.year,
           events: finalPuzzle.events,
           date: finalPuzzle.date,
         }

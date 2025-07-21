@@ -24,6 +24,7 @@
     "test:coverage": "vitest --coverage",
     "update-metadata": "node scripts/update-puzzle-metadata.mjs",
     "validate-puzzles": "node scripts/validate-puzzles.mjs",
+    "migrate-events": "node scripts/migrateEvents.mjs",
     "test-module-system": "node scripts/test-module-system.mjs",
     "bundle-analysis": "ANALYZE=true pnpm build",
     "size": "size-limit",

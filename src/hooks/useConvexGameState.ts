@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react"; // useMutation commented out temporarily
 import { api } from "convex/_generated/api";
-import { useUser } from "@clerk/nextjs";
+// import { useUser } from "@clerk/nextjs"; // TODO: Re-enable when Convex integration is fixed
 import {
   GameState,
   Progress,
@@ -94,13 +94,13 @@ export function useConvexGameState(
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { isSignedIn } = useUser();
+  // const { isSignedIn } = useUser(); // TODO: Re-enable when Convex integration is fixed
 
   // Try to use Convex - these will be undefined if provider not available
   // Only fetch today's puzzle if not in archive mode
-  const todaysPuzzle = useQuery(api.puzzles.getTodaysPuzzle);
-  const recordGuessMutation = useMutation(api.puzzles.recordGuess);
-  const updateStreakMutation = useMutation(api.users.updateUserStreak);
+  const todaysPuzzle = useQuery(api.puzzles.getDailyPuzzle);
+  // const recordGuessMutation = useMutation(api.puzzles.submitGuess); // TODO: Re-enable when mutation params are fixed
+  // TODO: updateUserStreak removed in new schema - refactor streak logic
 
   // In archive mode, we don't wait for Convex puzzle
   const puzzleLoading = !archiveYear && todaysPuzzle === undefined;
@@ -150,7 +150,7 @@ export function useConvexGameState(
           const newState = {
             ...createInitialGameState(),
             puzzle: {
-              year: todaysPuzzle.year,
+              year: todaysPuzzle.targetYear,
               events: todaysPuzzle.events,
               puzzleId: todaysPuzzle.date,
             },
@@ -237,7 +237,10 @@ export function useConvexGameState(
         isGameOver,
       }));
 
-      // If signed in and Convex available, save to Convex
+      // TODO: Refactor to use new submitGuess mutation structure
+      // submitGuess requires: puzzleId, userId, guess
+      // Current code passes: date, year, guess, guesses, completed
+      /*
       if (
         isSignedIn &&
         todaysPuzzle?.date &&
@@ -261,16 +264,9 @@ export function useConvexGameState(
           console.error("Failed to save progress to Convex:", error);
         }
       }
+      */
     },
-    [
-      gameState.puzzle,
-      gameState.isGameOver,
-      gameState.guesses,
-      isSignedIn,
-      todaysPuzzle,
-      recordGuessMutation,
-      updateStreakMutation,
-    ],
+    [gameState.puzzle, gameState.isGameOver, gameState.guesses],
   );
 
   // Reset game

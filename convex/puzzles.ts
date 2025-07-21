@@ -1,197 +1,318 @@
 import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
+import {
+  query,
+  mutation,
+  internalMutation,
+  DatabaseReader,
+} from "./_generated/server";
 
-// Get today's puzzle (public query - no auth required)
-export const getTodaysPuzzle = query({
+// Internal mutation for cron job to generate daily puzzle
+export const generateDailyPuzzle = internalMutation({
   handler: async (ctx) => {
-    const today = new Date().toISOString().split("T")[0];
+    // Get today's date in UTC
+    const today = new Date();
+    const dateStr = today.toISOString().slice(0, 10); // YYYY-MM-DD format
+
+    // Check if today's puzzle already exists
+    const existingPuzzle = await ctx.db
+      .query("puzzles")
+      .withIndex("by_date", (q) => q.eq("date", dateStr))
+      .first();
+
+    if (existingPuzzle) {
+      console.warn(`Puzzle for ${dateStr} already exists`);
+      return { status: "already_exists", puzzle: existingPuzzle };
+    }
+
+    // Get the highest puzzle number
+    const latestPuzzle = await ctx.db.query("puzzles").order("desc").first();
+
+    const nextPuzzleNumber = (latestPuzzle?.puzzleNumber || 0) + 1;
+
+    // Get available years with 6+ unused events
+    // Inline the logic to avoid circular dependency
+    const unusedEvents = await ctx.db
+      .query("events")
+      .filter((q) => q.eq(q.field("puzzleId"), undefined))
+      .collect();
+
+    // Group by year and count
+    const yearCounts = new Map<number, number>();
+    for (const event of unusedEvents) {
+      const count = yearCounts.get(event.year) || 0;
+      yearCounts.set(event.year, count + 1);
+    }
+
+    // Filter years with 6+ events
+    const availableYears = Array.from(yearCounts.entries())
+      .filter(([, count]) => count >= 6)
+      .map(([year, count]) => ({ year, availableEvents: count }))
+      .sort((a, b) => a.year - b.year);
+
+    if (availableYears.length === 0) {
+      throw new Error("No years available with enough unused events");
+    }
+
+    // Select a random year
+    const randomYear =
+      availableYears[Math.floor(Math.random() * availableYears.length)];
+
+    // Get all unused events for the selected year
+    const yearEvents = await ctx.db
+      .query("events")
+      .withIndex("by_year", (q) => q.eq("year", randomYear.year))
+      .filter((q) => q.eq(q.field("puzzleId"), undefined))
+      .collect();
+
+    // Randomly select 6 events
+    const shuffled = [...yearEvents].sort(() => Math.random() - 0.5);
+    const selectedEvents = shuffled.slice(0, 6);
+
+    if (selectedEvents.length < 6) {
+      throw new Error(`Not enough events for year ${randomYear.year}`);
+    }
+
+    // Create the puzzle
+    const puzzleId = await ctx.db.insert("puzzles", {
+      puzzleNumber: nextPuzzleNumber,
+      date: dateStr,
+      targetYear: randomYear.year,
+      events: selectedEvents.map((e) => e.event),
+      playCount: 0,
+      avgGuesses: 0,
+      updatedAt: Date.now(),
+    });
+
+    // Update the selected events with the puzzleId
+    for (const event of selectedEvents) {
+      await ctx.db.patch(event._id, {
+        puzzleId,
+        updatedAt: Date.now(),
+      });
+    }
+
+    console.warn(
+      `Created puzzle #${nextPuzzleNumber} for ${dateStr} with year ${randomYear.year}`,
+    );
+
+    return {
+      status: "created",
+      puzzle: {
+        _id: puzzleId,
+        puzzleNumber: nextPuzzleNumber,
+        date: dateStr,
+        targetYear: randomYear.year,
+      },
+    };
+  },
+});
+
+// Get today's puzzle
+export const getDailyPuzzle = query({
+  handler: async (ctx) => {
+    const today = new Date().toISOString().slice(0, 10);
 
     const puzzle = await ctx.db
-      .query("dailyPuzzles")
+      .query("puzzles")
       .withIndex("by_date", (q) => q.eq("date", today))
       .first();
 
-    // If no puzzle exists for today, return null
-    // The puzzle should be created by a scheduled function or manual trigger
     return puzzle;
   },
 });
 
-// Get puzzle by specific date
-export const getPuzzleByDate = query({
-  args: { date: v.string() },
-  handler: async (ctx, { date }) => {
+// Get puzzle by number
+export const getPuzzleByNumber = query({
+  args: { puzzleNumber: v.number() },
+  handler: async (ctx, { puzzleNumber }) => {
     const puzzle = await ctx.db
-      .query("dailyPuzzles")
-      .withIndex("by_date", (q) => q.eq("date", date))
+      .query("puzzles")
+      .withIndex("by_number", (q) => q.eq("puzzleNumber", puzzleNumber))
       .first();
 
     return puzzle;
   },
 });
 
-// Get archive puzzles (paginated, requires auth)
+// Get archive puzzles (paginated)
 export const getArchivePuzzles = query({
   args: {
-    paginationOpts: v.object({
-      numItems: v.number(),
-      cursor: v.optional(v.string()),
-    }),
+    page: v.number(),
+    pageSize: v.number(),
   },
-  handler: async (ctx, { paginationOpts }) => {
-    // This will be enhanced with premium check later
-    const { cursor, numItems } = paginationOpts;
+  handler: async (ctx, { page, pageSize }) => {
+    // Get total count
+    const allPuzzles = await ctx.db.query("puzzles").collect();
+    const totalCount = allPuzzles.length;
 
-    const results = await ctx.db
-      .query("dailyPuzzles")
-      .order("desc")
-      .paginate({ cursor: cursor ?? null, numItems });
+    // Get puzzles sorted by puzzle number (newest first)
+    const puzzles = await ctx.db.query("puzzles").order("desc").collect();
 
-    return results;
+    // Manual pagination
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedPuzzles = puzzles.slice(startIndex, endIndex);
+
+    return {
+      puzzles: paginatedPuzzles,
+      totalPages: Math.ceil(totalCount / pageSize),
+      currentPage: page,
+      totalCount,
+    };
   },
 });
 
-// Record a user's guess
-export const recordGuess = mutation({
+// Submit a guess (for authenticated users)
+export const submitGuess = mutation({
   args: {
-    date: v.string(),
-    year: v.number(),
+    puzzleId: v.id("puzzles"),
+    userId: v.id("users"),
     guess: v.number(),
-    guesses: v.array(v.number()),
-    completed: v.boolean(),
   },
   handler: async (ctx, args) => {
-    // Get the authenticated user
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      // Anonymous users don't save to database
-      return { saved: false };
+    // Get the puzzle to check the target year
+    const puzzle = await ctx.db.get(args.puzzleId);
+    if (!puzzle) {
+      throw new Error("Puzzle not found");
     }
 
-    // Find the user record
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk", (q) => q.eq("clerkId", identity.subject))
-      .first();
-
-    if (!user) {
-      console.error("User not found in database:", identity.subject);
-      return { saved: false };
-    }
-
-    // Check if game record already exists
-    const existingGame = await ctx.db
-      .query("userGames")
-      .withIndex("by_user_date", (q) =>
-        q.eq("userId", user._id.toString()).eq("date", args.date),
+    // Check if play record exists
+    const existingPlay = await ctx.db
+      .query("plays")
+      .withIndex("by_user_puzzle", (q) =>
+        q.eq("userId", args.userId).eq("puzzleId", args.puzzleId),
       )
       .first();
 
-    if (existingGame) {
-      // Update existing game
-      await ctx.db.patch(existingGame._id, {
-        guesses: args.guesses,
-        completed: args.completed,
-        timestamp: Date.now(),
+    const isCorrect = args.guess === puzzle.targetYear;
+
+    if (existingPlay) {
+      // Don't allow guesses on completed puzzles
+      if (existingPlay.completedAt) {
+        throw new Error("Puzzle already completed");
+      }
+
+      // Add guess to existing play
+      const updatedGuesses = [...existingPlay.guesses, args.guess];
+
+      await ctx.db.patch(existingPlay._id, {
+        guesses: updatedGuesses,
+        completedAt: isCorrect ? Date.now() : undefined,
+        updatedAt: Date.now(),
       });
+
+      // Update puzzle stats if completed
+      if (isCorrect) {
+        await updatePuzzleStats(ctx, args.puzzleId);
+      }
+
+      return {
+        correct: isCorrect,
+        guesses: updatedGuesses,
+        targetYear: puzzle.targetYear,
+      };
     } else {
-      // Create new game record
-      await ctx.db.insert("userGames", {
-        userId: user._id.toString(),
-        date: args.date,
-        year: args.year,
-        guesses: args.guesses,
-        completed: args.completed,
-        timestamp: Date.now(),
+      // Create new play record
+      await ctx.db.insert("plays", {
+        userId: args.userId,
+        puzzleId: args.puzzleId,
+        guesses: [args.guess],
+        completedAt: isCorrect ? Date.now() : undefined,
+        updatedAt: Date.now(),
       });
+
+      // Update puzzle stats
+      if (isCorrect) {
+        await updatePuzzleStats(ctx, args.puzzleId);
+      }
+
+      return {
+        correct: isCorrect,
+        guesses: [args.guess],
+        targetYear: puzzle.targetYear,
+      };
     }
-
-    // Update daily puzzle stats
-    const puzzle = await ctx.db
-      .query("dailyPuzzles")
-      .withIndex("by_date", (q) => q.eq("date", args.date))
-      .first();
-
-    if (puzzle) {
-      const newPlayCount = (puzzle.playCount || 0) + 1;
-      const currentAvg = puzzle.avgGuesses || 0;
-      const newAvg = args.completed
-        ? (currentAvg * puzzle.playCount + args.guesses.length) / newPlayCount
-        : currentAvg;
-
-      await ctx.db.patch(puzzle._id, {
-        playCount: newPlayCount,
-        avgGuesses: newAvg,
-      });
-    }
-
-    return { saved: true };
   },
 });
 
-// Create today's puzzle (should be called by a daily cron job)
-export const createDailyPuzzle = mutation({
+// Helper function to update puzzle statistics
+async function updatePuzzleStats(
+  ctx: { db: DatabaseReader },
+  puzzleId: string,
+) {
+  // Get all completed plays for this puzzle
+  const completedPlays = await ctx.db
+    .query("plays")
+    .withIndex("by_puzzle", (q) => q.eq("puzzleId", puzzleId))
+    .filter((q) => q.neq(q.field("completedAt"), null))
+    .collect();
+
+  const playCount = completedPlays.length;
+  if (playCount === 0) return;
+
+  // Calculate average guesses
+  const totalGuesses = completedPlays.reduce(
+    (sum: number, play) => sum + play.guesses.length,
+    0,
+  );
+  const avgGuesses = totalGuesses / playCount;
+
+  // Update puzzle
+  await ctx.db.patch(puzzleId, {
+    playCount,
+    avgGuesses: Math.round(avgGuesses * 10) / 10, // Round to 1 decimal
+    updatedAt: Date.now(),
+  });
+}
+
+// Get user's play record for a puzzle
+export const getUserPlay = query({
   args: {
-    date: v.string(), // YYYY-MM-DD format
+    puzzleId: v.id("puzzles"),
+    userId: v.id("users"),
   },
-  handler: async (ctx, { date }) => {
-    // Check if puzzle already exists for this date
-    const existing = await ctx.db
-      .query("dailyPuzzles")
-      .withIndex("by_date", (q) => q.eq("date", date))
+  handler: async (ctx, { puzzleId, userId }) => {
+    const play = await ctx.db
+      .query("plays")
+      .withIndex("by_user_puzzle", (q) =>
+        q.eq("userId", userId).eq("puzzleId", puzzleId),
+      )
       .first();
 
-    if (existing) {
-      return { created: false, puzzle: existing };
-    }
+    return play;
+  },
+});
 
-    // Get all unused years with at least 6 events
-    const unusedYears = await ctx.db
-      .query("yearEvents")
-      .withIndex("by_used", (q) => q.eq("used", false))
+// Get user's completed puzzles
+export const getUserCompletedPuzzles = query({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, { userId }) => {
+    const completedPlays = await ctx.db
+      .query("plays")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .filter((q) => q.neq(q.field("completedAt"), null))
       .collect();
 
-    const eligibleYears = unusedYears.filter((y) => y.events.length >= 6);
+    return completedPlays;
+  },
+});
 
-    if (eligibleYears.length === 0) {
-      throw new Error("No more unused years available for puzzles!");
+// Manual trigger for generating a puzzle (for testing)
+export const manualGeneratePuzzle = mutation({
+  handler: async () => {
+    // Only allow in development
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("Manual puzzle generation not allowed in production");
     }
 
-    // Use deterministic selection based on date
-    const dateHash = date.split("").reduce((acc, char) => {
-      return (acc << 5) + acc + char.charCodeAt(0);
-    }, 5381);
-
-    const selectedYear =
-      eligibleYears[Math.abs(dateHash) % eligibleYears.length];
-
-    // Take the first 6 events
-    const puzzleEvents = selectedYear.events.slice(0, 6);
-
-    // Create the puzzle
-    const puzzleId = await ctx.db.insert("dailyPuzzles", {
-      date,
-      year: selectedYear.year,
-      events: puzzleEvents,
-      playCount: 0,
-      avgGuesses: 0,
-      createdAt: Date.now(),
-    });
-
-    // Mark the year as used
-    await ctx.db.patch(selectedYear._id, {
-      used: true,
-      usedDate: date,
-    });
-
+    // TODO: Refactor to avoid circular dependency
+    // For now, returning a placeholder since this is dev-only
     return {
-      created: true,
-      puzzle: {
-        _id: puzzleId,
-        date,
-        year: selectedYear.year,
-        events: puzzleEvents,
-      },
+      status: "error",
+      message:
+        "Manual generation temporarily disabled due to circular dependency. Use cron job instead.",
     };
   },
 });

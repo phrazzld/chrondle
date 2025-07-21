@@ -11,19 +11,13 @@ export function useUserData() {
     isSignedIn ? {} : undefined,
   );
 
-  // Check premium status
-  const premiumStatus = useQuery(
-    api.users.checkPremiumStatus,
-    isSignedIn ? {} : undefined,
-  );
+  // Premium status removed in new schema
 
   return {
-    isLoading:
-      !clerkLoaded ||
-      (isSignedIn && (userStats === undefined || premiumStatus === undefined)),
+    isLoading: !clerkLoaded || (isSignedIn && userStats === undefined),
     isSignedIn,
     userStats,
-    isPremium: premiumStatus?.isPremium || false,
-    subscriptionEnd: premiumStatus?.subscriptionEnd,
+    isPremium: false, // Premium feature removed
+    subscriptionEnd: undefined,
   };
 }

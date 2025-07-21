@@ -13,9 +13,12 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as crons from "../crons.js";
+import type * as events from "../events.js";
+import type * as migrations_migrateEvents from "../migrations/migrateEvents.js";
+import type * as migrations_migratePuzzles from "../migrations/migratePuzzles.js";
 import type * as puzzles from "../puzzles.js";
 import type * as users from "../users.js";
-import type * as yearEvents from "../yearEvents.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -26,9 +29,12 @@ import type * as yearEvents from "../yearEvents.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  crons: typeof crons;
+  events: typeof events;
+  "migrations/migrateEvents": typeof migrations_migrateEvents;
+  "migrations/migratePuzzles": typeof migrations_migratePuzzles;
   puzzles: typeof puzzles;
   users: typeof users;
-  yearEvents: typeof yearEvents;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
