@@ -132,6 +132,71 @@ export const assignEventsToPuzzle = mutation({
   },
 });
 
+// Delete all events for a year (only if none are used in puzzles)
+export const deleteYearEvents = mutation({
+  args: {
+    year: v.number(),
+  },
+  handler: async (ctx, { year }) => {
+    // Get all events for the year
+    const events = await ctx.db
+      .query("events")
+      .withIndex("by_year", (q) => q.eq("year", year))
+      .collect();
+
+    // Check if any events are used in puzzles
+    const usedEvents = events.filter((e) => e.puzzleId !== undefined);
+    if (usedEvents.length > 0) {
+      throw new Error(
+        `Cannot delete events for year ${year}: ${usedEvents.length} events are used in puzzles`,
+      );
+    }
+
+    // Delete all events for the year
+    let deletedCount = 0;
+    for (const event of events) {
+      await ctx.db.delete(event._id);
+      deletedCount++;
+    }
+
+    return {
+      year,
+      deletedCount,
+    };
+  },
+});
+
+// Get all years with event counts
+export const getAllYearsWithStats = query({
+  handler: async (ctx) => {
+    const allEvents = await ctx.db.query("events").collect();
+
+    // Group events by year
+    const yearStats = new Map<number, { total: number; used: number }>();
+
+    for (const event of allEvents) {
+      const stats = yearStats.get(event.year) || { total: 0, used: 0 };
+      stats.total++;
+      if (event.puzzleId !== undefined) {
+        stats.used++;
+      }
+      yearStats.set(event.year, stats);
+    }
+
+    // Convert to sorted array
+    const result = Array.from(yearStats.entries())
+      .map(([year, stats]) => ({
+        year,
+        total: stats.total,
+        used: stats.used,
+        available: stats.total - stats.used,
+      }))
+      .sort((a, b) => a.year - b.year); // Chronological order
+
+    return result;
+  },
+});
+
 // Get pool statistics
 export const getEventPoolStats = query({
   handler: async (ctx) => {

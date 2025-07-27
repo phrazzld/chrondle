@@ -34,7 +34,12 @@
     "clean:dev": "pnpm clean:next && pnpm dev",
     "fresh": "pnpm clean && pnpm install && pnpm dev",
     "check-cache": "node scripts/check-cache-age.mjs",
-    "predev": "node scripts/check-cache-age.mjs || true"
+    "predev": "node scripts/check-cache-age.mjs || true",
+    "events": "tsx scripts/manage-events.ts",
+    "deploy:verify": "node scripts/verify-deployment.mjs",
+    "deploy:check-migration": "node scripts/check-migration-needed.mjs",
+    "deploy:migrate": "pnpm deploy:check-migration && pnpm migrate-events || echo 'Migration not needed'",
+    "deploy": "convex deploy && pnpm deploy:migrate && pnpm deploy:verify"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.24.0",
@@ -69,6 +74,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitest/coverage-v8": "^1.6.0",
+    "commander": "^14.0.0",
     "dotenv": "^17.2.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
@@ -78,6 +84,7 @@
     "size-limit": "11.2.0",
     "tailwindcss": "^4",
     "ts-prune": "0.10.3",
+    "tsx": "^4.20.3",
     "tw-animate-css": "1.3.4",
     "typescript": "^5",
     "unimported": "1.31.1",

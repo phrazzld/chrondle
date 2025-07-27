@@ -122,6 +122,15 @@ export const getDailyPuzzle = query({
   },
 });
 
+// Get puzzle by ID
+export const getPuzzleById = query({
+  args: { puzzleId: v.id("puzzles") },
+  handler: async (ctx, { puzzleId }) => {
+    const puzzle = await ctx.db.get(puzzleId);
+    return puzzle;
+  },
+});
+
 // Get puzzle by number
 export const getPuzzleByNumber = query({
   args: { puzzleNumber: v.number() },
