@@ -68,71 +68,271 @@
   - ✅ Proper error handling and logging implemented
   - ✅ Maps targetYear→year, events→events, \_id→puzzleId
 
-- [ ] Update `getPuzzleYears` to query Convex
+- [x] Update `getPuzzleYears` to query Convex
 
   - Current: Returns empty array
   - New: Query all puzzles, extract targetYear, sort descending
   - This will only return years for puzzles that actually exist
   - No assumptions about 298 historical years
 
-- [ ] Fix `validatePuzzleData` to work with Convex
+## Task: Update getPuzzleYears to query Convex [~]
+
+### Complexity: MEDIUM
+
+### Started: 2025-07-28 13:19
+
+### Context Discovery
+
+- Analyzing existing Convex integration patterns
+- Need to check convex/puzzles.ts for existing queries
+- Will follow pattern from getPuzzleByIndexAsync implementation
+
+### Execution Log
+
+[13:19] Examined puzzleData.ts - getPuzzleYears returns empty array with warning
+[13:20] Checked convex/puzzles.ts - no existing query for getting all years
+[13:20] Need to create new query `getPuzzleYears` in Convex
+[13:20] Will return sorted array of unique targetYear values
+[13:21] Added getPuzzleYears query to convex/puzzles.ts
+[13:21] Created getPuzzleYearsAsync function following established pattern
+[13:22] Marked sync version as deprecated with clear warning
+
+### Approach Decisions
+
+- Create new Convex query to fetch all unique puzzle years
+- Make getPuzzleYears async to match other Convex integrations
+- Keep deprecation pattern for backward compatibility
+
+### Learnings
+
+- Following the established pattern of creating async versions with deprecation warnings
+- Convex queries return objects, so years are wrapped in { years: number[] }
+- Sorting descending (newest first) matches user expectations for archive display
+- Functions declared with `export async function` don't need re-export
+
+### COMPLETED
+
+- ✅ Added getPuzzleYears query to convex/puzzles.ts
+- ✅ Created getPuzzleYearsAsync function in puzzleData.ts
+- ✅ Marked sync version as deprecated
+- ✅ TypeScript compilation verified
+
+- [x] Fix `validatePuzzleData` to work with Convex
   - Current: Validates static JSON structure
   - New: Simple connectivity check to Convex
   - Return true if can connect, false otherwise
   - Remove all validation of puzzle counts/structure
 
+## Task: Fix validatePuzzleData to work with Convex [~]
+
+### Complexity: SIMPLE
+
+### Started: 2025-07-28 13:23
+
+### Context Discovery
+
+- Function located in src/lib/puzzleData.ts
+- Currently just returns true with a warning
+- Need to implement actual Convex connectivity check
+
+### Execution Log
+
+[13:23] Found validatePuzzleData function at line 277
+[13:23] Current implementation just logs warning and returns true
+[13:24] Will implement connectivity check using getTotalPuzzles query
+[13:24] Created validatePuzzleDataAsync with Convex connectivity check
+[13:24] Marked sync version as deprecated with warning
+[13:25] TypeScript compilation verified
+
+### Approach Decisions
+
+- Used getTotalPuzzles query as simple connectivity check
+- Returns true if query succeeds and returns valid count
+- Returns false on any error or unexpected response
+- Logs appropriate debug/error messages
+
+### COMPLETED
+
+- ✅ Created validatePuzzleDataAsync function
+- ✅ Implements simple Convex connectivity check
+- ✅ Marked sync version as deprecated
+- ✅ TypeScript compilation verified
+
 ## Phase 2: Fix Archive Page [USER-FACING]
 
 ### Convert to Server Component
 
-- [ ] Change `src/app/archive/page.tsx` from "use client" to server component
+- [x] Change `src/app/archive/page.tsx` from "use client" to server component
 
   - Remove: `"use client"` directive
   - Convert ArchivePageContent to async function
   - Fetch data server-side before rendering
   - Keep error boundary for resilience
 
-- [ ] Replace `TOTAL_PUZZLES` usage with Convex query
+## Task: Change archive page from "use client" to server component [~]
+
+### Complexity: MEDIUM
+
+### Started: 2025-07-28 13:26
+
+### Context Discovery
+
+- Need to examine current archive page implementation
+- Check data fetching patterns and state management
+- Identify client-only features that need adjustment
+
+### Execution Log
+
+[13:26] Examined archive page - it's a client component with hooks
+[13:27] Uses useState for pagination, useMemo for data processing
+[13:27] Needs conversion: remove hooks, use searchParams for pagination
+[13:27] Key dependencies: TOTAL_PUZZLES, getPuzzleByIndex, isPuzzleCompleted
+[13:28] Removed "use client" directive
+[13:28] Made ArchivePageContent async and removed hooks
+[13:29] Converted pagination to use Link components with searchParams
+[13:29] Fixed Next.js 15 searchParams Promise type
+[13:30] TypeScript compilation successful
+
+### Approach Decisions
+
+- Used searchParams for pagination instead of client-side state
+- Kept isPuzzleCompleted for now (will be updated in later phase)
+- Maintained error boundary and suspense for resilience
+- Changed onClick handlers to Link components for pagination
+
+### COMPLETED
+
+- ✅ Removed "use client" directive
+- ✅ Converted ArchivePageContent to async function
+- ✅ Replaced useState/useMemo with server-side logic
+- ✅ Updated pagination to use URL searchParams
+- ✅ TypeScript compilation verified
+
+- [x] Replace `TOTAL_PUZZLES` usage with Convex query
 
   - Current: Uses constant for pagination calculations
   - New: Fetch actual count from `getArchivePuzzles` response
   - Update: `totalPages` calculation based on real data
   - Handle case where count is 0 (empty archive)
 
-- [ ] Replace `getPuzzleByIndex` calls with Convex data
+## Task: Replace TOTAL_PUZZLES usage with Convex query [~]
+
+### Complexity: MEDIUM
+
+### Started: 2025-07-28 13:31
+
+### Context Discovery
+
+- Need to check archive page for TOTAL_PUZZLES usage
+- Examine getArchivePuzzles query in Convex
+- Plan how to fetch dynamic puzzle count
+
+### Execution Log
+
+[13:31] Found TOTAL_PUZZLES used in 6 places for pagination and stats
+[13:32] Examined getArchivePuzzles query - returns totalCount, puzzles, totalPages
+[13:32] Need to import Convex client and call getArchivePuzzles
+[13:33] Imported ConvexHttpClient and api
+[13:33] Called getArchivePuzzles with page and pageSize
+[13:34] Replaced all TOTAL_PUZZLES usage with totalCount
+[13:34] Added empty archive handling (count = 0)
+[13:35] Fixed loading skeleton to use actual count
+[13:35] TypeScript compilation successful
+
+### Approach Decisions
+
+- Used getArchivePuzzles query which returns paginated data
+- Leveraged totalCount, totalPages from response
+- Added empty archive message for better UX
+- Made loading skeleton dynamic based on actual count
+- Used puzzleNumber directly for links instead of index+1
+
+### COMPLETED
+
+- ✅ Replaced TOTAL_PUZZLES with dynamic totalCount
+- ✅ Handled empty archive case (count = 0)
+- ✅ Updated pagination to use totalPages from Convex
+- ✅ Fixed loading skeleton to show realistic count
+- ✅ Replaced getPuzzleByIndex calls with puzzles from Convex
+- ✅ TypeScript compilation verified
+
+- [x] Replace `getPuzzleByIndex` calls with Convex data
 
   - Current: Loops through indices calling getPuzzleByIndex
   - New: Use `getArchivePuzzles` query directly
   - Already returns paginated data - use it!
   - Format: `{ puzzles: [...], totalPages, currentPage, totalCount }`
+  - ✅ COMPLETED: Used puzzles array from getArchivePuzzles directly
 
-- [ ] Update completion tracking for authenticated users
+- [x] Update completion tracking for authenticated users
 
   - Current: Uses `isPuzzleCompleted` from localStorage
   - New: Query user's completed puzzles from Convex
   - Only for authenticated users (Clerk integration)
   - Anonymous users see no completion indicators
 
-- [ ] Fix loading skeleton to show realistic counts
+## Task: Update completion tracking for authenticated users [~]
+
+### Complexity: MEDIUM
+
+### Started: 2025-07-28 13:37
+
+### Context Discovery
+
+- Need to check how authentication is integrated
+- Find where isPuzzleCompleted is used
+- Look at getUserCompletedPuzzles query in Convex
+
+### Execution Log
+
+[13:37] Found isPuzzleCompleted usage in archive page (line 49)
+[13:38] Discovered Clerk authentication integrated via ConvexProviderWithClerk
+[13:38] Found getCurrentUser and getUserCompletedPuzzles queries in Convex
+[13:39] Archive page is server component - need server-side auth check
+[13:40] Imported currentUser from @clerk/nextjs/server
+[13:40] Fetched Convex user and completed puzzles for authenticated users
+[13:41] Updated completion tracking to use completedPuzzleIds set
+[13:41] Made completion statistics only show for authenticated users
+[13:42] TypeScript compilation successful
+
+### Approach Decisions
+
+- Used currentUser() from Clerk server SDK for authentication
+- Created a Set of completed puzzle IDs for O(1) lookup performance
+- Only show completion stats for authenticated users
+- Anonymous users see no completion indicators
+
+### COMPLETED
+
+- ✅ Removed isPuzzleCompleted localStorage usage
+- ✅ Integrated getUserByClerkId and getUserCompletedPuzzles queries
+- ✅ Updated isCompleted check to use Convex data
+- ✅ Made completion tracking user-specific
+- ✅ TypeScript compilation verified
+
+- [x] Fix loading skeleton to show realistic counts
   - Current: Shows 24 skeleton cards (PUZZLES_PER_PAGE)
   - New: Show actual number based on totalCount
   - Start with fewer skeletons for new archive
   - Grow organically as puzzles are added
+  - ✅ COMPLETED: Already fixed in previous task, uses Math.min(totalCount, PUZZLES_PER_PAGE)
 
 ### Fix Archive Links
 
-- [ ] Update puzzle links to use Convex puzzle IDs
+- [x] Update puzzle links to use Convex puzzle IDs
 
   - Current: `href="/archive/puzzle/${puzzle.index + 1}"`
   - New: Use actual puzzle.puzzleNumber from Convex
   - Ensure consistent with getPuzzleByNumber query
   - No assumptions about sequential indices
+  - ✅ COMPLETED: Already fixed, using puzzle.puzzleNumber directly
 
-- [ ] Update completed count calculation
+- [x] Update completed count calculation
   - Current: Loops through all TOTAL_PUZZLES
   - New: Only count puzzles that actually exist
   - For authenticated users only
   - Show "X of Y" where Y is actual puzzle count
+  - ✅ COMPLETED: Shows actual completed count from Convex for authenticated users
 
 ## Phase 3: Fix Game State Hook [CORE GAMEPLAY]
 

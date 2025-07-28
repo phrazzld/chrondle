@@ -123,13 +123,29 @@ export function getPuzzleForYear(year: number): string[] {
 }
 
 /**
- * Get all available puzzle years in descending order
+ * Get all available puzzle years in descending order - DEPRECATED SYNC VERSION
  * @returns Array of years that have puzzles, sorted newest to oldest
+ * @deprecated Use getPuzzleYearsAsync instead
  */
 export function getPuzzleYears(): number[] {
-  // TODO: Fetch from Convex
-  console.warn("🚧 getPuzzleYears() - Convex migration in progress");
+  console.warn(
+    "🚧 getPuzzleYears() - DEPRECATED: Use getPuzzleYearsAsync for accurate data",
+  );
   return [];
+}
+
+/**
+ * Get all available puzzle years in descending order - Async version using Convex
+ * @returns Promise resolving to array of years that have puzzles, sorted newest to oldest
+ */
+export async function getPuzzleYearsAsync(): Promise<number[]> {
+  try {
+    const result = await getConvexClient().query(api.puzzles.getPuzzleYears);
+    return result.years;
+  } catch (error) {
+    logger.error("Failed to fetch puzzle years from Convex", error);
+    return [];
+  }
 }
 
 /**
@@ -255,13 +271,40 @@ export function getPuzzleMeta(): PuzzleMeta {
 }
 
 /**
- * Validate puzzle data structure at runtime
+ * Validate puzzle data structure at runtime - DEPRECATED SYNC VERSION
  * @returns True if all puzzles are valid, false otherwise
+ * @deprecated Use validatePuzzleDataAsync instead
  */
 export function validatePuzzleData(): boolean {
-  // TODO: Validate Convex data instead
-  logger.warn("🚧 validatePuzzleData() - Convex migration in progress");
-  return true; // Assume valid during migration
+  logger.warn(
+    "🚧 validatePuzzleData() - DEPRECATED: Use validatePuzzleDataAsync for accurate connectivity check",
+  );
+  return true; // Assume valid for backward compatibility
+}
+
+/**
+ * Validate Convex connectivity by attempting a simple query
+ * @returns Promise resolving to true if Convex is accessible, false otherwise
+ */
+export async function validatePuzzleDataAsync(): Promise<boolean> {
+  try {
+    // Attempt a simple query to check Convex connectivity
+    const result = await getConvexClient().query(api.puzzles.getTotalPuzzles);
+
+    // If we get a result with a count property, Convex is working
+    if (typeof result.count === "number") {
+      logger.debug(
+        `Convex connectivity validated: ${result.count} puzzles found`,
+      );
+      return true;
+    }
+
+    logger.warn("Unexpected response format from Convex");
+    return false;
+  } catch (error) {
+    logger.error("Failed to connect to Convex", error);
+    return false;
+  }
 }
 
 // Export the dynamic puzzle count fetcher

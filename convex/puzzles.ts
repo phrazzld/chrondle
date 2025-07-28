@@ -130,6 +130,24 @@ export const getTotalPuzzles = query({
   },
 });
 
+// Get all unique puzzle years
+export const getPuzzleYears = query({
+  handler: async (ctx) => {
+    const puzzles = await ctx.db.query("puzzles").collect();
+
+    // Extract unique years
+    const yearsSet = new Set<number>();
+    for (const puzzle of puzzles) {
+      yearsSet.add(puzzle.targetYear);
+    }
+
+    // Convert to array and sort descending (newest first)
+    const years = Array.from(yearsSet).sort((a, b) => b - a);
+
+    return { years };
+  },
+});
+
 // Get puzzle by ID
 export const getPuzzleById = query({
   args: { puzzleId: v.id("puzzles") },
