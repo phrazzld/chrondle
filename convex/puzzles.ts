@@ -122,6 +122,14 @@ export const getDailyPuzzle = query({
   },
 });
 
+// Get total number of puzzles
+export const getTotalPuzzles = query({
+  handler: async (ctx) => {
+    const puzzles = await ctx.db.query("puzzles").collect();
+    return { count: puzzles.length };
+  },
+});
+
 // Get puzzle by ID
 export const getPuzzleById = query({
   args: { puzzleId: v.id("puzzles") },

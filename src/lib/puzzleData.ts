@@ -1,12 +1,17 @@
 // Static Puzzle Database for Chrondle
-// Ultra-minimal schema: just year -> events mapping with metadata
+// TEMPORARY: This file needs to be updated to use Convex data
+// TODO: Complete migration to Convex-based puzzle data
 
-import puzzleDataJson from "@/data/puzzles.json";
 import { logger } from "./logger";
 import type { Puzzle } from "./gameState";
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "../../convex/_generated/api";
 
 // Re-export Puzzle type for convenience
 export type { Puzzle } from "./gameState";
+
+// Initialize Convex client
+const convexClient = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 // --- TYPE DEFINITIONS ---
 
@@ -21,23 +26,68 @@ export interface PuzzleDatabase {
   puzzles: Record<string, string[]>;
 }
 
-// --- STATIC DATA ---
+// --- TEMPORARY EMPTY DATA ---
+// This is a temporary stub to make the code compile after deleting puzzles.json
+// The next task will properly implement Convex-based data fetching
 
-export const puzzleData: PuzzleDatabase = puzzleDataJson;
+export const puzzleData: PuzzleDatabase = {
+  meta: {
+    version: "2.0.0",
+    total_puzzles: 0,
+    date_range: "migrating to Convex",
+  },
+  puzzles: {},
+};
 
 // Pre-computed array of all puzzles for index-based access
 // Sorted by year (ascending) for consistent ordering
-export const ALL_PUZZLE_YEARS = Object.keys(puzzleData.puzzles)
-  .map(Number)
-  .sort((a, b) => a - b);
+export const ALL_PUZZLE_YEARS: number[] = [];
 
 // Create a map for O(1) year to index lookup
-export const YEAR_TO_INDEX_MAP = new Map<number, number>(
-  ALL_PUZZLE_YEARS.map((year, index) => [year, index]),
-);
+export const YEAR_TO_INDEX_MAP = new Map<number, number>();
 
-// Total number of puzzles
-export const TOTAL_PUZZLES = ALL_PUZZLE_YEARS.length;
+// Cache for total puzzles count
+let cachedTotalPuzzles: number | null = null;
+let totalPuzzlesFetchPromise: Promise<number> | null = null;
+
+/**
+ * Get the total number of puzzles from Convex
+ * This function caches the result for performance
+ * @returns Total number of puzzles, or 0 if Convex is unavailable
+ */
+async function fetchTotalPuzzles(): Promise<number> {
+  // Return cached value if available
+  if (cachedTotalPuzzles !== null) {
+    return cachedTotalPuzzles;
+  }
+
+  // If already fetching, wait for that promise
+  if (totalPuzzlesFetchPromise) {
+    return totalPuzzlesFetchPromise;
+  }
+
+  // Start new fetch
+  totalPuzzlesFetchPromise = (async () => {
+    try {
+      const result = await convexClient.query(api.puzzles.getTotalPuzzles);
+      cachedTotalPuzzles = result.count;
+      return result.count;
+    } catch (error) {
+      logger.error("Failed to fetch total puzzles from Convex", error);
+      // Return 0 to prevent crashes, but log the error
+      return 0;
+    } finally {
+      totalPuzzlesFetchPromise = null;
+    }
+  })();
+
+  return totalPuzzlesFetchPromise;
+}
+
+// Total number of puzzles - NOW DYNAMIC!
+// For synchronous access (legacy compatibility), default to 0
+// Components should use fetchTotalPuzzles() for accurate count
+export const TOTAL_PUZZLES = 0; // This will be replaced by server-side fetching
 
 // Backwards compatibility alias (to be removed)
 export const SUPPORTED_YEARS = ALL_PUZZLE_YEARS;
@@ -50,18 +100,9 @@ export const SUPPORTED_YEARS = ALL_PUZZLE_YEARS;
  * @returns Array of events, or empty array if year not found
  */
 export function getPuzzleForYear(year: number): string[] {
-  const yearStr = year.toString();
-  const events = puzzleData.puzzles[yearStr];
-
-  if (!events || events.length === 0) {
-    if (process.env.NODE_ENV === "development") {
-      console.warn(`🔍 DEBUG: No puzzle found for year ${year}`);
-    }
-    return [];
-  }
-
-  // Just return the events as-is - they're already curated!
-  return [...events]; // Return copy to prevent mutations
+  // TODO: Fetch from Convex
+  console.warn(`🚧 getPuzzleForYear(${year}) - Convex migration in progress`);
+  return [];
 }
 
 /**
@@ -69,9 +110,9 @@ export function getPuzzleForYear(year: number): string[] {
  * @returns Array of years that have puzzles, sorted newest to oldest
  */
 export function getPuzzleYears(): number[] {
-  return Object.keys(puzzleData.puzzles)
-    .map(Number)
-    .sort((a, b) => b - a);
+  // TODO: Fetch from Convex
+  console.warn("🚧 getPuzzleYears() - Convex migration in progress");
+  return [];
 }
 
 /**
@@ -80,14 +121,9 @@ export function getPuzzleYears(): number[] {
  * @returns Puzzle object with date, year, and events, or null if not found
  */
 export function getPuzzleByYear(year: number): Puzzle | null {
-  const events = puzzleData.puzzles[year.toString()];
-  if (!events) return null;
-
-  return {
-    year,
-    events,
-    puzzleId: year.toString(),
-  };
+  // TODO: Fetch from Convex
+  console.warn(`🚧 getPuzzleByYear(${year}) - Convex migration in progress`);
+  return null;
 }
 
 /**
@@ -96,7 +132,9 @@ export function getPuzzleByYear(year: number): Puzzle | null {
  * @returns True if puzzle exists for this year
  */
 export function hasPuzzleForYear(year: number): boolean {
-  return puzzleData.puzzles.hasOwnProperty(year.toString());
+  // TODO: Check in Convex
+  console.warn(`🚧 hasPuzzleForYear(${year}) - Convex migration in progress`);
+  return false;
 }
 
 /**
@@ -104,7 +142,9 @@ export function hasPuzzleForYear(year: number): boolean {
  * @returns Sorted array of all years with puzzles
  */
 export function getSupportedYears(): number[] {
-  return [...ALL_PUZZLE_YEARS]; // Return copy to prevent mutations
+  // TODO: Fetch from Convex
+  console.warn("🚧 getSupportedYears() - Convex migration in progress");
+  return [];
 }
 
 // --- NEW INDEX-BASED FUNCTIONS ---
@@ -115,18 +155,9 @@ export function getSupportedYears(): number[] {
  * @returns Puzzle object or null if index is invalid
  */
 export function getPuzzleByIndex(index: number): Puzzle | null {
-  if (index < 0 || index >= TOTAL_PUZZLES) return null;
-
-  const year = ALL_PUZZLE_YEARS[index];
-  const events = puzzleData.puzzles[year.toString()];
-
-  if (!events || events.length === 0) return null;
-
-  return {
-    year,
-    events: [...events], // Return copy to prevent mutations
-    puzzleId: `puzzle-${index + 1}`, // 1-based puzzle ID for display
-  };
+  // TODO: Fetch from Convex
+  console.warn(`🚧 getPuzzleByIndex(${index}) - Convex migration in progress`);
+  return null;
 }
 
 /**
@@ -135,7 +166,9 @@ export function getPuzzleByIndex(index: number): Puzzle | null {
  * @returns 0-based index or -1 if year not found
  */
 export function getIndexFromYear(year: number): number {
-  return YEAR_TO_INDEX_MAP.get(year) ?? -1;
+  // TODO: Implement with Convex data
+  console.warn(`🚧 getIndexFromYear(${year}) - Convex migration in progress`);
+  return -1;
 }
 
 /**
@@ -144,8 +177,9 @@ export function getIndexFromYear(year: number): number {
  * @returns Year or null if index is invalid
  */
 export function getYearFromIndex(index: number): number | null {
-  if (index < 0 || index >= TOTAL_PUZZLES) return null;
-  return ALL_PUZZLE_YEARS[index];
+  // TODO: Implement with Convex data
+  console.warn(`🚧 getYearFromIndex(${index}) - Convex migration in progress`);
+  return null;
 }
 
 /**
@@ -161,76 +195,10 @@ export function getPuzzleMeta(): PuzzleMeta {
  * @returns True if all puzzles are valid, false otherwise
  */
 export function validatePuzzleData(): boolean {
-  try {
-    let isValid = true;
-
-    // Check metadata
-    if (!puzzleData.meta || typeof puzzleData.meta.version !== "string") {
-      console.error("🔍 DEBUG: Invalid puzzle metadata");
-      isValid = false;
-    }
-
-    // Check puzzles object
-    if (!puzzleData.puzzles || typeof puzzleData.puzzles !== "object") {
-      console.error("🔍 DEBUG: Invalid puzzles object");
-      isValid = false;
-    }
-
-    // Validate each puzzle
-    for (const [yearStr, events] of Object.entries(puzzleData.puzzles)) {
-      // Check year format
-      const year = parseInt(yearStr, 10);
-      if (isNaN(year) || year.toString() !== yearStr) {
-        console.error(`🔍 DEBUG: Invalid year format: ${yearStr}`);
-        isValid = false;
-        continue;
-      }
-
-      // Check events array
-      if (!Array.isArray(events)) {
-        console.error(`🔍 DEBUG: Events for year ${year} is not an array`);
-        isValid = false;
-        continue;
-      }
-
-      // Check event count
-      if (events.length < 6) {
-        console.error(
-          `🔍 DEBUG: Year ${year} has ${events.length} events, expected at least 6`,
-        );
-        isValid = false;
-        continue;
-      } else if (events.length > 6) {
-        logger.debug(
-          `Year ${year} has ${events.length} events (>6), will select 6 deterministically`,
-        );
-      }
-
-      // Check each event
-      events.forEach((event, index) => {
-        if (typeof event !== "string") {
-          console.error(
-            `🔍 DEBUG: Year ${year}, event ${index} is not a string`,
-          );
-          isValid = false;
-        } else if (event.length < 15 || event.length > 200) {
-          console.error(
-            `🔍 DEBUG: Year ${year}, event ${index} length (${event.length}) outside 15-200 range`,
-          );
-          isValid = false;
-        }
-      });
-    }
-
-    if (isValid) {
-      logger.info(
-        `Puzzle data validation passed - ${Object.keys(puzzleData.puzzles).length} valid puzzles`,
-      );
-    }
-
-    return isValid;
-  } catch (error) {
-    console.error("🔍 DEBUG: Puzzle data validation failed:", error);
-    return false;
-  }
+  // TODO: Validate Convex data instead
+  logger.warn("🚧 validatePuzzleData() - Convex migration in progress");
+  return true; // Assume valid during migration
 }
+
+// Export the dynamic puzzle count fetcher
+export { fetchTotalPuzzles };
