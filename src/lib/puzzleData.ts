@@ -10,8 +10,35 @@ import { api } from "../../convex/_generated/api";
 // Re-export Puzzle type for convenience
 export type { Puzzle } from "./gameState";
 
-// Initialize Convex client
-const convexClient = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+// Singleton Convex client with lazy initialization
+let convexClient: ConvexHttpClient | null = null;
+
+/**
+ * Get or create the Convex client instance
+ * @returns ConvexHttpClient instance
+ * @throws Error if NEXT_PUBLIC_CONVEX_URL is not configured
+ */
+function getConvexClient(): ConvexHttpClient {
+  if (!convexClient) {
+    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+
+    if (!convexUrl) {
+      const errorMsg = "NEXT_PUBLIC_CONVEX_URL environment variable is not set";
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+
+    try {
+      convexClient = new ConvexHttpClient(convexUrl);
+      logger.debug("Convex client initialized successfully");
+    } catch (error) {
+      logger.error("Failed to initialize Convex client", error);
+      throw error;
+    }
+  }
+
+  return convexClient;
+}
 
 // --- TYPE DEFINITIONS ---
 
@@ -62,7 +89,7 @@ async function fetchTotalPuzzles(): Promise<number> {
   // Start new fetch
   totalPuzzlesFetchPromise = (async () => {
     try {
-      const result = await convexClient.query(api.puzzles.getTotalPuzzles);
+      const result = await getConvexClient().query(api.puzzles.getTotalPuzzles);
       cachedTotalPuzzles = result.count;
       return result.count;
     } catch (error) {
