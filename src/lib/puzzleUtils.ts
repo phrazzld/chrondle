@@ -1,8 +1,8 @@
-import { getIndexFromYear, ALL_PUZZLE_YEARS } from "./puzzleData";
+import { getIndexFromYear } from "./puzzleData";
 import { getDailyYear } from "./gameState";
 
 /**
- * Calculate puzzle number for a given year based on its position in ALL_PUZZLE_YEARS
+ * Calculate puzzle number for a given year
  * @param year The year to get puzzle number for
  * @returns Puzzle number (1-indexed) or null if year not found
  */
@@ -39,10 +39,10 @@ export function formatPuzzleNumber(num: number): string {
  * @param puzzleNumber The puzzle number (1-indexed)
  * @returns The year for that puzzle number, or null if invalid
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function getYearFromPuzzleNumber(puzzleNumber: number): number | null {
-  const index = puzzleNumber - 1;
-  if (index >= 0 && index < ALL_PUZZLE_YEARS.length) {
-    return ALL_PUZZLE_YEARS[index];
-  }
+  // TODO: This function needs to query Convex for the puzzle by number
+  // Puzzle numbers are no longer tied to specific years
+  console.warn("🚧 getYearFromPuzzleNumber() - Needs Convex migration");
   return null;
 }

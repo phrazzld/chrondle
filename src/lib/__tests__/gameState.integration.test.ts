@@ -14,7 +14,6 @@ vi.mock("../puzzleData", () => ({
   getPuzzleForYear: vi.fn(),
   getSupportedYears: vi.fn(),
   hasPuzzleForYear: vi.fn(),
-  ALL_PUZZLE_YEARS: [1969, 1970, 1971, 1972, 1973],
 }));
 
 const mockPuzzleDataLib = vi.mocked(puzzleDataLib);

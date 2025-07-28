@@ -39,10 +39,6 @@ export const puzzleData: PuzzleDatabase = {
   puzzles: {},
 };
 
-// Pre-computed array of all puzzles for index-based access
-// Sorted by year (ascending) for consistent ordering
-export const ALL_PUZZLE_YEARS: number[] = [];
-
 // Create a map for O(1) year to index lookup
 export const YEAR_TO_INDEX_MAP = new Map<number, number>();
 
@@ -88,9 +84,6 @@ async function fetchTotalPuzzles(): Promise<number> {
 // For synchronous access (legacy compatibility), default to 0
 // Components should use fetchTotalPuzzles() for accurate count
 export const TOTAL_PUZZLES = 0; // This will be replaced by server-side fetching
-
-// Backwards compatibility alias (to be removed)
-export const SUPPORTED_YEARS = ALL_PUZZLE_YEARS;
 
 // --- CORE FUNCTIONS ---
 

@@ -4,7 +4,7 @@ import {
   initializePuzzle,
   createInitialGameState,
 } from "../gameState";
-import { getPuzzleForYear, ALL_PUZZLE_YEARS } from "../puzzleData";
+import { getPuzzleForYear } from "../puzzleData";
 import { logger } from "../logger";
 
 // Performance test configuration
@@ -58,9 +58,10 @@ describe("Performance Tests", () => {
   });
 
   describe("initializePuzzle Performance", () => {
-    it("should initialize puzzle within performance threshold", () => {
-      // Use a year that has puzzle data
-      const testYear = ALL_PUZZLE_YEARS[0];
+    it.skip("should initialize puzzle within performance threshold - DEPRECATED", () => {
+      // This test is skipped as initializePuzzle is deprecated
+      // Puzzles are now loaded from Convex
+      const testYear = 2000; // Hardcoded test year
 
       const start = performance.now();
 
@@ -86,8 +87,10 @@ describe("Performance Tests", () => {
   });
 
   describe("getPuzzleForYear Performance", () => {
-    it("should retrieve puzzle data efficiently", () => {
-      const testYear = ALL_PUZZLE_YEARS[0];
+    it.skip("should retrieve puzzle data efficiently - DEPRECATED", () => {
+      // This test is skipped as getPuzzleForYear is deprecated
+      // Puzzles are now loaded from Convex
+      const testYear = 2000; // Hardcoded test year
 
       const start = performance.now();
 

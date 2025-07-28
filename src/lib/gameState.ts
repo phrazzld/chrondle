@@ -1,7 +1,7 @@
 // Game State Management for Chrondle
 // Static puzzle database with pre-curated historical events
 
-import { getPuzzleForYear, ALL_PUZZLE_YEARS } from "./puzzleData";
+import { getPuzzleForYear } from "./puzzleData";
 import { logger } from "./logger";
 import {
   saveGameProgress,
@@ -57,43 +57,19 @@ export function createInitialGameState(): GameState {
 
 // Deterministic daily year selection from pre-curated puzzle database
 export function getDailyYear(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   debugYear?: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   isDebugMode?: boolean,
 ): number {
-  // Handle debug mode forced year
-  if (debugYear && isDebugMode) {
-    const parsedYear = parseInt(debugYear, 10);
-    if (!isNaN(parsedYear)) {
-      // Check if debug year has a puzzle in the static database
-      if (ALL_PUZZLE_YEARS.includes(parsedYear)) {
-        return parsedYear;
-      } else {
-        console.warn(
-          `🔍 DEBUG: Debug year ${debugYear} (${parsedYear}) not found in puzzle database.`,
-        );
-      }
-    } else {
-    }
-  }
-
-  const today = new Date();
-
-  // Reset time to midnight to ensure consistency across timezones
-  today.setHours(0, 0, 0, 0);
-
-  // Generate deterministic hash from date
-  const dateHash = Math.abs(
-    [...today.toISOString().slice(0, 10)].reduce(
-      (a, b) => (a << 5) + a + b.charCodeAt(0),
-      5381,
-    ),
+  // This function is deprecated - daily puzzles are now handled by Convex
+  logger.warn(
+    "🚧 getDailyYear() is deprecated - use Convex getDailyPuzzle instead",
   );
 
-  // Select from all available puzzle years
-  const yearIndex = dateHash % ALL_PUZZLE_YEARS.length;
-  const selectedYear = ALL_PUZZLE_YEARS[yearIndex];
-
-  return selectedYear;
+  // Return placeholder year for backward compatibility
+  // This should not be used in production
+  return 2000;
 }
 
 // Initialize daily puzzle from static database

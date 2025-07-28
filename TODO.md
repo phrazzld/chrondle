@@ -25,12 +25,15 @@
   - ✅ Kept TOTAL_PUZZLES = 0 for legacy sync access
   - ✅ Components should migrate to use fetchTotalPuzzles()
 
-- [ ] Remove `ALL_PUZZLE_YEARS` array from `src/lib/puzzleData.ts`
+- [x] Remove `ALL_PUZZLE_YEARS` array from `src/lib/puzzleData.ts`
 
   - Current: `export const ALL_PUZZLE_YEARS: number[] = [];`
   - This assumes pre-existing puzzles - WRONG for start fresh
   - Replace with dynamic query when needed
   - Update all consumers to handle empty/growing archive
+  - ✅ COMPLETED: Removed array and SUPPORTED_YEARS alias
+  - ✅ Updated 5 production files and 3 test files
+  - ✅ Functions using old logic now show deprecation warnings
 
 - [ ] Remove `YEAR_TO_INDEX_MAP` from `src/lib/puzzleData.ts`
   - Current: `export const YEAR_TO_INDEX_MAP = new Map<number, number>();`

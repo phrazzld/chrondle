@@ -1,7 +1,7 @@
 // Theme Support System for Chrondle
 // Classifies and organizes historical puzzles into thematic collections
 
-import { getPuzzleForYear, ALL_PUZZLE_YEARS } from "./puzzleData";
+import { getPuzzleForYear } from "./puzzleData";
 
 // --- TYPE DEFINITIONS ---
 
@@ -295,7 +295,12 @@ export function classifyPuzzleTheme(year: number, events: string[]): Theme {
  * Get metadata for all themes including year counts and lists
  */
 export function getThemeMetadata(): Record<Theme, ThemeMetadata> {
-  // Classify all years first
+  // TODO: This function needs to be updated to use Convex data
+  // For now, return empty arrays as puzzles are loaded dynamically
+  console.warn(
+    "🚧 getThemeMetadata() - Needs Convex migration for dynamic puzzle data",
+  );
+
   const yearsByTheme: Record<Theme, number[]> = {
     "ancient-civilizations": [],
     science: [],
@@ -303,18 +308,6 @@ export function getThemeMetadata(): Record<Theme, ThemeMetadata> {
     conflict: [],
     general: [],
   };
-
-  // Classify each puzzle year
-  for (const year of ALL_PUZZLE_YEARS) {
-    const events = getPuzzleForYear(year);
-    const theme = classifyPuzzleTheme(year, events);
-    yearsByTheme[theme].push(year);
-  }
-
-  // Sort years within each theme
-  for (const theme of Object.keys(yearsByTheme) as Theme[]) {
-    yearsByTheme[theme].sort((a, b) => a - b);
-  }
 
   return {
     "ancient-civilizations": {
