@@ -39,9 +39,6 @@ export const puzzleData: PuzzleDatabase = {
   puzzles: {},
 };
 
-// Create a map for O(1) year to index lookup
-export const YEAR_TO_INDEX_MAP = new Map<number, number>();
-
 // Cache for total puzzles count
 let cachedTotalPuzzles: number | null = null;
 let totalPuzzlesFetchPromise: Promise<number> | null = null;

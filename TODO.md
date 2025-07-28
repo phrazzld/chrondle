@@ -35,10 +35,13 @@
   - ✅ Updated 5 production files and 3 test files
   - ✅ Functions using old logic now show deprecation warnings
 
-- [ ] Remove `YEAR_TO_INDEX_MAP` from `src/lib/puzzleData.ts`
+- [x] Remove `YEAR_TO_INDEX_MAP` from `src/lib/puzzleData.ts`
   - Current: `export const YEAR_TO_INDEX_MAP = new Map<number, number>();`
   - This maps years to puzzle indices - not relevant for puzzle numbers
   - Delete entirely - puzzle numbers are sequential, not year-based
+  - ✅ COMPLETED: Removed unused map declaration
+  - ✅ No other code dependencies found
+  - ✅ TypeScript compilation verified
 
 ### Implement Convex Data Fetching
 
