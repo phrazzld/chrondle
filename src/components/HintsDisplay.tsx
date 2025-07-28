@@ -30,6 +30,7 @@ interface CurrentHintProps {
   hintText: string | null;
   isLoading: boolean;
   shouldReduceMotion?: boolean;
+  totalHints: number;
 }
 
 interface PastHintProps {
@@ -51,6 +52,7 @@ const CurrentHint: React.FC<CurrentHintProps> = ({
   hintText,
   isLoading,
   shouldReduceMotion = false,
+  totalHints,
 }) => {
   return (
     <motion.div
@@ -67,12 +69,12 @@ const CurrentHint: React.FC<CurrentHintProps> = ({
       }}
       className="py-4 px-4 rounded-lg border-2 border-primary/50 bg-gradient-to-br from-muted/10 to-muted/20 shadow-lg"
     >
-      <p className="text-xs text-primary mb-2 text-left uppercase font-accent tracking-wide flex items-center gap-2">
+      <h3 className="text-xs text-primary mb-2 text-left uppercase font-accent tracking-wide flex items-center gap-2">
         <span className="inline-flex w-5 h-5 rounded-full bg-primary text-white items-center justify-center text-[10px] font-bold">
           {hintNumber}
         </span>
-        Current Hint
-      </p>
+        Hint {hintNumber} of {totalHints}
+      </h3>
       {isLoading ? (
         <div className="flex items-center gap-3">
           <LoadingSpinner size="sm" />
@@ -347,6 +349,7 @@ export const HintsDisplay: React.FC<HintsDisplayProps> = (props) => {
               hintText={currentHint.hintText}
               isLoading={isLoading || !currentHint.hintText}
               shouldReduceMotion={shouldReduceMotion ?? false}
+              totalHints={events.length}
             />
           )}
 

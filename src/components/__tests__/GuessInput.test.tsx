@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { GuessInput } from "../GuessInput";
 import { validateGuessInputProps } from "@/lib/propValidation";
 
@@ -46,7 +46,7 @@ describe("GuessInput Component Interface", () => {
       expect(mockValidate).toHaveBeenCalledWith(defaultProps);
     });
 
-    it("calls onGuess when form is submitted with valid year", () => {
+    it("calls onGuess when form is submitted with valid year", async () => {
       render(<GuessInput {...defaultProps} />);
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
@@ -55,7 +55,9 @@ describe("GuessInput Component Interface", () => {
       fireEvent.change(input, { target: { value: "1969" } });
       fireEvent.submit(form);
 
-      expect(mockOnGuess).toHaveBeenCalledWith(1969);
+      await waitFor(() => {
+        expect(mockOnGuess).toHaveBeenCalledWith(1969);
+      });
     });
 
     it("handles disabled state correctly", () => {
@@ -148,7 +150,7 @@ describe("GuessInput Component Interface", () => {
       expect(mockOnGuess).not.toHaveBeenCalled();
     });
 
-    it("accepts valid BCE years", () => {
+    it("accepts valid BCE years", async () => {
       render(<GuessInput {...defaultProps} />);
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
@@ -157,10 +159,12 @@ describe("GuessInput Component Interface", () => {
       fireEvent.change(input, { target: { value: "-776" } });
       fireEvent.submit(form);
 
-      expect(mockOnGuess).toHaveBeenCalledWith(-776);
+      await waitFor(() => {
+        expect(mockOnGuess).toHaveBeenCalledWith(-776);
+      });
     });
 
-    it("handles Enter key submission", () => {
+    it("handles Enter key submission", async () => {
       render(<GuessInput {...defaultProps} />);
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
@@ -172,7 +176,9 @@ describe("GuessInput Component Interface", () => {
       const form = input.closest("form")!;
       fireEvent.submit(form);
 
-      expect(mockOnGuess).toHaveBeenCalledWith(1969);
+      await waitFor(() => {
+        expect(mockOnGuess).toHaveBeenCalledWith(1969);
+      });
     });
   });
 
@@ -208,7 +214,7 @@ describe("GuessInput Component Interface", () => {
       expect(button.textContent).toContain("100");
     });
 
-    it("clears input after successful submission", () => {
+    it("clears input after successful submission", async () => {
       render(<GuessInput {...defaultProps} />);
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
@@ -222,7 +228,9 @@ describe("GuessInput Component Interface", () => {
       // After submission, input should be cleared
       // Note: This behavior depends on the actual component implementation
       // In tests, we verify the onGuess was called
-      expect(mockOnGuess).toHaveBeenCalledWith(1969);
+      await waitFor(() => {
+        expect(mockOnGuess).toHaveBeenCalledWith(1969);
+      });
     });
   });
 

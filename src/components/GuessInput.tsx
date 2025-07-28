@@ -116,7 +116,17 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
     [inputValue, onGuess, onValidationError, isSubmitting],
   );
 
-  const buttonText = disabled ? "Game Over" : "Guess";
+  const getButtonText = (
+    remainingGuesses: number,
+    disabled: boolean,
+  ): string => {
+    if (disabled) return "Game Over";
+    if (remainingGuesses === 0) return "No guesses remaining";
+    if (remainingGuesses === 1) return "1 guess remaining";
+    return `${remainingGuesses} guesses remaining`;
+  };
+
+  const buttonText = getButtonText(remainingGuesses, disabled);
   const isSubmitDisabled = disabled || remainingGuesses <= 0;
 
   return (
