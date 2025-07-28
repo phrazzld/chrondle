@@ -167,14 +167,61 @@ export function getSupportedYears(): number[] {
 // --- NEW INDEX-BASED FUNCTIONS ---
 
 /**
- * Get puzzle by index (0-based)
+ * Get puzzle by index (0-based) - DEPRECATED SYNC VERSION
  * @param index - The puzzle index (0 to TOTAL_PUZZLES-1)
  * @returns Puzzle object or null if index is invalid
+ * @deprecated Use getPuzzleByIndexAsync instead
  */
 export function getPuzzleByIndex(index: number): Puzzle | null {
-  // TODO: Fetch from Convex
-  console.warn(`🚧 getPuzzleByIndex(${index}) - Convex migration in progress`);
+  console.warn(
+    `🚧 getPuzzleByIndex(${index}) - DEPRECATED: Use getPuzzleByIndexAsync`,
+  );
   return null;
+}
+
+/**
+ * Get puzzle by index (0-based) - Async version using Convex
+ * @param index - The puzzle index (0 to TOTAL_PUZZLES-1)
+ * @returns Promise resolving to Puzzle object or null if index is invalid
+ */
+export async function getPuzzleByIndexAsync(
+  index: number,
+): Promise<Puzzle | null> {
+  try {
+    // Validate index
+    if (index < 0) {
+      logger.warn(`Invalid puzzle index: ${index}`);
+      return null;
+    }
+
+    // Convert 0-based index to 1-based puzzle number
+    const puzzleNumber = index + 1;
+
+    // Fetch puzzle from Convex
+    const convexPuzzle = await getConvexClient().query(
+      api.puzzles.getPuzzleByNumber,
+      { puzzleNumber },
+    );
+
+    if (!convexPuzzle) {
+      logger.debug(
+        `No puzzle found for index ${index} (puzzle #${puzzleNumber})`,
+      );
+      return null;
+    }
+
+    // Map Convex format to legacy Puzzle interface
+    const puzzle: Puzzle = {
+      year: convexPuzzle.targetYear,
+      events: convexPuzzle.events,
+      puzzleId: convexPuzzle._id,
+    };
+
+    return puzzle;
+  } catch (error) {
+    logger.error(`Failed to fetch puzzle by index ${index}`, error);
+    return null;
+  }
 }
 
 /**

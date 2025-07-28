@@ -56,13 +56,17 @@
   - ✅ Improved error handling with detailed logging
   - ✅ Singleton pattern ensures single client instance
 
-- [ ] Update `getPuzzleByIndex` to use Convex data
+- [x] Update `getPuzzleByIndex` to use Convex data
 
   - Current: Returns null (stub implementation)
   - New: Call `api.puzzles.getPuzzleByNumber` with puzzleNumber = index + 1
   - Convert Convex puzzle format to legacy Puzzle interface
   - Map: `{ targetYear: year, events, puzzleId: _id }`
   - Handle loading states and errors
+  - ✅ COMPLETED: Created getPuzzleByIndexAsync with Convex integration
+  - ✅ Kept deprecated sync version for backward compatibility
+  - ✅ Proper error handling and logging implemented
+  - ✅ Maps targetYear→year, events→events, \_id→puzzleId
 
 - [ ] Update `getPuzzleYears` to query Convex
 
