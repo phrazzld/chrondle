@@ -2,7 +2,11 @@
 
 import { useState, useEffect, useCallback, use } from "react";
 import Link from "next/link";
-import { TOTAL_PUZZLES, getPuzzleByIndex } from "@/lib/puzzleData";
+import {
+  fetchTotalPuzzles,
+  getPuzzleByIndexAsync,
+  type Puzzle,
+} from "@/lib/puzzleData";
 import { useConvexGameState } from "@/hooks/useConvexGameState";
 import { GameLayout } from "@/components/GameLayout";
 import { AppHeader } from "@/components/AppHeader";
@@ -37,14 +41,8 @@ function isValidPuzzleId(idStr: string): PuzzleIdValidation {
     return { valid: false, error: "Invalid puzzle ID value" } as const;
   }
 
-  // Check if ID is in valid range (1-based)
-  if (id > TOTAL_PUZZLES) {
-    return {
-      valid: false,
-      error: `Puzzle #${id} does not exist. We have ${TOTAL_PUZZLES} puzzles.`,
-    } as const;
-  }
-
+  // For now, just return valid if it's a positive number
+  // Actual validation will happen when we try to fetch the puzzle
   return { valid: true, id } as const;
 }
 
@@ -64,27 +62,68 @@ function ArchivePuzzleContent({
   const [showSuccess, setShowSuccess] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const [isValidated, setIsValidated] = useState(false);
+  const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
+  const [totalPuzzles, setTotalPuzzles] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  // Get puzzle data using index (convert 1-based ID to 0-based index)
-  const puzzleIndex = validation.valid && validation.id ? validation.id - 1 : 0;
-  const puzzle = validation.valid ? getPuzzleByIndex(puzzleIndex) : null;
+  // The puzzle ID is the puzzle number (1-based)
+  const puzzleNumber = validation.valid && validation.id ? validation.id : 0;
   const targetYear = puzzle?.year || 2000;
 
-  // Use game state for archive puzzle
+  // Use game state for archive puzzle with puzzle number
   const { gameState, makeGuess, hasWon, isGameComplete } = useConvexGameState(
     false, // debugMode
-    targetYear, // archiveYear
+    puzzleNumber > 0 && puzzle ? puzzleNumber : undefined, // archivePuzzleNumber
   );
 
-  // Handle validation effect
+  // Fetch puzzle data and total puzzles count
   useEffect(() => {
-    if (!validation.valid) {
-      setAnnouncement(`Error: ${validation.error}`);
-    } else if (!puzzle) {
-      setAnnouncement("Error: Failed to load puzzle data");
+    async function fetchData() {
+      if (!validation.valid) {
+        setAnnouncement(`Error: ${validation.error}`);
+        setIsValidated(true);
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+
+        // Fetch total puzzles count and puzzle data in parallel
+        const [totalCount, puzzleData] = await Promise.all([
+          fetchTotalPuzzles(),
+          getPuzzleByIndexAsync(validation.id - 1), // Convert to 0-based index
+        ]);
+
+        setTotalPuzzles(totalCount);
+
+        // Check if puzzle exists
+        if (!puzzleData) {
+          setFetchError(`Puzzle #${validation.id} not found`);
+          setAnnouncement(`Puzzle #${validation.id} not found`);
+        } else if (validation.id > totalCount) {
+          setFetchError(
+            `Puzzle #${validation.id} does not exist. We have ${totalCount} puzzles.`,
+          );
+          setAnnouncement(
+            `Puzzle #${validation.id} does not exist. We have ${totalCount} puzzles.`,
+          );
+        } else {
+          setPuzzle(puzzleData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch puzzle data:", error);
+        setFetchError("Failed to load puzzle data");
+        setAnnouncement("Error: Failed to load puzzle data");
+      } finally {
+        setIsValidated(true);
+        setIsLoading(false);
+      }
     }
-    setIsValidated(true);
-  }, [validation, puzzle]);
+
+    fetchData();
+  }, [validation]);
 
   // Use victory confetti hook for celebration
   useVictoryConfetti(confettiRef, {
@@ -138,13 +177,13 @@ function ArchivePuzzleContent({
     const currentId = validation.id;
     const newId = direction === "prev" ? currentId - 1 : currentId + 1;
 
-    if (newId >= 1 && newId <= TOTAL_PUZZLES) {
+    if (newId >= 1 && newId <= totalPuzzles) {
       router.push(`/archive/puzzle/${newId}`);
     }
   };
 
   // Error state
-  if (isValidated && (!validation.valid || !puzzle)) {
+  if (isValidated && (!validation.valid || fetchError || !puzzle)) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <AppHeader
@@ -155,7 +194,7 @@ function ArchivePuzzleContent({
         <main className="flex-grow max-w-2xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8">
           <div className="text-center py-12">
             <h1 className="text-2xl font-bold text-foreground mb-4">
-              {validation.error || "Puzzle not found"}
+              {validation.error || fetchError || "Puzzle not found"}
             </h1>
             <Link
               href="/archive"
@@ -172,7 +211,7 @@ function ArchivePuzzleContent({
   }
 
   // Loading state
-  if (!isValidated) {
+  if (!isValidated || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">
@@ -230,7 +269,7 @@ function ArchivePuzzleContent({
 
                   <button
                     onClick={(): void => handleNavigate("next")}
-                    disabled={validation.id === TOTAL_PUZZLES}
+                    disabled={validation.id === totalPuzzles}
                     className="px-3 py-1 text-sm rounded-md border border-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted"
                   >
                     Next

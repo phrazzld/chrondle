@@ -12,8 +12,6 @@ import * as puzzleDataLib from "../puzzleData";
 // Mock dependencies
 vi.mock("../puzzleData", () => ({
   getPuzzleForYear: vi.fn(),
-  getSupportedYears: vi.fn(),
-  hasPuzzleForYear: vi.fn(),
 }));
 
 const mockPuzzleDataLib = vi.mocked(puzzleDataLib);
@@ -28,18 +26,6 @@ const mockPuzzleEvents = [
   "Beatles release Abbey Road album",
 ];
 
-const mockSupportedYears = [1969, 1970, 1971, 1972, 1973];
-
-// Create a proper mock for localStorage
-interface MockStorage {
-  getItem: ReturnType<typeof vi.fn>;
-  setItem: ReturnType<typeof vi.fn>;
-  removeItem: ReturnType<typeof vi.fn>;
-  clear: ReturnType<typeof vi.fn>;
-  key: ReturnType<typeof vi.fn>;
-  length: number;
-}
-
 describe("gameState Library Functions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -49,24 +35,8 @@ describe("gameState Library Functions", () => {
     // Set a consistent time for all tests unless overridden
     vi.setSystemTime(new Date("2024-01-15T10:00:00Z"));
 
-    // Mock localStorage
-    const localStorageMock: MockStorage = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      removeItem: vi.fn(),
-      clear: vi.fn(),
-      key: vi.fn(),
-      length: 0,
-    };
-    Object.defineProperty(window, "localStorage", {
-      value: localStorageMock,
-      writable: true,
-    });
-
     // Setup default mock implementations
-    mockPuzzleDataLib.getSupportedYears.mockReturnValue(mockSupportedYears);
     mockPuzzleDataLib.getPuzzleForYear.mockReturnValue(mockPuzzleEvents);
-    mockPuzzleDataLib.hasPuzzleForYear.mockReturnValue(true);
   });
 
   afterEach(() => {
@@ -75,84 +45,26 @@ describe("gameState Library Functions", () => {
   });
 
   describe("getDailyYear", () => {
-    it("should return consistent year for same date", () => {
-      // Mock consistent date
-      vi.setSystemTime(new Date("2024-01-15"));
-
-      const year1 = getDailyYear();
-      const year2 = getDailyYear();
-
-      expect(year1).toBe(year2);
-      expect(mockSupportedYears).toContain(year1);
+    it("should return placeholder year (deprecated function)", () => {
+      // getDailyYear is deprecated and always returns 2000
+      const year = getDailyYear();
+      expect(year).toBe(2000);
     });
 
-    it("should return different years for different dates", () => {
-      // Test with first date
-      vi.setSystemTime(new Date("2024-01-15"));
-      const year1 = getDailyYear();
-
-      // Test with second date
-      vi.setSystemTime(new Date("2024-01-16"));
-      const year2 = getDailyYear();
-
-      // Should be different years (high probability)
-      // Note: There's a small chance they could be the same due to hash collisions
-      expect(mockSupportedYears).toContain(year1);
-      expect(mockSupportedYears).toContain(year2);
-    });
-
-    it("should handle debug mode correctly", () => {
+    it("should ignore debug mode (deprecated function)", () => {
       const debugYear = "1970";
       const year = getDailyYear(debugYear, true);
 
-      // 1970 is in our mock supported years, so it should return 1970
-      expect(year).toBe(1970);
+      // Still returns 2000 since function is deprecated
+      expect(year).toBe(2000);
     });
 
-    it("should handle invalid debug year gracefully", () => {
+    it("should handle invalid debug year (deprecated function)", () => {
       const invalidDebugYear = "invalid";
       const year = getDailyYear(invalidDebugYear, true);
 
-      // Should fall back to normal daily selection
-      expect(mockSupportedYears).toContain(year);
-    });
-
-    it("should use deterministic hash algorithm", () => {
-      vi.setSystemTime(new Date("2024-01-15"));
-
-      // Test that algorithm produces consistent results
-      const iterations = 10; // Reduced from 100 to prevent console output bottleneck
-      const firstYear = getDailyYear();
-
-      for (let i = 0; i < iterations; i++) {
-        const year = getDailyYear();
-        expect(year).toBe(firstYear);
-      }
-    });
-
-    it("should handle timezone differences consistently", () => {
-      // Test with different timezone offsets
-      // Note: When using setSystemTime, the date is normalized to the system timezone
-      vi.setSystemTime(new Date("2024-01-15T12:00:00Z"));
-      const year1 = getDailyYear();
-
-      vi.setSystemTime(new Date("2024-01-15T08:00:00-04:00")); // Same day, different timezone
-      const year2 = getDailyYear();
-
-      // Should be same year since it's the same calendar date
-      expect(year1).toBe(year2);
-    });
-
-    it("should handle year boundaries correctly", () => {
-      vi.setSystemTime(new Date("2024-12-31T23:59:59Z"));
-      const year1 = getDailyYear();
-
-      vi.setSystemTime(new Date("2025-01-01T00:00:00Z"));
-      const year2 = getDailyYear();
-
-      // Should be different years for different dates
-      expect(mockSupportedYears).toContain(year1);
-      expect(mockSupportedYears).toContain(year2);
+      // Still returns 2000 since function is deprecated
+      expect(year).toBe(2000);
     });
   });
 
@@ -161,7 +73,7 @@ describe("gameState Library Functions", () => {
       const puzzle = initializePuzzle();
 
       expect(puzzle).toMatchObject({
-        year: expect.any(Number),
+        year: 2000, // Always returns 2000 since getDailyYear is deprecated
         events: expect.any(Array),
         puzzleId: expect.any(String),
       });
@@ -208,7 +120,7 @@ describe("gameState Library Functions", () => {
   });
 
   describe("saveProgress", () => {
-    it("should save progress to localStorage", () => {
+    it("should not save progress (localStorage removed)", () => {
       const gameState: GameState = {
         puzzle: {
           year: 1969,
@@ -220,64 +132,7 @@ describe("gameState Library Functions", () => {
         isGameOver: false,
       };
 
-      const localStorageMock = window.localStorage as unknown as MockStorage;
-
-      // Clear any previous calls from setup/other tests
-      localStorageMock.setItem.mockClear();
-
-      saveProgress(gameState);
-
-      // Two calls expected: 1 for localStorage availability test, 1 for actual save
-      expect(localStorageMock.setItem).toHaveBeenCalledTimes(2);
-      // Should save progress data on the second call (first is availability test)
-      expect(localStorageMock.setItem).toHaveBeenNthCalledWith(
-        2, // Second call
-        expect.stringMatching(/chrondle-progress-/),
-        expect.stringContaining('"guesses":[1950,1960]'),
-      );
-    });
-
-    it("should handle localStorage quota exceeded", () => {
-      const gameState: GameState = {
-        puzzle: {
-          year: 1969,
-          events: mockPuzzleEvents,
-          puzzleId: "2024-01-15",
-        },
-        guesses: [1950],
-        maxGuesses: 6,
-        isGameOver: false,
-      };
-
-      const localStorageMock = window.localStorage as unknown as MockStorage;
-      localStorageMock.setItem.mockImplementation(() => {
-        throw new Error("QuotaExceededError");
-      });
-
-      // Storage utilities handle quota errors gracefully and return false
-      const result = saveProgress(gameState);
-      expect(result).toBe(false);
-    });
-
-    it("should handle localStorage not available", () => {
-      const gameState: GameState = {
-        puzzle: {
-          year: 1969,
-          events: mockPuzzleEvents,
-          puzzleId: "2024-01-15",
-        },
-        guesses: [1950],
-        maxGuesses: 6,
-        isGameOver: false,
-      };
-
-      // Mock localStorage as undefined
-      Object.defineProperty(window, "localStorage", {
-        value: undefined,
-        writable: true,
-      });
-
-      // Storage utilities handle missing localStorage gracefully and return false
+      // saveProgress always returns false now (no localStorage)
       const result = saveProgress(gameState);
       expect(result).toBe(false);
     });
@@ -294,111 +149,30 @@ describe("gameState Library Functions", () => {
         isGameOver: false,
       };
 
-      const localStorageMock = window.localStorage as unknown as MockStorage;
-      saveProgress(gameState, true); // debug mode
-
-      expect(localStorageMock.setItem).not.toHaveBeenCalled();
+      const result = saveProgress(gameState, true); // debug mode
+      // Returns true in debug mode
+      expect(result).toBe(true);
     });
   });
 
   describe("loadProgress", () => {
-    it("should load saved progress into game state", () => {
+    it("should reset state (localStorage removed)", () => {
       const gameState: GameState = {
         puzzle: {
           year: 1969,
           events: mockPuzzleEvents,
           puzzleId: "2024-01-15",
         },
-        guesses: [],
+        guesses: [1950, 1960], // Pre-existing guesses
         maxGuesses: 6,
-        isGameOver: false,
+        isGameOver: true,
       };
-
-      const savedProgress = {
-        guesses: [1950, 1960],
-        isGameOver: false,
-        puzzleId: "2024-01-15",
-        puzzleYear: 1969,
-        timestamp: new Date().toISOString(),
-      };
-
-      const localStorageMock = window.localStorage as unknown as MockStorage;
-      localStorageMock.getItem.mockReturnValue(JSON.stringify(savedProgress));
 
       loadProgress(gameState);
 
-      expect(gameState.guesses).toEqual([1950, 1960]);
+      // loadProgress now resets state for anonymous users
+      expect(gameState.guesses).toEqual([]);
       expect(gameState.isGameOver).toBe(false);
-    });
-
-    it("should not load when no saved progress exists", () => {
-      const gameState: GameState = {
-        puzzle: {
-          year: 1969,
-          events: mockPuzzleEvents,
-          puzzleId: "2024-01-15",
-        },
-        guesses: [],
-        maxGuesses: 6,
-        isGameOver: false,
-      };
-
-      const localStorageMock = window.localStorage as unknown as MockStorage;
-      localStorageMock.getItem.mockReturnValue(null);
-
-      loadProgress(gameState);
-
-      expect(gameState.guesses).toEqual([]);
-    });
-
-    it("should handle corrupted localStorage data", () => {
-      const gameState: GameState = {
-        puzzle: {
-          year: 1969,
-          events: mockPuzzleEvents,
-          puzzleId: "2024-01-15",
-        },
-        guesses: [],
-        maxGuesses: 6,
-        isGameOver: false,
-      };
-
-      const localStorageMock = window.localStorage as unknown as MockStorage;
-      localStorageMock.getItem.mockReturnValue("invalid json");
-
-      // Security enhancement: corrupted data should be cleared and not affect state
-      loadProgress(gameState);
-
-      // Game state should remain unchanged when corrupted data is encountered
-      expect(gameState.guesses).toEqual([]);
-
-      // Verify corrupted data was cleared
-      expect(localStorageMock.removeItem).toHaveBeenCalled();
-    });
-
-    it("should handle localStorage not available", () => {
-      const gameState: GameState = {
-        puzzle: {
-          year: 1969,
-          events: mockPuzzleEvents,
-          puzzleId: "2024-01-15",
-        },
-        guesses: [],
-        maxGuesses: 6,
-        isGameOver: false,
-      };
-
-      // Mock localStorage as undefined
-      Object.defineProperty(window, "localStorage", {
-        value: undefined,
-        writable: true,
-      });
-
-      // Storage utilities handle missing localStorage gracefully
-      loadProgress(gameState);
-
-      // Game state should remain unchanged when localStorage is not available
-      expect(gameState.guesses).toEqual([]);
     });
 
     it("should skip loading in debug mode", () => {
@@ -408,15 +182,15 @@ describe("gameState Library Functions", () => {
           events: mockPuzzleEvents,
           puzzleId: "2024-01-15",
         },
-        guesses: [],
+        guesses: [1950], // Pre-existing guess
         maxGuesses: 6,
         isGameOver: false,
       };
 
-      const localStorageMock = window.localStorage as unknown as MockStorage;
       loadProgress(gameState, true); // debug mode
 
-      expect(localStorageMock.getItem).not.toHaveBeenCalled();
+      // In debug mode, state is not reset
+      expect(gameState.guesses).toEqual([1950]);
     });
   });
 
@@ -442,7 +216,7 @@ describe("gameState Library Functions", () => {
   });
 
   describe("Integration Tests", () => {
-    it("should handle complete game flow", () => {
+    it("should handle complete game flow without localStorage", () => {
       // Initialize puzzle
       const puzzle = initializePuzzle();
       expect(puzzle).toBeDefined();
@@ -453,95 +227,17 @@ describe("gameState Library Functions", () => {
       gameState.guesses.push(1950);
       gameState.guesses.push(1960);
 
-      // Save progress
-      saveProgress(gameState);
-
-      // Verify localStorage was called correctly
-      const localStorageMock = window.localStorage as unknown as MockStorage;
-      expect(localStorageMock.setItem).toHaveBeenCalled();
-
-      // Get the saved data to verify it matches
-      const savedData = JSON.stringify({
-        guesses: [1950, 1960],
-        isGameOver: false,
-        puzzleId: puzzle.puzzleId,
-        puzzleYear: puzzle.year,
-        timestamp: new Date().toISOString(),
-      });
-      localStorageMock.getItem.mockReturnValue(savedData);
+      // Save progress (returns false - no localStorage)
+      const saved = saveProgress(gameState);
+      expect(saved).toBe(false);
 
       // Load progress into new state
       const newGameState = createInitialGameState();
-      newGameState.puzzle = puzzle; // Same puzzle with same puzzleId
+      newGameState.puzzle = puzzle;
       loadProgress(newGameState);
 
-      expect(newGameState.guesses).toEqual([1950, 1960]);
-    });
-
-    it("should maintain data integrity across save/load cycles", () => {
-      const puzzle = initializePuzzle();
-
-      const originalState = createInitialGameState();
-      originalState.puzzle = puzzle;
-      originalState.guesses = [1950, 1960, 1965];
-      originalState.isGameOver = false;
-
-      // Save and load multiple times
-      for (let i = 0; i < 5; i++) {
-        // Clear previous mocks
-        vi.clearAllMocks();
-
-        // Reset localStorage mock
-        const freshLocalStorageMock: MockStorage = {
-          getItem: vi.fn(),
-          setItem: vi.fn(),
-          removeItem: vi.fn(),
-          clear: vi.fn(),
-          key: vi.fn(),
-          length: 0,
-        };
-        Object.defineProperty(window, "localStorage", {
-          value: freshLocalStorageMock,
-          writable: true,
-        });
-
-        saveProgress(originalState);
-
-        // Mock the return value to match what was saved
-        const savedData = JSON.stringify({
-          guesses: originalState.guesses,
-          isGameOver: originalState.isGameOver,
-          puzzleId: originalState.puzzle?.puzzleId || null,
-          puzzleYear: originalState.puzzle?.year || null,
-          timestamp: new Date().toISOString(),
-        });
-        freshLocalStorageMock.getItem.mockReturnValue(savedData);
-
-        const loadedState = createInitialGameState();
-        loadedState.puzzle = puzzle;
-        loadProgress(loadedState);
-        expect(loadedState.guesses).toEqual(originalState.guesses);
-      }
-    });
-
-    it("should handle concurrent access safely", () => {
-      const puzzle = initializePuzzle();
-
-      const gameState = createInitialGameState();
-      gameState.puzzle = puzzle;
-
-      // Simulate concurrent save operations
-      const savePromises = Array.from({ length: 10 }, () =>
-        Promise.resolve(saveProgress(gameState)),
-      );
-
-      Promise.all(savePromises);
-
-      // Should still be able to load correctly
-      const loadedState = createInitialGameState();
-      loadedState.puzzle = puzzle;
-      loadProgress(loadedState);
-      expect(loadedState.guesses).toEqual(gameState.guesses);
+      // Progress is not persisted for anonymous users
+      expect(newGameState.guesses).toEqual([]);
     });
   });
 
@@ -558,7 +254,7 @@ describe("gameState Library Functions", () => {
       expect(puzzle).toBeDefined();
     });
 
-    it("should handle localStorage operations efficiently", () => {
+    it("should handle save/load operations efficiently without localStorage", () => {
       const gameState = createInitialGameState();
       gameState.puzzle = {
         year: 1969,
@@ -569,7 +265,7 @@ describe("gameState Library Functions", () => {
 
       const startTime = performance.now();
 
-      // Save and load operations
+      // Save and load operations (no localStorage)
       for (let i = 0; i < 100; i++) {
         saveProgress(gameState);
         const loadState = createInitialGameState();
@@ -580,7 +276,8 @@ describe("gameState Library Functions", () => {
       const endTime = performance.now();
       const totalTime = endTime - startTime;
 
-      expect(totalTime).toBeLessThan(100); // Should complete 200 operations within 100ms
+      // Should be very fast without localStorage operations
+      expect(totalTime).toBeLessThan(50);
     });
 
     it("should handle memory efficiently with large datasets", () => {

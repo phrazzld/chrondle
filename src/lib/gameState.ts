@@ -3,18 +3,8 @@
 
 import { getPuzzleForYear } from "./puzzleData";
 import { logger } from "./logger";
-import {
-  saveGameProgress,
-  loadGameProgress,
-  saveSettings as saveSettingsUtil,
-  loadSettings as loadSettingsUtil,
-  safeRemoveItem,
-  cleanupOldStorage as cleanupOldStorageUtil,
-  clearAllChrondleStorage,
-  getAllChronldeEntries,
-  markPlayerAsPlayed,
-  hasPlayerPlayedBefore,
-} from "./storage";
+// Storage imports removed - using in-memory state only
+// Authenticated users should use Convex for persistence
 
 export interface Puzzle {
   year: number;
@@ -40,7 +30,7 @@ export interface Progress {
   closestDistance?: number;
 }
 
-export interface Settings {
+export interface GameSettings {
   darkMode: boolean;
   colorBlindMode: boolean;
 }
@@ -121,7 +111,8 @@ export function getStorageKey(): string {
 export function saveProgress(
   gameState: GameState,
   isDebugMode?: boolean,
-  archiveYear?: number,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _archiveYear?: number,
 ): boolean {
   if (isDebugMode) {
     logger.debug("Debug mode: skipping localStorage save");
@@ -164,9 +155,8 @@ export function saveProgress(
 
   logger.debug(`Saving progress:`, progress);
 
-  if (typeof window !== "undefined") {
-    return saveGameProgress(progress, isDebugMode, archiveYear);
-  }
+  // No localStorage persistence - authenticated users use Convex
+  logger.debug("Progress save skipped - no localStorage persistence");
 
   return false;
 }
@@ -182,67 +172,31 @@ export function loadProgress(
 
   if (typeof window === "undefined") return;
 
-  const progress = loadGameProgress<Progress>(isDebugMode);
+  // No localStorage persistence - authenticated users use Convex
+  logger.debug("Progress load skipped - no localStorage persistence");
 
-  if (progress) {
-    logger.debug(`Parsed progress:`, progress);
-
-    // Validate that the saved progress matches the current puzzle
-    const currentPuzzleId = gameState.puzzle ? gameState.puzzle.puzzleId : null;
-    const currentPuzzleYear = gameState.puzzle ? gameState.puzzle.year : null;
-
-    logger.debug(
-      `Current puzzle - ID: ${currentPuzzleId}, Year: ${currentPuzzleYear}`,
-    );
-    logger.debug(
-      `Saved puzzle - ID: ${progress.puzzleId}, Year: ${progress.puzzleYear}`,
-    );
-
-    // Check if this progress belongs to the current puzzle
-    const isValidProgress =
-      progress.puzzleId === currentPuzzleId &&
-      progress.puzzleYear === currentPuzzleYear;
-
-    if (isValidProgress) {
-      logger.debug(`Progress is valid for current puzzle`);
-      gameState.guesses = progress.guesses || [];
-      gameState.isGameOver = progress.isGameOver || false;
-      logger.debug(
-        `Loaded ${gameState.guesses.length} guesses, game over: ${gameState.isGameOver}`,
-      );
-    } else {
-      logger.debug(
-        `Progress is invalid for current puzzle - clearing old progress`,
-      );
-      // Clear the invalid progress
-      safeRemoveItem(getStorageKey());
-      // Reset game state to fresh start
-      gameState.guesses = [];
-      gameState.isGameOver = false;
-    }
-  } else {
-    logger.debug(`No saved progress found for today`);
-  }
+  // Always start with fresh state for anonymous users
+  gameState.guesses = [];
+  gameState.isGameOver = false;
 }
 
 // Settings Management
-export function saveSettings(settings: Settings): void {
-  if (typeof window !== "undefined") {
-    saveSettingsUtil(settings);
-  }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function saveSettings(_settings: GameSettings): void {
+  // No localStorage persistence - settings should be stored in Convex for authenticated users
+  logger.debug("Settings save skipped - no localStorage persistence");
 }
 
-export function loadSettings(): Settings | null {
-  if (typeof window === "undefined") return null;
-
-  return loadSettingsUtil<Settings>();
+export function loadSettings(): GameSettings | null {
+  // No localStorage persistence - settings should be loaded from Convex for authenticated users
+  logger.debug("Settings load skipped - no localStorage persistence");
+  return null;
 }
 
 // Storage cleanup
 export function cleanupOldStorage(): void {
-  if (typeof window === "undefined") return;
-
-  cleanupOldStorageUtil();
+  // No localStorage to clean up
+  logger.debug("Storage cleanup skipped - no localStorage persistence");
 }
 
 // Debug utilities (for window.chrondle object)
@@ -255,9 +209,9 @@ export function createDebugUtilities(gameState: GameState) {
     },
     state: () => logger.info("Game state:", gameState),
     clearStorage: () => {
-      if (typeof window === "undefined") return [];
-
-      return clearAllChrondleStorage();
+      // No localStorage to clear
+      logger.debug("Clear storage skipped - no localStorage persistence");
+      return [];
     },
     setYear: (year: number) => {
       if (gameState.puzzle) {
@@ -278,23 +232,21 @@ export function createDebugUtilities(gameState: GameState) {
       logger.info("🔍 Storage key:", getStorageKey());
       logger.info("🔍 Game state:", gameState);
 
-      if (typeof window !== "undefined") {
-        const allChrondles = getAllChronldeEntries();
-        logger.info("🔍 All chrondle localStorage:", allChrondles);
-      }
+      // No localStorage entries to show
+      logger.info("🔍 No localStorage entries - using Convex for persistence");
     },
   };
 }
 
 // Mark first time player
 export function markFirstTimePlayer(): void {
-  if (typeof window !== "undefined") {
-    markPlayerAsPlayed();
-  }
+  // No localStorage tracking - use Convex for user state
+  logger.debug("First time player tracking skipped - use Convex");
 }
 
 // Check if player has played before
 export function hasPlayedBefore(): boolean {
-  if (typeof window === "undefined") return false;
-  return hasPlayerPlayedBefore();
+  // No localStorage tracking - use Convex for user state
+  logger.debug("Player history check skipped - use Convex");
+  return false;
 }

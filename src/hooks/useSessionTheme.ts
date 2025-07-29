@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useLayoutEffect } from "react";
-import { safeGetJSON, safeSetJSON } from "@/lib/storage";
+// Storage import removed - theme preference in-memory only
+// Authenticated users should use Convex for theme persistence
 
 /**
  * Theme override hook with localStorage persistence
@@ -25,8 +26,6 @@ interface UseSessionThemeReturn {
   isMounted: boolean;
 }
 
-const THEME_STORAGE_KEY = "chrondle-theme-preference";
-
 // Helper function to detect system theme synchronously
 function getInitialSystemTheme(): "light" | "dark" {
   if (typeof window === "undefined") {
@@ -44,15 +43,8 @@ function getInitialSystemTheme(): "light" | "dark" {
 
 // Helper function to get initial override synchronously
 function getInitialOverride(): ThemeOverride {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  try {
-    return safeGetJSON<ThemeOverride>(THEME_STORAGE_KEY);
-  } catch {
-    return null;
-  }
+  // No localStorage persistence - theme won't persist for anonymous users
+  return null;
 }
 
 export function useSessionTheme(): UseSessionThemeReturn {
@@ -79,11 +71,7 @@ export function useSessionTheme(): UseSessionThemeReturn {
     // Re-check system theme in case it changed since initial detection
     updateSystemTheme();
 
-    // Re-check saved override in case it changed
-    const savedTheme = safeGetJSON<ThemeOverride>(THEME_STORAGE_KEY);
-    if (savedTheme !== override) {
-      setOverride(savedTheme);
-    }
+    // No localStorage to check
 
     setIsMounted(true);
 
@@ -98,11 +86,11 @@ export function useSessionTheme(): UseSessionThemeReturn {
   // Current resolved theme: override takes precedence, otherwise system
   const currentTheme = override || systemTheme;
 
-  // Toggle: set override to opposite of current theme and persist
+  // Toggle: set override to opposite of current theme (in-memory only)
   const toggle = () => {
     const newTheme = currentTheme === "light" ? "dark" : "light";
     setOverride(newTheme);
-    safeSetJSON(THEME_STORAGE_KEY, newTheme);
+    // No localStorage persistence - theme preference won't persist for anonymous users
   };
 
   return {

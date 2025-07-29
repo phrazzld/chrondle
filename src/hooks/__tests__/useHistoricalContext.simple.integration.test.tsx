@@ -17,29 +17,7 @@ vi.mock("@/lib/openrouter", () => ({
   },
 }));
 
-// Mock localStorage
-const localStorageMock = (() => {
-  let store: Record<string, string> = {};
-
-  return {
-    getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => {
-      store[key] = value;
-    },
-    removeItem: (key: string) => {
-      delete store[key];
-    },
-    clear: () => {
-      store = {};
-    },
-    keys: () => Object.keys(store),
-  };
-})();
-
-Object.defineProperty(window, "localStorage", {
-  value: localStorageMock,
-  writable: true,
-});
+// Note: localStorage no longer used - AI context settings are in-memory only
 
 function createMockAIResponse(year: number = 1969): AIContextResponse {
   return {
@@ -56,7 +34,6 @@ describe("useHistoricalContext - Simple Tests", () => {
   );
 
   beforeEach(() => {
-    localStorageMock.clear();
     mockGetHistoricalContext.mockClear();
   });
 
@@ -130,9 +107,7 @@ describe("useHistoricalContext - Simple Tests", () => {
 });
 
 describe("useAIContextSettings - Simple Tests", () => {
-  beforeEach(() => {
-    localStorageMock.clear();
-  });
+  // No setup needed - settings are in-memory only
 
   it("should initialize with default enabled state", () => {
     const { result } = renderHook(() => useAIContextSettings());

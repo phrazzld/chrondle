@@ -137,16 +137,6 @@ export const SPARQL_CONFIG = {
   LANGUAGE: "en",
 } as const;
 
-// --- LOCAL STORAGE KEYS ---
-
-export const STORAGE_KEYS = {
-  PROGRESS_PREFIX: "chrondle-progress-",
-  SETTINGS: "chrondle-settings",
-  HAS_PLAYED: "chrondle-has-played",
-  STREAK_DATA: "chrondle-streak-data",
-  NOTIFICATION_SETTINGS: "chrondle-notification-settings",
-} as const;
-
 // --- UI CONSTANTS ---
 
 export const UI_CONFIG = {
@@ -360,7 +350,6 @@ export type HighRecognitionTerm = (typeof HIGH_RECOGNITION_TERMS)[number];
 export type MediumRecognitionTerm = (typeof MEDIUM_RECOGNITION_TERMS)[number];
 export type WikidataEntityType =
   (typeof WIKIDATA_ENTITY_TYPES)[keyof typeof WIKIDATA_ENTITY_TYPES];
-export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
 export type ApiEndpoint = (typeof API_ENDPOINTS)[keyof typeof API_ENDPOINTS];
 
 // --- VALIDATION HELPERS ---

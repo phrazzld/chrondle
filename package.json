@@ -22,9 +22,6 @@
     "test:integration:watch": "vitest -c vitest.config.integration.ts",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
-    "update-metadata": "node scripts/update-puzzle-metadata.mjs",
-    "validate-puzzles": "node scripts/validate-puzzles.mjs",
-    "migrate-events": "node scripts/migrateEvents.mjs",
     "test-module-system": "node scripts/test-module-system.mjs",
     "bundle-analysis": "ANALYZE=true pnpm build",
     "size": "size-limit",
@@ -37,9 +34,7 @@
     "predev": "node scripts/check-cache-age.mjs || true",
     "events": "tsx scripts/manage-events.ts",
     "deploy:verify": "node scripts/verify-deployment.mjs",
-    "deploy:check-migration": "node scripts/check-migration-needed.mjs",
-    "deploy:migrate": "pnpm deploy:check-migration && pnpm migrate-events || echo 'Migration not needed'",
-    "deploy": "convex deploy && pnpm deploy:migrate && pnpm deploy:verify"
+    "deploy": "convex deploy && pnpm deploy:verify"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.24.0",

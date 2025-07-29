@@ -23,7 +23,7 @@ const mockPuzzleEvents = [
 ];
 
 const mockPuzzle = {
-  year: 1969,
+  year: 2000, // getDailyYear now returns 2000
   events: mockPuzzleEvents,
   puzzleId: "2024-01-15",
 };
@@ -33,20 +33,6 @@ describe("useGameState Hook", () => {
     // Reset all mocks
     vi.clearAllMocks();
 
-    // Mock localStorage
-    const localStorageMock = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      removeItem: vi.fn(),
-      clear: vi.fn(),
-      key: vi.fn(),
-      length: 0,
-    };
-    Object.defineProperty(window, "localStorage", {
-      value: localStorageMock,
-      writable: true,
-    });
-
     // Setup default mock implementations
     mockGameStateLib.createInitialGameState.mockReturnValue({
       puzzle: null,
@@ -55,11 +41,14 @@ describe("useGameState Hook", () => {
       isGameOver: false,
     });
     mockGameStateLib.initializePuzzle.mockReturnValue(mockPuzzle);
-    mockGameStateLib.loadProgress.mockImplementation(() => {});
-    mockGameStateLib.saveProgress.mockImplementation(() => true);
+    mockGameStateLib.loadProgress.mockImplementation((gameState) => {
+      // loadProgress now resets state for anonymous users
+      gameState.guesses = [];
+      gameState.isGameOver = false;
+    });
+    mockGameStateLib.saveProgress.mockImplementation(() => false); // No localStorage
     mockGameStateLib.cleanupOldStorage.mockImplementation(() => {});
     mockPuzzleDataLib.getPuzzleForYear.mockReturnValue(mockPuzzleEvents);
-    mockPuzzleDataLib.getSupportedYears.mockReturnValue([1969, 1970, 1971]);
   });
 
   afterEach(() => {
@@ -118,13 +107,7 @@ describe("useGameState Hook", () => {
       );
     });
 
-    it("should load existing progress on initialization", async () => {
-      // Mock loadProgress to modify the game state in place
-      mockGameStateLib.loadProgress.mockImplementation((gameState) => {
-        gameState.guesses = [1950, 1960];
-        gameState.isGameOver = false;
-      });
-
+    it("should reset progress on initialization (no localStorage)", async () => {
       const { result } = renderHook(() => useGameState());
 
       await waitFor(() => {
@@ -132,7 +115,9 @@ describe("useGameState Hook", () => {
       });
 
       expect(mockGameStateLib.loadProgress).toHaveBeenCalled();
-      expect(result.current.gameState.guesses).toEqual([1950, 1960]);
+      // loadProgress resets state for anonymous users
+      expect(result.current.gameState.guesses).toEqual([]);
+      expect(result.current.gameState.isGameOver).toBe(false);
     });
   });
 
@@ -172,7 +157,7 @@ describe("useGameState Hook", () => {
 
       // Game should be complete when correct guess is made
       act(() => {
-        result.current.makeGuess(1969); // Correct year
+        result.current.makeGuess(2000); // Correct year
       });
       expect(result.current.isGameComplete).toBe(true);
       expect(result.current.hasWon).toBe(true);
@@ -294,7 +279,7 @@ describe("useGameState Hook", () => {
       });
 
       act(() => {
-        result.current.makeGuess(1969); // Correct year
+        result.current.makeGuess(2000); // Correct year
       });
 
       expect(result.current.hasWon).toBe(true);
@@ -363,37 +348,10 @@ describe("useGameState Hook", () => {
       expect(result.current.error).toBe("Failed to initialize puzzle");
     });
 
-    it("should handle localStorage failures gracefully", async () => {
-      // Mock localStorage to throw error
-      const localStorageMock = {
-        getItem: vi.fn().mockImplementation(() => {
-          throw new Error("localStorage not available");
-        }),
-        setItem: vi.fn(),
-        removeItem: vi.fn(),
-        clear: vi.fn(),
-        key: vi.fn(),
-        length: 0,
-      };
-      Object.defineProperty(window, "localStorage", {
-        value: localStorageMock,
-        writable: true,
-      });
-
-      const { result } = renderHook(() => useGameState());
-
-      await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
-      });
-
-      // Should continue to work despite localStorage error
-      expect(result.current.gameState.puzzle).toEqual(mockPuzzle);
-    });
-
-    it("should handle corrupted localStorage data", async () => {
-      // Mock loadProgress to throw error (simulating corrupted data)
+    it("should handle loadProgress errors gracefully", async () => {
+      // Mock loadProgress to throw error
       mockGameStateLib.loadProgress.mockImplementation(() => {
-        throw new Error("Corrupted data");
+        throw new Error("Load error");
       });
 
       const { result } = renderHook(() => useGameState());
@@ -402,7 +360,7 @@ describe("useGameState Hook", () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      // Should initialize fresh game state
+      // Should initialize fresh game state despite error
       expect(result.current.gameState.guesses).toEqual([]);
       expect(result.current.gameState.isGameOver).toBe(false);
     });
@@ -477,7 +435,7 @@ describe("useGameState Hook", () => {
         rerender();
       }
 
-      expect(result.current.gameState.puzzle?.year).toBe(1969);
+      expect(result.current.gameState.puzzle?.year).toBe(2000);
     });
   });
 });
