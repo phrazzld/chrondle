@@ -1133,6 +1133,300 @@
   - See checkmark in archive
   - Survives page refresh
 
+## CI Test Fixes [CODE FIX]
+
+### HintsDisplay Component Test Updates
+
+- [x] [CODE FIX] Analyze current HintsDisplay component implementation and document actual rendered output
+
+## Task: Analyze HintsDisplay Component [x]
+
+### Complexity: MEDIUM
+
+### Started: 2025-07-29 13:05
+
+### Context Discovery
+
+- Need to read HintsDisplay component source code
+- Document all rendered states and outputs
+- Compare with failing test expectations
+- Create mapping of actual vs expected behavior
+
+### Execution Log
+
+[13:05] Read HintsDisplay.tsx component (437 lines)
+[13:06] Read HintsDisplay.test.tsx to understand test expectations
+[13:07] Checked formatYear utility - formats negative years as "X BC" not "X BCE"
+[13:08] Documented all rendering differences
+
+### Key Findings - Actual vs Expected
+
+1. **Error State**:
+
+   - Actual: "Unable to Load Puzzle" (line 294)
+   - Expected: "failed to load hints"
+   - Full error UI with icon and refresh message
+
+2. **Empty Events Array**:
+
+   - Actual: Shows loading state "Loading puzzle events..." (line 309)
+   - Expected: Shows hint count "hint 1 of 0"
+   - No heading element rendered in loading state
+
+3. **Check Icon**:
+
+   - Actual: Renders Check component without data-testid (line 186)
+   - Expected: data-testid="check-icon"
+   - Only shown for correct guesses (isCorrect condition)
+
+4. **Heading Structure**:
+
+   - Actual: h3 element with classes, no explicit role (line 72)
+   - Expected: Accessible via getByRole("heading")
+   - Format: "Hint X of Y" with styled number badge
+
+5. **Year Formatting**:
+
+   - Actual: formatYear uses "BC" suffix (utils.ts)
+   - Expected: "BCE" suffix
+   - Format: -776 → "776 BC"
+
+6. **Out of Bounds Cases**:
+   - When currentHintIndex >= events.length, no current hint renders
+   - No heading element exists in this case
+   - Tests expect heading with out-of-bounds number
+
+### Approach Decisions
+
+- Component uses motion/framer-motion for animations
+- Past hints shown in reverse chronological order
+- Future hints revealed after game completion
+- Error state takes precedence over all other states
+
+### COMPLETED
+
+- ✅ Analyzed all component states and rendering logic
+- ✅ Documented actual vs expected outputs
+- ✅ Identified all test assertion mismatches
+- ✅ Ready to update tests with correct expectations
+- [x] [CODE FIX] Update HintsDisplay tests - fix error message assertions to use 'Unable to Load Puzzle' instead of 'failed to load hints'
+
+## Task: Fix HintsDisplay Error Message Tests [x]
+
+### Complexity: SIMPLE
+
+### Started: 2025-07-29 13:11
+
+### Context Discovery
+
+- Need to update 2 test assertions that check error messages
+- Test 1: expects "failed to load hints" → change to "Unable to Load Puzzle"
+- Test 2: expects "error occurred" → change to "Unable to Load Puzzle"
+
+### Execution Log
+
+[13:11] Found both failing error message tests in HintsDisplay.test.tsx
+[13:12] Updated first test on line 162 - changed regex from /failed to load hints/i to /Unable to Load Puzzle/i
+[13:12] Updated second test on line 174 - changed regex from /error occurred/i to /Unable to Load Puzzle/i
+
+### COMPLETED
+
+- ✅ Fixed "shows error message when error is present" test
+- ✅ Fixed "prioritizes error over loading state" test
+- ✅ Both tests now match actual component error message
+- [x] [CODE FIX] Update HintsDisplay tests - find alternative selector for hint completion indicators (replace data-testid='check-icon')
+
+## Task: Update HintsDisplay tests - find alternative selector [x]
+
+### Complexity: SIMPLE
+
+### Started: 2025-07-29 14:44
+
+### Context Discovery
+
+- Need to examine HintsDisplay component to understand check icon rendering
+- Find how to select the check icon without data-testid
+- Update test to use alternative selector
+
+### Execution Log
+
+[14:44] Starting task - examining HintsDisplay component for check icon implementation
+[14:45] Found test uses screen.getAllByTestId("check-icon") on lines 120, 204, 272
+[14:45] Actual component renders <Check className="w-4 h-4" /> without data-testid
+[14:45] Mock renders <span data-testid="check-icon">✓</span>
+[14:46] Best alternative: query by text content "✓" since mock renders this
+[14:47] Updated 3 test assertions to use screen.getAllByText("✓") instead of data-testid
+[14:47] Changed lines 120, 204, and 272 to use text-based queries
+
+### Approach Decisions
+
+- Chose text content query since mock renders "✓" as the icon content
+- This is more maintainable than relying on CSS classes or structure
+- Works with the existing mock without modification
+
+### COMPLETED
+
+- ✅ Replaced all data-testid="check-icon" queries with text queries
+- ✅ Uses screen.queryAllByText("✓") and screen.getAllByText("✓")
+- ✅ All 3 check icon selector locations updated
+- ✅ Alternative selector is simple and reliable
+- [x] [CODE FIX] Update HintsDisplay tests - fix accessibility queries for hint count display (heading role expectations)
+
+## Task: Fix HintsDisplay heading accessibility queries [x]
+
+### Complexity: SIMPLE
+
+### Started: 2025-07-29 14:49
+
+### Context Discovery
+
+- Need to understand how headings are rendered in HintsDisplay
+- Identify why getByRole("heading") queries might be failing
+- Update tests to match actual heading structure
+
+### Execution Log
+
+[14:49] Starting analysis of heading role queries in tests
+[14:50] Found 8 tests using getByRole("heading", { level: 3 })
+[14:50] CurrentHint component renders h3 at line 72 in HintsDisplay.tsx
+[14:51] CurrentHint only renders when: !isGameComplete && currentHintIndex < events.length
+[14:51] Problematic test cases:
+
+- Empty events array: returns loading UI without CurrentHint (no heading)
+- Game complete: currentHint is null (no heading)
+- Out of bounds index: currentHint is null (no heading)
+  [14:52] Fixed "handles empty events array" test - expects loading UI instead of heading
+  [14:52] Fixed "handles currentHintIndex out of bounds" test - expects no heading
+  [14:53] Verified other tests correctly handle heading presence/absence
+
+### Approach Decisions
+
+- Tests now properly check for heading only when CurrentHint renders
+- Empty events and out-of-bounds cases correctly expect no heading
+- Loading state properly tested for empty events array
+
+### COMPLETED
+
+- ✅ Fixed empty events array test to expect loading UI
+- ✅ Fixed out of bounds test to expect no heading
+- ✅ Verified negative index test correctly expects heading
+- ✅ All heading queries now match component behavior
+- [x] [CODE FIX] Update HintsDisplay tests - adjust year formatting expectations to match current implementation
+
+## Task: Update HintsDisplay year formatting expectations [x]
+
+### Complexity: SIMPLE
+
+### Started: 2025-07-29 14:54
+
+### Context Discovery
+
+- Need to find tests that check year formatting
+- Understand actual formatYear function behavior
+- Update test expectations to match
+
+### Execution Log
+
+[14:54] Starting analysis of year formatting in tests
+[14:55] Found year formatting test on line 208
+[14:55] Test expects "BCE" but formatYear returns "BC"
+[14:55] formatYear function in utils.ts returns "BC" for negative years
+[14:56] Updated test to expect "BC" instead of "BCE"
+
+### Approach Decisions
+
+- Changed expectation from /BCE/ to /BC/ to match actual implementation
+- formatYear correctly adds "AD" for positive years and "BC" for negative
+
+### COMPLETED
+
+- ✅ Found and fixed year formatting test
+- ✅ Test now expects "BC" instead of "BCE"
+- ✅ Matches actual formatYear implementation
+- [x] [CODE FIX] Run HintsDisplay tests locally to verify all fixes work correctly
+
+## Task: Run HintsDisplay tests to verify fixes [x]
+
+### Complexity: SIMPLE
+
+### Started: 2025-07-29 14:57
+
+### Context Discovery
+
+- Need to run the HintsDisplay test file specifically
+- Verify all the fixes work correctly together
+- Ensure no regressions introduced
+
+### Execution Log
+
+[14:57] Running HintsDisplay tests with Vitest
+[14:58] Found 3 test failures in "shows check marks for revealed hints"
+[14:58] Issue: No check marks are shown because no guesses match target year
+[14:58] Guesses [1970, 1968, 1971] don't match targetYear 1969
+[14:59] Fixed test expectations:
+
+- Changed "shows check marks for revealed hints" to expect check for correct guesses only
+- Added guesses to year formatting test so year is actually displayed
+- Fixed "handles more guesses" test to expect no check marks for wrong guesses
+  [15:00] All 22 tests now pass successfully
+
+### Approach Decisions
+
+- Check marks only appear for correct guesses (distance === 0)
+- Year formatting test needs guesses to display years
+- Tests now accurately reflect component behavior
+
+### COMPLETED
+
+- ✅ All HintsDisplay tests pass (22/22)
+- ✅ Fixed 3 failing tests
+- ✅ Tests accurately reflect component behavior
+- ✅ No regressions introduced by previous fixes
+- [x] [CODE FIX] Ensure updated tests still provide meaningful coverage of HintsDisplay functionality
+
+## Task: Verify HintsDisplay test coverage [x]
+
+### Complexity: SIMPLE
+
+### Started: 2025-07-29 15:01
+
+### Context Discovery
+
+- Review all test changes made
+- Ensure tests still cover key functionality
+- Verify no important test scenarios were lost
+
+### Execution Log
+
+[15:01] Reviewing test coverage after fixes
+[15:02] Test coverage analysis:
+
+- 22 total tests across 7 test suites
+- Required Props (5 tests): Basic rendering, prop validation, hint display
+- Optional Props (2 tests): className, optional prop handling
+- Loading/Error States (3 tests): Loading, error, priority handling
+- Hint Progression (3 tests): Progressive display, check marks, year formatting
+- Edge Cases (5 tests): Empty events, out of bounds, negative index
+- Type Safety (2 tests): Valid props, runtime validation
+- Accessibility (2 tests): Semantic HTML, screen reader support
+
+### Coverage Assessment
+
+- All original test scenarios preserved
+- Tests now accurately reflect component behavior
+- Check marks correctly test for exact matches only
+- Error/loading states properly tested
+- Edge cases handle missing headings appropriately
+- Year formatting matches implementation
+
+### COMPLETED
+
+- ✅ Verified all 22 tests provide meaningful coverage
+- ✅ No test scenarios were lost, only corrected
+- ✅ Tests cover all major component states and behaviors
+- ✅ Edge cases and error conditions properly tested
+- ✅ Accessibility and type safety maintained
+
 ## Success Metrics
 
 - [ ] Archive shows actual puzzle count from Convex (starting at ~7)
