@@ -4,9 +4,18 @@ import { WebhookEvent } from "@clerk/nextjs/server";
 import { api } from "convex/_generated/api";
 import { ConvexHttpClient } from "convex/browser";
 
-const convexClient = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-
 export async function POST(req: Request) {
+  // Validate Convex URL configuration
+  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!convexUrl) {
+    console.error("NEXT_PUBLIC_CONVEX_URL is not configured");
+    return new Response("Error: Server configuration issue", {
+      status: 500,
+    });
+  }
+
+  // Create Convex client inside the function to avoid build-time initialization
+  const convexClient = new ConvexHttpClient(convexUrl);
   // Get the headers
   const headerPayload = await headers();
   const svix_id = headerPayload.get("svix-id");
