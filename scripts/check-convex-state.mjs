@@ -16,8 +16,12 @@ try {
   const envVars = dotenv.parse(envContent);
   Object.assign(process.env, envVars);
 } catch (error) {
-  console.error("Error loading .env.local:", error.message);
-  process.exit(1);
+  // In CI, environment variables should already be set
+  if (error.code !== 'ENOENT') {
+    console.error("Error loading .env.local:", error.message);
+    process.exit(1);
+  }
+  console.log("No .env.local file found, using environment variables");
 }
 
 const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL;
