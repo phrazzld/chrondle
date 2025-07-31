@@ -1,0 +1,103 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+      - master  # Include both common default branch names
+
+env:
+  NODE_VERSION: 20
+
+jobs:
+  deploy:
+    name: Deploy to Convex and Vercel
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed for git history if required
+      
+      # Step 2: Setup Node.js and pnpm
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+      
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      # Step 4: Build Next.js app
+      - name: Build Next.js application
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+      
+      # Step 5: Deploy to Convex (production)
+      - name: Deploy to Convex
+        run: npx convex deploy --prod
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+      
+      # Step 6: Run migration check and migrate if needed
+      - name: Check and run migrations
+        run: pnpm deploy:migrate
+        env:
+          NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
+      
+      # Step 7: Verify deployment
+      - name: Verify deployment
+        run: pnpm deploy:verify
+        env:
+          NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
+      
+      # Optional: Deploy to Vercel (if using Vercel for hosting)
+      # Uncomment the following if deploying to Vercel
+      # - name: Deploy to Vercel
+      #   uses: vercel/actions/deploy@v1
+      #   with:
+      #     vercel-token: ${{ secrets.VERCEL_TOKEN }}
+      #     vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+      #     vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+      #     production: true
+
+  # Optional: Send notification on deployment status
+  notify:
+    name: Notify deployment status
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: always()
+    
+    steps:
+      - name: Send success notification
+        if: ${{ needs.deploy.result == 'success' }}
+        run: echo "✅ Deployment successful!"
+      
+      - name: Send failure notification
+        if: ${{ needs.deploy.result == 'failure' }}
+        run: echo "❌ Deployment failed!"

@@ -19,7 +19,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   className = "",
   size = "md",
 }) => {
-  const { currentTheme, override, systemTheme, toggle } = useTheme();
+  const { currentTheme, override, systemTheme, toggle, isMounted } = useTheme();
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Icon size based on the size prop
@@ -67,8 +67,8 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
       <motion.div
         initial={false}
         animate={{
-          rotate: currentTheme === "dark" ? 0 : 45,
-          scale: currentTheme === "dark" ? 0.9 : 1,
+          rotate: isMounted && currentTheme === "dark" ? 0 : 45,
+          scale: isMounted && currentTheme === "dark" ? 0.9 : 1,
         }}
         transition={{
           duration: 0.3,
@@ -79,7 +79,11 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
         }}
         className="flex items-center justify-center"
       >
-        {currentTheme === "dark" ? (
+        {/* Always render Sun icon initially to prevent hydration mismatch */}
+        {/* The animation and appearance will update after mount */}
+        {!isMounted ? (
+          <Sun className={cn(iconSize, "text-foreground")} />
+        ) : currentTheme === "dark" ? (
           <Moon className={cn(iconSize, "text-foreground")} />
         ) : (
           <Sun className={cn(iconSize, "text-foreground")} />
