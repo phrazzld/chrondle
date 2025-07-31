@@ -34,7 +34,8 @@
     "predev": "node scripts/check-cache-age.mjs || true",
     "events": "tsx scripts/manage-events.ts",
     "deploy:verify": "node scripts/verify-deployment.mjs",
-    "deploy": "convex deploy && pnpm deploy:verify"
+    "deploy": "convex deploy && pnpm deploy:verify",
+    "validate-puzzles": "node scripts/check-convex-state.mjs"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.24.0",

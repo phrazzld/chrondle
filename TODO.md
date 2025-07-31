@@ -1452,3 +1452,25 @@
 - **NO MAGIC NUMBERS** - Everything dynamic
 - **NO localStorage** - Convex for persistence
 - **EMBRACE THE EMPTY ARCHIVE** - It's not a bug, it's the design
+
+## CI Pipeline Fixes [CI FIX]
+
+### Fix Missing validate-puzzles Script
+
+- [ ] [CI FIX] Add validate-puzzles script to package.json
+
+  - Add `"validate-puzzles": "node scripts/check-convex-state.mjs"` to scripts section
+  - This validates Convex connectivity and puzzle availability
+  - Required for CI workflow step that expects this command
+
+- [ ] [CI FIX] Verify check-convex-state.mjs runs successfully
+
+  - Run `pnpm validate-puzzles` locally to test
+  - Ensure script exits with code 0 on success
+  - Ensure script exits with non-zero code on failure
+  - Check that it properly validates Convex connectivity
+
+- [ ] [CI FIX] Ensure CI environment compatibility
+  - Verify script handles missing environment variables gracefully
+  - Add proper error messages for CI context
+  - Consider timeout handling for Convex connectivity checks

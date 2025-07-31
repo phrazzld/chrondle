@@ -35,12 +35,12 @@ async function checkState() {
   try {
     // Check for today's puzzle
     console.log("📅 Today's Puzzle:");
-    const today = await client.query(api.puzzles.getTodaysPuzzle);
+    const today = await client.query(api.puzzles.getDailyPuzzle);
     if (today) {
       console.log(`   Date: ${today.date}`);
-      console.log(`   Year: ${today.year}`);
+      console.log(`   Year: ${today.targetYear}`);
       console.log(`   Events: ${today.events.length}`);
-      console.log(`   Play count: ${today.playCount}`);
+      console.log(`   Puzzle Number: ${today.puzzleNumber}`);
     } else {
       console.log("   No puzzle found for today");
     }
@@ -48,15 +48,17 @@ async function checkState() {
     // Check archive
     console.log("\n📚 Archive Status:");
     const archive = await client.query(api.puzzles.getArchivePuzzles, {
-      paginationOpts: { numItems: 5 }
+      page: 1,
+      pageSize: 5
     });
-    console.log(`   Total puzzles in database: ${archive.page.length} (first page)`);
-    console.log(`   Has more pages: ${!archive.isDone}`);
+    console.log(`   Total puzzles in database: ${archive.totalCount}`);
+    console.log(`   Total pages: ${archive.totalPages}`);
+    console.log(`   Current page: ${archive.currentPage}`);
     
-    if (archive.page.length > 0) {
+    if (archive.puzzles.length > 0) {
       console.log("   Recent puzzles:");
-      archive.page.forEach(puzzle => {
-        console.log(`     - ${puzzle.date}: Year ${puzzle.year}`);
+      archive.puzzles.forEach(puzzle => {
+        console.log(`     - Puzzle #${puzzle.puzzleNumber} (${puzzle.date}): Year ${puzzle.targetYear}`);
       });
     }
 
