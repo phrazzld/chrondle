@@ -33,8 +33,12 @@
 
 ### Production Readiness
 
-- [ ] Add deployment documentation to README
-- [ ] Create comprehensive .env.example with all variables
+- [x] Add deployment documentation to README ✓ Added comprehensive Vercel, Convex, and Clerk setup instructions
+- [x] Create comprehensive .env.example with all variables
+  - ✓ Added all required variables (Convex, Clerk)
+  - ✓ Added optional variables (OpenRouter, Stripe)
+  - ✓ Added helpful comments and setup instructions
+  - ✓ Added security reminders and deployment notes
 - [ ] Set up error monitoring (Sentry/LogRocket)
 - [ ] Configure production Convex deploy key
 
