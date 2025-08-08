@@ -26,7 +26,7 @@
 
 ### Manual Testing Required
 
-- [ ] Verify archive shows current puzzle count (~13, not 298)
+- [x] Verify archive shows current puzzle count ✓ Confirmed: Shows 20 puzzles (correct from Convex DB)
 - [ ] Test puzzle URLs (/archive/puzzle/1 through /archive/puzzle/13)
 - [ ] Verify daily puzzle loads from Convex
 - [ ] Test completion tracking for authenticated users

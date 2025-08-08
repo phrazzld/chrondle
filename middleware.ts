@@ -2,7 +2,6 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 // Define which routes should be protected
 const isProtectedRoute = createRouteMatcher([
-  "/archive(.*)", // Archive routes require authentication
   "/api/user(.*)", // User API routes
   "/api/subscription(.*)", // Subscription management
 ]);
@@ -10,6 +9,7 @@ const isProtectedRoute = createRouteMatcher([
 // Define routes that should always be public
 const isPublicRoute = createRouteMatcher([
   "/", // Home page (today's puzzle)
+  "/archive(.*)", // Archive routes (temporarily public for testing)
   "/api/historical-context(.*)", // Historical context API
   "/sign-in(.*)",
   "/sign-up(.*)",

@@ -35,8 +35,14 @@ async function ArchivePageContent({
   }
   const client = new ConvexHttpClient(convexUrl);
 
-  // Get current user from Clerk
-  const clerkUser = await currentUser();
+  // Get current user from Clerk - wrapped in try/catch for public access
+  let clerkUser = null;
+  try {
+    clerkUser = await currentUser();
+  } catch {
+    // Archive is publicly accessible, auth is optional
+    // User is not authenticated, which is allowed for archive viewing
+  }
 
   // Fetch user data and completed puzzles if authenticated
   let convexUser = null;
@@ -83,7 +89,7 @@ async function ArchivePageContent({
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <AppHeader onShowSettings={(): void => {}} currentStreak={0} />
+      <AppHeader onShowSettings={() => {}} currentStreak={0} />
 
       <main className="flex-grow max-w-2xl mx-auto w-full py-8">
         <div className="mb-8">

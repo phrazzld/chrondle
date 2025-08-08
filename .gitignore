@@ -85,3 +85,5 @@ lighthouse-summary.md
 # Code review temporary files
 thinktank_*/
 investigation.md
+# CI/CD test output logs
+test/
