@@ -4,7 +4,7 @@
 
 ### Convex URL Configuration Mismatch (Blocking Production)
 
-- [ ] Fix .env.local Convex URL mismatch: Change `NEXT_PUBLIC_CONVEX_URL` from `https://handsome-raccoon-955.convex.cloud` (dev) to `https://fleet-goldfish-183.convex.cloud` (prod) to match CONVEX_DEPLOY_KEY deployment
+- [x] Fix .env.local Convex URL mismatch ✓ Changed URL to `https://fleet-goldfish-183.convex.cloud` to match prod deployment key
 
 - [ ] Set Vercel environment variables using CLI: Run `vercel env add NEXT_PUBLIC_CONVEX_URL production` and enter `https://fleet-goldfish-183.convex.cloud`
 
