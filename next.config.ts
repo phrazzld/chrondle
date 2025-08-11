@@ -57,7 +57,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob: https://img.clerk.com https://www.gravatar.com", // Clerk avatar CDN and Gravatar fallback
               "font-src 'self' data: https://fonts.gstatic.com", // Required for Google Fonts
               "worker-src 'self' blob:", // Required for Clerk and canvas-confetti web workers
-              "connect-src 'self' https://openrouter.ai https://query.wikidata.org https://api.wikimedia.org wss://handsome-raccoon-955.convex.cloud https://handsome-raccoon-955.convex.cloud https://healthy-doe-23.clerk.accounts.dev", // Added Convex and Clerk endpoints
+              "connect-src 'self' https://openrouter.ai https://query.wikidata.org https://api.wikimedia.org wss://handsome-raccoon-955.convex.cloud https://handsome-raccoon-955.convex.cloud wss://fleet-goldfish-183.convex.cloud https://fleet-goldfish-183.convex.cloud https://healthy-doe-23.clerk.accounts.dev https://clerk-telemetry.com", // Added Convex (dev and prod), Clerk endpoints, and telemetry
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

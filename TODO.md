@@ -30,6 +30,14 @@
 
 - [x] Deploy to Vercel preview first: Run `vercel` (no --prod flag) to test deployment before production ✓ https://chrondle-r8f1o7gu5-moomooskycow.vercel.app
 
+- [x] Fix preview deployment configuration error: Added all environment variables to Preview environment
+
+  - ✓ Added NEXT_PUBLIC_CONVEX_URL to Preview
+  - ✓ Added CONVEX_DEPLOY_KEY to Preview
+  - ✓ Added NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY to Preview
+  - ✓ Added CLERK_SECRET_KEY to Preview
+  - ✓ New working preview: https://chrondle-15bh98rip-moomooskycow.vercel.app
+
 - [ ] Test preview deployment thoroughly:
 
   - Verify daily puzzle loads correctly
