@@ -6,29 +6,38 @@
 
 - [x] Fix .env.local Convex URL mismatch ✓ Changed URL to `https://fleet-goldfish-183.convex.cloud` to match prod deployment key
 
-- [ ] Set Vercel environment variables using CLI: Run `vercel env add NEXT_PUBLIC_CONVEX_URL production` and enter `https://fleet-goldfish-183.convex.cloud`
+- [x] Set Vercel environment variables using CLI: Run `vercel env add NEXT_PUBLIC_CONVEX_URL production` and enter `https://fleet-goldfish-183.convex.cloud`
 
-- [ ] Set Vercel Convex deploy key: Run `vercel env add CONVEX_DEPLOY_KEY production` and paste value from .env.local (prod:fleet-goldfish-183|...)
+- [x] Set Vercel Convex deploy key: Run `vercel env add CONVEX_DEPLOY_KEY production` and paste value from .env.local (prod:fleet-goldfish-183|...)
 
-- [ ] Set Vercel Clerk public key: Run `vercel env add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY production` and paste `pk_test_aGVhbHRoeS1kb2UtMjMuY2xlcmsuYWNjb3VudHMuZGV2JA` from .env.local
+- [x] Set Vercel Clerk public key: Run `vercel env add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY production` and paste `pk_test_aGVhbHRoeS1kb2UtMjMuY2xlcmsuYWNjb3VudHMuZGV2JA` from .env.local
 
-- [ ] Set Vercel Clerk secret key: Run `vercel env add CLERK_SECRET_KEY production` and paste value from .env.local (starts with sk*test*)
+- [x] Set Vercel Clerk secret key: Run `vercel env add CLERK_SECRET_KEY production` and paste value from .env.local (starts with sk*test*)
 
 ### Fix Runtime Warnings & Errors
 
-- [ ] Fix getDailyYear() deprecation warning in src/lib/puzzleUtils.ts:24 - Remove call to `getDailyYear()` in `getTodaysPuzzleNumber()`, return 1 as default when no debugYear provided
+- [x] Fix getDailyYear() deprecation warning in src/lib/puzzleUtils.ts:24 - Remove call to `getDailyYear()` in `getTodaysPuzzleNumber()`, return 1 as default when no debugYear provided
 
-- [ ] Fix HintsDisplay validation warning in src/lib/propValidation.ts:117-118 - Change validation to only warn if `p.events && p.events.length > 0 && p.events.length !== 6` to allow empty arrays during loading
+- [x] Fix HintsDisplay validation warning in src/lib/propValidation.ts:117-118 - Change validation to only warn if `p.events && p.events.length > 0 && p.events.length !== 6` to allow empty arrays during loading
 
-- [ ] Fix countdown timer bug in src/lib/utils.ts:35-40 - Replace `midnight.setHours(24, 0, 0, 0)` with proper calculation: `const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate() + 1); tomorrow.setHours(0, 0, 0, 0);`
+- [x] Fix countdown timer bug in src/lib/utils.ts:35-40 - Replace `midnight.setHours(24, 0, 0, 0)` with proper calculation: `const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate() + 1); tomorrow.setHours(0, 0, 0, 0);`
 
-- [ ] Remove redundant "Game Over" text in src/components/GameLayout.tsx:149-151 - Delete the entire conditional block showing "Game Over. The correct year was..." as this info is already displayed in the celebration UI
+- [x] Remove redundant "Game Over" text in src/components/GameLayout.tsx:149-151 - Delete the entire conditional block showing "Game Over. The correct year was..." as this info is already displayed in the celebration UI
 
 ### Deployment Verification
 
-- [ ] Test local build with production Convex: Run `NEXT_PUBLIC_CONVEX_URL=https://fleet-goldfish-183.convex.cloud pnpm build` to verify build succeeds with prod URL
+- [x] Test local build with production Convex: Run `NEXT_PUBLIC_CONVEX_URL=https://fleet-goldfish-183.convex.cloud pnpm build` to verify build succeeds with prod URL
 
-- [ ] Deploy to Vercel: Run `vercel --prod` after all fixes are complete and environment variables are set
+- [x] Deploy to Vercel preview first: Run `vercel` (no --prod flag) to test deployment before production ✓ https://chrondle-r8f1o7gu5-moomooskycow.vercel.app
+
+- [ ] Test preview deployment thoroughly:
+
+  - Verify daily puzzle loads correctly
+  - Test authentication flow
+  - Check archive functionality
+  - Validate no runtime errors in browser console
+
+- [ ] Deploy to production: Run `vercel --prod` only after preview testing passes
 
 - [x] Create vercel.json: ✓ Created configuration for Convex deployment integration
 

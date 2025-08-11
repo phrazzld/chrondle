@@ -34,9 +34,10 @@ export function getGuessDirectionInfo(guess: number, target: number) {
 
 export function getTimeUntilMidnight(): number {
   const now = new Date();
-  const midnight = new Date();
-  midnight.setHours(24, 0, 0, 0);
-  return midnight.getTime() - now.getTime();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+  return tomorrow.getTime() - now.getTime();
 }
 
 // Calculate closest guess for sharing and display

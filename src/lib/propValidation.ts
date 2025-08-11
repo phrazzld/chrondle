@@ -114,7 +114,7 @@ export function validateHintsDisplayProps(
   // Check events array
   if (!Array.isArray(p.events)) {
     warn(componentName, "events must be an array");
-  } else if (p.events.length !== 6) {
+  } else if (p.events.length > 0 && p.events.length !== 6) {
     warn(componentName, "events array must have exactly 6 items");
   }
 

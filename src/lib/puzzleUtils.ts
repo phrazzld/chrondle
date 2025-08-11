@@ -1,5 +1,4 @@
 import { getIndexFromYear } from "./puzzleData";
-import { getDailyYear } from "./gameState";
 
 /**
  * Calculate puzzle number for a given year
@@ -21,8 +20,16 @@ export function getTodaysPuzzleNumber(
   debugYear?: string,
   isDebugMode?: boolean,
 ): number {
-  const today = getDailyYear(debugYear, isDebugMode);
-  return getPuzzleNumberForYear(today) || 1;
+  // If debug mode with specific year, get puzzle number for that year
+  if (isDebugMode && debugYear) {
+    const year = parseInt(debugYear);
+    if (!isNaN(year)) {
+      return getPuzzleNumberForYear(year) || 1;
+    }
+  }
+
+  // Default to puzzle #1 when no debug year provided
+  return 1;
 }
 
 /**

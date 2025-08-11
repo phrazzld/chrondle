@@ -8,7 +8,6 @@ import { ProximityDisplay } from "@/components/ui/ProximityDisplay";
 import { GameProgress } from "@/components/GameProgress";
 import { HintsDisplay } from "@/components/HintsDisplay";
 import { Confetti, ConfettiRef } from "@/components/magicui/confetti";
-import { formatYear } from "@/lib/utils";
 import { validateGameLayoutProps } from "@/lib/propValidation";
 
 export interface GameLayoutProps {
@@ -136,22 +135,6 @@ export function GameLayout(props: GameLayoutProps) {
             isLoading={isLoading}
             error={error}
           />
-
-          {/* Game Complete Message */}
-          {isGameComplete && (
-            <div className="text-center py-4">
-              {hasWon ? (
-                <p className="text-lg font-semibold text-green-600">
-                  Congratulations! You found the year in{" "}
-                  {gameState.guesses.length} guesses!
-                </p>
-              ) : (
-                <p className="text-lg font-semibold text-red-600">
-                  Game Over. The correct year was {formatYear(targetYear)}.
-                </p>
-              )}
-            </div>
-          )}
         </div>
       </main>
 
