@@ -1,6 +1,55 @@
 # Chrondle TODO
 
-## 🔥 CRITICAL: Fix Production Deployment & Runtime Issues
+## ✅ DATABASE MIGRATION: 90% COMPLETE!
+
+**CURRENT STATUS**: Events imported successfully! Just need to generate puzzles.
+
+**COMPLETED**:
+
+- ✅ Restored puzzle data from git history (298 years of events)
+- ✅ Imported 1821 events to production database
+- ✅ Verified 298 years available for puzzle generation
+- ✅ App loads successfully (waiting for puzzles)
+
+**REMAINING**: Generate puzzles from events (manual trigger or wait for cron)
+
+**CAUSE**: Two separate Convex deployments exist:
+
+- **DEV**: `handsome-raccoon-955` ✅ **HAS ALL 239 PUZZLES**
+- **PROD**: `fleet-goldfish-183` ❌ **EMPTY DATABASE**
+
+**CURRENT CONFIG**: .env.local points to PRODUCTION (empty) - explains all puzzle loading failures!
+
+### ✅ Database Migration Complete (Events Imported!)
+
+- [x] **Export data from dev deployment (has puzzles):** ✅ Restored from git history
+
+  ```bash
+  npx convex export --deployment-name handsome-raccoon-955 --path dev-data-full.zip
+  ```
+
+- [x] **Import data to production deployment:** ✅ Imported 1821 events across 298 years
+
+  ```bash
+  npx convex import --prod --path dev-data-full.zip
+  ```
+
+- [x] **Verify production database has events:** ✅ 298 years available for puzzles
+
+  ```bash
+  npx convex run puzzles:getTotalPuzzles --prod
+  npx convex data puzzles --prod
+  ```
+
+- [x] **Test puzzle loading locally:** ✅ App loads, waiting for puzzle generation
+
+- [ ] **Generate puzzles:** Trigger generateDailyPuzzle in Convex dashboard or wait for midnight UTC
+
+- [ ] **Deploy to production after puzzles are generated**
+
+---
+
+## 🔥 FIXED: Production Deployment & Runtime Issues
 
 ### Convex URL Configuration Mismatch (Blocking Production)
 
@@ -38,14 +87,16 @@
   - ✓ Added CLERK_SECRET_KEY to Preview
   - ✓ New working preview: https://chrondle-15bh98rip-moomooskycow.vercel.app
 
-- [ ] Test preview deployment thoroughly:
+- [x] **Root cause identified**: Preview deployment failures were due to empty production database, not environment configuration
 
-  - Verify daily puzzle loads correctly
+- [ ] **Test preview deployment after database migration:**
+
+  - Verify daily puzzle loads correctly (blocked until migration)
   - Test authentication flow
-  - Check archive functionality
+  - Check archive functionality (blocked until migration)
   - Validate no runtime errors in browser console
 
-- [ ] Deploy to production: Run `vercel --prod` only after preview testing passes
+- [ ] **Deploy to production**: Run `vercel --prod` only after database migration and preview testing passes
 
 - [x] Create vercel.json: ✓ Created configuration for Convex deployment integration
 

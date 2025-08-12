@@ -1,14 +1,40 @@
 # Claude's Guide to Chrondle
 
+## 🚨 CRITICAL: Database Migration Required
+
+**Current Issue:** Puzzles won't load because production database is empty!
+
+**Two Convex Deployments:**
+
+- **DEV**: `handsome-raccoon-955` ✅ **HAS ALL 239 PUZZLES**
+- **PROD**: `fleet-goldfish-183` ❌ **EMPTY DATABASE**
+
+**Current Config:** Points to PRODUCTION (empty) - must migrate data from dev!
+
+**To Fix:**
+
+```bash
+# 1. Export from dev deployment (has data)
+npx convex export --deployment-name handsome-raccoon-955 --path dev-data.zip
+
+# 2. Import to production deployment
+npx convex import --prod --path dev-data.zip
+
+# 3. Verify production has puzzles
+npx convex run puzzles:getTotalPuzzles --prod
+```
+
+---
+
 ## What is Chrondle?
 
 Chrondle is a daily historical guessing game built with Next.js 15, React 19, and TypeScript. Players guess the year of historical events based on progressive hints, similar to Wordle but for historical knowledge. It features:
 
 - **Daily Puzzle Mechanics**: One puzzle per day, globally synchronized using deterministic algorithms
 - **Progressive Hint System**: 6 hints per puzzle, ordered from obscure to obvious historical events
-- **Static Puzzle Database**: 136 curated historical events spanning years -776 to 2008
+- **Convex Backend**: Real-time database with 239+ curated historical puzzles spanning years -776 to 2008
 - **Accessibility-First Design**: Screen reader support, keyboard navigation, and mobile-optimized interface
-- **Zero Server Dependencies**: Entirely client-side with localStorage persistence
+- **User Authentication**: Clerk integration with Convex for progress tracking and streaks
 
 ## Your Role
 
@@ -27,6 +53,8 @@ As Claude working on Chrondle, you are responsible for:
 - **Next.js 15**: App Router with React 19 support, Turbopack for development
 - **React 19**: Modern hook patterns, concurrent features, strict mode compatibility
 - **TypeScript 5**: Strict mode enforcement with comprehensive type safety
+- **Convex**: Real-time database and backend-as-a-service for puzzle storage and user data
+- **Clerk**: Authentication and user management with Convex integration
 - **Tailwind CSS 4**: CSS variables-based design system with OKLCH color space
 - **Radix UI**: Unstyled, accessible primitives for compound components
 - **Vitest**: Testing framework with jsdom environment and React Testing Library
@@ -37,9 +65,9 @@ As Claude working on Chrondle, you are responsible for:
 **Custom Hooks as Domain Services:**
 
 ```typescript
-// Primary game state management
+// Primary game state management with Convex backend
 const { gameState, makeGuess, resetGame, remainingGuesses } =
-  useGameState(debugMode);
+  useConvexGameState(debugMode);
 
 // Achievement and streak tracking
 const { streakData, updateStreak, achievements } = useStreak();
@@ -48,12 +76,14 @@ const { streakData, updateStreak, achievements } = useStreak();
 const { themeMode, setThemeMode, mounted } = useEnhancedTheme();
 ```
 
-**Static Data Architecture:**
+**Convex Database Architecture:**
 
-- Puzzle database: `src/data/puzzles.json` (136 curated events)
-- Deterministic selection: Hash-based daily algorithm
-- Event ordering: Recognizability scoring system
-- Validation scripts: Automated data integrity checks
+- **CRITICAL**: Two separate Convex deployments exist:
+  - **DEV**: `handsome-raccoon-955` (239 seeded puzzles) ✅
+  - **PROD**: `fleet-goldfish-183` (empty, needs migration) ❌
+- Real-time puzzle database with events, puzzles, users, and plays tables
+- Cron jobs for daily puzzle generation
+- Authentication integration with Clerk for user progress tracking
 
 **Component Composition:**
 
@@ -64,6 +94,8 @@ const { themeMode, setThemeMode, mounted } = useEnhancedTheme();
 
 ### Critical Dependencies
 
+- **convex**: Real-time database and backend-as-a-service
+- **@clerk/nextjs**: Authentication and user management
 - **@radix-ui/\***: Accessibility-first component primitives
 - **class-variance-authority**: Type-safe component variants
 - **motion**: Animation library for user feedback
@@ -78,14 +110,21 @@ const { themeMode, setThemeMode, mounted } = useEnhancedTheme();
 # Install dependencies (pnpm only)
 pnpm install
 
+# IMPORTANT: Set up Convex environment first
+# Copy .env.example to .env.local and configure Convex deployment
+# Currently points to PRODUCTION (empty) - needs dev data migration!
+
+# Start Convex in development mode
+npx convex dev
+
 # Start development server with Turbopack
 pnpm dev
 
 # Run all quality checks
 pnpm lint && pnpm type-check && pnpm test
 
-# Validate puzzle data integrity
-pnpm validate-puzzles
+# Validate Convex database integrity
+npx convex run puzzles:getTotalPuzzles
 ```
 
 ### Key Files and Directories

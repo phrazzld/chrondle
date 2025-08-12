@@ -47,6 +47,17 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Convex generated files
+convex/_generated/
+
+# Backup and export files
+*.zip
+restored-puzzles.json
+
+# Database migration scripts (temporary)
+scripts/seed-*.mjs
+scripts/generate-puzzles.mjs
+
 /docs/leyline
 *.backup
 
