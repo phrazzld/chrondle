@@ -37,6 +37,7 @@ yarn-error.log*
 .env.development
 .env.test
 .env.vercel
+.env.dev
 # Allow .env.example to be committed
 !.env.example
 
@@ -46,9 +47,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# Convex generated files
-convex/_generated/
 
 # Backup and export files
 *.zip
