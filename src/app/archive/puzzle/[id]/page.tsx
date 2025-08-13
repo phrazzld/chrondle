@@ -2,11 +2,7 @@
 
 import { useState, useEffect, useCallback, use } from "react";
 import Link from "next/link";
-import {
-  fetchTotalPuzzles,
-  getPuzzleByIndexAsync,
-  type Puzzle,
-} from "@/lib/puzzleData";
+import { fetchTotalPuzzles } from "@/lib/puzzleData";
 import { useConvexGameState } from "@/hooks/useConvexGameState";
 import { GameLayout } from "@/components/GameLayout";
 import { AppHeader } from "@/components/AppHeader";
@@ -62,63 +58,51 @@ function ArchivePuzzleContent({
   const [showSuccess, setShowSuccess] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const [isValidated, setIsValidated] = useState(false);
-  const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
   const [totalPuzzles, setTotalPuzzles] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   // The puzzle ID is the puzzle number (1-based)
   const puzzleNumber = validation.valid && validation.id ? validation.id : 0;
-  const targetYear = puzzle?.year || 2000;
 
   // Use game state for archive puzzle with puzzle number
-  const { gameState, makeGuess, hasWon, isGameComplete } = useConvexGameState(
-    false, // debugMode
-    puzzleNumber > 0 && puzzle ? puzzleNumber : undefined, // archivePuzzleNumber
-  );
+  const { gameState, makeGuess, hasWon, isGameComplete, isLoading } =
+    useConvexGameState(
+      false, // debugMode
+      puzzleNumber > 0 ? puzzleNumber : undefined, // archivePuzzleNumber - pass immediately, don't wait for puzzle
+    );
 
-  // Fetch puzzle data and total puzzles count
+  // Get target year from game state puzzle
+  const targetYear = gameState.puzzle?.year || 2000;
+
+  // Fetch total puzzles count for navigation
   useEffect(() => {
     async function fetchData() {
       if (!validation.valid) {
         setAnnouncement(`Error: ${validation.error}`);
         setIsValidated(true);
-        setIsLoading(false);
         return;
       }
 
       try {
-        setIsLoading(true);
-
-        // Fetch total puzzles count and puzzle data in parallel
-        const [totalCount, puzzleData] = await Promise.all([
-          fetchTotalPuzzles(),
-          getPuzzleByIndexAsync(validation.id - 1), // Convert to 0-based index
-        ]);
-
+        // Fetch total puzzles count for navigation
+        const totalCount = await fetchTotalPuzzles();
         setTotalPuzzles(totalCount);
 
-        // Check if puzzle exists
-        if (!puzzleData) {
-          setFetchError(`Puzzle #${validation.id} not found`);
-          setAnnouncement(`Puzzle #${validation.id} not found`);
-        } else if (validation.id > totalCount) {
+        // Check if puzzle number is valid
+        if (validation.id > totalCount) {
           setFetchError(
             `Puzzle #${validation.id} does not exist. We have ${totalCount} puzzles.`,
           );
           setAnnouncement(
             `Puzzle #${validation.id} does not exist. We have ${totalCount} puzzles.`,
           );
-        } else {
-          setPuzzle(puzzleData);
         }
       } catch (error) {
-        console.error("Failed to fetch puzzle data:", error);
+        console.error("Failed to fetch total puzzles count:", error);
         setFetchError("Failed to load puzzle data");
         setAnnouncement("Error: Failed to load puzzle data");
       } finally {
         setIsValidated(true);
-        setIsLoading(false);
       }
     }
 
@@ -149,7 +133,7 @@ function ArchivePuzzleContent({
   // Handle guess submission
   const handleGuess = useCallback(
     (guess: number): void => {
-      if (!puzzle || isGameComplete) return;
+      if (!gameState.puzzle || isGameComplete) return;
 
       makeGuess(guess);
 
@@ -167,7 +151,7 @@ function ArchivePuzzleContent({
 
       setAnnouncement(message);
     },
-    [puzzle, isGameComplete, makeGuess, targetYear],
+    [gameState.puzzle, isGameComplete, makeGuess, targetYear],
   );
 
   // Handle navigation
@@ -183,7 +167,7 @@ function ArchivePuzzleContent({
   };
 
   // Error state
-  if (isValidated && (!validation.valid || fetchError || !puzzle)) {
+  if (isValidated && (!validation.valid || fetchError || !gameState.puzzle)) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <AppHeader
@@ -211,7 +195,7 @@ function ArchivePuzzleContent({
   }
 
   // Loading state
-  if (!isValidated || isLoading) {
+  if (!isValidated || isLoading || !gameState.puzzle) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">
