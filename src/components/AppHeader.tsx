@@ -10,7 +10,7 @@ import { getStreakColorClasses, cn } from "@/lib/utils";
 import { formatPuzzleNumber } from "@/lib/puzzleUtils";
 
 interface AppHeaderProps {
-  onShowSettings: () => void;
+  onShowSettings?: () => void;
   currentStreak?: number;
   isDebugMode?: boolean;
   puzzleNumber?: number;
@@ -102,16 +102,18 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             {/* Theme Toggle */}
             <ThemeToggle />
 
-            <Button
-              onClick={onShowSettings}
-              variant="ghost"
-              size="icon"
-              title="Settings - Adjust theme and accessibility options"
-              aria-label="Show settings for theme and accessibility"
-              className="h-10 w-10 rounded-full"
-            >
-              <Settings className="h-5 w-5" />
-            </Button>
+            {onShowSettings && (
+              <Button
+                onClick={onShowSettings}
+                variant="ghost"
+                size="icon"
+                title="Settings - Adjust theme and accessibility options"
+                aria-label="Show settings for theme and accessibility"
+                className="h-10 w-10 rounded-full"
+              >
+                <Settings className="h-5 w-5" />
+              </Button>
+            )}
 
             {/* Auth Buttons - Rightmost */}
             <AuthButtons />

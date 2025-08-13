@@ -49,6 +49,117 @@
 
 ---
 
+## 🔥 CRITICAL: Archive Page Server Component Error
+
+**FAILURE MODE**: Archive page throws Server Components render error in Vercel deployment
+**ROOT CAUSE**: Clerk's `currentUser()` throws unhandled exception in Next.js 15 Server Component context
+**IMPACT**: Archive page completely broken in production, returns 500 error
+**ERROR SIGNATURE**: "An error occurred in the Server Components render" with masked details
+
+### Fix Archive Page Authentication Resilience
+
+- [~] **Isolate Clerk auth call in try-catch with explicit null fallback** (src/app/archive/page.tsx:38-45)
+
+  - Replace basic try-catch with comprehensive error boundary
+  - Add explicit `console.log` for debugging auth failures in production
+  - Ensure `clerkUser = null` is set in ALL error paths
+  - Test with: `throw new Error('test')` before `currentUser()` call to verify fallback
+
+- [ ] **Add defensive null checks around getUserByClerkId query** (src/app/archive/page.tsx:53-54)
+
+  - Wrap entire Convex user query in separate try-catch
+  - Log specific error: `console.error('[Archive] getUserByClerkId failed:', error)`
+  - Continue with `convexUser = null` on ANY exception
+  - Prevent cascading failure if Convex query throws
+
+- [ ] **Guard getUserCompletedPuzzles with explicit error handling** (src/app/archive/page.tsx:59-64)
+
+  - Only execute if `convexUser` is truthy AND has valid `_id`
+  - Wrap in try-catch with fallback to empty Set
+  - Log: `console.warn('[Archive] Completed puzzles fetch failed, using empty set')`
+  - Test with malformed userId to verify resilience
+
+- [ ] **Add request context validation before currentUser()** (src/app/archive/page.tsx:41)
+
+  - Import `headers` from 'next/headers'
+  - Check for cookie existence: `headers().get('cookie')`
+  - Skip auth if no cookies present (SSG/ISR context)
+  - Log: `console.log('[Archive] Request context:', { hasCookies: !!cookies })`
+
+- [ ] **Implement auth state telemetry for debugging** (src/app/archive/page.tsx:46-69)
+
+  - Add structured logging object:
+    ```typescript
+    const authState = {
+      hasClerkUser: !!clerkUser,
+      hasConvexUser: !!convexUser,
+      completedCount: completedPuzzleIds.size,
+      timestamp: new Date().toISOString(),
+    };
+    console.log("[Archive] Auth state:", authState);
+    ```
+
+- [ ] **Create fallback UI for auth loading state** (src/app/archive/page.tsx:105-130)
+
+  - Replace completion stats section with conditional render
+  - Show skeleton loader if `clerkUser` but no `convexUser` yet
+  - Completely hide section if no `clerkUser`
+  - Add `suppressHydrationWarning` to dynamic elements
+
+- [ ] **Test error recovery with forced failures**
+
+  - Temporarily add `throw new Error()` at each auth point
+  - Verify page still renders with public puzzle grid
+  - Check console for proper error logging
+  - Confirm no 500 errors in any failure mode
+
+- [ ] **Add runtime environment detection** (src/app/archive/page.tsx:32)
+
+  - Check `process.env.VERCEL_ENV` for deployment context
+  - Log environment: `console.log('[Archive] Running in:', process.env.VERCEL_ENV || 'local')`
+  - Use to conditionally enable verbose logging
+  - Help diagnose preview vs production differences
+
+- [ ] **Implement graceful degradation for Convex connection** (src/app/archive/page.tsx:72-75)
+
+  - Wrap `getArchivePuzzles` in try-catch
+  - Return mock data structure on failure:
+    ```typescript
+    { puzzles: [], totalPages: 0, currentPage: 1, totalCount: 0 }
+    ```
+  - Show "Archive temporarily unavailable" message
+  - Log Convex connection errors separately
+
+- [ ] **Add performance timing markers** (entire component)
+
+  - `console.time('[Archive] Auth check')`
+  - `console.time('[Archive] Convex queries')`
+  - `console.time('[Archive] Total render')`
+  - Identify which operation is actually failing
+
+- [ ] **Create integration test for archive resilience**
+
+  - Test with Clerk undefined
+  - Test with Convex unavailable
+  - Test with malformed user data
+  - Verify page always renders something useful
+
+- [ ] **Deploy fix to Vercel preview**
+
+  - Commit with message: "fix: make archive page resilient to auth failures"
+  - Push to trigger auto-deploy
+  - Test /archive route immediately after deploy
+  - Check Vercel function logs for error details
+
+- [ ] **Verify fix in production scenarios**
+  - Test logged out (no cookies)
+  - Test with expired session
+  - Test with invalid Clerk token
+  - Test with Convex connection timeout
+  - Confirm no 500 errors in any case
+
+---
+
 ## 🔥 FIXED: Production Deployment & Runtime Issues
 
 ### Convex URL Configuration Mismatch (Blocking Production)

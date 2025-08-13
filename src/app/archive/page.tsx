@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../convex/_generated/api";
 import { currentUser } from "@clerk/nextjs/server";
+import { headers } from "next/headers";
 import { AppHeader } from "@/components/AppHeader";
 import { Footer } from "@/components/Footer";
 import { Card } from "@/components/ui/Card";
@@ -28,6 +29,11 @@ async function ArchivePageContent({
   const currentPage = Number(params.page) || 1;
   const PUZZLES_PER_PAGE = 24 as const;
 
+  // Runtime environment detection for debugging
+  const environment = process.env.VERCEL_ENV || "local";
+  // eslint-disable-next-line no-console
+  console.log(`[Archive] Running in: ${environment}`);
+
   // Initialize Convex client
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
   if (!convexUrl) {
@@ -35,44 +41,138 @@ async function ArchivePageContent({
   }
   const client = new ConvexHttpClient(convexUrl);
 
-  // Get current user from Clerk - wrapped in try/catch for public access
-  let clerkUser = null;
+  // Performance timing
+  // eslint-disable-next-line no-console
+  console.time("[Archive] Auth check");
+
+  // Request context validation
+  let hasRequestContext = false;
   try {
-    clerkUser = await currentUser();
-  } catch {
-    // Archive is publicly accessible, auth is optional
-    // User is not authenticated, which is allowed for archive viewing
+    const headersList = await headers();
+    const cookies = headersList.get("cookie");
+    hasRequestContext = !!cookies;
+    // eslint-disable-next-line no-console
+    console.log("[Archive] Request context:", {
+      hasCookies: hasRequestContext,
+    });
+  } catch (error) {
+    console.warn("[Archive] Headers not available (SSG/ISR context):", error);
   }
 
+  // Get current user from Clerk - comprehensive error handling
+  let clerkUser = null;
+  try {
+    // TEST: Force error before auth call
+    // throw new Error("TEST: Forced error before auth");
+
+    // Skip auth if no request context (SSG/ISR)
+    if (!hasRequestContext) {
+      // eslint-disable-next-line no-console
+      console.log("[Archive] Skipping auth - no request context");
+    } else {
+      clerkUser = await currentUser();
+      // eslint-disable-next-line no-console
+      console.log("[Archive] Clerk auth successful:", {
+        userId: clerkUser?.id,
+      });
+    }
+  } catch (error) {
+    // Comprehensive error logging for production debugging
+    console.error("[Archive] Clerk auth failed:", {
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      environment,
+      hasRequestContext,
+    });
+    // Explicitly set to null on ANY error
+    clerkUser = null;
+    // Archive is publicly accessible, continue without auth
+  }
+
+  // eslint-disable-next-line no-console
+  console.timeEnd("[Archive] Auth check");
+
   // Fetch user data and completed puzzles if authenticated
+  // eslint-disable-next-line no-console
+  console.time("[Archive] Convex queries");
   let convexUser = null;
   let completedPuzzleIds = new Set<string>();
 
   if (clerkUser) {
-    // Get the Convex user by Clerk ID
-    convexUser = await client.query(api.users.getUserByClerkId, {
-      clerkId: clerkUser.id,
-    });
+    // Get the Convex user by Clerk ID with defensive error handling
+    try {
+      convexUser = await client.query(api.users.getUserByClerkId, {
+        clerkId: clerkUser.id,
+      });
+      // eslint-disable-next-line no-console
+      console.log("[Archive] Convex user found:", { userId: convexUser?._id });
+    } catch (error) {
+      console.error("[Archive] getUserByClerkId failed:", error);
+      // Continue with null user - don't cascade failure
+      convexUser = null;
+    }
 
-    if (convexUser) {
-      // Get user's completed puzzles
-      const completedPlays = await client.query(
-        api.puzzles.getUserCompletedPuzzles,
-        {
-          userId: convexUser._id,
-        },
-      );
-
-      // Create a set of completed puzzle IDs for quick lookup
-      completedPuzzleIds = new Set(completedPlays.map((play) => play.puzzleId));
+    // Only fetch completed puzzles if we have a valid Convex user
+    if (convexUser && convexUser._id) {
+      try {
+        // Get user's completed puzzles with error handling
+        const completedPlays = await client.query(
+          api.puzzles.getUserCompletedPuzzles,
+          {
+            userId: convexUser._id,
+          },
+        );
+        // Create a set of completed puzzle IDs for quick lookup
+        completedPuzzleIds = new Set(
+          completedPlays.map((play) => play.puzzleId),
+        );
+        // eslint-disable-next-line no-console
+        console.log("[Archive] Completed puzzles loaded:", {
+          count: completedPuzzleIds.size,
+        });
+      } catch (error) {
+        console.warn(
+          "[Archive] Completed puzzles fetch failed, using empty set:",
+          error,
+        );
+        // Fallback to empty set - user won't see completion status
+        completedPuzzleIds = new Set();
+      }
     }
   }
+  // eslint-disable-next-line no-console
+  console.timeEnd("[Archive] Convex queries");
 
-  // Fetch archive puzzles from Convex
-  const archiveData = await client.query(api.puzzles.getArchivePuzzles, {
-    page: currentPage,
-    pageSize: PUZZLES_PER_PAGE,
-  });
+  // Fetch archive puzzles from Convex with graceful degradation
+  let archiveData: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    puzzles: any[]; // Will be properly typed from Convex
+    totalPages: number;
+    totalCount: number;
+    currentPage: number;
+  } = {
+    puzzles: [],
+    totalPages: 0,
+    totalCount: 0,
+    currentPage: 1,
+  };
+
+  try {
+    archiveData = await client.query(api.puzzles.getArchivePuzzles, {
+      page: currentPage,
+      pageSize: PUZZLES_PER_PAGE,
+    });
+    // eslint-disable-next-line no-console
+    console.log("[Archive] Puzzles loaded:", {
+      count: archiveData.puzzles.length,
+      totalCount: archiveData.totalCount,
+      page: currentPage,
+    });
+  } catch (error) {
+    console.error("[Archive] Failed to load puzzles:", error);
+    // Return graceful fallback - archive temporarily unavailable
+    // The UI will show appropriate message based on empty data
+  }
 
   const { puzzles, totalPages, totalCount } = archiveData;
 
@@ -87,9 +187,21 @@ async function ArchivePageContent({
   // Calculate completed count
   const completedCount = completedPuzzleIds.size;
 
+  // Auth state telemetry for debugging
+  const authState = {
+    hasClerkUser: !!clerkUser,
+    hasConvexUser: !!convexUser,
+    completedCount,
+    totalCount,
+    environment,
+    timestamp: new Date().toISOString(),
+  };
+  // eslint-disable-next-line no-console
+  console.log("[Archive] Auth state:", authState);
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <AppHeader onShowSettings={() => {}} currentStreak={0} />
+      <AppHeader currentStreak={0} />
 
       <main className="flex-grow max-w-2xl mx-auto w-full py-8">
         <div className="mb-8">
@@ -101,40 +213,56 @@ async function ArchivePageContent({
           </p>
         </div>
 
-        {/* Completion Statistics - Only show for authenticated users */}
+        {/* Completion Statistics - Show loading state or data */}
         {clerkUser && (
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-foreground font-medium">
-                Completed: {completedCount} of {totalCount}
-              </span>
-              <span className="text-sm text-muted-foreground">
-                {totalCount > 0
-                  ? Math.round((completedCount / totalCount) * 100)
-                  : 0}
-                %
-              </span>
-            </div>
-            <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-              <div
-                className="bg-green-600 h-full transition-all duration-300 ease-out"
-                style={{
-                  width:
-                    totalCount > 0
-                      ? `${(completedCount / totalCount) * 100}%`
-                      : "0%",
-                }}
-              />
-            </div>
+          <div className="mb-6" suppressHydrationWarning>
+            {convexUser ? (
+              // Show actual completion data
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-foreground font-medium">
+                    Completed: {completedCount} of {totalCount}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {totalCount > 0
+                      ? Math.round((completedCount / totalCount) * 100)
+                      : 0}
+                    %
+                  </span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-green-600 h-full transition-all duration-300 ease-out"
+                    style={{
+                      width:
+                        totalCount > 0
+                          ? `${(completedCount / totalCount) * 100}%`
+                          : "0%",
+                    }}
+                  />
+                </div>
+              </div>
+            ) : (
+              // Show skeleton loader while user data loads
+              <div className="animate-pulse">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="h-5 bg-muted rounded w-32" />
+                  <div className="h-4 bg-muted rounded w-12" />
+                </div>
+                <div className="w-full bg-muted rounded-full h-2" />
+              </div>
+            )}
           </div>
         )}
 
         {/* Archive grid */}
-        {totalCount === 0 ? (
-          // Empty archive message
+        {archiveData.puzzles.length === 0 && totalCount === 0 ? (
+          // Empty archive or connection issue
           <div className="text-center py-12">
             <p className="text-muted-foreground">
-              No puzzles available yet. Check back tomorrow!
+              {archiveData.currentPage === 1
+                ? "Archive temporarily unavailable. Please try again later."
+                : "No puzzles available yet. Check back tomorrow!"}
             </p>
           </div>
         ) : paginatedData.length === 0 ? (
