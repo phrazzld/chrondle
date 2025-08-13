@@ -96,3 +96,7 @@ thinktank_*/
 investigation.md
 # CI/CD test output logs
 test/
+
+# Vercel logs and deployment logs
+logs_result.json
+*_logs.json
