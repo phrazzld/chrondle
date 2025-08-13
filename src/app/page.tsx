@@ -52,7 +52,7 @@ export default function ChronldePage() {
   } = useStreak();
 
   // Countdown for next puzzle
-  useCountdown(); // Just for the countdown functionality
+  const countdown = useCountdown(); // Get countdown data
 
   // UI state
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -271,6 +271,7 @@ export default function ChronldePage() {
           error={null}
           onGuess={() => {}}
           onValidationError={() => {}}
+          countdown={countdown}
           headerContent={
             <AppHeader
               onShowSettings={() => setShowSettingsModal(true)}
@@ -314,6 +315,7 @@ export default function ChronldePage() {
         onValidationError={handleValidationError}
         confettiRef={confettiRef}
         debugMode={debugMode}
+        countdown={countdown}
         headerContent={
           <AppHeader
             onShowSettings={() => setShowSettingsModal(true)}

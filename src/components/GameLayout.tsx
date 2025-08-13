@@ -42,6 +42,14 @@ export interface GameLayoutProps {
 
   // Debug mode
   debugMode?: boolean;
+
+  // Countdown data
+  countdown?: {
+    timeString: string;
+    isComplete: boolean;
+    isLoading: boolean;
+    error: string | null;
+  };
 }
 
 export function GameLayout(props: GameLayoutProps) {
@@ -59,6 +67,7 @@ export function GameLayout(props: GameLayoutProps) {
     footerContent,
     onValidationError,
     confettiRef,
+    countdown,
   } = props;
 
   // Calculate currentHintIndex from gameState
@@ -81,6 +90,7 @@ export function GameLayout(props: GameLayoutProps) {
             hasWon={hasWon}
             targetYear={targetYear}
             guesses={gameState.guesses}
+            timeString={countdown?.timeString}
           />
 
           {/* Guess Input - Below instructions */}

@@ -335,6 +335,54 @@ export const getUserCompletedPuzzles = query({
   },
 });
 
+// Get next cron schedule for countdown system
+export const getCronSchedule = query({
+  handler: async () => {
+    try {
+      // Calculate next midnight UTC based on cron configuration
+      const now = new Date();
+      const nextMidnightUTC = new Date();
+
+      // Set to next midnight UTC
+      nextMidnightUTC.setUTCDate(nextMidnightUTC.getUTCDate() + 1);
+      nextMidnightUTC.setUTCHours(0, 0, 0, 0);
+
+      // If we're already past today's puzzle generation, use tomorrow's midnight
+      const todayMidnightUTC = new Date();
+      todayMidnightUTC.setUTCHours(0, 0, 0, 0);
+
+      const nextScheduledTime =
+        now >= todayMidnightUTC ? nextMidnightUTC : todayMidnightUTC;
+
+      return {
+        nextScheduledTime: nextScheduledTime.getTime(), // Unix timestamp
+        currentServerTime: now.getTime(), // For time synchronization
+        cronConfig: {
+          hourUTC: 0,
+          minuteUTC: 0,
+          timezone: "UTC",
+          frequency: "daily",
+        },
+        timeUntilNext: nextScheduledTime.getTime() - now.getTime(),
+      };
+    } catch (error) {
+      console.error("Failed to get cron schedule:", error);
+
+      // Fallback to 24-hour default countdown
+      const now = new Date();
+      const fallbackTime = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+      return {
+        nextScheduledTime: fallbackTime.getTime(),
+        currentServerTime: now.getTime(),
+        cronConfig: null, // Indicates fallback mode
+        timeUntilNext: 24 * 60 * 60 * 1000,
+        fallback: true,
+      };
+    }
+  },
+});
+
 // Manual trigger for generating a puzzle (for testing)
 export const manualGeneratePuzzle = mutation({
   handler: async () => {

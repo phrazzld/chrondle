@@ -13,7 +13,6 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
-import type * as admin from "../admin.js";
 import type * as crons from "../crons.js";
 import type * as events from "../events.js";
 import type * as migrations_migrateEvents from "../migrations/migrateEvents.js";
@@ -29,7 +28,6 @@ import type * as users from "../users.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
-  admin: typeof admin;
   crons: typeof crons;
   events: typeof events;
   "migrations/migrateEvents": typeof migrations_migrateEvents;

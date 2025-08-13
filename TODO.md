@@ -1,8 +1,250 @@
 # Chrondle TODO
 
+## 🚨 CRITICAL: Fix Completion Tracking & Countdown System
+
+**CURRENT STATUS**: Archive shows no completion status + countdown broken ("00:00:00")
+
+**ROOT CAUSES**:
+
+1. **Puzzle ID mismatch**: Daily completion saves vs archive queries use different identifiers
+2. **Broken countdown**: Timer disconnected from actual Convex cron schedule
+3. **Fragmented completion tracking**: Different logic for daily vs archive puzzle modes
+
+## 🔍 **Phase 1: Root Cause Investigation & Diagnosis**
+
+- [ ] **Audit puzzle ID flow in daily mode completion**
+
+  - Trace `useConvexGameState.ts:222` submitGuess call to see what `puzzleId` value is being sent
+  - Check if `gameState.puzzle.puzzleId` contains Convex `_id` or date string
+  - Log the exact puzzleId being passed to `api.puzzles.submitGuess` mutation
+  - Verify the mutation is actually being called (not failing silently)
+
+- [ ] **Audit puzzle ID flow in archive query**
+
+  - Check `archive/page.tsx:184` where `completedPuzzleIds.has(puzzle._id)` is used
+  - Verify that `getUserCompletedPuzzles` returns puzzle IDs in same format as `getArchivePuzzles`
+  - Compare the ID format between saved completions and archive puzzle data
+  - Add console logging to see both sets of IDs for comparison
+
+- [ ] **Verify completion mutation is executing**
+
+  - Add debug logging in `useConvexGameState.ts:222-232` before/after submitGuess call
+  - Check browser network tab for actual Convex mutation requests
+  - Verify user authentication state when mutation is called (`currentUser` is not null)
+  - Test with a deliberate error to confirm the catch block works
+
+- [ ] **Investigate countdown calculation logic**
+  - Find where "00:00:00" countdown is generated (likely in countdown component)
+  - Check if countdown is hardcoded or calculated from actual cron schedule
+  - Verify timezone handling in countdown vs server cron job timezone
+  - Identify the source of "next puzzle" timing data
+
+## 🔧 **Phase 2: Fix Puzzle ID Consistency**
+
+- [ ] **Standardize puzzle ID usage in daily mode**
+
+  - In `useConvexGameState.ts:154`, ensure `puzzleId: todaysPuzzle._id` is Convex ID not date
+  - Remove any date-based puzzle ID generation that conflicts with Convex IDs
+  - Update puzzle interface in `gameState.ts:12` to clarify puzzleId should be Convex ID
+  - Add TypeScript type assertion: `puzzleId: Id<"puzzles">` instead of string
+
+- [ ] **Fix completion query consistency in archive**
+
+  - Update `archive/page.tsx:127` completion check to use consistent ID format
+  - Ensure `getUserCompletedPuzzles` returns `puzzleId` field that matches puzzle `_id`
+  - Modify completion comparison logic to handle both `_id` and `puzzleId` fields if needed
+  - Add defensive null checking for completion data structure
+
+- [ ] **Verify Convex schema alignment**
+
+  - Check `convex/puzzles.ts:202-272` submitGuess mutation parameter types
+  - Ensure `plays` table schema in `convex/schema.ts` uses correct puzzle reference
+  - Verify the mutation saves `puzzleId` that can be queried by `getUserCompletedPuzzles`
+  - Test mutation in Convex dashboard with known puzzle ID to verify save format
+
+- [ ] **Add completion debugging infrastructure**
+  - Create debug function to log completion flow: save → query → display
+  - Add temporary console logging in archive page to show completion lookup logic
+  - Create debug button to manually trigger completion check for current user
+  - Add error boundaries around completion-related queries with specific error messages
+
+## 🕐 **Phase 3: Implement Dynamic Countdown System**
+
+- [x] **Create Convex query for cron schedule**
+  - Add `getCronSchedule` query in `convex/puzzles.ts` that returns next scheduled run time
+  - Query the actual cron job configuration from `convex/crons.ts`
+  - Return next run timestamp in UTC and server timezone information
+  - Handle edge cases where cron timing is uncertain or misconfigured
+
+### Context Discovery
+
+- Relevant files: convex/crons.ts:9 (daily at 00:00 UTC), convex/puzzles.ts:355, useCountdown.ts:17
+- Existing pattern: Cron runs daily at midnight UTC, current countdown uses local midnight
+- Root cause: Timezone mismatch between server UTC schedule and client local calculation
+
+### Execution Log
+
+[11:47] Analyzing existing cron configuration - runs daily at midnight UTC
+[11:48] Understanding current countdown issue - uses local midnight vs UTC midnight  
+[11:49] Creating new getCronSchedule query to bridge server timing and client countdown
+[11:50] Implemented getCronSchedule query with UTC midnight calculation and fallback handling
+[11:51] Testing the new query implementation
+[11:52] Function not available yet - need to deploy changes to Convex
+[11:53] Convex deployment complete - testing new query
+[11:53] Query test successful! Returns next midnight UTC correctly
+[11:54] Verifying timestamp calculation - next run is midnight UTC tomorrow (26 minutes away)
+
+### Approach Decisions
+
+- Used UTC-based calculation to match cron job schedule (hourUTC: 0, minuteUTC: 0)
+- Added server time synchronization for accurate client-side countdown
+- Implemented comprehensive fallback (24hr default) for edge cases
+- Included cronConfig metadata for debugging and validation
+- Returns Unix timestamps for consistent cross-timezone handling
+
+- [x] **Build real-time countdown calculation**
+  - Create `useCountdown` hook that takes target timestamp and returns formatted time string
+  - Calculate countdown based on `Date.now()` vs target timestamp, updating every second
+  - Handle timezone conversion from server UTC to user's local timezone
+  - Add fallback countdown logic when server timing is unavailable (24hr default)
+
+### Context Discovery
+
+- Relevant files: useCountdown.ts:11, GameInstructions.tsx:199, GameLayout.tsx:79, convex/puzzles.ts:339
+- Existing pattern: GameInstructions expects timeString prop but it's not being passed from GameLayout
+- Root cause: useCountdown hook uses local midnight instead of Convex getCronSchedule data
+
+### Execution Log
+
+[11:56] Analyzing current countdown implementation - hardcoded "00:00:00" displayed
+[11:57] Found countdown display in GameInstructions.tsx line 199, missing timeString prop
+[11:58] Testing getCronSchedule query - returns correct UTC timestamps and server sync
+[11:59] Designing new useCountdown hook to accept target timestamp from Convex
+[12:00] Implementing enhanced useCountdown hook with Convex integration
+[12:01] Updated useCountdown hook with Convex integration and enhanced error handling
+[12:02] Now updating existing usage to match new interface
+[12:03] Updated GameLayout and page.tsx to pass countdown data through the component tree
+[12:04] Testing the implementation for any errors
+[12:04] TypeScript error - need to regenerate Convex API types
+[12:05] Import path issue - fixing to match other hooks pattern
+[12:05] TypeScript errors resolved - testing countdown functionality
+[12:06] Implementation complete and tested successfully - countdown now uses Convex cron schedule
+
+### Approach Decisions
+
+- Enhanced useCountdown hook to integrate with Convex getCronSchedule query
+- Added comprehensive fallback system (local midnight calculation when Convex unavailable)
+- Implemented real-time updates with 1-second intervals for smooth countdown experience
+- Added loading and error states for better user experience during Convex query loading
+- Used component prop threading (page.tsx → GameLayout → GameInstructions) for clean data flow
+- Maintained backward compatibility with optional countdown prop in GameLayout
+- Fixed import path to match existing hooks pattern (convex/\_generated/api vs @/ alias)
+
+- [ ] **Update countdown UI components**
+
+  - Find countdown display component (likely in completed puzzle UI)
+  - Replace hardcoded "00:00:00" with `useCountdown(nextPuzzleTime)` result
+  - Add loading state while fetching next puzzle timing from Convex
+  - Show user-friendly error message if countdown calculation fails
+
+- [ ] **Add countdown accuracy validation**
+  - Test countdown accuracy against known cron schedule times
+  - Add client-server time synchronization check for accuracy
+  - Handle edge cases: countdown reaches zero, timezone changes, system clock drift
+  - Add automated testing for countdown calculation logic
+
+## 🔄 **Phase 4: Real-time Archive Completion Updates**
+
+- [ ] **Fix immediate completion feedback**
+
+  - Add optimistic update in `useConvexGameState.ts` completion flow
+  - Update local completion state before Convex mutation completes
+  - Ensure archive page re-renders when user completes a puzzle
+  - Add visual feedback (toast/notification) when completion is saved
+
+- [ ] **Implement completion verification system**
+
+  - Add completion verification query that checks if a specific puzzle was completed
+  - Call verification after mutation completes to ensure save was successful
+  - Retry completion save if verification fails (with max retry limit)
+  - Show user warning if completion cannot be verified/saved
+
+- [ ] **Optimize archive real-time updates**
+
+  - Ensure `useQuery` for completed puzzles refreshes when new completion is added
+  - Add Convex subscription for real-time completion updates if available
+  - Implement cache invalidation strategy for completion-related queries
+  - Test that archive immediately shows green checkmark after puzzle completion
+
+- [ ] **Add completion state management**
+  - Create centralized completion state that persists across page navigation
+  - Ensure completion state survives page refresh and returns to archive
+  - Add completion analytics: track completion save success/failure rates
+  - Handle completion conflicts (user completes same puzzle multiple times)
+
+## 🛡️ **Phase 5: Error Resilience & Edge Case Handling**
+
+- [ ] **Implement completion retry logic**
+
+  - Add exponential backoff retry for failed `submitGuess` mutations
+  - Store failed completions in localStorage for background retry
+  - Add user notification system for completion save failures
+  - Implement completion reconciliation when connection is restored
+
+- [ ] **Handle authentication edge cases**
+
+  - Test completion flow when user signs in mid-puzzle
+  - Handle completion save when user loses authentication during puzzle
+  - Add graceful degradation: local completion tracking when auth fails
+  - Ensure completion data migrates when user creates account after playing
+
+- [ ] **Add comprehensive error boundaries**
+
+  - Wrap completion-critical components in error boundaries with recovery actions
+  - Add specific error handling for Convex connection failures
+  - Implement fallback UI when completion system is entirely unavailable
+  - Add user-friendly error messages with suggested actions
+
+- [ ] **Performance optimization and testing**
+  - Add performance monitoring for completion save/query operations
+  - Implement completion data pagination for users with many completed puzzles
+  - Test completion system under high load (many simultaneous completions)
+  - Add automated testing for all completion flow paths and error conditions
+
+## 🧪 **Phase 6: Testing & Validation**
+
+- [ ] **End-to-end completion flow testing**
+
+  - Test: Complete daily puzzle → see green checkmark in archive immediately
+  - Test: Complete archive puzzle → completion persists and shows correctly
+  - Test: Complete puzzle while offline → completion saves when reconnected
+  - Test: Multiple users completing same puzzle → no completion conflicts
+
+- [ ] **Countdown system validation**
+
+  - Test countdown accuracy by comparing to actual cron job execution time
+  - Test countdown across timezone changes and daylight saving transitions
+  - Test countdown fallback behavior when cron schedule is unavailable
+  - Verify countdown shows appropriate time remaining for next puzzle
+
+- [ ] **Authentication integration testing**
+
+  - Test completion flow with various authentication states
+  - Test completion data persistence across sign in/out cycles
+  - Test completion migration from anonymous to authenticated user
+  - Verify completion privacy (users only see their own completions)
+
+- [ ] **Production deployment validation**
+  - Deploy to preview environment and test full completion flow
+  - Verify countdown accuracy against production cron schedule
+  - Test completion system performance under production load
+  - Monitor completion save success rates and error patterns in production
+
+---
+
 ## ✅ DATABASE MIGRATION: 100% COMPLETE!
 
-**CURRENT STATUS**: Production database fully operational with puzzles!
+**PREVIOUS STATUS**: Production database fully operational with puzzles!
 
 **COMPLETED**:
 
