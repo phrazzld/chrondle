@@ -3,13 +3,14 @@
 
 import { getPuzzleForYear } from "./puzzleData";
 import { logger } from "./logger";
+import { Id } from "convex/_generated/dataModel";
 // Storage imports removed - using in-memory state only
 // Authenticated users should use Convex for persistence
 
 export interface Puzzle {
   year: number;
   events: string[];
-  puzzleId: string;
+  puzzleId: Id<"puzzles"> | string; // Convex ID for new system, string for legacy compatibility
 }
 
 export interface GameState {
@@ -22,7 +23,7 @@ export interface GameState {
 export interface Progress {
   guesses: number[];
   isGameOver: boolean;
-  puzzleId: string | null;
+  puzzleId: Id<"puzzles"> | string | null; // Convex ID for new system, string for legacy compatibility
   puzzleYear: number | null;
   timestamp: string;
   // Closest guess tracking for enhanced sharing
@@ -63,6 +64,7 @@ export function getDailyYear(
 }
 
 // Initialize daily puzzle from static database
+// DEPRECATED: Use Convex-based puzzle loading instead (useConvexGameState)
 export function initializePuzzle(
   debugYear?: string,
   isDebugMode?: boolean,
@@ -85,6 +87,8 @@ export function initializePuzzle(
   );
 
   // Generate simple puzzle ID for today (just the date)
+  // NOTE: This creates a date-string ID that is NOT compatible with Convex system
+  // Convex system uses proper document IDs (Id<"puzzles">)
   const today = new Date();
   const dateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
 
@@ -92,7 +96,7 @@ export function initializePuzzle(
   const puzzle: Puzzle = {
     year: targetYear,
     events: events, // Events are already in the correct order in the database!
-    puzzleId: dateString,
+    puzzleId: dateString, // Legacy date-string ID for backward compatibility
   };
 
   logger.debug(`🔍 DEBUG: Puzzle initialized successfully:`, puzzle);

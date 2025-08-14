@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/button";
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { ArchiveErrorBoundary } from "@/components/ArchiveErrorBoundary";
+import { UserCreationHandler } from "@/components/UserCreationHandler";
 
 interface PuzzleCardData {
   index: number;
@@ -31,8 +32,7 @@ async function ArchivePageContent({
 
   // Runtime environment detection for debugging
   const environment = process.env.VERCEL_ENV || "local";
-  // eslint-disable-next-line no-console
-  console.log(`[Archive] Running in: ${environment}`);
+  // Debug: Running in environment
 
   // Initialize Convex client
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
@@ -42,8 +42,6 @@ async function ArchivePageContent({
   const client = new ConvexHttpClient(convexUrl);
 
   // Performance timing
-  // eslint-disable-next-line no-console
-  console.time("[Archive] Auth check");
 
   // Request context validation
   let hasRequestContext = false;
@@ -51,10 +49,7 @@ async function ArchivePageContent({
     const headersList = await headers();
     const cookies = headersList.get("cookie");
     hasRequestContext = !!cookies;
-    // eslint-disable-next-line no-console
-    console.log("[Archive] Request context:", {
-      hasCookies: hasRequestContext,
-    });
+    // Debug: Request context with cookies
   } catch (error) {
     console.warn("[Archive] Headers not available (SSG/ISR context):", error);
   }
@@ -67,14 +62,10 @@ async function ArchivePageContent({
 
     // Skip auth if no request context (SSG/ISR)
     if (!hasRequestContext) {
-      // eslint-disable-next-line no-console
-      console.log("[Archive] Skipping auth - no request context");
+      // Debug: Skipping auth - no request context
     } else {
       clerkUser = await currentUser();
-      // eslint-disable-next-line no-console
-      console.log("[Archive] Clerk auth successful:", {
-        userId: clerkUser?.id,
-      });
+      // Debug: Clerk auth successful
     }
   } catch (error) {
     // Comprehensive error logging for production debugging
@@ -89,12 +80,10 @@ async function ArchivePageContent({
     // Archive is publicly accessible, continue without auth
   }
 
-  // eslint-disable-next-line no-console
-  console.timeEnd("[Archive] Auth check");
+  // Auth check complete
 
   // Fetch user data and completed puzzles if authenticated
-  // eslint-disable-next-line no-console
-  console.time("[Archive] Convex queries");
+  // Start Convex queries
   let convexUser = null;
   let completedPuzzleIds = new Set<string>();
 
@@ -104,8 +93,7 @@ async function ArchivePageContent({
       convexUser = await client.query(api.users.getUserByClerkId, {
         clerkId: clerkUser.id,
       });
-      // eslint-disable-next-line no-console
-      console.log("[Archive] Convex user found:", { userId: convexUser?._id });
+      // console.log("[Archive] Convex user found:", { userId: convexUser?._id });
     } catch (error) {
       console.error("[Archive] getUserByClerkId failed:", error);
       // Continue with null user - don't cascade failure
@@ -122,14 +110,66 @@ async function ArchivePageContent({
             userId: convexUser._id,
           },
         );
-        // Create a set of completed puzzle IDs for quick lookup
-        completedPuzzleIds = new Set(
-          completedPlays.map((play) => play.puzzleId),
-        );
-        // eslint-disable-next-line no-console
-        console.log("[Archive] Completed puzzles loaded:", {
-          count: completedPuzzleIds.size,
-        });
+
+        // Defensive validation of completed plays data
+        if (!Array.isArray(completedPlays)) {
+          console.warn(
+            "[Archive] Invalid completedPlays data:",
+            completedPlays,
+          );
+          completedPuzzleIds = new Set();
+        } else {
+          // Create a set of completed puzzle IDs with robust null checking
+          const validPuzzleIds = completedPlays
+            .filter((play, index) => {
+              // Validate play record structure
+              if (!play || typeof play !== "object") {
+                console.warn(
+                  `[Archive] Invalid play record at index ${index}:`,
+                  play,
+                );
+                return false;
+              }
+
+              // Validate puzzleId exists and is truthy
+              if (!play.puzzleId) {
+                console.warn(
+                  `[Archive] Play record at index ${index} missing puzzleId:`,
+                  {
+                    play,
+                    hasCompletedAt: !!play.completedAt,
+                    hasUserId: !!play.userId,
+                    playKeys: Object.keys(play),
+                  },
+                );
+                return false;
+              }
+
+              // Additional type validation - ensure puzzleId looks like a Convex ID
+              if (
+                typeof play.puzzleId !== "string" ||
+                play.puzzleId.length === 0
+              ) {
+                console.warn(
+                  `[Archive] Play record at index ${index} has invalid puzzleId type:`,
+                  {
+                    puzzleId: play.puzzleId,
+                    puzzleIdType: typeof play.puzzleId,
+                    play,
+                  },
+                );
+                return false;
+              }
+
+              return true;
+            })
+            .map((play) => play.puzzleId);
+
+          completedPuzzleIds = new Set(validPuzzleIds);
+
+          // Enhanced debug logging
+          // Debug: Completed puzzles loaded
+        }
       } catch (error) {
         console.warn(
           "[Archive] Completed puzzles fetch failed, using empty set:",
@@ -140,8 +180,7 @@ async function ArchivePageContent({
       }
     }
   }
-  // eslint-disable-next-line no-console
-  console.timeEnd("[Archive] Convex queries");
+  // Convex queries complete
 
   // Fetch archive puzzles from Convex with graceful degradation
   let archiveData: {
@@ -162,12 +201,7 @@ async function ArchivePageContent({
       page: currentPage,
       pageSize: PUZZLES_PER_PAGE,
     });
-    // eslint-disable-next-line no-console
-    console.log("[Archive] Puzzles loaded:", {
-      count: archiveData.puzzles.length,
-      totalCount: archiveData.totalCount,
-      page: currentPage,
-    });
+    // Debug: Puzzles loaded
   } catch (error) {
     console.error("[Archive] Failed to load puzzles:", error);
     // Return graceful fallback - archive temporarily unavailable
@@ -176,13 +210,42 @@ async function ArchivePageContent({
 
   const { puzzles, totalPages, totalCount } = archiveData;
 
+  // Validate puzzles data with fallback
+  const validPuzzles = Array.isArray(puzzles) ? puzzles : [];
+  if (!Array.isArray(puzzles)) {
+    console.warn("[Archive] Invalid puzzles data received:", puzzles);
+  }
+
   // Transform Convex puzzles to PuzzleCardData format
-  const paginatedData: PuzzleCardData[] = puzzles.map((puzzle) => ({
-    index: puzzle.puzzleNumber - 1, // 0-based index for compatibility
-    puzzleNumber: puzzle.puzzleNumber,
-    firstHint: puzzle.events[0] || "Historical event puzzle",
-    isCompleted: completedPuzzleIds.has(puzzle._id),
-  }));
+  // ID FORMAT CONSISTENCY: completedPuzzleIds contains play.puzzleId values (Convex IDs)
+  // which should match puzzle._id values (also Convex IDs) for proper completion detection
+  const paginatedData: PuzzleCardData[] = validPuzzles.map((puzzle) => {
+    // Defensive completion checking with robust null handling
+    let isCompleted = false;
+
+    if (!puzzle) {
+      console.warn("[Archive] Invalid puzzle object:", puzzle);
+    } else if (!puzzle._id) {
+      console.warn("[Archive] Puzzle missing _id field:", puzzle);
+    } else {
+      // Safe completion check
+      isCompleted = completedPuzzleIds.has(puzzle._id);
+    }
+
+    // Enhanced debug logging for first few puzzles
+    if (puzzle && puzzle.puzzleNumber <= 3) {
+      // Debug: Puzzle completion check
+    }
+
+    // Safely construct puzzle card data with fallbacks
+    return {
+      index: (puzzle?.puzzleNumber || 1) - 1, // 0-based index for compatibility
+      puzzleNumber: puzzle?.puzzleNumber || 0,
+      firstHint:
+        (puzzle?.events && puzzle.events[0]) || "Historical event puzzle",
+      isCompleted,
+    };
+  });
 
   // Calculate completed count
   const completedCount = completedPuzzleIds.size;
@@ -196,168 +259,171 @@ async function ArchivePageContent({
     environment,
     timestamp: new Date().toISOString(),
   };
-  // eslint-disable-next-line no-console
-  console.log("[Archive] Auth state:", authState);
+  // console.log("[Archive] Auth state:", authState);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <AppHeader currentStreak={0} />
+    <UserCreationHandler authState={authState}>
+      <div className="min-h-screen flex flex-col bg-background">
+        <AppHeader currentStreak={0} />
 
-      <main className="flex-grow max-w-2xl mx-auto w-full py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-heading font-bold text-foreground mb-2">
-            Puzzle Archive
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Explore and play past Chrondle puzzles
-          </p>
-        </div>
-
-        {/* Completion Statistics - Show loading state or data */}
-        {clerkUser && (
-          <div className="mb-6" suppressHydrationWarning>
-            {convexUser ? (
-              // Show actual completion data
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-foreground font-medium">
-                    Completed: {completedCount} of {totalCount}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    {totalCount > 0
-                      ? Math.round((completedCount / totalCount) * 100)
-                      : 0}
-                    %
-                  </span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-                  <div
-                    className="bg-green-600 h-full transition-all duration-300 ease-out"
-                    style={{
-                      width:
-                        totalCount > 0
-                          ? `${(completedCount / totalCount) * 100}%`
-                          : "0%",
-                    }}
-                  />
-                </div>
-              </div>
-            ) : (
-              // Show skeleton loader while user data loads
-              <div className="animate-pulse">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="h-5 bg-muted rounded w-32" />
-                  <div className="h-4 bg-muted rounded w-12" />
-                </div>
-                <div className="w-full bg-muted rounded-full h-2" />
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Archive grid */}
-        {archiveData.puzzles.length === 0 && totalCount === 0 ? (
-          // Empty archive or connection issue
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">
-              {archiveData.currentPage === 1
-                ? "Archive temporarily unavailable. Please try again later."
-                : "No puzzles available yet. Check back tomorrow!"}
+        <main className="flex-grow max-w-2xl mx-auto w-full py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl sm:text-4xl font-heading font-bold text-foreground mb-2">
+              Puzzle Archive
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Explore and play past Chrondle puzzles
             </p>
           </div>
-        ) : paginatedData.length === 0 ? (
-          // Loading skeleton cards
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...Array(Math.min(totalCount, PUZZLES_PER_PAGE))].map((_, i) => (
-              <Card
-                key={i}
-                className="h-[10rem] p-4 animate-pulse flex flex-col gap-2"
-              >
-                <div className="h-5 bg-muted rounded w-12" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-3 bg-muted rounded w-full" />
-                  <div className="h-3 bg-muted rounded w-4/5" />
-                  <div className="h-3 bg-muted rounded w-3/5" />
+
+          {/* Completion Statistics - Show loading state or data */}
+          {clerkUser && (
+            <div className="mb-6" suppressHydrationWarning>
+              {convexUser ? (
+                // Show actual completion data
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-foreground font-medium">
+                      Completed: {completedCount} of {totalCount}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      {totalCount > 0
+                        ? Math.round((completedCount / totalCount) * 100)
+                        : 0}
+                      %
+                    </span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                    <div
+                      className="bg-green-600 h-full transition-all duration-300 ease-out"
+                      style={{
+                        width:
+                          totalCount > 0
+                            ? `${(completedCount / totalCount) * 100}%`
+                            : "0%",
+                      }}
+                    />
+                  </div>
                 </div>
-                <div className="h-3 bg-muted rounded w-20 mt-auto" />
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <>
-            {/* Actual archive grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {paginatedData.map((puzzle) => (
-                <Link
-                  key={puzzle.puzzleNumber}
-                  href={`/archive/puzzle/${puzzle.puzzleNumber}`}
-                >
-                  <Card
-                    className={`h-[10rem] p-4 flex flex-col gap-2 transition-all hover:shadow-md cursor-pointer ${
-                      puzzle.isCompleted
-                        ? "border-green-600/30 hover:border-green-600/50 bg-green-600/5"
-                        : "hover:border-primary"
-                    }`}
-                  >
-                    <div className="flex justify-between items-start">
-                      <span className="text-sm font-mono text-muted-foreground">
-                        Puzzle #{puzzle.puzzleNumber}
-                      </span>
-                      {puzzle.isCompleted && (
-                        <Check className="h-4 w-4 text-green-600" />
-                      )}
-                    </div>
-
-                    <p className="flex-1 text-sm text-foreground overflow-hidden">
-                      <span className="line-clamp-3">{puzzle.firstHint}</span>
-                    </p>
-
-                    <div className="text-xs text-muted-foreground mt-auto">
-                      Play puzzle →
-                    </div>
-                  </Card>
-                </Link>
-              ))}
+              ) : (
+                // Show skeleton loader while user data loads
+                <div className="animate-pulse">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="h-5 bg-muted rounded w-32" />
+                    <div className="h-4 bg-muted rounded w-12" />
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2" />
+                </div>
+              )}
             </div>
+          )}
 
-            {/* Pagination controls */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-8">
-                {currentPage > 1 ? (
-                  <Link href={`/archive?page=${currentPage - 1}`}>
-                    <Button variant="outline" size="sm">
+          {/* Archive grid */}
+          {archiveData.puzzles.length === 0 && totalCount === 0 ? (
+            // Empty archive or connection issue
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">
+                {archiveData.currentPage === 1
+                  ? "Archive temporarily unavailable. Please try again later."
+                  : "No puzzles available yet. Check back tomorrow!"}
+              </p>
+            </div>
+          ) : paginatedData.length === 0 ? (
+            // Loading skeleton cards
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[...Array(Math.min(totalCount, PUZZLES_PER_PAGE))].map(
+                (_, i) => (
+                  <Card
+                    key={i}
+                    className="h-[10rem] p-4 animate-pulse flex flex-col gap-2"
+                  >
+                    <div className="h-5 bg-muted rounded w-12" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 bg-muted rounded w-full" />
+                      <div className="h-3 bg-muted rounded w-4/5" />
+                      <div className="h-3 bg-muted rounded w-3/5" />
+                    </div>
+                    <div className="h-3 bg-muted rounded w-20 mt-auto" />
+                  </Card>
+                ),
+              )}
+            </div>
+          ) : (
+            <>
+              {/* Actual archive grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {paginatedData.map((puzzle) => (
+                  <Link
+                    key={puzzle.puzzleNumber}
+                    href={`/archive/puzzle/${puzzle.puzzleNumber}`}
+                  >
+                    <Card
+                      className={`h-[10rem] p-4 flex flex-col gap-2 transition-all hover:shadow-md cursor-pointer ${
+                        puzzle.isCompleted
+                          ? "border-green-600/30 hover:border-green-600/50 bg-green-600/5"
+                          : "hover:border-primary"
+                      }`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <span className="text-sm font-mono text-muted-foreground">
+                          Puzzle #{puzzle.puzzleNumber}
+                        </span>
+                        {puzzle.isCompleted && (
+                          <Check className="h-4 w-4 text-green-600" />
+                        )}
+                      </div>
+
+                      <p className="flex-1 text-sm text-foreground overflow-hidden">
+                        <span className="line-clamp-3">{puzzle.firstHint}</span>
+                      </p>
+
+                      <div className="text-xs text-muted-foreground mt-auto">
+                        Play puzzle →
+                      </div>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Pagination controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-8">
+                  {currentPage > 1 ? (
+                    <Link href={`/archive?page=${currentPage - 1}`}>
+                      <Button variant="outline" size="sm">
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button variant="outline" size="sm" disabled>
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
-                  </Link>
-                ) : (
-                  <Button variant="outline" size="sm" disabled>
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                )}
+                  )}
 
-                <span className="text-sm text-muted-foreground px-4">
-                  Page {currentPage} of {totalPages}
-                </span>
+                  <span className="text-sm text-muted-foreground px-4">
+                    Page {currentPage} of {totalPages}
+                  </span>
 
-                {currentPage < totalPages ? (
-                  <Link href={`/archive?page=${currentPage + 1}`}>
-                    <Button variant="outline" size="sm">
+                  {currentPage < totalPages ? (
+                    <Link href={`/archive?page=${currentPage + 1}`}>
+                      <Button variant="outline" size="sm">
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button variant="outline" size="sm" disabled>
                       <ChevronRight className="h-4 w-4" />
                     </Button>
-                  </Link>
-                ) : (
-                  <Button variant="outline" size="sm" disabled>
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            )}
-          </>
-        )}
-      </main>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </UserCreationHandler>
   );
 }
 

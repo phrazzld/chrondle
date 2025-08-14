@@ -110,6 +110,13 @@ export function useConvexGameState(
   // Get current user for mutation calls
   const currentUser = useQuery(api.users.getCurrentUser);
 
+  // JIT user creation mutation
+  const getOrCreateUser = useMutation(api.users.getOrCreateCurrentUser);
+
+  // Track user creation status
+  const [userCreated, setUserCreated] = useState(false);
+  const [userCreationLoading, setUserCreationLoading] = useState(false);
+
   // Mutation for submitting guesses
   const submitGuessMutation = useMutation(api.puzzles.submitGuess);
 
@@ -117,6 +124,55 @@ export function useConvexGameState(
   const puzzleLoading = archivePuzzleNumber
     ? archivePuzzle === undefined
     : todaysPuzzle === undefined;
+
+  // JIT user creation effect - trigger when signed in but no user exists
+  useEffect(() => {
+    async function ensureUserExists() {
+      if (
+        isSignedIn &&
+        !currentUser &&
+        !puzzleLoading &&
+        !userCreated &&
+        !userCreationLoading
+      ) {
+        // Debug: Triggering JIT user creation
+
+        try {
+          setUserCreationLoading(true);
+          await getOrCreateUser();
+          setUserCreated(true);
+          // console.log("[useConvexGameState] User creation completed successfully");
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          console.error("[useConvexGameState] User creation failed:", {
+            error: errorMessage,
+            timestamp: new Date().toISOString(),
+          });
+          // Don't block the game if user creation fails
+        } finally {
+          setUserCreationLoading(false);
+        }
+      }
+    }
+
+    ensureUserExists();
+  }, [
+    isSignedIn,
+    currentUser,
+    puzzleLoading,
+    userCreated,
+    userCreationLoading,
+    getOrCreateUser,
+  ]);
+
+  // Reset user creation status when signing out
+  useEffect(() => {
+    if (!isSignedIn) {
+      setUserCreated(false);
+      setUserCreationLoading(false);
+    }
+  }, [isSignedIn]);
 
   // Initialize puzzle on mount or when Convex puzzle loads
   useEffect(() => {
@@ -147,6 +203,8 @@ export function useConvexGameState(
           saveProgress(newState, debugMode, archivePuzzleNumber);
         } else if (todaysPuzzle && !archivePuzzleNumber) {
           // Initialize with Convex puzzle (daily mode only)
+          // Debug: Loading daily puzzle
+
           const newState = {
             ...createInitialGameState(),
             puzzle: {
@@ -217,31 +275,65 @@ export function useConvexGameState(
       }));
 
       // Save guess to Convex if user is signed in
+      // Debug: Mutation eligibility check
+
       if (
         isSignedIn &&
         currentUser &&
-        gameState.puzzle?.puzzleId &&
-        submitGuessMutation
+        userCreated &&
+        !userCreationLoading &&
+        gameState.puzzle?.puzzleId
       ) {
         try {
+          // Debug: Submitting guess with puzzleId
+
           await submitGuessMutation({
             puzzleId: gameState.puzzle.puzzleId as Id<"puzzles">,
             userId: currentUser._id,
             guess,
           });
+
+          // Debug: Guess submitted successfully to Convex
         } catch (error) {
-          console.error("Failed to save guess to Convex:", error);
+          const errorObj =
+            error instanceof Error ? error : new Error(String(error));
+          console.error("[DEBUG] Failed to save guess to Convex:", {
+            error: errorObj.message,
+            errorType: errorObj.constructor.name,
+            stack: errorObj.stack,
+            puzzleId: gameState.puzzle.puzzleId,
+            userId: currentUser._id,
+            guess,
+          });
           // Don't block the game if saving fails - just log the error
         }
+      } else {
+        console.warn("[DEBUG] Mutation NOT executed - missing requirements:", {
+          reasons: {
+            notSignedIn: !isSignedIn,
+            noCurrentUser: !currentUser,
+            userNotCreated: !userCreated,
+            userCreationInProgress: userCreationLoading,
+            noPuzzleId: !gameState.puzzle?.puzzleId,
+          },
+          gameState: {
+            hasGameState: !!gameState,
+            hasPuzzle: !!gameState.puzzle,
+            puzzleId: gameState.puzzle?.puzzleId,
+          },
+        });
       }
     },
     [
-      gameState.puzzle,
-      gameState.isGameOver,
-      gameState.guesses,
+      gameState,
       isSignedIn,
       currentUser,
+      userCreated,
+      userCreationLoading,
       submitGuessMutation,
+      setGameState,
+      archivePuzzleNumber,
+      debugMode,
     ],
   );
 
@@ -288,7 +380,7 @@ export function useConvexGameState(
 
   return {
     gameState,
-    isLoading: isLoading || puzzleLoading,
+    isLoading: isLoading || puzzleLoading || userCreationLoading,
     error,
     makeGuess,
     resetGame,

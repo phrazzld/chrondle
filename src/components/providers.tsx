@@ -5,6 +5,7 @@ import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { SessionThemeProvider } from "@/components/SessionThemeProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { UserCreationProvider } from "@/components/UserCreationProvider";
 
 // Check for missing environment variables
 const missingEnvVars: string[] = [];
@@ -120,7 +121,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <ErrorBoundary>
       <ClerkProvider publishableKey={clerkKey} dynamic>
         <ConvexProviderWithClerk client={convex!} useAuth={useAuth}>
-          <SessionThemeProvider>{children}</SessionThemeProvider>
+          <UserCreationProvider>
+            <SessionThemeProvider>{children}</SessionThemeProvider>
+          </UserCreationProvider>
         </ConvexProviderWithClerk>
       </ClerkProvider>
     </ErrorBoundary>
