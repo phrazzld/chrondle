@@ -45,6 +45,17 @@ export function useCountdown(
   const effectiveTarget = targetTimestamp || cronSchedule?.nextScheduledTime;
   const isLoading = !targetTimestamp && cronSchedule === undefined;
 
+  // Reset completion state when target changes
+  useEffect(() => {
+    if (effectiveTarget && isComplete) {
+      // New target arrived, reset completion
+      setIsComplete(false);
+      console.warn(
+        "[useCountdown] New target detected, resetting completion state",
+      );
+    }
+  }, [effectiveTarget, isComplete]);
+
   useEffect(() => {
     if (isLoading) {
       setTimeString("00:00:00");
@@ -76,12 +87,20 @@ export function useCountdown(
 
         if (remaining <= 0) {
           setTimeString("00:00:00");
-          setIsComplete(true);
+          if (!isComplete) {
+            setIsComplete(true);
+            console.warn(
+              "[useCountdown] Countdown complete, new puzzle should be available",
+            );
+            // The query will refetch automatically due to Convex reactivity
+          }
           return;
         }
 
         setTimeString(formatCountdown(remaining));
-        setIsComplete(false);
+        if (isComplete) {
+          setIsComplete(false);
+        }
       } catch (err) {
         console.error("[useCountdown] Calculation failed:", err);
         setTimeString("--:--:--");
@@ -96,7 +115,7 @@ export function useCountdown(
     const interval = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(interval);
-  }, [effectiveTarget, isLoading, enableFallback, error]);
+  }, [effectiveTarget, isLoading, enableFallback, error, isComplete]);
 
   return {
     timeString,

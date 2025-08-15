@@ -339,23 +339,24 @@ export const getUserCompletedPuzzles = query({
 export const getCronSchedule = query({
   handler: async () => {
     try {
-      // Calculate next midnight UTC based on cron configuration
+      // Always calculate the next upcoming midnight UTC
       const now = new Date();
-      const nextMidnightUTC = new Date();
 
-      // Set to next midnight UTC
-      nextMidnightUTC.setUTCDate(nextMidnightUTC.getUTCDate() + 1);
-      nextMidnightUTC.setUTCHours(0, 0, 0, 0);
+      // Create tomorrow at midnight UTC
+      const tomorrow = new Date(now);
+      tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+      tomorrow.setUTCHours(0, 0, 0, 0);
 
-      // If we're already past today's puzzle generation, use tomorrow's midnight
-      const todayMidnightUTC = new Date();
-      todayMidnightUTC.setUTCHours(0, 0, 0, 0);
-
-      const nextScheduledTime =
-        now >= todayMidnightUTC ? nextMidnightUTC : todayMidnightUTC;
+      // If it's currently exactly midnight (rare edge case), use today's midnight
+      const nextMidnightUTC =
+        now.getUTCHours() === 0 &&
+        now.getUTCMinutes() === 0 &&
+        now.getUTCSeconds() < 10
+          ? new Date(now.setUTCHours(0, 0, 0, 0))
+          : tomorrow;
 
       return {
-        nextScheduledTime: nextScheduledTime.getTime(), // Unix timestamp
+        nextScheduledTime: nextMidnightUTC.getTime(), // Unix timestamp
         currentServerTime: now.getTime(), // For time synchronization
         cronConfig: {
           hourUTC: 0,
@@ -363,7 +364,7 @@ export const getCronSchedule = query({
           timezone: "UTC",
           frequency: "daily",
         },
-        timeUntilNext: nextScheduledTime.getTime() - now.getTime(),
+        timeUntilNext: nextMidnightUTC.getTime() - Date.now(),
       };
     } catch (error) {
       console.error("Failed to get cron schedule:", error);

@@ -110,6 +110,17 @@ export function useConvexGameState(
   // Get current user for mutation calls
   const currentUser = useQuery(api.users.getCurrentUser);
 
+  // Get the active puzzle (archive or daily)
+  const activePuzzle = archivePuzzleNumber ? archivePuzzle : todaysPuzzle;
+
+  // Get existing play data for the current puzzle and user
+  const existingPlay = useQuery(
+    api.puzzles.getUserPlay,
+    currentUser && activePuzzle && activePuzzle._id
+      ? { puzzleId: activePuzzle._id, userId: currentUser._id }
+      : "skip",
+  );
+
   // JIT user creation mutation
   const getOrCreateUser = useMutation(api.users.getOrCreateCurrentUser);
 
@@ -121,9 +132,10 @@ export function useConvexGameState(
   const submitGuessMutation = useMutation(api.puzzles.submitGuess);
 
   // In archive mode, we wait for archive puzzle; in daily mode, we wait for today's puzzle
+  // Also wait for existing play data to load if user is signed in
   const puzzleLoading = archivePuzzleNumber
-    ? archivePuzzle === undefined
-    : todaysPuzzle === undefined;
+    ? archivePuzzle === undefined || (currentUser && existingPlay === undefined)
+    : todaysPuzzle === undefined || (currentUser && existingPlay === undefined);
 
   // JIT user creation effect - trigger when signed in but no user exists
   useEffect(() => {
@@ -166,6 +178,16 @@ export function useConvexGameState(
     getOrCreateUser,
   ]);
 
+  // Set userCreated to true if user already exists
+  useEffect(() => {
+    if (currentUser && !userCreated && !userCreationLoading) {
+      setUserCreated(true);
+      console.warn(
+        "[useConvexGameState] Existing user detected, setting userCreated = true",
+      );
+    }
+  }, [currentUser, userCreated, userCreationLoading]);
+
   // Reset user creation status when signing out
   useEffect(() => {
     if (!isSignedIn) {
@@ -184,37 +206,84 @@ export function useConvexGameState(
         // Clean up old storage entries
         cleanupOldStorage();
 
-        // Skip localStorage - using Convex for persistence
-        const savedState: GameState | null = null;
+        // Get the current puzzle that should be loaded
+        const targetPuzzle = archivePuzzleNumber ? archivePuzzle : todaysPuzzle;
 
-        if (savedState) {
-          setGameState(savedState);
-        } else if (archivePuzzle && archivePuzzleNumber) {
+        // Check if we already have this puzzle loaded to prevent reinitialization
+        if (
+          gameState.puzzle?.puzzleId &&
+          targetPuzzle?._id &&
+          gameState.puzzle.puzzleId === targetPuzzle._id
+        ) {
+          // Puzzle already loaded, don't reinitialize
+          setIsLoading(false);
+          return;
+        }
+
+        if (archivePuzzle && archivePuzzleNumber) {
           // Initialize with archive puzzle
-          const newState = {
-            ...createInitialGameState(),
-            puzzle: {
-              year: archivePuzzle.targetYear,
-              events: archivePuzzle.events,
-              puzzleId: archivePuzzle._id,
-            },
-          };
-          setGameState(newState);
-          saveProgress(newState, debugMode, archivePuzzleNumber);
-        } else if (todaysPuzzle && !archivePuzzleNumber) {
-          // Initialize with Convex puzzle (daily mode only)
-          // Debug: Loading daily puzzle
+          const baseState = createInitialGameState();
 
-          const newState = {
-            ...createInitialGameState(),
-            puzzle: {
-              year: todaysPuzzle.targetYear,
-              events: todaysPuzzle.events,
-              puzzleId: todaysPuzzle._id, // Use actual Convex ID, not date
-            },
-          };
-          setGameState(newState);
-          saveProgress(newState, debugMode, undefined);
+          // If there's existing play data, restore it
+          if (existingPlay && existingPlay.guesses) {
+            const restoredState: GameState = {
+              ...baseState,
+              puzzle: {
+                year: archivePuzzle.targetYear,
+                events: archivePuzzle.events,
+                puzzleId: archivePuzzle._id,
+              },
+              guesses: existingPlay.guesses || [],
+              isGameOver:
+                existingPlay.completedAt !== null &&
+                existingPlay.completedAt !== undefined,
+            };
+            setGameState(restoredState);
+          } else {
+            // No existing play, create fresh state
+            const newState = {
+              ...baseState,
+              puzzle: {
+                year: archivePuzzle.targetYear,
+                events: archivePuzzle.events,
+                puzzleId: archivePuzzle._id,
+              },
+            };
+            setGameState(newState);
+          }
+          saveProgress(gameState, debugMode, archivePuzzleNumber);
+        } else if (todaysPuzzle && !archivePuzzleNumber) {
+          // Initialize with daily puzzle
+          const baseState = createInitialGameState();
+
+          // If there's existing play data, restore it
+          if (existingPlay && existingPlay.guesses) {
+            const restoredState: GameState = {
+              ...baseState,
+              puzzle: {
+                year: todaysPuzzle.targetYear,
+                events: todaysPuzzle.events,
+                puzzleId: todaysPuzzle._id,
+              },
+              guesses: existingPlay.guesses || [],
+              isGameOver:
+                existingPlay.completedAt !== null &&
+                existingPlay.completedAt !== undefined,
+            };
+            setGameState(restoredState);
+          } else {
+            // No existing play, create fresh state
+            const newState = {
+              ...baseState,
+              puzzle: {
+                year: todaysPuzzle.targetYear,
+                events: todaysPuzzle.events,
+                puzzleId: todaysPuzzle._id,
+              },
+            };
+            setGameState(newState);
+          }
+          saveProgress(gameState, debugMode, undefined);
         } else if (!puzzleLoading) {
           // No fallback - wait for Convex data
           // Show loading or error state instead
@@ -248,6 +317,8 @@ export function useConvexGameState(
     archivePuzzle,
     puzzleLoading,
     archivePuzzleNumber,
+    existingPlay,
+    gameState.puzzle?.puzzleId, // Only track the puzzle ID to prevent reinit
   ]);
 
   // Save progress whenever game state changes
@@ -275,7 +346,19 @@ export function useConvexGameState(
       }));
 
       // Save guess to Convex if user is signed in
-      // Debug: Mutation eligibility check
+      console.warn("[DEBUG] Mutation eligibility check:", {
+        isSignedIn,
+        hasCurrentUser: !!currentUser,
+        userCreated,
+        userCreationLoading,
+        hasPuzzleId: !!gameState.puzzle?.puzzleId,
+        willExecute:
+          isSignedIn &&
+          currentUser &&
+          userCreated &&
+          !userCreationLoading &&
+          gameState.puzzle?.puzzleId,
+      });
 
       if (
         isSignedIn &&
@@ -285,7 +368,13 @@ export function useConvexGameState(
         gameState.puzzle?.puzzleId
       ) {
         try {
-          // Debug: Submitting guess with puzzleId
+          console.warn("[DEBUG] Submitting guess to Convex:", {
+            puzzleId: gameState.puzzle.puzzleId,
+            userId: currentUser._id,
+            guess,
+            isCorrect,
+            isGameOver,
+          });
 
           await submitGuessMutation({
             puzzleId: gameState.puzzle.puzzleId as Id<"puzzles">,
@@ -293,7 +382,7 @@ export function useConvexGameState(
             guess,
           });
 
-          // Debug: Guess submitted successfully to Convex
+          console.warn("[DEBUG] Guess submitted successfully to Convex");
         } catch (error) {
           const errorObj =
             error instanceof Error ? error : new Error(String(error));
