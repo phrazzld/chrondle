@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Production builds
+build/
+dist/
+
+# Testing
+coverage/
+
+# Convex generated files
+convex/_generated/
+
+# Environment files
+.env*
+
+# Misc
+.DS_Store
+*.log
