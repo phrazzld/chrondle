@@ -222,6 +222,7 @@ function ArchivePuzzleContent({
         onGuess={handleGuess}
         onValidationError={(msg: string): void => setAnnouncement(msg)}
         confettiRef={confettiRef}
+        isArchive={true}
         headerContent={
           <>
             <AppHeader

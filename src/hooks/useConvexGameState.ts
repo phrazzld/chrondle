@@ -239,6 +239,7 @@ export function useConvexGameState(
                 existingPlay.completedAt !== undefined,
             };
             setGameState(restoredState);
+            saveProgress(restoredState, debugMode, archivePuzzleNumber);
           } else {
             // No existing play, create fresh state
             const newState = {
@@ -250,8 +251,8 @@ export function useConvexGameState(
               },
             };
             setGameState(newState);
+            saveProgress(newState, debugMode, archivePuzzleNumber);
           }
-          saveProgress(gameState, debugMode, archivePuzzleNumber);
         } else if (todaysPuzzle && !archivePuzzleNumber) {
           // Initialize with daily puzzle
           const baseState = createInitialGameState();
@@ -271,6 +272,7 @@ export function useConvexGameState(
                 existingPlay.completedAt !== undefined,
             };
             setGameState(restoredState);
+            saveProgress(restoredState, debugMode, undefined);
           } else {
             // No existing play, create fresh state
             const newState = {
@@ -282,8 +284,8 @@ export function useConvexGameState(
               },
             };
             setGameState(newState);
+            saveProgress(newState, debugMode, undefined);
           }
-          saveProgress(gameState, debugMode, undefined);
         } else if (!puzzleLoading) {
           // No fallback - wait for Convex data
           // Show loading or error state instead
@@ -421,8 +423,6 @@ export function useConvexGameState(
       userCreationLoading,
       submitGuessMutation,
       setGameState,
-      archivePuzzleNumber,
-      debugMode,
     ],
   );
 

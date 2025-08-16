@@ -50,6 +50,9 @@ export interface GameLayoutProps {
     isLoading: boolean;
     error: string | null;
   };
+
+  // Archive indicator
+  isArchive?: boolean;
 }
 
 export function GameLayout(props: GameLayoutProps) {
@@ -68,6 +71,7 @@ export function GameLayout(props: GameLayoutProps) {
     onValidationError,
     confettiRef,
     countdown,
+    isArchive = false,
   } = props;
 
   // Calculate currentHintIndex from gameState
@@ -91,6 +95,7 @@ export function GameLayout(props: GameLayoutProps) {
             targetYear={targetYear}
             guesses={gameState.guesses}
             timeString={countdown?.timeString}
+            isArchive={isArchive}
           />
 
           {/* Guess Input - Below instructions */}
