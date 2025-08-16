@@ -5,6 +5,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "convex/_generated/api";
 import { Id } from "convex/_generated/dataModel";
 import { useUser } from "@clerk/nextjs";
+import { useUserCreation } from "@/components/UserCreationProvider";
 import {
   GameState,
   createInitialGameState,
@@ -93,6 +94,7 @@ export function useConvexGameState(
   const [error, setError] = useState<string | null>(null);
 
   const { isSignedIn } = useUser();
+  const { isUserReady, currentUser, userCreationLoading } = useUserCreation();
 
   // Try to use Convex - these will be undefined if provider not available
   // Only fetch today's puzzle if not in archive mode
@@ -107,94 +109,36 @@ export function useConvexGameState(
     archivePuzzleNumber ? { puzzleNumber: archivePuzzleNumber } : "skip",
   );
 
-  // Get current user for mutation calls
-  const currentUser = useQuery(api.users.getCurrentUser);
-
   // Get the active puzzle (archive or daily)
   const activePuzzle = archivePuzzleNumber ? archivePuzzle : todaysPuzzle;
 
   // Get existing play data for the current puzzle and user
+  // Only query when user is ready and puzzle is available
   const existingPlay = useQuery(
     api.puzzles.getUserPlay,
-    currentUser && activePuzzle && activePuzzle._id
+    isUserReady && currentUser && activePuzzle && activePuzzle._id
       ? { puzzleId: activePuzzle._id, userId: currentUser._id }
       : "skip",
   );
 
-  // JIT user creation mutation
-  const getOrCreateUser = useMutation(api.users.getOrCreateCurrentUser);
-
-  // Track user creation status
-  const [userCreated, setUserCreated] = useState(false);
-  const [userCreationLoading, setUserCreationLoading] = useState(false);
-
   // Mutation for submitting guesses
   const submitGuessMutation = useMutation(api.puzzles.submitGuess);
 
-  // In archive mode, we wait for archive puzzle; in daily mode, we wait for today's puzzle
-  // Also wait for existing play data to load if user is signed in
+  // Loading state that properly accounts for user creation
+  // We're loading if:
+  // 1. The puzzle hasn't loaded yet
+  // 2. User is signed in but user creation is in progress
+  // 3. User is ready but their play data hasn't loaded yet
   const puzzleLoading = archivePuzzleNumber
-    ? archivePuzzle === undefined || (currentUser && existingPlay === undefined)
-    : todaysPuzzle === undefined || (currentUser && existingPlay === undefined);
+    ? archivePuzzle === undefined ||
+      (isSignedIn && userCreationLoading) ||
+      (isUserReady && existingPlay === undefined)
+    : todaysPuzzle === undefined ||
+      (isSignedIn && userCreationLoading) ||
+      (isUserReady && existingPlay === undefined);
 
-  // JIT user creation effect - trigger when signed in but no user exists
-  useEffect(() => {
-    async function ensureUserExists() {
-      if (
-        isSignedIn &&
-        !currentUser &&
-        !puzzleLoading &&
-        !userCreated &&
-        !userCreationLoading
-      ) {
-        // Debug: Triggering JIT user creation
-
-        try {
-          setUserCreationLoading(true);
-          await getOrCreateUser();
-          setUserCreated(true);
-          // console.log("[useConvexGameState] User creation completed successfully");
-        } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : String(error);
-          console.error("[useConvexGameState] User creation failed:", {
-            error: errorMessage,
-            timestamp: new Date().toISOString(),
-          });
-          // Don't block the game if user creation fails
-        } finally {
-          setUserCreationLoading(false);
-        }
-      }
-    }
-
-    ensureUserExists();
-  }, [
-    isSignedIn,
-    currentUser,
-    puzzleLoading,
-    userCreated,
-    userCreationLoading,
-    getOrCreateUser,
-  ]);
-
-  // Set userCreated to true if user already exists
-  useEffect(() => {
-    if (currentUser && !userCreated && !userCreationLoading) {
-      setUserCreated(true);
-      console.warn(
-        "[useConvexGameState] Existing user detected, setting userCreated = true",
-      );
-    }
-  }, [currentUser, userCreated, userCreationLoading]);
-
-  // Reset user creation status when signing out
-  useEffect(() => {
-    if (!isSignedIn) {
-      setUserCreated(false);
-      setUserCreationLoading(false);
-    }
-  }, [isSignedIn]);
+  // User creation is now handled by UserCreationProvider
+  // No need for duplicate logic here
 
   // Initialize puzzle on mount or when Convex puzzle loads
   useEffect(() => {
@@ -232,6 +176,7 @@ export function useConvexGameState(
                 year: archivePuzzle.targetYear,
                 events: archivePuzzle.events,
                 puzzleId: archivePuzzle._id,
+                puzzleNumber: archivePuzzle.puzzleNumber,
               },
               guesses: existingPlay.guesses || [],
               isGameOver:
@@ -248,6 +193,7 @@ export function useConvexGameState(
                 year: archivePuzzle.targetYear,
                 events: archivePuzzle.events,
                 puzzleId: archivePuzzle._id,
+                puzzleNumber: archivePuzzle.puzzleNumber,
               },
             };
             setGameState(newState);
@@ -265,6 +211,7 @@ export function useConvexGameState(
                 year: todaysPuzzle.targetYear,
                 events: todaysPuzzle.events,
                 puzzleId: todaysPuzzle._id,
+                puzzleNumber: todaysPuzzle.puzzleNumber,
               },
               guesses: existingPlay.guesses || [],
               isGameOver:
@@ -281,6 +228,7 @@ export function useConvexGameState(
                 year: todaysPuzzle.targetYear,
                 events: todaysPuzzle.events,
                 puzzleId: todaysPuzzle._id,
+                puzzleNumber: todaysPuzzle.puzzleNumber,
               },
             };
             setGameState(newState);
@@ -320,6 +268,7 @@ export function useConvexGameState(
     puzzleLoading,
     archivePuzzleNumber,
     existingPlay,
+    isUserReady, // Re-run when user becomes ready
     gameState.puzzle?.puzzleId, // Only track the puzzle ID to prevent reinit
   ]);
 
@@ -351,24 +300,12 @@ export function useConvexGameState(
       console.warn("[DEBUG] Mutation eligibility check:", {
         isSignedIn,
         hasCurrentUser: !!currentUser,
-        userCreated,
-        userCreationLoading,
+        isUserReady,
         hasPuzzleId: !!gameState.puzzle?.puzzleId,
-        willExecute:
-          isSignedIn &&
-          currentUser &&
-          userCreated &&
-          !userCreationLoading &&
-          gameState.puzzle?.puzzleId,
+        willExecute: isUserReady && gameState.puzzle?.puzzleId,
       });
 
-      if (
-        isSignedIn &&
-        currentUser &&
-        userCreated &&
-        !userCreationLoading &&
-        gameState.puzzle?.puzzleId
-      ) {
+      if (isUserReady && currentUser && gameState.puzzle?.puzzleId) {
         try {
           console.warn("[DEBUG] Submitting guess to Convex:", {
             puzzleId: gameState.puzzle.puzzleId,
@@ -401,10 +338,8 @@ export function useConvexGameState(
       } else {
         console.warn("[DEBUG] Mutation NOT executed - missing requirements:", {
           reasons: {
-            notSignedIn: !isSignedIn,
+            userNotReady: !isUserReady,
             noCurrentUser: !currentUser,
-            userNotCreated: !userCreated,
-            userCreationInProgress: userCreationLoading,
             noPuzzleId: !gameState.puzzle?.puzzleId,
           },
           gameState: {
@@ -417,12 +352,11 @@ export function useConvexGameState(
     },
     [
       gameState,
-      isSignedIn,
+      isUserReady,
       currentUser,
-      userCreated,
-      userCreationLoading,
       submitGuessMutation,
       setGameState,
+      isSignedIn,
     ],
   );
 
@@ -469,7 +403,7 @@ export function useConvexGameState(
 
   return {
     gameState,
-    isLoading: isLoading || puzzleLoading || userCreationLoading,
+    isLoading: isLoading || puzzleLoading,
     error,
     makeGuess,
     resetGame,

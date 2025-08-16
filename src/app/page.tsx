@@ -18,7 +18,6 @@ import { AchievementModal } from "@/components/modals/AchievementModal";
 import { BackgroundAnimation } from "@/components/BackgroundAnimation";
 import { Footer } from "@/components/Footer";
 import { ConfettiRef } from "@/components/magicui/confetti";
-import { getTodaysPuzzleNumber } from "@/lib/puzzleUtils";
 
 // Force dynamic rendering to prevent SSR issues with theme context
 export const dynamic = "force-dynamic";
@@ -36,11 +35,8 @@ export default function ChronldePage() {
   // Always try Convex first, but show appropriate UI based on auth state
   const gameLogic = useConvexGameState(debugMode);
 
-  // Calculate puzzle number for display
-  const puzzleNumber = getTodaysPuzzleNumber(
-    debugMode ? gameLogic.gameState.puzzle?.year.toString() : undefined,
-    debugMode,
-  );
+  // Get puzzle number from the loaded puzzle data
+  const puzzleNumber = gameLogic.gameState.puzzle?.puzzleNumber || 1;
 
   // Streak system
   const {

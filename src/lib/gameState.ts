@@ -11,6 +11,7 @@ export interface Puzzle {
   year: number;
   events: string[];
   puzzleId: Id<"puzzles"> | string; // Convex ID for new system, string for legacy compatibility
+  puzzleNumber?: number; // The sequential puzzle number from Convex
 }
 
 export interface GameState {
