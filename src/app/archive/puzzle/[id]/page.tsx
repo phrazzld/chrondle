@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback, use } from "react";
 import Link from "next/link";
 import { fetchTotalPuzzles } from "@/lib/puzzleData";
-import { useConvexGameState } from "@/hooks/useConvexGameState";
+import { useChrondle } from "@/hooks/useChrondle";
+import { isReady } from "@/types/gameState";
 import { GameLayout } from "@/components/GameLayout";
 import { AppHeader } from "@/components/AppHeader";
 import { Footer } from "@/components/Footer";
@@ -65,11 +66,34 @@ function ArchivePuzzleContent({
   const puzzleNumber = validation.valid && validation.id ? validation.id : 0;
 
   // Use game state for archive puzzle with puzzle number
-  const { gameState, makeGuess, hasWon, isGameComplete, isLoading } =
-    useConvexGameState(
-      false, // debugMode
-      puzzleNumber > 0 ? puzzleNumber : undefined, // archivePuzzleNumber - pass immediately, don't wait for puzzle
-    );
+  const chrondle = useChrondle(puzzleNumber > 0 ? puzzleNumber : undefined);
+
+  // Adapt to old interface
+  const gameState = isReady(chrondle.gameState)
+    ? {
+        puzzle: {
+          ...chrondle.gameState.puzzle,
+          year: chrondle.gameState.puzzle.targetYear,
+        },
+        guesses: chrondle.gameState.guesses,
+        isGameOver: chrondle.gameState.isComplete,
+      }
+    : {
+        puzzle: null,
+        guesses: [],
+        isGameOver: false,
+      };
+  const isLoading =
+    chrondle.gameState.status === "loading-puzzle" ||
+    chrondle.gameState.status === "loading-auth" ||
+    chrondle.gameState.status === "loading-progress";
+  const isGameComplete = isReady(chrondle.gameState)
+    ? chrondle.gameState.isComplete
+    : false;
+  const hasWon = isReady(chrondle.gameState)
+    ? chrondle.gameState.hasWon
+    : false;
+  const makeGuess = chrondle.submitGuess;
 
   // Get target year from game state puzzle
   const targetYear = gameState.puzzle?.year || 2000;

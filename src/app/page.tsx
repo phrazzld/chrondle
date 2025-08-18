@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getGuessDirectionInfo, formatYear } from "@/lib/utils";
 import { getEnhancedProximityFeedback } from "@/lib/enhancedFeedback";
-import { useConvexGameState } from "@/hooks/useConvexGameState";
+import { useChrondle } from "@/hooks/useChrondle";
+import { isReady } from "@/types/gameState";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { useStreak } from "@/hooks/useStreak";
 import { useCountdown } from "@/hooks/useCountdown";
@@ -32,8 +33,41 @@ export default function ChronldePage() {
   // Confetti ref for victory celebration
   const confettiRef = useRef<ConfettiRef>(null);
 
-  // Always try Convex first, but show appropriate UI based on auth state
-  const gameLogic = useConvexGameState(debugMode);
+  // Use the new Chrondle hook - old one had race conditions
+  const chrondle = useChrondle();
+
+  // Adapt to old interface for compatibility
+  const gameLogic = {
+    gameState: isReady(chrondle.gameState)
+      ? {
+          puzzle: {
+            ...chrondle.gameState.puzzle,
+            year: chrondle.gameState.puzzle.targetYear, // old interface used 'year'
+          },
+          guesses: chrondle.gameState.guesses,
+          isGameOver: chrondle.gameState.isComplete,
+        }
+      : {
+          puzzle: null,
+          guesses: [],
+          isGameOver: false,
+        },
+    isLoading:
+      chrondle.gameState.status === "loading-puzzle" ||
+      chrondle.gameState.status === "loading-auth" ||
+      chrondle.gameState.status === "loading-progress",
+    error:
+      chrondle.gameState.status === "error" ? chrondle.gameState.error : null,
+    isGameComplete: isReady(chrondle.gameState)
+      ? chrondle.gameState.isComplete
+      : false,
+    hasWon: isReady(chrondle.gameState) ? chrondle.gameState.hasWon : false,
+    remainingGuesses: isReady(chrondle.gameState)
+      ? chrondle.gameState.remainingGuesses
+      : 6,
+    makeGuess: chrondle.submitGuess,
+    resetGame: chrondle.resetGame,
+  };
 
   // Get puzzle number from the loaded puzzle data
   const puzzleNumber = gameLogic.gameState.puzzle?.puzzleNumber || 1;
