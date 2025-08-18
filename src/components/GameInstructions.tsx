@@ -5,7 +5,7 @@ import { RippleButton } from "@/components/magicui/ripple-button";
 import { useShareGame } from "@/hooks/useShareGame";
 import { formatYear } from "@/lib/utils";
 import { HistoricalContextCard } from "@/components/HistoricalContextCard";
-import type { ClosestGuessData } from "@/hooks/useGameState";
+import type { ClosestGuessData } from "@/types/game";
 
 interface GameInstructionsProps {
   className?: string;

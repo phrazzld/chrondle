@@ -210,7 +210,7 @@ Essential for React debugging:
 1. **Components tab**: Inspect props, state, and hooks
 2. **Profiler tab**: Identify performance issues
 3. **Search**: Find components by name or prop values
-4. **Hook inspection**: Debug custom hooks like `useGameState`
+4. **Hook inspection**: Debug custom hooks like `useChrondle`
 
 ## Debug Mode Features
 

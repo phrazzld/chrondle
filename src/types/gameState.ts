@@ -76,6 +76,14 @@ export type GameState =
 
 /**
  * Type guard to check if game state is loading puzzle
+ *
+ * @param state - The current game state
+ * @returns True if the puzzle is currently loading
+ *
+ * @example
+ * if (isLoadingPuzzle(gameState)) {
+ *   return <LoadingSpinner text="Loading puzzle..." />;
+ * }
  */
 export function isLoadingPuzzle(state: GameState): state is LoadingPuzzleState {
   return state.status === "loading-puzzle";
@@ -83,6 +91,14 @@ export function isLoadingPuzzle(state: GameState): state is LoadingPuzzleState {
 
 /**
  * Type guard to check if game state is loading auth
+ *
+ * @param state - The current game state
+ * @returns True if authentication state is being determined
+ *
+ * @example
+ * if (isLoadingAuth(gameState)) {
+ *   return <LoadingSpinner text="Checking authentication..." />;
+ * }
  */
 export function isLoadingAuth(state: GameState): state is LoadingAuthState {
   return state.status === "loading-auth";
@@ -90,6 +106,14 @@ export function isLoadingAuth(state: GameState): state is LoadingAuthState {
 
 /**
  * Type guard to check if game state is loading progress
+ *
+ * @param state - The current game state
+ * @returns True if user progress is being loaded from the server
+ *
+ * @example
+ * if (isLoadingProgress(gameState)) {
+ *   return <LoadingSpinner text="Loading your progress..." />;
+ * }
  */
 export function isLoadingProgress(
   state: GameState,
@@ -112,6 +136,14 @@ export function isReady(state: GameState): state is ReadyState {
 
 /**
  * Type guard to check if an error occurred
+ *
+ * @param state - The current game state
+ * @returns True if the game is in an error state
+ *
+ * @example
+ * if (isError(gameState)) {
+ *   return <ErrorMessage message={gameState.error} />;
+ * }
  */
 export function isError(state: GameState): state is ErrorState {
   return state.status === "error";
@@ -119,6 +151,14 @@ export function isError(state: GameState): state is ErrorState {
 
 /**
  * Type guard to check if game is in any loading state
+ *
+ * @param state - The current game state
+ * @returns True if the game is loading puzzle, auth, or progress
+ *
+ * @example
+ * if (isLoading(gameState)) {
+ *   return <LoadingOverlay />;
+ * }
  */
 export function isLoading(state: GameState): boolean {
   return (
@@ -130,6 +170,15 @@ export function isLoading(state: GameState): boolean {
 
 /**
  * Helper to get a user-friendly loading message
+ *
+ * @param state - The current game state
+ * @returns Human-readable loading message or null if not loading
+ *
+ * @example
+ * const message = getLoadingMessage(gameState);
+ * if (message) {
+ *   return <LoadingSpinner text={message} />;
+ * }
  */
 export function getLoadingMessage(state: GameState): string | null {
   switch (state.status) {

@@ -59,7 +59,7 @@
 
 ### Codebase Integration
 
-- Existing `useConvexGameState` and `useConvexPuzzle` hooks provide patterns to follow
+- New `useChrondle` hook with pure functional state derivation provides the pattern to follow
 - Archive implementation can be significantly simplified
 - Remove all localStorage utility functions and constants
 - Consolidate duplicate mutations in `convex/users.ts`

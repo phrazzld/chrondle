@@ -184,7 +184,7 @@ function ChronldeGameContent() {
     const isDebug = urlParams.get("debug") === "true";
     setDebugMode(isDebug);
 
-    // Debug parameters are handled by the useGameState hook
+    // Debug parameters are handled by the useChrondle hook
 
     // Register service worker for notifications
     if ("serviceWorker" in navigator) {

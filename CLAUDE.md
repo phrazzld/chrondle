@@ -65,9 +65,8 @@ As Claude working on Chrondle, you are responsible for:
 **Custom Hooks as Domain Services:**
 
 ```typescript
-// Primary game state management with Convex backend
-const { gameState, makeGuess, resetGame, remainingGuesses } =
-  useConvexGameState(debugMode);
+// Primary game state management with pure functional derivation
+const { gameState, submitGuess, resetGame } = useChrondle();
 
 // Achievement and streak tracking
 const { streakData, updateStreak, achievements } = useStreak();
@@ -138,7 +137,7 @@ npx convex run puzzles:getTotalPuzzles
 
 **State Management:**
 
-- `src/hooks/useGameState.ts` - Main game state hook with derived state
+- `src/hooks/useChrondle.ts` - Main game state hook with pure functional state derivation
 - `src/hooks/useStreak.ts` - Win/loss streaks and achievements
 - `src/hooks/useEnhancedTheme.ts` - Theme management with persistence
 
@@ -255,7 +254,7 @@ const makeGuess = useCallback(
 **File Naming:**
 
 - Components: PascalCase (`GameHeader.tsx`)
-- Hooks: camelCase with `use` prefix (`useGameState.ts`)
+- Hooks: camelCase with `use` prefix (`useChrondle.ts`)
 - Utilities: camelCase (`puzzleData.ts`)
 - Constants: SCREAMING_SNAKE_CASE in `constants.ts`
 
@@ -696,8 +695,8 @@ test('should display current hint', () => {
 
 // Hook testing with renderHook
 test('should calculate remaining guesses correctly', () => {
-  const { result } = renderHook(() => useGameState());
-  expect(result.current.remainingGuesses).toBe(6);
+  const { result } = renderHook(() => useChrondle());
+  expect(result.current.gameState.status === 'ready' && result.current.gameState.remainingGuesses).toBe(6);
 });
 ```
 

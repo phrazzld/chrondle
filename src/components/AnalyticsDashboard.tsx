@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { analytics } from "@/lib/analytics";
+import type { StateTransition } from "@/lib/analytics";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,18 @@ import {
 } from "lucide-react";
 
 /**
+ * Analytics summary type
+ */
+interface AnalyticsSummary {
+  sessionId?: string;
+  queueSize?: number;
+  recentTransitions?: StateTransition[];
+  eventCounts?: Record<string, number>;
+  lastState?: string;
+  enabled?: boolean;
+}
+
+/**
  * Analytics Dashboard Component
  *
  * Displays real-time analytics data for monitoring game health,
@@ -23,7 +36,7 @@ import {
  */
 export function AnalyticsDashboard() {
   const [isVisible, setIsVisible] = useState(false);
-  const [summary, setSummary] = useState<Record<string, unknown>>({});
+  const [summary, setSummary] = useState<AnalyticsSummary>({});
   const [refreshKey, setRefreshKey] = useState(0);
 
   // Only show in development or with debug flag
@@ -51,7 +64,7 @@ export function AnalyticsDashboard() {
 
     // Update summary data
     const updateSummary = () => {
-      setSummary(analytics.getSummary());
+      setSummary(analytics.getSummary() as AnalyticsSummary);
     };
 
     updateSummary();
@@ -76,13 +89,13 @@ export function AnalyticsDashboard() {
   } = summary;
 
   // Calculate metrics
-  const totalEvents = Object.values(eventCounts).reduce(
-    (sum: number, count: unknown) => sum + (count as number),
+  const totalEvents = Object.values(eventCounts || {}).reduce(
+    (sum: number, count: number) => sum + count,
     0,
   );
-  const divergenceCount = eventCounts.state_divergence || 0;
-  const errorCount = eventCounts.state_error || 0;
-  const completionCount = eventCounts.game_completed || 0;
+  const divergenceCount = eventCounts?.state_divergence || 0;
+  const errorCount = eventCounts?.state_error || 0;
+  const completionCount = eventCounts?.game_completed || 0;
 
   return (
     <div className="fixed bottom-4 right-4 z-50 w-96 max-h-[600px] overflow-auto">
@@ -150,7 +163,7 @@ export function AnalyticsDashboard() {
         </div>
 
         {/* Recent Transitions */}
-        {recentTransitions.length > 0 && (
+        {recentTransitions && recentTransitions.length > 0 && (
           <div className="px-4 pb-4">
             <div className="text-xs text-muted-foreground mb-2">
               Recent Transitions
@@ -159,7 +172,7 @@ export function AnalyticsDashboard() {
               {recentTransitions
                 .slice(-5)
                 .reverse()
-                .map((transition: Record<string, unknown>, index: number) => (
+                .map((transition, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between text-xs bg-muted/50 rounded px-2 py-1"
@@ -181,16 +194,16 @@ export function AnalyticsDashboard() {
         )}
 
         {/* Event Breakdown */}
-        {Object.keys(eventCounts).length > 0 && (
+        {eventCounts && Object.keys(eventCounts).length > 0 && (
           <div className="px-4 pb-4">
             <div className="text-xs text-muted-foreground mb-2">
               Event Breakdown
             </div>
             <div className="space-y-1">
               {Object.entries(eventCounts)
-                .sort(([, a], [, b]) => (b as number) - (a as number))
+                .sort(([, a], [, b]) => b - a)
                 .slice(0, 5)
-                .map(([event, count]: [string, unknown]) => (
+                .map(([event, count]) => (
                   <div
                     key={event}
                     className="flex items-center justify-between text-xs"

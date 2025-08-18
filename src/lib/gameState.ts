@@ -65,7 +65,7 @@ export function getDailyYear(
 }
 
 // Initialize daily puzzle from static database
-// DEPRECATED: Use Convex-based puzzle loading instead (useConvexGameState)
+// DEPRECATED: Use Convex-based puzzle loading instead (useChrondle hook)
 export function initializePuzzle(
   debugYear?: string,
   isDebugMode?: boolean,
