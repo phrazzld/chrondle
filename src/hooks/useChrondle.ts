@@ -11,6 +11,7 @@ import {
 } from "@/hooks/actions/useGameActions";
 import { deriveGameState, DataSources } from "@/lib/deriveGameState";
 import { GameState, isReady } from "@/types/gameState";
+import { useAnalytics, usePerformanceTracking } from "@/hooks/useAnalytics";
 
 /**
  * Return type for the useChrondle hook
@@ -62,12 +63,30 @@ export function useChrondle(puzzleNumber?: number): UseChronldeReturn {
     [puzzle, auth, progress, session],
   );
 
-  // Derive game state from data sources using pure function
+  // Performance tracking for state derivation
+  const { measureDerivation } = usePerformanceTracking();
+
+  // Derive game state from data sources using pure function with performance tracking
   // The deriveGameState function has error handling built in
-  const gameState = useMemo(() => deriveGameState(dataSources), [dataSources]);
+  const gameState = useMemo(
+    () => measureDerivation(() => deriveGameState(dataSources)),
+    [dataSources, measureDerivation],
+  );
 
   // Get game actions (submitGuess, resetGame, isSubmitting)
   const actions = useGameActions(dataSources);
+
+  // Analytics tracking for state transitions and divergence detection
+  useAnalytics({
+    gameState,
+    userId: auth.userId,
+    puzzleNumber: puzzle.puzzle?.puzzleNumber,
+    sessionGuesses: session.sessionGuesses,
+    serverGuesses: progress.progress?.guesses || [],
+    enabled:
+      process.env.NODE_ENV === "production" ||
+      process.env.NEXT_PUBLIC_ANALYTICS_DEBUG === "true",
+  });
 
   // Development-only state transition logging
   useStateTransitionLogger(gameState);

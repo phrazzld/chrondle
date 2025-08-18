@@ -20,6 +20,7 @@ import { BackgroundAnimation } from "@/components/BackgroundAnimation";
 import { Footer } from "@/components/Footer";
 import { ConfettiRef } from "@/components/magicui/confetti";
 import { GameErrorBoundary } from "@/components/GameErrorBoundary";
+import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
 
 // Force dynamic rendering to prevent SSR issues with theme context
 export const dynamic = "force-dynamic";
@@ -403,6 +404,9 @@ function ChronldeGameContent() {
       />
 
       {/* Confetti is now handled by GameLayout */}
+
+      {/* Analytics Dashboard (Development Only) */}
+      <AnalyticsDashboard />
     </div>
   );
 }
