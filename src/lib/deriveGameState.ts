@@ -73,87 +73,105 @@ export function mergeGuesses(
  *
  * @param sources - All data sources from the orthogonal hooks
  * @returns Discriminated union representing the current game state
+ * @throws Error if derivation fails due to invalid data
  */
 export function deriveGameState(sources: DataSources): GameState {
-  const { puzzle, auth, progress, session } = sources;
+  try {
+    const { puzzle, auth, progress, session } = sources;
 
-  // Priority 1: Check if puzzle is loading
-  if (puzzle.isLoading) {
-    return { status: "loading-puzzle" };
-  }
+    // Priority 1: Check if puzzle is loading
+    if (puzzle.isLoading) {
+      return { status: "loading-puzzle" };
+    }
 
-  // Handle puzzle error
-  if (puzzle.error) {
+    // Handle puzzle error
+    if (puzzle.error) {
+      return {
+        status: "error",
+        error: puzzle.error.message || "Failed to load puzzle",
+      };
+    }
+
+    // Handle missing puzzle
+    if (!puzzle.puzzle) {
+      return {
+        status: "error",
+        error: "No puzzle available",
+      };
+    }
+
+    // Priority 2: Check if auth is loading
+    if (auth.isLoading) {
+      return { status: "loading-auth" };
+    }
+
+    // Priority 3: Check if progress is loading (only matters if authenticated)
+    if (auth.isAuthenticated && progress.isLoading) {
+      return { status: "loading-progress" };
+    }
+
+    // At this point, all necessary data is loaded
+    // Now derive the ready state
+
+    // Get server guesses from progress (if user is authenticated and has progress)
+    const serverGuesses =
+      auth.isAuthenticated && progress.progress
+        ? progress.progress.guesses
+        : [];
+
+    // Get session guesses
+    const sessionGuesses = session.sessionGuesses;
+
+    // Merge guesses (server first, then session without duplicates)
+    const allGuesses = mergeGuesses(serverGuesses, sessionGuesses);
+
+    // Calculate completion status
+    // Complete if:
+    // 1. Server has completedAt timestamp OR
+    // 2. Last guess equals target year OR
+    // 3. Used all guesses
+    const hasServerCompletion =
+      auth.isAuthenticated &&
+      progress.progress?.completedAt !== null &&
+      progress.progress?.completedAt !== undefined;
+
+    const lastGuess = allGuesses[allGuesses.length - 1];
+    const guessedCorrectly = lastGuess === puzzle.puzzle.targetYear;
+    const usedAllGuesses = allGuesses.length >= GAME_CONFIG.MAX_GUESSES;
+
+    const isComplete =
+      hasServerCompletion || guessedCorrectly || usedAllGuesses;
+
+    // Calculate win status
+    // Won if: completed AND last guess matches target year
+    const hasWon = isComplete && guessedCorrectly;
+
+    // Calculate remaining guesses
+    const remainingGuesses = Math.max(
+      0,
+      GAME_CONFIG.MAX_GUESSES - allGuesses.length,
+    );
+
+    // Return ready state with all derived values
+    return {
+      status: "ready",
+      puzzle: puzzle.puzzle,
+      guesses: allGuesses,
+      isComplete,
+      hasWon,
+      remainingGuesses,
+    };
+  } catch (error) {
+    // Log the error for debugging
+    console.error("Error deriving game state:", error);
+
+    // Return error state with helpful message
     return {
       status: "error",
-      error: puzzle.error.message || "Failed to load puzzle",
+      error:
+        error instanceof Error
+          ? `State derivation failed: ${error.message}`
+          : "Failed to calculate game state",
     };
   }
-
-  // Handle missing puzzle
-  if (!puzzle.puzzle) {
-    return {
-      status: "error",
-      error: "No puzzle available",
-    };
-  }
-
-  // Priority 2: Check if auth is loading
-  if (auth.isLoading) {
-    return { status: "loading-auth" };
-  }
-
-  // Priority 3: Check if progress is loading (only matters if authenticated)
-  if (auth.isAuthenticated && progress.isLoading) {
-    return { status: "loading-progress" };
-  }
-
-  // At this point, all necessary data is loaded
-  // Now derive the ready state
-
-  // Get server guesses from progress (if user is authenticated and has progress)
-  const serverGuesses =
-    auth.isAuthenticated && progress.progress ? progress.progress.guesses : [];
-
-  // Get session guesses
-  const sessionGuesses = session.sessionGuesses;
-
-  // Merge guesses (server first, then session without duplicates)
-  const allGuesses = mergeGuesses(serverGuesses, sessionGuesses);
-
-  // Calculate completion status
-  // Complete if:
-  // 1. Server has completedAt timestamp OR
-  // 2. Last guess equals target year OR
-  // 3. Used all guesses
-  const hasServerCompletion =
-    auth.isAuthenticated &&
-    progress.progress?.completedAt !== null &&
-    progress.progress?.completedAt !== undefined;
-
-  const lastGuess = allGuesses[allGuesses.length - 1];
-  const guessedCorrectly = lastGuess === puzzle.puzzle.targetYear;
-  const usedAllGuesses = allGuesses.length >= GAME_CONFIG.MAX_GUESSES;
-
-  const isComplete = hasServerCompletion || guessedCorrectly || usedAllGuesses;
-
-  // Calculate win status
-  // Won if: completed AND last guess matches target year
-  const hasWon = isComplete && guessedCorrectly;
-
-  // Calculate remaining guesses
-  const remainingGuesses = Math.max(
-    0,
-    GAME_CONFIG.MAX_GUESSES - allGuesses.length,
-  );
-
-  // Return ready state with all derived values
-  return {
-    status: "ready",
-    puzzle: puzzle.puzzle,
-    guesses: allGuesses,
-    isComplete,
-    hasWon,
-    remainingGuesses,
-  };
 }

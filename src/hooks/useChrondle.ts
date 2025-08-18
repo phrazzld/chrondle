@@ -45,6 +45,7 @@ export interface UseChronldeReturn extends UseGameActionsReturn {
  */
 export function useChrondle(puzzleNumber?: number): UseChronldeReturn {
   // Compose all orthogonal data sources
+  // Hooks must be called unconditionally due to React rules
   const puzzle = usePuzzleData(puzzleNumber);
   const auth = useAuthState();
   const progress = useUserProgress(auth.userId, puzzle.puzzle?.id || null);
@@ -62,6 +63,7 @@ export function useChrondle(puzzleNumber?: number): UseChronldeReturn {
   );
 
   // Derive game state from data sources using pure function
+  // The deriveGameState function has error handling built in
   const gameState = useMemo(() => deriveGameState(dataSources), [dataSources]);
 
   // Get game actions (submitGuess, resetGame, isSubmitting)

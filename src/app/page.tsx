@@ -19,11 +19,13 @@ import { AchievementModal } from "@/components/modals/AchievementModal";
 import { BackgroundAnimation } from "@/components/BackgroundAnimation";
 import { Footer } from "@/components/Footer";
 import { ConfettiRef } from "@/components/magicui/confetti";
+import { GameErrorBoundary } from "@/components/GameErrorBoundary";
 
 // Force dynamic rendering to prevent SSR issues with theme context
 export const dynamic = "force-dynamic";
 
-export default function ChronldePage() {
+// Separate component for game logic that can be wrapped in error boundary
+function ChronldeGameContent() {
   // SSR state
   const [mounted, setMounted] = useState(false);
 
@@ -402,5 +404,21 @@ export default function ChronldePage() {
 
       {/* Confetti is now handled by GameLayout */}
     </div>
+  );
+}
+
+// Main page component with error boundary
+export default function ChronldePage() {
+  const [resetKey, setResetKey] = useState(0);
+
+  const handleReset = useCallback(() => {
+    // Force remount of the game component
+    setResetKey((prev) => prev + 1);
+  }, []);
+
+  return (
+    <GameErrorBoundary onReset={handleReset}>
+      <ChronldeGameContent key={resetKey} />
+    </GameErrorBoundary>
   );
 }
