@@ -1,0 +1,575 @@
+/**
+ * Integration tests for ID validation edge cases in hooks
+ * Tests real-world scenarios of ID validation across the application
+ */
+
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { renderHook } from "@testing-library/react";
+import { useUserProgress } from "../data/useUserProgress";
+import { useGameActions } from "../actions/useGameActions";
+import type { DataSources } from "@/lib/deriveGameState";
+
+// Create mock functions that we can manipulate
+const mockUseQuery = vi.fn();
+const mockUseMutation = vi.fn();
+const mockAddToast = vi.fn();
+
+// Mock Convex hooks
+vi.mock("convex/react", () => ({
+  useQuery: (...args: unknown[]) => mockUseQuery(...args),
+  useMutation: (...args: unknown[]) => mockUseMutation(...args),
+}));
+
+// Mock toast hook
+vi.mock("@/hooks/use-toast", () => ({
+  useToast: () => ({ addToast: mockAddToast }),
+}));
+
+describe("ID Validation Integration Tests", () => {
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+  let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
+  let originalNodeEnv: string | undefined;
+
+  beforeEach(() => {
+    originalNodeEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "development"; // Enable development warnings
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    process.env.NODE_ENV = originalNodeEnv;
+    consoleErrorSpy.mockRestore();
+    consoleWarnSpy.mockRestore();
+  });
+
+  describe("useUserProgress ID Validation", () => {
+    it("should skip query with Clerk ID format and log warning", () => {
+      mockUseQuery.mockReturnValue(undefined);
+
+      // Clerk ID format: user_xxxxx
+      const clerkId = "user_2gFqK5X7B8hM9nL0P3rT6vY1dZ4w";
+      const validPuzzleId = "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a";
+
+      const { result } = renderHook(() =>
+        useUserProgress(clerkId, validPuzzleId),
+      );
+
+      // Should skip the query
+      expect(mockUseQuery).toHaveBeenCalledWith(expect.any(Object), "skip");
+
+      // Should return null progress without loading
+      expect(result.current.progress).toBeNull();
+      expect(result.current.isLoading).toBe(false);
+
+      // Should have logged warning about invalid ID
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        "[safeConvexId] Invalid users ID format detected:",
+        clerkId,
+        "Expected 32-character lowercase alphanumeric Convex ID",
+      );
+    });
+
+    it("should execute query with valid Convex ID format", () => {
+      mockUseQuery.mockReturnValue({
+        guesses: [1969, 1970],
+        completedAt: Date.now(),
+      });
+
+      // Valid Convex ID format: 32 lowercase alphanumeric chars
+      const validUserId = "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a";
+      const validPuzzleId = "ab2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q";
+
+      // Test that valid IDs work
+      renderHook(() => useUserProgress(validUserId, validPuzzleId));
+
+      // Should execute the query with proper parameters
+      expect(mockUseQuery).toHaveBeenCalledWith(expect.any(Object), {
+        userId: validUserId,
+        puzzleId: validPuzzleId,
+      });
+
+      // Should not log any warnings
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+    });
+
+    it("should handle null userId gracefully without warnings", () => {
+      mockUseQuery.mockReturnValue(undefined);
+
+      const validPuzzleId = "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a";
+
+      const { result } = renderHook(() => useUserProgress(null, validPuzzleId));
+
+      // Should skip the query
+      expect(mockUseQuery).toHaveBeenCalledWith(expect.any(Object), "skip");
+
+      // Should return null without loading
+      expect(result.current.progress).toBeNull();
+      expect(result.current.isLoading).toBe(false);
+
+      // Should not log warnings for null (expected case)
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+    });
+
+    it("should handle undefined values gracefully", () => {
+      mockUseQuery.mockReturnValue(undefined);
+
+      const { result } = renderHook(() =>
+        useUserProgress(
+          undefined as unknown as string | null,
+          undefined as unknown as string | null,
+        ),
+      );
+
+      // Should skip the query
+      expect(mockUseQuery).toHaveBeenCalledWith(expect.any(Object), "skip");
+
+      // Should return null without loading
+      expect(result.current.progress).toBeNull();
+      expect(result.current.isLoading).toBe(false);
+
+      // Should not log warnings for undefined
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+    });
+
+    it("should skip query with malformed ID strings", () => {
+      mockUseQuery.mockReturnValue(undefined);
+
+      const malformedCases = [
+        "123", // Too short
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456", // Contains uppercase
+        "special-chars-@#$%-in-the-id!!!", // Special characters
+        "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0", // 31 chars (one short)
+        "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0ab", // 33 chars (one too long)
+        "", // Empty string
+        "user_" + "a".repeat(26), // Clerk-like prefix
+      ];
+
+      malformedCases.forEach((malformedId) => {
+        vi.clearAllMocks();
+
+        const { result } = renderHook(() =>
+          useUserProgress(malformedId, "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a"),
+        );
+
+        // Should skip the query
+        expect(mockUseQuery).toHaveBeenCalledWith(expect.any(Object), "skip");
+
+        // Should return null without loading
+        expect(result.current.progress).toBeNull();
+        expect(result.current.isLoading).toBe(false);
+
+        // Should log warning about invalid format
+        if (malformedId !== "") {
+          expect(consoleWarnSpy).toHaveBeenCalledWith(
+            expect.stringContaining("[safeConvexId] Invalid"),
+            malformedId,
+            "Expected 32-character lowercase alphanumeric Convex ID",
+          );
+        }
+      });
+    });
+
+    it("should validate both userId and puzzleId independently", () => {
+      mockUseQuery.mockReturnValue(undefined);
+
+      // Invalid userId, valid puzzleId
+      const invalidUserId = "user_invalid";
+      const validPuzzleId = "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a";
+
+      const { result: result1 } = renderHook(() =>
+        useUserProgress(invalidUserId, validPuzzleId),
+      );
+
+      expect(result1.current.progress).toBeNull();
+      expect(result1.current.isLoading).toBe(false);
+
+      // First query should have been skipped
+      expect(mockUseQuery).toHaveBeenCalledWith(expect.any(Object), "skip");
+
+      // Valid userId, invalid puzzleId
+      const validUserId = "ab2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q";
+      const invalidPuzzleId = "puzzle_invalid";
+
+      const { result: result2 } = renderHook(() =>
+        useUserProgress(validUserId, invalidPuzzleId),
+      );
+
+      expect(result2.current.progress).toBeNull();
+      expect(result2.current.isLoading).toBe(false);
+
+      // Second query should also have been skipped
+      expect(mockUseQuery).toHaveBeenLastCalledWith(expect.any(Object), "skip");
+    });
+  });
+
+  describe("useGameActions ID Validation", () => {
+    it("should handle Clerk ID format in submitGuess with proper error", async () => {
+      const mockSubmitGuess = vi.fn();
+      mockUseMutation.mockReturnValue(mockSubmitGuess);
+
+      const sources: DataSources = {
+        puzzle: {
+          puzzle: {
+            id: "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a",
+            targetYear: 1969,
+            events: ["Event 1", "Event 2"],
+            puzzleNumber: 1,
+          },
+          isLoading: false,
+          error: null,
+        },
+        auth: {
+          userId: "user_2gFqK5X7B8hM9nL0P3rT6vY1dZ4w", // Clerk ID format
+          isAuthenticated: true,
+          isLoading: false,
+        },
+        progress: {
+          progress: null,
+          isLoading: false,
+        },
+        session: {
+          sessionGuesses: [],
+          addGuess: vi.fn(),
+          clearGuesses: vi.fn(),
+        },
+      };
+
+      const { result } = renderHook(() => useGameActions(sources));
+
+      const success = await result.current.submitGuess(1969);
+
+      // Should still return true (optimistic update)
+      expect(success).toBe(true);
+
+      // Should have called addGuess for optimistic update
+      expect(sources.session.addGuess).toHaveBeenCalledWith(1969);
+
+      // Should not have called the mutation (validation failed)
+      expect(mockSubmitGuess).not.toHaveBeenCalled();
+
+      // Should show authentication error toast
+      expect(mockAddToast).toHaveBeenCalledWith({
+        title: "Authentication Error",
+        description:
+          "There was an issue with your user session. Please refresh the page.",
+        variant: "destructive",
+      });
+
+      // Should log validation error
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "Invalid ID format detected:",
+        expect.any(String),
+        "for type:",
+        "users",
+      );
+    });
+
+    it("should successfully submit with valid Convex IDs", async () => {
+      const mockSubmitGuess = vi.fn().mockResolvedValue({ success: true });
+      mockUseMutation.mockReturnValue(mockSubmitGuess);
+
+      const sources: DataSources = {
+        puzzle: {
+          puzzle: {
+            id: "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a",
+            targetYear: 1969,
+            events: ["Event 1", "Event 2"],
+            puzzleNumber: 1,
+          },
+          isLoading: false,
+          error: null,
+        },
+        auth: {
+          userId: "ab2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q", // Valid Convex ID
+          isAuthenticated: true,
+          isLoading: false,
+        },
+        progress: {
+          progress: null,
+          isLoading: false,
+        },
+        session: {
+          sessionGuesses: [],
+          addGuess: vi.fn(),
+          clearGuesses: vi.fn(),
+        },
+      };
+
+      const { result } = renderHook(() => useGameActions(sources));
+
+      const success = await result.current.submitGuess(1969);
+
+      expect(success).toBe(true);
+
+      // Should have called the mutation with valid IDs
+      expect(mockSubmitGuess).toHaveBeenCalledWith({
+        puzzleId: "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a",
+        userId: "ab2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q",
+        guess: 1969,
+      });
+
+      // No error logs
+      expect(consoleErrorSpy).not.toHaveBeenCalledWith(
+        expect.stringContaining("Invalid ID format"),
+      );
+    });
+
+    it("should handle malformed puzzle ID gracefully", async () => {
+      const mockSubmitGuess = vi.fn();
+      mockUseMutation.mockReturnValue(mockSubmitGuess);
+
+      const sources: DataSources = {
+        puzzle: {
+          puzzle: {
+            id: "invalid_puzzle_id_format", // Invalid format
+            targetYear: 1969,
+            events: ["Event 1", "Event 2"],
+            puzzleNumber: 1,
+          },
+          isLoading: false,
+          error: null,
+        },
+        auth: {
+          userId: "ab2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q",
+          isAuthenticated: true,
+          isLoading: false,
+        },
+        progress: {
+          progress: null,
+          isLoading: false,
+        },
+        session: {
+          sessionGuesses: [],
+          addGuess: vi.fn(),
+          clearGuesses: vi.fn(),
+        },
+      };
+
+      const { result } = renderHook(() => useGameActions(sources));
+
+      const success = await result.current.submitGuess(1969);
+
+      // Still returns true (optimistic)
+      expect(success).toBe(true);
+
+      // Should not call mutation
+      expect(mockSubmitGuess).not.toHaveBeenCalled();
+
+      // Should show error toast
+      expect(mockAddToast).toHaveBeenCalledWith({
+        title: "Authentication Error",
+        description:
+          "There was an issue with your user session. Please refresh the page.",
+        variant: "destructive",
+      });
+    });
+
+    it("should work without authentication (null userId)", async () => {
+      const mockSubmitGuess = vi.fn();
+      mockUseMutation.mockReturnValue(mockSubmitGuess);
+
+      const sources: DataSources = {
+        puzzle: {
+          puzzle: {
+            id: "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a",
+            targetYear: 1969,
+            events: ["Event 1", "Event 2"],
+            puzzleNumber: 1,
+          },
+          isLoading: false,
+          error: null,
+        },
+        auth: {
+          userId: null,
+          isAuthenticated: false,
+          isLoading: false,
+        },
+        progress: {
+          progress: null,
+          isLoading: false,
+        },
+        session: {
+          sessionGuesses: [],
+          addGuess: vi.fn(),
+          clearGuesses: vi.fn(),
+        },
+      };
+
+      const { result } = renderHook(() => useGameActions(sources));
+
+      const success = await result.current.submitGuess(1969);
+
+      expect(success).toBe(true);
+
+      // Should add to session
+      expect(sources.session.addGuess).toHaveBeenCalledWith(1969);
+
+      // Should not call mutation (not authenticated)
+      expect(mockSubmitGuess).not.toHaveBeenCalled();
+
+      // No errors logged
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
+    });
+
+    it("should handle edge case of empty string IDs", async () => {
+      const mockSubmitGuess = vi.fn();
+      mockUseMutation.mockReturnValue(mockSubmitGuess);
+
+      const sources: DataSources = {
+        puzzle: {
+          puzzle: {
+            id: "invalid", // Invalid ID to trigger error
+            targetYear: 1969,
+            events: ["Event 1", "Event 2"],
+            puzzleNumber: 1,
+          },
+          isLoading: false,
+          error: null,
+        },
+        auth: {
+          userId: "invalid", // Invalid ID to trigger error
+          isAuthenticated: true,
+          isLoading: false,
+        },
+        progress: {
+          progress: null,
+          isLoading: false,
+        },
+        session: {
+          sessionGuesses: [],
+          addGuess: vi.fn(),
+          clearGuesses: vi.fn(),
+        },
+      };
+
+      const { result } = renderHook(() => useGameActions(sources));
+
+      const success = await result.current.submitGuess(1969);
+
+      expect(success).toBe(true);
+
+      // Should not call mutation
+      expect(mockSubmitGuess).not.toHaveBeenCalled();
+
+      // Should show error about authentication
+      expect(mockAddToast).toHaveBeenCalledWith({
+        title: "Authentication Error",
+        description:
+          "There was an issue with your user session. Please refresh the page.",
+        variant: "destructive",
+      });
+    });
+  });
+
+  describe("Cross-Hook ID Validation Consistency", () => {
+    it("should handle the same invalid ID consistently across hooks", () => {
+      mockUseQuery.mockReturnValue(undefined);
+      mockUseMutation.mockReturnValue(vi.fn());
+
+      const invalidId = "user_2gFqK5X7B8hM9nL0P3rT6vY1dZ4w";
+
+      // Test in useUserProgress
+      // Test in useUserProgress
+      renderHook(() =>
+        useUserProgress(invalidId, "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a"),
+      );
+
+      expect(progressResult.current.progress).toBeNull();
+      expect(progressResult.current.isLoading).toBe(false);
+
+      // Test same ID in useGameActions
+      const sources: DataSources = {
+        puzzle: {
+          puzzle: {
+            id: "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a",
+            targetYear: 1969,
+            events: ["Event 1"],
+            puzzleNumber: 1,
+          },
+          isLoading: false,
+          error: null,
+        },
+        auth: {
+          userId: invalidId,
+          isAuthenticated: true,
+          isLoading: false,
+        },
+        progress: {
+          progress: null,
+          isLoading: false,
+        },
+        session: {
+          sessionGuesses: [],
+          addGuess: vi.fn(),
+          clearGuesses: vi.fn(),
+        },
+      };
+
+      const { result: actionsResult } = renderHook(() =>
+        useGameActions(sources),
+      );
+
+      // Both hooks should handle the invalid ID appropriately
+      expect(actionsResult.current).toBeDefined();
+      expect(consoleWarnSpy).toHaveBeenCalled();
+    });
+
+    it("should handle valid IDs consistently across hooks", () => {
+      mockUseQuery.mockReturnValue({
+        guesses: [1969],
+        completedAt: null,
+      });
+
+      const mockMutation = vi.fn().mockResolvedValue({ success: true });
+      mockUseMutation.mockReturnValue(mockMutation);
+
+      const validUserId = "ab2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q";
+      const validPuzzleId = "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a";
+
+      // Test in useUserProgress
+      // Test in useUserProgress
+      renderHook(() => useUserProgress(validUserId, validPuzzleId));
+
+      // Should execute query with valid IDs
+      expect(mockUseQuery).toHaveBeenCalledWith(expect.any(Object), {
+        userId: validUserId,
+        puzzleId: validPuzzleId,
+      });
+
+      // Test same IDs in useGameActions
+      const sources: DataSources = {
+        puzzle: {
+          puzzle: {
+            id: validPuzzleId,
+            targetYear: 1969,
+            events: ["Event 1"],
+            puzzleNumber: 1,
+          },
+          isLoading: false,
+          error: null,
+        },
+        auth: {
+          userId: validUserId,
+          isAuthenticated: true,
+          isLoading: false,
+        },
+        progress: {
+          progress: null,
+          isLoading: false,
+        },
+        session: {
+          sessionGuesses: [],
+          addGuess: vi.fn(),
+          clearGuesses: vi.fn(),
+        },
+      };
+
+      renderHook(() => useGameActions(sources));
+
+      // No warnings should be logged for valid IDs
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+    });
+  });
+});

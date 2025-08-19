@@ -1,28 +1,27 @@
 # Claude's Guide to Chrondle
 
-## 🚨 CRITICAL: Database Migration Required
+## 🎯 IMPORTANT: How Puzzles Work in Chrondle
 
-**Current Issue:** Puzzles won't load because production database is empty!
+**PUZZLES ARE GENERATED DYNAMICALLY - NOT STORED STATICALLY**
 
-**Two Convex Deployments:**
+The Convex database contains:
 
-- **DEV**: `handsome-raccoon-955` ✅ **HAS ALL 239 PUZZLES**
-- **PROD**: `fleet-goldfish-183` ❌ **EMPTY DATABASE**
+- **1,821 historical events** in the `events` table spanning years -776 to 2008
+- **6 puzzle records** in the `puzzles` table (for tracking metadata)
+- Events are grouped by year and selected deterministically each day
 
-**Current Config:** Points to PRODUCTION (empty) - must migrate data from dev!
+**How Daily Puzzles Work:**
 
-**To Fix:**
+1. Each day, the system uses a deterministic hash of the date to select a year
+2. All events from that year are retrieved from the `events` table
+3. These events become the hints for that day's puzzle
+4. The same date always produces the same puzzle globally
 
-```bash
-# 1. Export from dev deployment (has data)
-npx convex export --deployment-name handsome-raccoon-955 --path dev-data.zip
+**THIS IS THE INTENDED DESIGN - THE DATABASE IS WORKING CORRECTLY**
 
-# 2. Import to production deployment
-npx convex import --prod --path dev-data.zip
-
-# 3. Verify production has puzzles
-npx convex run puzzles:getTotalPuzzles --prod
-```
+- There are NOT 239 pre-stored puzzles that need migration
+- Puzzles are generated on-demand from the events table
+- The production database has all necessary data
 
 ---
 
@@ -32,7 +31,7 @@ Chrondle is a daily historical guessing game built with Next.js 15, React 19, an
 
 - **Daily Puzzle Mechanics**: One puzzle per day, globally synchronized using deterministic algorithms
 - **Progressive Hint System**: 6 hints per puzzle, ordered from obscure to obvious historical events
-- **Convex Backend**: Real-time database with 239+ curated historical puzzles spanning years -776 to 2008
+- **Convex Backend**: Real-time database with 1,821 historical events spanning years -776 to 2008, generating daily puzzles dynamically
 - **Accessibility-First Design**: Screen reader support, keyboard navigation, and mobile-optimized interface
 - **User Authentication**: Clerk integration with Convex for progress tracking and streaks
 
@@ -78,8 +77,8 @@ const { themeMode, setThemeMode, mounted } = useEnhancedTheme();
 **Convex Database Architecture:**
 
 - **CRITICAL**: Two separate Convex deployments exist:
-  - **DEV**: `handsome-raccoon-955` (239 seeded puzzles) ✅
-  - **PROD**: `fleet-goldfish-183` (empty, needs migration) ❌
+  - **DEV**: `handsome-raccoon-955` (development deployment) ✅
+  - **PROD**: `fleet-goldfish-183` (production deployment with all event data) ✅
 - Real-time puzzle database with events, puzzles, users, and plays tables
 - Cron jobs for daily puzzle generation
 - Authentication integration with Clerk for user progress tracking

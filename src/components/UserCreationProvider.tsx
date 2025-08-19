@@ -8,8 +8,9 @@ import React, {
   ReactNode,
 } from "react";
 import { useAuth } from "@clerk/nextjs";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { useMutationWithRetry } from "@/hooks/useMutationWithRetry";
 import { Doc } from "../../convex/_generated/dataModel";
 
 interface UserCreationContextType {
@@ -44,8 +45,20 @@ export function UserCreationProvider({ children }: UserCreationProviderProps) {
   // Get current user for existence check
   const currentUser = useQuery(api.users.getCurrentUser);
 
-  // JIT user creation mutation
-  const getOrCreateUser = useMutation(api.users.getOrCreateCurrentUser);
+  // JIT user creation mutation with retry logic for transient errors
+  const getOrCreateUser = useMutationWithRetry(
+    api.users.getOrCreateCurrentUser,
+    {
+      maxRetries: 3,
+      baseDelayMs: 1000,
+      onRetry: (attempt, error) => {
+        console.error(
+          `[UserCreationProvider] Retrying user creation (attempt ${attempt}/3):`,
+          error.message,
+        );
+      },
+    },
+  );
 
   // Track user creation status
   const [userCreated, setUserCreated] = useState(false);
@@ -70,7 +83,7 @@ export function UserCreationProvider({ children }: UserCreationProviderProps) {
           setUserCreationLoading(true);
           setUserCreationError(null);
 
-          await getOrCreateUser();
+          await getOrCreateUser({});
 
           setUserCreated(true);
           // console.log("[UserCreationProvider] User creation completed successfully");

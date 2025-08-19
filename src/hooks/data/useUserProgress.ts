@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import { safeConvexId } from "@/lib/validation";
 import type { Id } from "../../../convex/_generated/dataModel";
 
 /**
@@ -65,16 +66,19 @@ export function useUserProgress(
   userId: string | null,
   puzzleId: string | null,
 ): UseUserProgressReturn {
-  // Only query Convex when both userId AND puzzleId are non-null
-  // Use "skip" pattern to avoid unnecessary queries
-  const shouldQuery = userId !== null && puzzleId !== null;
+  // Safely validate and cast IDs using the validation module
+  const validUserId = safeConvexId(userId, "users");
+  const validPuzzleId = safeConvexId(puzzleId, "puzzles");
+
+  // Only query Convex when both IDs are valid
+  const shouldQuery = validUserId !== null && validPuzzleId !== null;
 
   const convexPlay = useQuery(
     api.puzzles.getUserPlay,
     shouldQuery
       ? {
-          userId: userId as Id<"users">,
-          puzzleId: puzzleId as Id<"puzzles">,
+          userId: validUserId,
+          puzzleId: validPuzzleId,
         }
       : "skip",
   ) as ConvexPlay | null | undefined;

@@ -12,6 +12,8 @@ import {
 import { deriveGameState, DataSources } from "@/lib/deriveGameState";
 import { GameState, isReady } from "@/types/gameState";
 import { useAnalytics, usePerformanceTracking } from "@/hooks/useAnalytics";
+import { isValidConvexId } from "@/lib/validation";
+import { useDebouncedValues } from "@/hooks/useDebouncedValue";
 
 /**
  * Return type for the useChrondle hook
@@ -49,7 +51,47 @@ export function useChrondle(puzzleNumber?: number): UseChronldeReturn {
   // Hooks must be called unconditionally due to React rules
   const puzzle = usePuzzleData(puzzleNumber);
   const auth = useAuthState();
-  const progress = useUserProgress(auth.userId, puzzle.puzzle?.id || null);
+
+  // Defensive validation: Only pass userId if it's a valid Convex ID format
+  // This prevents any potential race conditions where an invalid ID might be passed
+  const validatedUserId = useMemo(() => {
+    if (!auth.userId) {
+      return null;
+    }
+
+    // Validate the ID format before passing it to useUserProgress
+    if (!isValidConvexId(auth.userId)) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(
+          "[useChrondle] Invalid user ID format detected - skipping progress query:",
+          {
+            userId: auth.userId,
+            isAuthenticated: auth.isAuthenticated,
+            isLoading: auth.isLoading,
+          },
+        );
+      }
+      return null; // Don't attempt to query with invalid ID
+    }
+
+    return auth.userId;
+  }, [auth.userId, auth.isAuthenticated, auth.isLoading]);
+
+  // Debounce the useUserProgress parameters to prevent rapid-fire queries during auth transitions
+  // This prevents queries from firing when userId or puzzleId change rapidly
+  const debouncedProgressParams = useDebouncedValues(
+    {
+      userId: validatedUserId,
+      puzzleId: puzzle.puzzle?.id || null,
+    },
+    100, // 100ms delay to group rapid parameter changes
+  );
+
+  // Use debounced parameters for the progress query
+  const progress = useUserProgress(
+    debouncedProgressParams.userId,
+    debouncedProgressParams.puzzleId,
+  );
   const session = useLocalSession(puzzle.puzzle?.id || null);
 
   // Create data sources object for derivation and actions

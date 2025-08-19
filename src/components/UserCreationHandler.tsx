@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { useMutationWithRetry } from "@/hooks/useMutationWithRetry";
 
 interface AuthState {
   hasClerkUser: boolean;
@@ -29,7 +29,19 @@ export function UserCreationHandler({
   children,
 }: UserCreationHandlerProps) {
   const { isSignedIn } = useUser();
-  const getOrCreateUser = useMutation(api.users.getOrCreateCurrentUser);
+  const getOrCreateUser = useMutationWithRetry(
+    api.users.getOrCreateCurrentUser,
+    {
+      maxRetries: 3,
+      baseDelayMs: 1000,
+      onRetry: (attempt, error) => {
+        console.error(
+          `[UserCreationHandler] Retrying user creation (attempt ${attempt}/3):`,
+          error.message,
+        );
+      },
+    },
+  );
 
   const [userCreationLoading, setUserCreationLoading] = useState(false);
   const [userCreationCompleted, setUserCreationCompleted] = useState(false);
@@ -49,7 +61,7 @@ export function UserCreationHandler({
 
         try {
           setUserCreationLoading(true);
-          await getOrCreateUser();
+          await getOrCreateUser({});
 
           // console.log("[UserCreationHandler] User creation completed successfully");
           setUserCreationCompleted(true);

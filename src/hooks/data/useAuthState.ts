@@ -2,6 +2,7 @@
 
 import { useMemo, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
+import { useUserCreation } from "@/components/UserCreationProvider";
 
 /**
  * Return type for the useAuthState hook
@@ -13,13 +14,13 @@ interface UseAuthStateReturn {
 }
 
 /**
- * Hook to provide stable authentication state from Clerk
+ * Hook to provide stable authentication state with Convex database ID
  *
- * This hook wraps Clerk's useUser with a stable state shape that prevents
- * unnecessary re-renders. It's completely orthogonal - focused solely on
- * authentication state without any knowledge of other app concerns.
+ * This hook wraps Clerk's useUser and integrates with UserCreationProvider
+ * to return the Convex database ID instead of the Clerk external ID.
+ * This ensures compatibility with Convex queries that expect database IDs.
  *
- * @returns Object containing user ID, authentication status, and loading state
+ * @returns Object containing Convex user ID, authentication status, and loading state
  *
  * @example
  * const { userId, isAuthenticated, isLoading } = useAuthState();
@@ -30,12 +31,13 @@ interface UseAuthStateReturn {
  */
 export function useAuthState(): UseAuthStateReturn {
   const { user, isLoaded, isSignedIn } = useUser();
+  const { currentUser, userCreationLoading } = useUserCreation();
   const prevStateRef = useRef<UseAuthStateReturn | null>(null);
 
   // Memoize the return value to ensure stable references
   return useMemo<UseAuthStateReturn>(() => {
-    // Handle loading state - Clerk not yet loaded
-    if (!isLoaded) {
+    // Handle loading state - Clerk not yet loaded OR user creation in progress
+    if (!isLoaded || userCreationLoading) {
       const result: UseAuthStateReturn = {
         userId: null,
         isAuthenticated: false,
@@ -49,7 +51,10 @@ export function useAuthState(): UseAuthStateReturn {
           prevStateRef.current.isLoading !== result.isLoading
         ) {
           // eslint-disable-next-line no-console
-          console.log("[useAuthState] Auth loading...");
+          console.log("[useAuthState] Auth loading...", {
+            clerkLoaded: isLoaded,
+            userCreationLoading,
+          });
         }
       }
 
@@ -100,9 +105,34 @@ export function useAuthState(): UseAuthStateReturn {
       return result;
     }
 
-    // Handle authenticated state
+    // Handle authenticated state - need Convex user to be created
+    if (!currentUser) {
+      // User is authenticated in Clerk but Convex user doesn't exist yet
+      // This is a transient state while user creation happens
+      const result: UseAuthStateReturn = {
+        userId: null,
+        isAuthenticated: false, // Treat as not authenticated until Convex user exists
+        isLoading: true, // Still loading from our perspective
+      };
+
+      // Development-only debug logging
+      if (process.env.NODE_ENV === "development") {
+        console.warn(
+          "[useAuthState] Clerk authenticated but Convex user not ready:",
+          {
+            clerkId: user.id,
+            currentUser,
+          },
+        );
+      }
+
+      prevStateRef.current = result;
+      return result;
+    }
+
+    // Handle fully authenticated state with Convex user
     const result: UseAuthStateReturn = {
-      userId: user.id,
+      userId: currentUser._id, // Return Convex database ID, not Clerk ID
       isAuthenticated: true,
       isLoading: false,
     };
@@ -115,8 +145,9 @@ export function useAuthState(): UseAuthStateReturn {
         prevStateRef.current.userId !== result.userId
       ) {
         // eslint-disable-next-line no-console
-        console.log("[useAuthState] User authenticated:", {
-          userId: result.userId,
+        console.log("[useAuthState] User authenticated with Convex ID:", {
+          convexId: result.userId,
+          clerkId: user.id,
           previousState: prevStateRef.current,
         });
       }
@@ -124,5 +155,5 @@ export function useAuthState(): UseAuthStateReturn {
 
     prevStateRef.current = result;
     return result;
-  }, [user, isLoaded, isSignedIn]);
+  }, [user, isLoaded, isSignedIn, currentUser, userCreationLoading]);
 }

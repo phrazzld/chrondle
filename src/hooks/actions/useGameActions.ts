@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import type { Id } from "../../../convex/_generated/dataModel";
 import { DataSources } from "@/lib/deriveGameState";
 import { GAME_CONFIG } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
+import { assertConvexId, isConvexIdValidationError } from "@/lib/validation";
+import { useMutationWithRetry } from "@/hooks/useMutationWithRetry";
 
 /**
  * Return type for the useGameActions hook
@@ -43,8 +43,25 @@ export function useGameActions(sources: DataSources): UseGameActionsReturn {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toastContext = useToast();
 
-  // Convex mutation for submitting guesses
-  const submitGuessMutation = useMutation(api.puzzles.submitGuess);
+  // Convex mutation for submitting guesses with retry logic
+  const submitGuessMutation = useMutationWithRetry(api.puzzles.submitGuess, {
+    maxRetries: 3,
+    baseDelayMs: 1000,
+    onRetry: (attempt, error) => {
+      console.error(
+        `[useGameActions] Retrying submitGuess (attempt ${attempt}/3):`,
+        error.message,
+      );
+      // Optionally show a toast to the user about the retry
+      if (attempt === 3 && "addToast" in toastContext) {
+        toastContext.addToast({
+          title: "Connection issues",
+          description: "Having trouble connecting to the server. Retrying...",
+          variant: "default",
+        });
+      }
+    },
+  });
 
   /**
    * Submit a guess with optimistic updates
@@ -104,16 +121,42 @@ export function useGameActions(sources: DataSources): UseGameActionsReturn {
         setIsSubmitting(true);
 
         try {
+          // Validate and assert IDs with proper error handling
+          const validPuzzleId = assertConvexId(puzzle.puzzle.id, "puzzles");
+          const validUserId = assertConvexId(auth.userId, "users");
+
           await submitGuessMutation({
-            puzzleId: puzzle.puzzle.id as Id<"puzzles">,
-            userId: auth.userId as Id<"users">,
+            puzzleId: validPuzzleId,
+            userId: validUserId,
             guess,
           });
 
           // Success - guess is already in session from optimistic update
           return true;
         } catch (error) {
-          // Error - keep the guess in session for eventual consistency
+          // Check if it's a validation error
+          if (isConvexIdValidationError(error)) {
+            console.error(
+              "Invalid ID format detected:",
+              error.id,
+              "for type:",
+              error.type,
+            );
+
+            if ("addToast" in toastContext) {
+              toastContext.addToast({
+                title: "Authentication Error",
+                description:
+                  "There was an issue with your user session. Please refresh the page.",
+                variant: "destructive",
+              });
+            }
+
+            // Still return true to keep the guess in session
+            return true;
+          }
+
+          // Other errors - keep the guess in session for eventual consistency
           // The guess stays in the session, allowing the user to see it
           // and it will be merged properly when the page refreshes
           console.error("Failed to persist guess to server:", error);

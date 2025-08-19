@@ -4,10 +4,11 @@
 
 ## Features
 
-- **Daily Puzzles:** A fresh historical event to guess every day.
+- **Daily Puzzles:** A fresh historical event to guess every day, dynamically generated from our database of 1,821 historical events.
 - **Progressive Hints:** Uncover more clues with each incorrect guess.
 - **Intuitive Interface:** Clean and responsive design built with Next.js and Tailwind CSS.
 - **Historical Range:** Puzzles cover a vast timeline, from ancient civilizations to recent events.
+- **Dynamic Puzzle Generation:** Puzzles are created on-demand each day from our events database using a deterministic algorithm - ensuring the same puzzle globally for all players.
 
 ## How to Play
 
