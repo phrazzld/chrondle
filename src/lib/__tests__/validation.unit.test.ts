@@ -112,7 +112,8 @@ describe("Convex ID Validation Utilities", () => {
   });
 
   describe("safeConvexId", () => {
-    let consoleSpy: ReturnType<typeof vi.spyOn>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let consoleSpy: any;
     let originalEnv: string | undefined;
 
     beforeEach(() => {

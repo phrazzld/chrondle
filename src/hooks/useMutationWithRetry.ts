@@ -197,7 +197,7 @@ export function useMutationWithRetry<
         lastError || new Error("Mutation failed after all retries");
 
       console.error("[useMutationWithRetry] All retries exhausted:", {
-        mutation: mutation.name || "unknown",
+        mutation: "mutation",
         totalAttempts: mergedConfig.maxRetries + 1,
         error: finalError.message,
         timestamp: new Date().toISOString(),
@@ -205,7 +205,7 @@ export function useMutationWithRetry<
 
       throw finalError;
     },
-    [mutate, mutation, mergedConfig],
+    [mutate, mergedConfig],
   );
 
   return mutateWithRetry;

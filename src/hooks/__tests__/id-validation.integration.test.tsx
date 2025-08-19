@@ -26,20 +26,20 @@ vi.mock("@/hooks/use-toast", () => ({
 }));
 
 describe("ID Validation Integration Tests", () => {
-  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
-  let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
-  let originalNodeEnv: string | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let consoleErrorSpy: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let consoleWarnSpy: any;
 
   beforeEach(() => {
-    originalNodeEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = "development"; // Enable development warnings
+    vi.stubEnv("NODE_ENV", "development"); // Enable development warnings
     consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     vi.clearAllMocks();
   });
 
   afterEach(() => {
-    process.env.NODE_ENV = originalNodeEnv;
+    vi.unstubAllEnvs();
     consoleErrorSpy.mockRestore();
     consoleWarnSpy.mockRestore();
   });
@@ -471,8 +471,7 @@ describe("ID Validation Integration Tests", () => {
       const invalidId = "user_2gFqK5X7B8hM9nL0P3rT6vY1dZ4w";
 
       // Test in useUserProgress
-      // Test in useUserProgress
-      renderHook(() =>
+      const { result: progressResult } = renderHook(() =>
         useUserProgress(invalidId, "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a"),
       );
 
@@ -528,7 +527,6 @@ describe("ID Validation Integration Tests", () => {
       const validUserId = "ab2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q";
       const validPuzzleId = "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a";
 
-      // Test in useUserProgress
       // Test in useUserProgress
       renderHook(() => useUserProgress(validUserId, validPuzzleId));
 

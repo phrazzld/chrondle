@@ -105,7 +105,7 @@ describe("useDebouncedValue", () => {
       });
       expect(result.current).toBe("value");
 
-      rerender({ value: undefined });
+      rerender({ value: undefined as string | null | undefined });
       act(() => {
         vi.advanceTimersByTime(100);
       });
