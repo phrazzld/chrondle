@@ -1212,6 +1212,21 @@ Replace imperative state initialization with pure functional state derivation. G
   - Created environment validation script example
   - Documented debugging commands and patterns
 
+## Test Infrastructure Fixes [HIGH PRIORITY - Blocking Push]
+
+- [ ] Fix TypeScript errors in auth-flow.integration.test.tsx
+  - Mock types don't match Clerk/Convex library interfaces
+  - UseAuthReturn, UserResource, UserCreationContextType need proper mocking
+  - Convex query/mutation mocks need correct typing
+- [ ] Update test mocks to properly match library interfaces
+  - Create proper mock factories for Clerk types
+  - Fix Convex useQuery/useMutation mock signatures
+  - Ensure ID types (Id<"users">) are handled correctly
+- [ ] Ensure all integration tests pass with proper types
+  - Run full test suite after fixes
+  - Verify no --no-verify commits needed
+  - Document any testing patterns for future reference
+
 ## Success Criteria
 
 - [ ] Completed puzzle shows as completed immediately on page load (bug fixed)

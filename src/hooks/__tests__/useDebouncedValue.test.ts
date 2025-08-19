@@ -94,7 +94,7 @@ describe("useDebouncedValue", () => {
     it("should handle null and undefined values", () => {
       const { result, rerender } = renderHook(
         ({ value }) => useDebouncedValue(value, 100),
-        { initialProps: { value: null as string | null } },
+        { initialProps: { value: null as string | null | undefined } },
       );
 
       expect(result.current).toBe(null);
