@@ -111,7 +111,7 @@ export function useAuthState(): UseAuthStateReturn {
       // This is a transient state while user creation happens
       const result: UseAuthStateReturn = {
         userId: null,
-        isAuthenticated: false, // Treat as not authenticated until Convex user exists
+        isAuthenticated: true, // User IS authenticated in Clerk, just waiting for Convex
         isLoading: true, // Still loading from our perspective
       };
 

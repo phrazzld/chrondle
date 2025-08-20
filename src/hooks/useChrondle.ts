@@ -75,7 +75,7 @@ export function useChrondle(puzzleNumber?: number): UseChronldeReturn {
     }
 
     return auth.userId;
-  }, [auth.userId, auth.isAuthenticated, auth.isLoading]);
+  }, [auth.userId]); // Only auth.userId is used in the memo function
 
   // Memoize the parameters object to prevent recreation on every render
   // This is critical - without memoization, the object reference changes on every render

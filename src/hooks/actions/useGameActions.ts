@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { api } from "../../../convex/_generated/api";
 import { DataSources } from "@/lib/deriveGameState";
 import { GAME_CONFIG } from "@/lib/constants";
@@ -205,9 +205,13 @@ export function useGameActions(sources: DataSources): UseGameActionsReturn {
     // The game state will automatically update through derivation
   }, [session]);
 
-  return {
-    submitGuess,
-    resetGame,
-    isSubmitting,
-  };
+  // Memoize the return value to prevent object recreation on every render
+  return useMemo(
+    () => ({
+      submitGuess,
+      resetGame,
+      isSubmitting,
+    }),
+    [submitGuess, resetGame, isSubmitting],
+  );
 }

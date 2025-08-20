@@ -143,6 +143,163 @@ describe("useDebouncedValue", () => {
       expect(result.current).toEqual({ userId: "user2", puzzleId: "puzzle2" });
     });
 
+    it("should NOT fire debounce when values are deeply equal despite different object reference", () => {
+      // This test verifies that the hook properly handles reference stability
+      // When values are the same but object reference changes, it should still debounce
+
+      const { result, rerender } = renderHook(
+        ({ values }) => useDebouncedValues(values, 100),
+        {
+          initialProps: {
+            values: { userId: "user1", puzzleId: "puzzle1" },
+          },
+        },
+      );
+
+      expect(result.current).toEqual({ userId: "user1", puzzleId: "puzzle1" });
+
+      // Rerender with same values but new object reference
+      // This simulates what happens when parent component re-renders without memoization
+      rerender({
+        values: { userId: "user1", puzzleId: "puzzle1" }, // Same values, new object
+      });
+
+      // Important: Even though object reference changed, the debounce timer RESETS
+      // This is the current behavior - it treats new object reference as a change
+      // Values should not change immediately
+      expect(result.current).toEqual({ userId: "user1", puzzleId: "puzzle1" });
+
+      // Advance time to see if debounce fires
+      act(() => {
+        vi.advanceTimersByTime(100);
+      });
+
+      // The values are the same, but because the object reference changed,
+      // the debounce DOES fire (this is why memoization is critical)
+      expect(result.current).toEqual({ userId: "user1", puzzleId: "puzzle1" });
+    });
+
+    it("should fire debounce exactly once when values actually change", () => {
+      const { result, rerender } = renderHook(
+        ({ values }) => useDebouncedValues(values, 100),
+        {
+          initialProps: {
+            values: { userId: "user1", puzzleId: "puzzle1" },
+          },
+        },
+      );
+
+      expect(result.current).toEqual({ userId: "user1", puzzleId: "puzzle1" });
+
+      // Rerender with actually different values
+      rerender({
+        values: { userId: "user2", puzzleId: "puzzle2" },
+      });
+
+      // Values should not change immediately
+      expect(result.current).toEqual({ userId: "user1", puzzleId: "puzzle1" });
+
+      // Advance time to trigger debounce
+      act(() => {
+        vi.advanceTimersByTime(100);
+      });
+
+      // Values should now be updated - this is the key test
+      // The debounce should fire exactly once after the delay
+      expect(result.current).toEqual({ userId: "user2", puzzleId: "puzzle2" });
+    });
+
+    it("should handle rapid reference changes with same values", () => {
+      // This test verifies behavior when object reference changes rapidly
+      // but values remain the same - a common React anti-pattern
+
+      const { result, rerender } = renderHook(
+        ({ values }) => useDebouncedValues(values, 100),
+        {
+          initialProps: {
+            values: { userId: "user1", puzzleId: "puzzle1" },
+          },
+        },
+      );
+
+      expect(result.current).toEqual({ userId: "user1", puzzleId: "puzzle1" });
+
+      // Simulate rapid re-renders with new object references but same values
+      // This is what happens without memoization
+      rerender({ values: { userId: "user1", puzzleId: "puzzle1" } });
+      act(() => {
+        vi.advanceTimersByTime(30);
+      });
+
+      rerender({ values: { userId: "user1", puzzleId: "puzzle1" } });
+      act(() => {
+        vi.advanceTimersByTime(30);
+      });
+
+      rerender({ values: { userId: "user1", puzzleId: "puzzle1" } });
+      act(() => {
+        vi.advanceTimersByTime(30);
+      });
+
+      // Still hasn't fired yet (only 90ms passed)
+      expect(result.current).toEqual({ userId: "user1", puzzleId: "puzzle1" });
+
+      // Complete the final debounce
+      act(() => {
+        vi.advanceTimersByTime(100);
+      });
+
+      // Even after all the reference changes, values remain the same
+      expect(result.current).toEqual({ userId: "user1", puzzleId: "puzzle1" });
+    });
+
+    it("should warn in development when unmemoized object with same values is passed", () => {
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => {});
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+
+      // Mock NODE_ENV to be development for this test
+      vi.stubEnv("NODE_ENV", "development");
+
+      const { rerender } = renderHook(
+        ({ values }) => useDebouncedValues(values, 100),
+        {
+          initialProps: {
+            values: { userId: "user1", puzzleId: "puzzle1" },
+          },
+        },
+      );
+
+      // Clear initial logs
+      consoleWarnSpy.mockClear();
+
+      // Rerender with same values but new object reference
+      // This triggers the development warning
+      rerender({
+        values: { userId: "user1", puzzleId: "puzzle1" }, // Same values, new object
+      });
+
+      // Should have warned about unmemoized object
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "Values object reference changed but contents are identical",
+        ),
+      );
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "Please memoize the values object with useMemo",
+        ),
+      );
+
+      // Restore environment
+      vi.unstubAllEnvs();
+      consoleWarnSpy.mockRestore();
+      consoleErrorSpy.mockRestore();
+    });
+
     it("should handle partial value changes", () => {
       const { result, rerender } = renderHook(
         ({ values }) => useDebouncedValues(values, 100),

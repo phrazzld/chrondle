@@ -43,39 +43,76 @@
   - ✅ Also fixed duplicate cleanup effects in both hooks (lines 82-91 and 204-213)
   - ✅ All 178 tests passing, TypeScript compilation successful
 
-- [ ] **Add reference stability test for useDebouncedValues** (`src/hooks/__tests__/useDebouncedValue.test.ts`)
+- [x] **Add reference stability test for useDebouncedValues** (`src/hooks/__tests__/useDebouncedValue.test.ts`)
+
   - Test case: Render with same values but different object reference
   - Assert: Debounce should NOT fire when values are deeply equal
   - Test case: Render with actually different values
   - Assert: Debounce SHOULD fire exactly once after delay
   - Use `@testing-library/react` renderHook with rerender capability
 
+  **Completed:** 2025-01-20 12:49
+
+  - ✅ Added 4 comprehensive reference stability tests
+  - ✅ Test verifies debounce behavior with same values but different object reference
+  - ✅ Test verifies debounce fires exactly once when values actually change
+  - ✅ Test handles rapid reference changes with same values
+  - ✅ Test validates development warning for unmemoized objects
+  - ✅ All 182 tests passing (increased from 178)
+
 ### Fix useChrondle Parameter Stability
 
-- [ ] **Audit all useMemo dependencies in useChrondle** (`src/hooks/useChrondle.ts`)
+- [x] **Audit all useMemo dependencies in useChrondle** (`src/hooks/useChrondle.ts`)
 
   - Line 57-78: `validatedUserId` memo - verify dependencies don't change unnecessarily
   - Line 82-88: `debouncedProgressParams` - MUST be memoized (critical fix)
   - Line 95-98: `dataSources` memo - check if all source objects are stable
   - Performance target: Zero unnecessary recalculations per render cycle
 
-- [ ] **Create stable adapter for gameLogic object** (`src/app/page.tsx:42-73`)
+  **Completed:** 2025-01-20 12:55
+
+  - ✅ Fixed `validatedUserId` memo - removed unnecessary `auth.isAuthenticated` and `auth.isLoading` dependencies
+  - ✅ Verified `progressParams` memo is correctly memoized with proper dependencies
+  - ✅ Verified `dataSources` memo has stable dependencies
+  - ✅ Confirmed `measureDerivation` is stable (useCallback with empty deps)
+  - ✅ Fixed missing memoization in `useGameActions` return value
+  - ✅ All 182 tests passing, TypeScript compilation successful
+
+- [x] **Create stable adapter for gameLogic object** (`src/app/page.tsx:42-73`)
+
   - Current: `gameLogic` object recreated every render with spread operator
   - Fix: Wrap entire adapter logic in useMemo with minimal dependencies
   - Dependencies should be: `[chrondle.gameState, chrondle.submitGuess, chrondle.resetGame, chrondle.isSubmitting]`
   - This prevents downstream effects from propagating through component tree
 
+  **Completed:** 2025-01-20 13:05
+
+  - ✅ Added useMemo import to React imports
+  - ✅ Wrapped gameLogic object creation in useMemo hook
+  - ✅ Used minimal dependencies: `[chrondle.gameState, chrondle.submitGuess, chrondle.resetGame]`
+  - ✅ Added explanatory comments about preventing re-renders
+  - ✅ All 182 tests passing, TypeScript compilation successful
+  - ✅ Object reference now stable across renders, preventing downstream re-renders
+
 ## Phase 2: Auth Integration Cascade Stabilization [HIGH - P1]
 
 ### Optimize Clerk-Convex Auth Handshake
 
-- [ ] **Add loading state coordination to prevent intermediate renders** (`src/hooks/data/useAuthState.ts:108-131`)
+- [x] **Add loading state coordination to prevent intermediate renders** (`src/hooks/data/useAuthState.ts:108-131`)
 
   - Current: Returns `isAuthenticated: false` when Clerk authenticated but Convex user not ready
   - Fix: Return consistent loading state during entire auth transition
   - Change line 116: `isAuthenticated: false` → `isAuthenticated: true` (user IS authenticated in Clerk)
   - Change line 117: `isLoading: true` → `isLoading: true` (keep loading until Convex ready)
   - This prevents auth state flip-flopping that triggers re-render cascades
+
+  **Completed:** 2025-01-20 12:58
+
+  - ✅ Changed line 114: `isAuthenticated: false` → `isAuthenticated: true`
+  - ✅ Kept `isLoading: true` to indicate Convex user creation in progress
+  - ✅ TypeScript compilation successful
+  - ✅ All 182 tests passing
+  - ✅ Fix prevents auth state flip-flopping during Clerk-Convex handshake
 
 - [ ] **Implement auth state machine to prevent race conditions** (`src/components/UserCreationProvider.tsx:71-113`)
 

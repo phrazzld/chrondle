@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { getGuessDirectionInfo, formatYear } from "@/lib/utils";
 import { getEnhancedProximityFeedback } from "@/lib/enhancedFeedback";
 import { useChrondle } from "@/hooks/useChrondle";
@@ -40,37 +40,43 @@ function ChronldeGameContent() {
   const chrondle = useChrondle();
 
   // Adapt to old interface for compatibility
-  const gameLogic = {
-    gameState: isReady(chrondle.gameState)
-      ? {
-          puzzle: {
-            ...chrondle.gameState.puzzle,
-            year: chrondle.gameState.puzzle.targetYear, // old interface used 'year'
+  // Memoize the gameLogic object to prevent recreation on every render
+  // This stabilizes the object reference and prevents downstream re-renders
+  const gameLogic = useMemo(
+    () => ({
+      gameState: isReady(chrondle.gameState)
+        ? {
+            puzzle: {
+              ...chrondle.gameState.puzzle,
+              year: chrondle.gameState.puzzle.targetYear, // old interface used 'year'
+            },
+            guesses: chrondle.gameState.guesses,
+            isGameOver: chrondle.gameState.isComplete,
+          }
+        : {
+            puzzle: null,
+            guesses: [],
+            isGameOver: false,
           },
-          guesses: chrondle.gameState.guesses,
-          isGameOver: chrondle.gameState.isComplete,
-        }
-      : {
-          puzzle: null,
-          guesses: [],
-          isGameOver: false,
-        },
-    isLoading:
-      chrondle.gameState.status === "loading-puzzle" ||
-      chrondle.gameState.status === "loading-auth" ||
-      chrondle.gameState.status === "loading-progress",
-    error:
-      chrondle.gameState.status === "error" ? chrondle.gameState.error : null,
-    isGameComplete: isReady(chrondle.gameState)
-      ? chrondle.gameState.isComplete
-      : false,
-    hasWon: isReady(chrondle.gameState) ? chrondle.gameState.hasWon : false,
-    remainingGuesses: isReady(chrondle.gameState)
-      ? chrondle.gameState.remainingGuesses
-      : 6,
-    makeGuess: chrondle.submitGuess,
-    resetGame: chrondle.resetGame,
-  };
+      isLoading:
+        chrondle.gameState.status === "loading-puzzle" ||
+        chrondle.gameState.status === "loading-auth" ||
+        chrondle.gameState.status === "loading-progress",
+      error:
+        chrondle.gameState.status === "error" ? chrondle.gameState.error : null,
+      isGameComplete: isReady(chrondle.gameState)
+        ? chrondle.gameState.isComplete
+        : false,
+      hasWon: isReady(chrondle.gameState) ? chrondle.gameState.hasWon : false,
+      remainingGuesses: isReady(chrondle.gameState)
+        ? chrondle.gameState.remainingGuesses
+        : 6,
+      makeGuess: chrondle.submitGuess,
+      resetGame: chrondle.resetGame,
+    }),
+    // Only recreate if the core chrondle data/functions change
+    [chrondle.gameState, chrondle.submitGuess, chrondle.resetGame],
+  );
 
   // Get puzzle number from the loaded puzzle data
   const puzzleNumber = gameLogic.gameState.puzzle?.puzzleNumber || 1;
