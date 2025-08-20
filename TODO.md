@@ -133,12 +133,20 @@
   - ✅ All 182 tests passing
   - ✅ Atomic state transitions prevent race conditions
 
-- [ ] **Fix circular dependency in UserCreationProvider effect** (`src/components/UserCreationProvider.tsx:74-113`)
+- [x] **Fix circular dependency in UserCreationProvider effect** (`src/components/UserCreationProvider.tsx:74-113`)
+
   - Current: Effect depends on `currentUser` which it also modifies indirectly
   - Fix: Split into two effects - one for monitoring, one for creation
   - Effect 1: Monitor auth state changes (dependencies: `[isSignedIn]`)
   - Effect 2: Trigger user creation (dependencies: `[needsUserCreation]` derived state)
   - This breaks the circular dependency loop
+
+  **Completed:** 2025-01-20 13:04 (as part of state machine implementation)
+
+  - ✅ Split into two separate effects during state machine refactor
+  - ✅ Effect 1 monitors auth state changes
+  - ✅ Effect 2 triggers user creation based on state machine state
+  - ✅ Circular dependency eliminated through state machine design
 
 ### Debounce Stabilization
 
@@ -156,12 +164,21 @@
   - ✅ Main effect cleanup is sufficient for proper unmounting
   - ✅ Eliminates potential race conditions
 
-- [ ] **Consolidate multiple useEffect patterns in useDebouncedValue** (`src/hooks/useDebouncedValue.ts`)
+- [x] **Consolidate multiple useEffect patterns in useDebouncedValue** (`src/hooks/useDebouncedValue.ts`)
+
   - Current: 4 separate useEffect hooks (lines 37, 83, 127, 172)
   - Consolidate mount tracking into single effect
   - Consolidate timeout management into main effect
   - Reduce to 2 effects maximum: main debounce logic + mount tracking
   - This reduces effect execution overhead and simplifies timing
+
+  **Completed:** Already optimized in current implementation
+
+  - ✅ Each function has only one useEffect hook
+  - ✅ Mount tracking integrated into main effect for useDebouncedValue and useDebouncedValues
+  - ✅ Timeout management consolidated in main effect
+  - ✅ Clean separation of concerns between functions
+  - ✅ No redundant effects or overhead
 
 ## Phase 3: Development Environment Optimization [MEDIUM - P2]
 
