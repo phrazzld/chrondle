@@ -79,17 +79,6 @@ export function useDebouncedValue<T>(value: T, delay: number): T {
     };
   }, [value, delay]);
 
-  // Clean up on unmount
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
-    };
-  }, []);
-
   return debouncedValue;
 }
 
@@ -97,17 +86,29 @@ export function useDebouncedValue<T>(value: T, delay: number): T {
  * Hook that debounces multiple values simultaneously.
  * Useful when you need to debounce multiple related values that should update together.
  *
- * @param values - An object containing the values to debounce
+ * IMPORTANT: The `values` object MUST be memoized (wrapped in useMemo) by the caller
+ * to prevent unnecessary re-renders. This hook uses object reference equality to detect
+ * changes, so passing a new object on every render will cause the debounce to reset
+ * continuously, defeating its purpose and causing performance issues.
+ *
+ * @param values - An object containing the values to debounce (MUST be memoized!)
  * @param delay - The delay in milliseconds before updating the debounced values
  * @returns An object with the same keys containing the debounced values
  *
  * @example
  * ```typescript
- * // Debounce both userId and puzzleId together
+ * // ❌ WRONG - Creates new object on every render
  * const debouncedIds = useDebouncedValues(
- *   { userId, puzzleId },
+ *   { userId, puzzleId },  // New object every render!
  *   100
  * );
+ *
+ * // ✅ CORRECT - Memoize the values object
+ * const valuesToDebounce = useMemo(
+ *   () => ({ userId, puzzleId }),
+ *   [userId, puzzleId]
+ * );
+ * const debouncedIds = useDebouncedValues(valuesToDebounce, 100);
  *
  * // Use debounced values for queries
  * const { data } = useQuery(api.puzzles.getUserPlay, {
@@ -123,6 +124,27 @@ export function useDebouncedValues<T extends Record<string, unknown>>(
   const [debouncedValues, setDebouncedValues] = useState<T>(values);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const mountedRef = useRef(true);
+
+  // Development-mode check for reference stability
+  const renderCountRef = useRef(0);
+  const lastValuesRef = useRef(values);
+
+  if (process.env.NODE_ENV === "development") {
+    renderCountRef.current++;
+    // Check if object reference changed but contents are the same
+    if (
+      renderCountRef.current > 1 &&
+      values !== lastValuesRef.current &&
+      JSON.stringify(values) === JSON.stringify(lastValuesRef.current)
+    ) {
+      console.warn(
+        "[useDebouncedValues] Values object reference changed but contents are identical. " +
+          "This causes unnecessary debounce resets. Please memoize the values object with useMemo. " +
+          "See the hook's JSDoc for examples.",
+      );
+    }
+    lastValuesRef.current = values;
+  }
 
   useEffect(() => {
     // Mark as mounted
@@ -167,17 +189,6 @@ export function useDebouncedValues<T extends Record<string, unknown>>(
       }
     };
   }, [values, delay]);
-
-  // Clean up on unmount
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
-    };
-  }, []);
 
   return debouncedValues;
 }

@@ -27,13 +27,21 @@
   - ✅ All 178 tests passing
   - ✅ Fix eliminates root cause of excessive debounce firings
 
-- [ ] **Fix useDebouncedValues effect dependency array** (`src/hooks/useDebouncedValue.ts:169`)
+- [x] **Fix useDebouncedValues effect dependency array** (`src/hooks/useDebouncedValue.ts:169`)
 
   - Current dependency: `[values, delay]` where `values` is unstable object reference
   - Option 1: Use deep equality check with `useDeepCompareMemo` from use-deep-compare package
   - Option 2: Destructure and use individual dependencies: `[values.userId, values.puzzleId, delay]`
   - Option 3: Accept pre-memoized values and document requirement in JSDoc
   - Decision criteria: Option 3 preferred (explicit contract), Option 2 acceptable (simple), Option 1 last resort (runtime overhead)
+
+  **Completed:** 2025-01-20 11:34
+
+  - ✅ Chose Option 3: Explicit memoization contract with comprehensive JSDoc
+  - ✅ Added clear documentation with ❌ wrong and ✅ correct examples
+  - ✅ Added development-mode warning for unmemoized objects
+  - ✅ Also fixed duplicate cleanup effects in both hooks (lines 82-91 and 204-213)
+  - ✅ All 178 tests passing, TypeScript compilation successful
 
 - [ ] **Add reference stability test for useDebouncedValues** (`src/hooks/__tests__/useDebouncedValue.test.ts`)
   - Test case: Render with same values but different object reference
@@ -86,13 +94,19 @@
 
 ### Debounce Stabilization
 
-- [ ] **Fix duplicate cleanup effects in useDebouncedValue** (`src/hooks/useDebouncedValue.ts:73-91`)
+- [x] **Fix duplicate cleanup effects in useDebouncedValue** (`src/hooks/useDebouncedValue.ts:73-91`)
 
   - Line 73-80: Cleanup in main effect
   - Line 83-91: Duplicate cleanup in separate effect (BUG)
   - Fix: Remove the second cleanup effect entirely (lines 83-91)
   - The cleanup in main effect is sufficient and correct
   - This eliminates potential race conditions during unmount
+
+  **Completed:** 2025-01-20 11:34 (as part of effect dependency fix)
+
+  - ✅ Removed duplicate cleanup effects in both useDebouncedValue functions
+  - ✅ Main effect cleanup is sufficient for proper unmounting
+  - ✅ Eliminates potential race conditions
 
 - [ ] **Consolidate multiple useEffect patterns in useDebouncedValue** (`src/hooks/useDebouncedValue.ts`)
   - Current: 4 separate useEffect hooks (lines 37, 83, 127, 172)
