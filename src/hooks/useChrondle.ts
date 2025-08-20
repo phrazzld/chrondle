@@ -77,13 +77,21 @@ export function useChrondle(puzzleNumber?: number): UseChronldeReturn {
     return auth.userId;
   }, [auth.userId, auth.isAuthenticated, auth.isLoading]);
 
+  // Memoize the parameters object to prevent recreation on every render
+  // This is critical - without memoization, the object reference changes on every render
+  // causing useDebouncedValues to think the values have changed even when they haven't
+  const progressParams = useMemo(
+    () => ({
+      userId: validatedUserId,
+      puzzleId: puzzle.puzzle?.id || null,
+    }),
+    [validatedUserId, puzzle.puzzle?.id],
+  );
+
   // Debounce the useUserProgress parameters to prevent rapid-fire queries during auth transitions
   // This prevents queries from firing when userId or puzzleId change rapidly
   const debouncedProgressParams = useDebouncedValues(
-    {
-      userId: validatedUserId,
-      puzzleId: puzzle.puzzle?.id || null,
-    },
+    progressParams,
     100, // 100ms delay to group rapid parameter changes
   );
 
