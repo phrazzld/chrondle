@@ -1,14 +1,23 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { getGuessDirectionInfo, formatYear } from "@/lib/utils";
-import { getEnhancedProximityFeedback } from "@/lib/enhancedFeedback";
+// why-did-you-render instrumentation (development only)
+import "@/lib/wdyr";
+
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+  useDeferredValue,
+} from "react";
 import { useChrondle } from "@/hooks/useChrondle";
 import { isReady } from "@/types/gameState";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { useStreak } from "@/hooks/useStreak";
 import { useCountdown } from "@/hooks/useCountdown";
 import { useVictoryConfetti } from "@/hooks/useVictoryConfetti";
+import { useScreenReaderAnnouncements } from "@/hooks/useScreenReaderAnnouncements";
 import { logger } from "@/lib/logger";
 import { SettingsModal } from "@/components/modals/SettingsModal";
 import { HintReviewModal } from "@/components/modals/HintReviewModal";
@@ -39,6 +48,10 @@ function ChronldeGameContent() {
   // Use the new Chrondle hook - old one had race conditions
   const chrondle = useChrondle();
 
+  // Defer non-critical state values for better performance
+  // These values are used for UI display but not for critical interactions
+  const deferredGameState = useDeferredValue(chrondle.gameState);
+
   // Adapt to old interface for compatibility
   // Memoize the gameLogic object to prevent recreation on every render
   // This stabilizes the object reference and prevents downstream re-renders
@@ -64,18 +77,26 @@ function ChronldeGameContent() {
         chrondle.gameState.status === "loading-progress",
       error:
         chrondle.gameState.status === "error" ? chrondle.gameState.error : null,
-      isGameComplete: isReady(chrondle.gameState)
-        ? chrondle.gameState.isComplete
+      // Use deferred values for non-critical display properties
+      // These affect display but not user interactions
+      isGameComplete: isReady(deferredGameState)
+        ? deferredGameState.isComplete
         : false,
-      hasWon: isReady(chrondle.gameState) ? chrondle.gameState.hasWon : false,
-      remainingGuesses: isReady(chrondle.gameState)
-        ? chrondle.gameState.remainingGuesses
+      hasWon: isReady(deferredGameState) ? deferredGameState.hasWon : false,
+      remainingGuesses: isReady(deferredGameState)
+        ? deferredGameState.remainingGuesses
         : 6,
       makeGuess: chrondle.submitGuess,
       resetGame: chrondle.resetGame,
     }),
     // Only recreate if the core chrondle data/functions change
-    [chrondle.gameState, chrondle.submitGuess, chrondle.resetGame],
+    // Include deferred state in dependencies
+    [
+      chrondle.gameState,
+      deferredGameState,
+      chrondle.submitGuess,
+      chrondle.resetGame,
+    ],
   );
 
   // Get puzzle number from the loaded puzzle data
@@ -96,9 +117,6 @@ function ChronldeGameContent() {
   // UI state
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [validationError, setValidationError] = useState("");
-
-  // Accessibility announcements
-  const [announcement, setAnnouncement] = useState("");
   const [lastGuessCount, setLastGuessCount] = useState(0);
 
   // Hint review modal state
@@ -109,15 +127,44 @@ function ChronldeGameContent() {
     hint: string;
   } | null>(null);
 
-  // Handle streak update when game completes
+  // Combined initialization and mount effect
   useEffect(() => {
-    if (gameLogic.isGameComplete && gameLogic.gameState.puzzle) {
-      // Update streak based on game result
-      if (!debugMode) {
-        const hasWon = gameLogic.hasWon;
-        updateStreak(hasWon);
-      }
+    // Mark as mounted immediately
+    setMounted(true);
+
+    // Parse URL parameters for debug mode
+    const urlParams = new URLSearchParams(window.location.search);
+    const isDebug = urlParams.get("debug") === "true";
+    setDebugMode(isDebug);
+
+    // Register service worker for notifications
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((registration) => {
+          logger.info(
+            "📱 Service Worker registered successfully:",
+            registration,
+          );
+        })
+        .catch((error) => {
+          logger.error("📱 Service Worker registration failed:", error);
+        });
     }
+  }, []); // Only run once on mount
+
+  // Combined game completion effect (streak update + tracking)
+  useEffect(() => {
+    // Skip if game not complete or in debug mode
+    if (!gameLogic.isGameComplete || !gameLogic.gameState.puzzle || debugMode) {
+      return;
+    }
+
+    // Update streak based on game result
+    const hasWon = gameLogic.hasWon;
+    updateStreak(hasWon);
+
+    // Additional completion tracking could go here
   }, [
     gameLogic.isGameComplete,
     gameLogic.gameState.puzzle,
@@ -135,78 +182,13 @@ function ChronldeGameContent() {
     disabled: debugMode, // Don't fire confetti in debug mode
   });
 
-  // Announce guess feedback for screen readers
-  useEffect(() => {
-    const currentGuessCount = gameLogic.gameState.guesses.length;
-
-    // Only announce when a new guess has been made
-    if (
-      currentGuessCount > lastGuessCount &&
-      currentGuessCount > 0 &&
-      gameLogic.gameState.puzzle
-    ) {
-      const latestGuess = gameLogic.gameState.guesses[currentGuessCount - 1];
-      const targetYear = gameLogic.gameState.puzzle.year;
-
-      if (latestGuess === targetYear) {
-        setAnnouncement(
-          `Correct! The year was ${formatYear(targetYear)}. Congratulations!`,
-        );
-      } else {
-        const directionInfo = getGuessDirectionInfo(latestGuess, targetYear);
-        const enhancedFeedback = getEnhancedProximityFeedback(
-          latestGuess,
-          targetYear,
-          {
-            previousGuesses: gameLogic.gameState.guesses.slice(0, -1),
-            includeHistoricalContext: true,
-            includeProgressiveTracking: true,
-          },
-        );
-        const cleanDirection = directionInfo.direction
-          .toLowerCase()
-          .replace("▲", "")
-          .replace("▼", "")
-          .trim();
-        setAnnouncement(
-          `${formatYear(latestGuess)} is ${cleanDirection}. ${enhancedFeedback.encouragement}${enhancedFeedback.historicalHint ? ` ${enhancedFeedback.historicalHint}` : ""}${enhancedFeedback.progressMessage ? ` ${enhancedFeedback.progressMessage}` : ""}`,
-        );
-      }
-
-      setLastGuessCount(currentGuessCount);
-    }
-  }, [gameLogic.gameState.guesses, gameLogic.gameState.puzzle, lastGuessCount]);
-
-  // Mount effect
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Initialize game on mount
-  useEffect(() => {
-    if (!mounted) return;
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const isDebug = urlParams.get("debug") === "true";
-    setDebugMode(isDebug);
-
-    // Debug parameters are handled by the useChrondle hook
-
-    // Register service worker for notifications
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/sw.js")
-        .then((registration) => {
-          logger.info(
-            "📱 Service Worker registered successfully:",
-            registration,
-          );
-        })
-        .catch((error) => {
-          logger.error("📱 Service Worker registration failed:", error);
-        });
-    }
-  }, [mounted]);
+  // Use custom hook for screen reader announcements (moved effect to custom hook)
+  const announcement = useScreenReaderAnnouncements({
+    guesses: gameLogic.gameState.guesses,
+    puzzle: gameLogic.gameState.puzzle,
+    lastGuessCount,
+    setLastGuessCount,
+  });
 
   // Handle validation errors from GuessInput component
   const handleValidationError = useCallback((message: string) => {
@@ -415,6 +397,12 @@ function ChronldeGameContent() {
       <AnalyticsDashboard />
     </div>
   );
+}
+
+// why-did-you-render tracking
+if (process.env.NODE_ENV === "development") {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (ChronldeGameContent as any).whyDidYouRender = true;
 }
 
 // Main page component with error boundary

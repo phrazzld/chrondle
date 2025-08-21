@@ -56,8 +56,11 @@ export function useDebouncedValue<T>(value: T, delay: number): T {
       if (mountedRef.current) {
         setDebouncedValue(value);
 
-        if (process.env.NODE_ENV === "development") {
-          // Log debounce updates in development for debugging
+        if (
+          process.env.NODE_ENV === "development" &&
+          process.env.NEXT_PUBLIC_DEBUG_HOOKS === "true"
+        ) {
+          // Log debounce updates in development for debugging (when debug hooks enabled)
           const isObject = typeof value === "object" && value !== null;
           const valueStr = isObject ? JSON.stringify(value) : String(value);
           console.error(
@@ -168,8 +171,11 @@ export function useDebouncedValues<T extends Record<string, unknown>>(
       if (mountedRef.current) {
         setDebouncedValues(values);
 
-        if (process.env.NODE_ENV === "development") {
-          // Log debounce updates in development for debugging
+        if (
+          process.env.NODE_ENV === "development" &&
+          process.env.NEXT_PUBLIC_DEBUG_HOOKS === "true"
+        ) {
+          // Log debounce updates in development for debugging (when debug hooks enabled)
           const keys = Object.keys(values);
           console.error(
             `[useDebouncedValues] ${keys.length} values updated after ${delay}ms:`,

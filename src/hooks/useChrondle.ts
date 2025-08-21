@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useEffect, useRef } from "react";
+import { useMemo, useEffect, useRef, useDeferredValue } from "react";
 import { usePuzzleData } from "@/hooks/data/usePuzzleData";
 import { useAuthState } from "@/hooks/data/useAuthState";
 import { useUserProgress } from "@/hooks/data/useUserProgress";
@@ -75,6 +75,7 @@ export function useChrondle(puzzleNumber?: number): UseChronldeReturn {
     }
 
     return auth.userId;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth.userId]); // Only auth.userId is used in the memo function
 
   // Memoize the parameters object to prevent recreation on every render
@@ -126,20 +127,30 @@ export function useChrondle(puzzleNumber?: number): UseChronldeReturn {
   // Get game actions (submitGuess, resetGame, isSubmitting)
   const actions = useGameActions(dataSources);
 
+  // Defer non-critical updates for analytics and logging
+  // These don't affect user interaction so can be batched by React
+  const deferredGameState = useDeferredValue(gameState);
+  const deferredSessionGuesses = useDeferredValue(session.sessionGuesses);
+  const deferredServerGuesses = useDeferredValue(
+    progress.progress?.guesses || [],
+  );
+
   // Analytics tracking for state transitions and divergence detection
+  // Uses deferred values to prevent blocking user interactions
   useAnalytics({
-    gameState,
+    gameState: deferredGameState,
     userId: auth.userId,
     puzzleNumber: puzzle.puzzle?.puzzleNumber,
-    sessionGuesses: session.sessionGuesses,
-    serverGuesses: progress.progress?.guesses || [],
+    sessionGuesses: deferredSessionGuesses,
+    serverGuesses: deferredServerGuesses,
     enabled:
       process.env.NODE_ENV === "production" ||
       process.env.NEXT_PUBLIC_ANALYTICS_DEBUG === "true",
   });
 
   // Development-only state transition logging
-  useStateTransitionLogger(gameState);
+  // Uses deferred state to avoid blocking renders
+  useStateTransitionLogger(deferredGameState);
 
   // Return combined state and actions with perfect memoization
   return useMemo(
