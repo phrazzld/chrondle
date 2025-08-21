@@ -53,8 +53,8 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
   // Use the preloaded puzzle data - this seamlessly hydrates and subscribes to updates
   const puzzle = usePreloadedQuery(preloadedPuzzle);
 
-  // SSR state
-  const [mounted, setMounted] = useState(false);
+  // Hydration state for progressive enhancement (not for hiding UI)
+  const [hydrated, setHydrated] = useState(false);
 
   // Debug state
   const [debugMode, setDebugMode] = useState(false);
@@ -71,13 +71,19 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
 
   // Adapt to old interface for compatibility
   const gameLogic = useMemo(() => {
-    // Extract puzzle data when available (exists in ready state)
-    const puzzleData = isReady(chrondle.gameState)
+    // We have puzzle data from server preload, so treat it as available
+    // even during auth/progress loading
+    const puzzleData = puzzle
       ? {
-          ...chrondle.gameState.puzzle,
-          year: chrondle.gameState.puzzle.targetYear, // old interface used 'year'
+          ...puzzle,
+          year: puzzle.targetYear, // old interface used 'year'
         }
-      : null;
+      : isReady(chrondle.gameState)
+        ? {
+            ...chrondle.gameState.puzzle,
+            year: chrondle.gameState.puzzle.targetYear,
+          }
+        : null;
 
     // Extract guesses and completion status when ready
     const guesses = isReady(chrondle.gameState)
@@ -87,16 +93,25 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
       ? chrondle.gameState.isComplete
       : false;
 
+    // More granular loading states
+    const isPuzzleLoading = chrondle.gameState.status === "loading-puzzle";
+    const isAuthLoading = chrondle.gameState.status === "loading-auth";
+    const isProgressLoading = chrondle.gameState.status === "loading-progress";
+
+    // Only consider it "loading" for UI purposes if puzzle is actually loading
+    // Auth and progress can load in the background without disabling the game
+    const isLoading = isPuzzleLoading;
+
     return {
       gameState: {
         puzzle: puzzleData,
         guesses,
         isGameOver,
       },
-      isLoading:
-        chrondle.gameState.status === "loading-puzzle" ||
-        chrondle.gameState.status === "loading-auth" ||
-        chrondle.gameState.status === "loading-progress",
+      isLoading,
+      isPuzzleLoading,
+      isAuthLoading,
+      isProgressLoading,
       error:
         chrondle.gameState.status === "error" ? chrondle.gameState.error : null,
       // Use deferred values for non-critical display properties
@@ -111,6 +126,7 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
       resetGame: chrondle.resetGame,
     };
   }, [
+    puzzle,
     chrondle.gameState,
     deferredGameState,
     chrondle.submitGuess,
@@ -186,7 +202,7 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
   useVictoryConfetti(confettiRef, {
     hasWon: gameLogic.hasWon,
     isGameComplete: gameLogic.isGameComplete,
-    isMounted: mounted,
+    isMounted: hydrated,
     guessCount: gameLogic.gameState.guesses.length,
   });
 
@@ -205,9 +221,9 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
   // Swipe navigation would need proper props - disabling for now
   // TODO: Implement proper swipe navigation if needed
 
-  // Handle client-side mounting
+  // Handle client-side hydration and debug mode setup
   useEffect(() => {
-    setMounted(true);
+    setHydrated(true);
 
     // Check for debug mode
     if (typeof window !== "undefined") {
@@ -221,14 +237,14 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
     }
   }, []);
 
-  // Don't render until client-side hydration is complete
-  if (!mounted) {
-    return null;
-  }
+  // NOTE: No longer returning null here - let SSR content remain visible!
+  // We'll use the hydrated state for progressive enhancement only
 
   return (
     <GameErrorBoundary>
-      <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <div
+        className={`min-h-screen flex flex-col bg-background text-foreground ${hydrated ? "hydrated" : "ssr"}`}
+      >
         <Suspense fallback={null}>
           <BackgroundAnimation
             guesses={gameLogic.gameState.guesses}

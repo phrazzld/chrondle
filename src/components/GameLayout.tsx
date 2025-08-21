@@ -103,6 +103,7 @@ export function GameLayout(props: GameLayoutProps) {
             <GuessInput
               onGuess={onGuess}
               disabled={isGameComplete || isLoading}
+              isLoading={isLoading}
               remainingGuesses={remainingGuesses}
               onValidationError={onValidationError}
             />

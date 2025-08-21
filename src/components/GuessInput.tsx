@@ -19,6 +19,7 @@ interface GuessInputProps {
   remainingGuesses: number;
   onValidationError?: (message: string) => void;
   className?: string;
+  isLoading?: boolean;
 }
 
 export const GuessInput: React.FC<GuessInputProps> = (props) => {
@@ -31,6 +32,7 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
     remainingGuesses,
     onValidationError,
     className = "",
+    isLoading = false,
   } = props;
   const [inputValue, setInputValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -119,14 +121,18 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
   const getButtonText = (
     remainingGuesses: number,
     disabled: boolean,
+    isLoading: boolean,
   ): string => {
+    // Show loading state first, before checking disabled
+    if (isLoading) return "Loading game...";
+    // Only show "Game Over" if disabled and NOT loading
     if (disabled) return "Game Over";
     if (remainingGuesses === 0) return "No guesses remaining";
     if (remainingGuesses === 1) return "1 guess remaining";
     return `${remainingGuesses} guesses remaining`;
   };
 
-  const buttonText = getButtonText(remainingGuesses, disabled);
+  const buttonText = getButtonText(remainingGuesses, disabled, isLoading);
   const isSubmitDisabled = disabled || remainingGuesses <= 0;
 
   return (
