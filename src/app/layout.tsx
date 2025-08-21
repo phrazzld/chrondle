@@ -3,8 +3,6 @@ import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
-export const dynamic = "force-dynamic";
-
 export const viewport = {
   width: "device-width",
   initialScale: 1,

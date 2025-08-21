@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import type {
@@ -5,7 +6,6 @@ import type {
   CreateTypes as ConfettiInstance,
   Options as ConfettiOptions,
 } from "canvas-confetti";
-import confetti from "canvas-confetti";
 import type { ReactNode } from "react";
 import React, {
   createContext,
@@ -47,30 +47,73 @@ const ConfettiComponent = forwardRef<ConfettiRef, Props>((props, ref) => {
     ...rest
   } = props;
   const instanceRef = useRef<ConfettiInstance | null>(null);
+  // Using unknown for dynamic import type
+  const confettiRef = useRef<unknown>(null);
 
   const canvasRef = useCallback(
     (node: HTMLCanvasElement) => {
       if (node !== null) {
         if (instanceRef.current) return;
-        try {
-          instanceRef.current = confetti.create(node, {
-            ...globalOptions,
-            resize: true,
-          });
-        } catch (error) {
-          console.warn("🎊 Could not load worker", error);
-          // Fallback: try without worker if CSP blocks it
+
+        // Dynamically import confetti only when canvas is ready
+        if (!confettiRef.current) {
+          import("canvas-confetti")
+            .then(({ default: confettiLib }) => {
+              confettiRef.current = confettiLib;
+
+              try {
+                instanceRef.current = (confettiRef.current as any).create(
+                  node,
+                  {
+                    ...globalOptions,
+                    resize: true,
+                  },
+                );
+              } catch (error) {
+                console.warn("🎊 Could not load worker", error);
+                // Fallback: try without worker if CSP blocks it
+                try {
+                  instanceRef.current = (confettiRef.current as any).create(
+                    node,
+                    {
+                      ...globalOptions,
+                      resize: true,
+                      useWorker: false,
+                    },
+                  );
+                } catch (fallbackError) {
+                  console.error(
+                    "🎊 Confetti initialization failed completely",
+                    fallbackError,
+                  );
+                }
+              }
+            })
+            .catch((error) => {
+              console.error("🎊 Failed to load confetti library", error);
+            });
+        } else {
+          // Confetti already loaded, create instance
           try {
-            instanceRef.current = confetti.create(node, {
+            instanceRef.current = (confettiRef.current as any).create(node, {
               ...globalOptions,
               resize: true,
-              useWorker: false,
             });
-          } catch (fallbackError) {
-            console.error(
-              "🎊 Confetti initialization failed completely",
-              fallbackError,
-            );
+          } catch (error) {
+            console.warn("🎊 Could not load worker", error);
+            // Fallback: try without worker if CSP blocks it
+            try {
+              instanceRef.current = (confettiRef.current as any).create(node, {
+                ...globalOptions,
+                resize: true,
+                useWorker: false,
+              });
+            } catch (fallbackError) {
+              console.error(
+                "🎊 Confetti initialization failed completely",
+                fallbackError,
+              );
+            }
           }
         }
       } else {
@@ -145,7 +188,10 @@ const ConfettiButtonComponent = ({
       const rect = event.currentTarget.getBoundingClientRect();
       const x = rect.left + rect.width / 2;
       const y = rect.top + rect.height / 2;
-      await confetti({
+
+      // Dynamically import confetti for button click
+      const { default: confettiLib } = await import("canvas-confetti");
+      await confettiLib({
         ...options,
         origin: {
           x: x / window.innerWidth,

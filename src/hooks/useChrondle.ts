@@ -31,6 +31,7 @@ export interface UseChronldeReturn extends UseGameActionsReturn {
  * than something to initialize imperatively.
  *
  * @param puzzleNumber - Optional puzzle number for archive puzzles
+ * @param initialPuzzle - Optional initial puzzle data (for SSR/preloading)
  * @returns Combined game state and action handlers
  *
  * @example
@@ -45,11 +46,18 @@ export interface UseChronldeReturn extends UseGameActionsReturn {
  * @example
  * // For archive puzzle
  * const { gameState, submitGuess } = useChrondle(42);
+ *
+ * @example
+ * // With preloaded puzzle data from server
+ * const { gameState, submitGuess } = useChrondle(undefined, serverPuzzle);
  */
-export function useChrondle(puzzleNumber?: number): UseChronldeReturn {
+export function useChrondle(
+  puzzleNumber?: number,
+  initialPuzzle?: unknown,
+): UseChronldeReturn {
   // Compose all orthogonal data sources
   // Hooks must be called unconditionally due to React rules
-  const puzzle = usePuzzleData(puzzleNumber);
+  const puzzle = usePuzzleData(puzzleNumber, initialPuzzle);
   const auth = useAuthState();
 
   // Defensive validation: Only pass userId if it's a valid Convex ID format
