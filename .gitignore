@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+coverage/
 
 # next.js
 /.next/
@@ -31,7 +32,15 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+.env.vercel
+.env.dev
+# Allow .env.example to be committed
+!.env.example
 
 # vercel
 .vercel
@@ -39,6 +48,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Backup and export files
+*.zip
+restored-puzzles.json
+
+# Database migration scripts (temporary)
+scripts/seed-*.mjs
+scripts/generate-puzzles.mjs
 
 /docs/leyline
 *.backup
@@ -77,3 +94,10 @@ lighthouse-metrics.json
 lighthouse-summary.md
 # Code review temporary files
 thinktank_*/
+investigation.md
+# CI/CD test output logs
+test/
+
+# Vercel logs and deployment logs
+logs_result.json
+*_logs.json

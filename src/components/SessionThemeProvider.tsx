@@ -52,10 +52,8 @@ export function SessionThemeProvider({ children }: SessionThemeProviderProps) {
   const sessionTheme = useSessionTheme();
   const notifications = useNotifications();
 
-  // Apply override classes to HTML element
+  // Apply theme classes immediately to prevent flash
   useEffect(() => {
-    if (!sessionTheme.isMounted) return;
-
     const html = document.documentElement;
 
     // Remove any existing theme classes
@@ -66,7 +64,32 @@ export function SessionThemeProvider({ children }: SessionThemeProviderProps) {
       html.classList.add(sessionTheme.override);
     }
     // If no override, CSS media query will handle system theme automatically
-  }, [sessionTheme.override, sessionTheme.isMounted]);
+  }, [sessionTheme.override]);
+
+  // Initialize theme class on first mount for immediate application
+  useEffect(() => {
+    const html = document.documentElement;
+
+    // Ensure we have a theme class set immediately
+    if (sessionTheme.override) {
+      html.classList.add(sessionTheme.override);
+    } else {
+      // Apply system theme class to prevent flash during SSR hydration
+      const systemTheme = sessionTheme.systemTheme;
+      if (
+        systemTheme &&
+        !html.classList.contains("light") &&
+        !html.classList.contains("dark")
+      ) {
+        html.classList.add(systemTheme);
+      }
+    }
+
+    // Add theme-loaded class for smooth transitions after initial load
+    setTimeout(() => {
+      html.classList.add("theme-loaded");
+    }, 100); // Brief delay to ensure initial theme is applied
+  }, [sessionTheme.override, sessionTheme.systemTheme]); // Run when override or system theme changes
 
   const value: SessionThemeContextType = {
     ...sessionTheme,
@@ -77,11 +100,7 @@ export function SessionThemeProvider({ children }: SessionThemeProviderProps) {
     toggleDarkMode: sessionTheme.toggle,
   };
 
-  // Prevent flash of unstyled content
-  if (!sessionTheme.isMounted) {
-    return <div style={{ visibility: "hidden" }}>{children}</div>;
-  }
-
+  // Always render content - no more visibility hiding
   return (
     <SessionThemeContext.Provider value={value}>
       {children}

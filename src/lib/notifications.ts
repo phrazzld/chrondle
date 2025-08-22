@@ -3,11 +3,38 @@
 
 import { NOTIFICATION_CONFIG } from "./constants";
 import { logger } from "./logger";
-import {
-  loadNotificationSettings,
-  saveNotificationSettings,
-  updateNotificationPermission,
-} from "./storage";
+// Storage imports removed - notification settings in-memory only
+// Authenticated users should use Convex for persistence
+
+// Default notification settings (in-memory)
+let inMemoryNotificationSettings = {
+  enabled: false,
+  time: "09:00",
+  permission: "default" as NotificationPermission,
+  lastPermissionRequest: null as string | null,
+  registrationId: null as string | null,
+};
+
+// In-memory replacements for storage functions
+function loadNotificationSettings() {
+  return { ...inMemoryNotificationSettings };
+}
+
+function saveNotificationSettings(
+  settings: typeof inMemoryNotificationSettings,
+) {
+  inMemoryNotificationSettings = { ...settings };
+  return true;
+}
+
+function updateNotificationPermission(permission: NotificationPermission) {
+  inMemoryNotificationSettings.permission = permission;
+  if (permission === "granted") {
+    inMemoryNotificationSettings.lastPermissionRequest =
+      new Date().toISOString();
+  }
+  return true;
+}
 
 export interface NotificationService {
   requestPermission(): Promise<NotificationPermission>;

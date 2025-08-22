@@ -2,12 +2,6 @@
 
 ## Miscellaneous
 
-- integrate convex db
-  - https://www.convex.dev/
-- integrate effect
-  - https://effect.website/
-- store all puzzles -- date of the puzzle, target year, hints in order, etc -- in a database
-- build out puzzle archive
 - paywall puzzle archive with stripe
 
 ## Critical Priority - Security & Production Readiness
@@ -42,54 +36,25 @@
 - [ ] [LOW] [PERF] Optimize component re-renders with memo and callbacks | Gain: 20-30% fewer re-renders
 - [ ] [LOW] [ALIGN] Extract reusable focus management hook from GuessInput
 
-## Innovation & Future Features
-
-- [ ] [FEATURE] Time Travel Mode - Post-game interactive historical exploration with AI-generated timelines
-- [ ] [FEATURE] Chrondle Academy - Adaptive learning system tracking weak spots and generating practice puzzles
-- [ ] [FEATURE] Battle Mode - Asynchronous multiplayer with strategic hint selection
-- [ ] [FEATURE] Historical Detective Mode - Multi-layered deduction puzzles requiring reasoning
-- [ ] [FEATURE] Chrondle Collections - Virtual history museum with collectible artifacts
-
 ## Radical Simplification Ideas (Gordian Knots)
 
 - [ ] [GORDIAN] Consider removing ALL fancy button animations - replace with single button component
-- [ ] [GORDIAN] Consider removing AI-powered historical context entirely - game works without it
 - [ ] [GORDIAN] Consider using only browser's prefers-color-scheme for theming
 - [ ] [GORDIAN] Consider collapsing modals into inline UI elements
 
-## Completed
+## Future Enhancements (From Convex Migration)
 
-- [x] [HIGH] [ALIGN] Add comprehensive tests for useGameState hook - manages game state transitions, derived calculations, localStorage integration without test verification (✅ 2025-06-29: Implemented comprehensive test suite with 22 passing tests covering hook initialization, state management, error handling, and performance requirements)
-- [x] [HIGH] [ALIGN] Add comprehensive tests for core business functions in src/lib/gameState.ts - getDailyYear(), initializePuzzle(), saveProgress(), loadProgress() handle critical game mechanics (✅ 2025-06-29: Implemented comprehensive test suite with 28 passing tests covering deterministic daily puzzle selection, localStorage persistence, error handling, and performance benchmarks)
-- [x] [HIGH] [BUG] Year zero is not considered a valid year -- but it should be!
-
----
-
-## Grooming Summary - 2025-07-08
-
-### Items Added
-
-- 5 security improvements (3 critical)
-- 6 simplification opportunities
-- 5 innovation features
-- 5 DX enhancements
-- 4 performance optimizations
-- 7 philosophy alignment tasks
-
-### Key Themes
-
-- **Security gaps** in localStorage validation and production debugging
-- **Over-engineering** in UI components (6 unused button variants)
-- **Test coverage** critically lacking for core hooks
-- **Performance** issues with localStorage I/O and event sorting
-
-### Recommended Focus
-
-1. **Security hardening** - localStorage validation and production safety
-2. **Test infrastructure** - Hook coverage and intelligent test tooling
-3. **Component simplification** - Remove duplicate systems and unused code
-
----
+- [ ] [LOW] [FEATURE] Add puzzle difficulty ratings based on aggregate completion data
+- [ ] [LOW] [FEATURE] Implement puzzle search and filtering in archive
+- [ ] [LOW] [FEATURE] Create shareable links for specific past puzzles
+- [ ] [LOW] [FEATURE] Add achievement badges for milestones
+- [ ] [LOW] [FEATURE] Build puzzle statistics page (most/least guessed correctly)
+- [ ] [LOW] [FEATURE] Add custom color scheme options for premium users
+- [ ] [LOW] [FEATURE] Implement puzzle of the week/month highlights
+- [ ] [LOW] [FEATURE] Create puzzle recommendation engine based on play history
+- [ ] [MED] [FEATURE] Add feature flag system for gradual rollout of new features
+- [ ] [MED] [SECURITY] Implement rate limiting for API endpoints when needed
+- [ ] [LOW] [FEATURE] Offline fallback behavior (localStorage when Convex unavailable)
 
 ### Task Format
 

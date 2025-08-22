@@ -5,7 +5,7 @@ import { RippleButton } from "@/components/magicui/ripple-button";
 import { useShareGame } from "@/hooks/useShareGame";
 import { formatYear } from "@/lib/utils";
 import { HistoricalContextCard } from "@/components/HistoricalContextCard";
-import type { ClosestGuessData } from "@/hooks/useGameState";
+import type { ClosestGuessData } from "@/types/game";
 
 interface GameInstructionsProps {
   className?: string;
@@ -17,6 +17,7 @@ interface GameInstructionsProps {
   currentStreak?: number;
   puzzleEvents?: string[];
   closestGuess?: ClosestGuessData | null;
+  isArchive?: boolean;
 }
 
 export const GameInstructions: React.FC<GameInstructionsProps> = ({
@@ -28,6 +29,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
   timeString,
   puzzleEvents = [],
   closestGuess,
+  isArchive = false,
 }) => {
   // Share functionality - always initialize hook (React hooks rule)
   const { shareGame, shareStatus, shareMethod, isSharing } = useShareGame(
@@ -188,32 +190,48 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
         </div>
       )}
 
-      {/* Consolidated Single Row Layout */}
-      <div className="w-full flex items-center gap-4 p-6 bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl mb-4">
-        {/* Countdown Section */}
-        <div className="flex flex-col items-start flex-1">
-          <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">
-            Next puzzle in
+      {/* Conditional Layout: Show countdown for daily puzzles, compact share for archive */}
+      {!isArchive ? (
+        // Daily puzzle layout with countdown
+        <div className="w-full flex items-center gap-4 p-6 bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl mb-4">
+          {/* Countdown Section */}
+          <div className="flex flex-col items-start flex-1">
+            <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">
+              Next puzzle in
+            </div>
+            <div className="text-2xl sm:text-3xl font-mono font-bold text-primary">
+              {timeString || "00:00:00"}
+            </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-mono font-bold text-primary">
-            {timeString || "00:00:00"}
+
+          {/* Share Button Section */}
+          <div className="flex gap-3">
+            {/* Share Button */}
+            <RippleButton
+              onClick={() => shareGame()}
+              disabled={isSharing}
+              className={getShareButtonStyles()}
+              rippleColor="rgba(255, 255, 255, 0.3)"
+              aria-label="Share your results"
+            >
+              {getShareButtonContent()}
+            </RippleButton>
           </div>
         </div>
-
-        {/* Share Button Section */}
-        <div className="flex gap-3">
-          {/* Share Button */}
+      ) : (
+        // Archive puzzle layout - just share button in a more compact form
+        <div className="w-full flex justify-center mb-4">
           <RippleButton
             onClick={() => shareGame()}
             disabled={isSharing}
-            className={getShareButtonStyles()}
+            className={getShareButtonStyles() + " px-8 py-3"}
             rippleColor="rgba(255, 255, 255, 0.3)"
             aria-label="Share your results"
           >
             {getShareButtonContent()}
           </RippleButton>
         </div>
-      </div>
+      )}
 
       {/* Historical Context Card - Below the next puzzle section */}
       <HistoricalContextCard

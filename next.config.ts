@@ -10,6 +10,21 @@ const nextConfig: NextConfig = {
   // Server Actions are enabled by default in Next.js 15
   // No experimental configuration needed
 
+  // Cache configuration for better development experience
+  ...(process.env.NODE_ENV === "development" && {
+    webpack: (config, { dev }) => {
+      if (dev) {
+        // More aggressive cache invalidation in development
+        config.cache = {
+          type: "filesystem",
+          maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days max
+          compression: false, // Faster builds
+        };
+      }
+      return config;
+    },
+  }),
+
   // Security headers configuration
   async headers() {
     return [
@@ -37,11 +52,12 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline'", // Required for Next.js
-              "style-src 'self' 'unsafe-inline'", // Required for Tailwind CSS
-              "img-src 'self' data: blob:",
-              "font-src 'self' data:",
-              "connect-src 'self' https://openrouter.ai https://api.api-ninjas.com https://query.wikidata.org https://api.wikimedia.org",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://healthy-doe-23.clerk.accounts.dev", // Required for Next.js and Clerk
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com", // Required for Tailwind CSS and Google Fonts
+              "img-src 'self' data: blob: https://img.clerk.com https://www.gravatar.com", // Clerk avatar CDN and Gravatar fallback
+              "font-src 'self' data: https://fonts.gstatic.com", // Required for Google Fonts
+              "worker-src 'self' blob:", // Required for Clerk and canvas-confetti web workers
+              "connect-src 'self' https://openrouter.ai https://query.wikidata.org https://api.wikimedia.org wss://handsome-raccoon-955.convex.cloud https://handsome-raccoon-955.convex.cloud wss://fleet-goldfish-183.convex.cloud https://fleet-goldfish-183.convex.cloud https://healthy-doe-23.clerk.accounts.dev https://clerk-telemetry.com", // Added Convex (dev and prod), Clerk endpoints, and telemetry
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
@@ -71,6 +87,11 @@ const nextConfig: NextConfig = {
         ],
       },
     ];
+  },
+
+  // Image configuration for Clerk avatars
+  images: {
+    domains: ["img.clerk.com", "www.gravatar.com"],
   },
 };
 

@@ -1,0 +1,499 @@
+#!/usr/bin/env node
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { Command } from "commander";
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "../convex/_generated/api.js";
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+import fs from "fs/promises";
+
+// Load environment variables from .env.local
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const envPath = join(__dirname, "../.env.local");
+
+async function loadEnv() {
+  try {
+    const envContent = await fs.readFile(envPath, "utf-8");
+    const envVars = dotenv.parse(envContent);
+    Object.assign(process.env, envVars);
+  } catch (error: any) {
+    console.error("Error loading .env.local:", error.message);
+    process.exit(1);
+  }
+}
+
+// Initialize Convex client
+async function getConvexClient(): Promise<ConvexHttpClient> {
+  await loadEnv();
+
+  const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!CONVEX_URL) {
+    console.error("NEXT_PUBLIC_CONVEX_URL is not set in environment variables");
+    process.exit(1);
+  }
+
+  return new ConvexHttpClient(CONVEX_URL);
+}
+
+// Create the CLI program
+const program = new Command();
+
+program
+  .name("manage-events")
+  .description("CLI tool for managing Chrondle historical events in Convex")
+  .version("1.0.0");
+
+// Add command: Add events for a year
+program
+  .command("add")
+  .description("Add events for a specific year")
+  .requiredOption("-y, --year <year>", "Year to add events for", parseInt)
+  .requiredOption("-e, --events <events...>", "List of 6 historical events")
+  .action(async (options) => {
+    const { year, events } = options;
+
+    // Validate year range
+    if (year < -2000 || year > 2025) {
+      console.error(
+        `❌ Error: Year must be between -2000 and 2025. Got: ${year}`,
+      );
+      process.exit(1);
+    }
+
+    // Validate event count
+    if (events.length !== 6) {
+      console.error(
+        `❌ Error: Exactly 6 events required. Got: ${events.length}`,
+      );
+      process.exit(1);
+    }
+
+    try {
+      const client = await getConvexClient();
+
+      // Check if year already has events
+      const existingEvents = await client.query(api.events.getYearEvents, {
+        year,
+      });
+      if (existingEvents.length >= 6) {
+        console.warn(
+          `⚠️  Warning: Year ${year} already has ${existingEvents.length} events`,
+        );
+      }
+
+      // Import the events
+      console.log(`Adding ${events.length} events for year ${year}...`);
+      const result = await client.mutation(api.events.importYearEvents, {
+        year,
+        events,
+      });
+
+      // Show results
+      if (result.created > 0) {
+        console.log(`✅ Year ${year}: Imported ${result.created} new events`);
+      }
+      if (result.skipped > 0) {
+        console.log(`ℹ️  Skipped ${result.skipped} duplicate events`);
+      }
+
+      // Show total events for the year
+      const totalEvents = existingEvents.length + result.created;
+      console.log(`📊 Total events for year ${year}: ${totalEvents}`);
+    } catch (error: any) {
+      console.error(`❌ Error adding events:`, error.message);
+      process.exit(1);
+    }
+  });
+
+// Update command: Update events for a year (with protection)
+program
+  .command("update")
+  .description(
+    "Update events for a specific year (only if not used in puzzles)",
+  )
+  .requiredOption("-y, --year <year>", "Year to update events for", parseInt)
+  .requiredOption("-e, --events <events...>", "List of 6 historical events")
+  .action(async (options) => {
+    const { year, events } = options;
+
+    // Validate year range
+    if (year < -2000 || year > 2025) {
+      console.error(
+        `❌ Error: Year must be between -2000 and 2025. Got: ${year}`,
+      );
+      process.exit(1);
+    }
+
+    // Validate event count
+    if (events.length !== 6) {
+      console.error(
+        `❌ Error: Exactly 6 events required. Got: ${events.length}`,
+      );
+      process.exit(1);
+    }
+
+    try {
+      const client = await getConvexClient();
+
+      // Check if any events for this year are used in puzzles
+      const existingEvents = await client.query(api.events.getYearEvents, {
+        year,
+      });
+      const usedEvents = existingEvents.filter(
+        (e: any) => e.puzzleId !== undefined,
+      );
+
+      if (usedEvents.length > 0) {
+        console.error(
+          `❌ Cannot update year ${year}: some events already published in puzzles`,
+        );
+        console.error(`   ${usedEvents.length} event(s) are currently in use`);
+        process.exit(1);
+      }
+
+      // Safe to update - delete old events and add new ones
+      console.log(`🔄 Updating events for year ${year}...`);
+
+      // Delete existing events
+      if (existingEvents.length > 0) {
+        try {
+          const deleteResult = await client.mutation(
+            api.events.deleteYearEvents,
+            { year },
+          );
+          console.log(`🗑️  Deleted ${deleteResult.deletedCount} old events`);
+        } catch {
+          // Fallback: show what would happen
+          console.log(
+            `⚠️  Delete mutation not available. Would delete ${existingEvents.length} events`,
+          );
+          console.log(
+            `⚠️  Note: Run 'convex dev' or 'convex deploy' to enable deletion`,
+          );
+        }
+      }
+
+      // Add new events
+      const addResult = await client.mutation(api.events.importYearEvents, {
+        year,
+        events,
+      });
+
+      console.log(
+        `✅ Year ${year}: Successfully updated with ${addResult.created} new events`,
+      );
+    } catch (error: any) {
+      console.error(`❌ Error updating events:`, error.message);
+
+      // If it's a deletion protection error, show a cleaner message
+      if (error.message.includes("Cannot delete events")) {
+        console.error(
+          `   Some events for year ${year} are already used in puzzles`,
+        );
+      }
+
+      process.exit(1);
+    }
+  });
+
+// List command: Show all years with event usage
+program
+  .command("list")
+  .description("List all years with their event usage statistics")
+  .action(async () => {
+    try {
+      const client = await getConvexClient();
+
+      console.log("📊 Fetching event statistics...\n");
+
+      const yearStats = await client.query(api.events.getAllYearsWithStats);
+
+      if (yearStats.length === 0) {
+        console.log("No events found in the database.");
+        return;
+      }
+
+      // Print header
+      console.log("Year  | Total | Used | Available");
+      console.log("------|-------|------|----------");
+
+      // Print each year
+      for (const stats of yearStats) {
+        const yearStr = stats.year.toString().padEnd(5);
+        const totalStr = stats.total.toString().padEnd(5);
+        const usedStr = stats.used.toString().padEnd(4);
+        const availableStr = stats.available.toString().padEnd(9);
+
+        // Color code based on availability
+        let line = `${yearStr} | ${totalStr} | ${usedStr} | ${availableStr}`;
+
+        if (stats.available >= 6) {
+          // Green - enough events for a puzzle
+          line = `\x1b[32m${line}\x1b[0m`;
+        } else if (stats.available > 0) {
+          // Yellow - some events but not enough for a puzzle
+          line = `\x1b[33m${line}\x1b[0m`;
+        } else {
+          // Red - no available events
+          line = `\x1b[31m${line}\x1b[0m`;
+        }
+
+        console.log(line);
+      }
+
+      // Summary
+      console.log("\n📈 Summary:");
+      const totalYears = yearStats.length;
+      const yearsWithEnoughEvents = yearStats.filter(
+        (s) => s.available >= 6,
+      ).length;
+      const totalEvents = yearStats.reduce((sum, s) => sum + s.total, 0);
+      const usedEvents = yearStats.reduce((sum, s) => sum + s.used, 0);
+
+      console.log(`   Total years: ${totalYears}`);
+      console.log(`   Years ready for puzzles: ${yearsWithEnoughEvents}`);
+      console.log(`   Total events: ${totalEvents}`);
+      console.log(
+        `   Used events: ${usedEvents} (${Math.round((usedEvents / totalEvents) * 100)}%)`,
+      );
+    } catch (error: any) {
+      console.error(`❌ Error listing events:`, error.message);
+      process.exit(1);
+    }
+  });
+
+// Show command: Display events for a specific year
+program
+  .command("show <year>")
+  .description("Show all events for a specific year with their usage status")
+  .action(async (yearStr) => {
+    const year = parseInt(yearStr);
+
+    // Validate year
+    if (isNaN(year)) {
+      console.error(`❌ Error: Invalid year. Must be a number.`);
+      process.exit(1);
+    }
+
+    try {
+      const client = await getConvexClient();
+
+      console.log(`📅 Events for year ${year}:\n`);
+
+      // Get all events for the year
+      const events = await client.query(api.events.getYearEvents, { year });
+
+      if (events.length === 0) {
+        console.log(`No events found for year ${year}.`);
+        return;
+      }
+
+      // Process each event to get puzzle info if needed
+      for (let i = 0; i < events.length; i++) {
+        const event = events[i];
+        let status = "[Available]";
+
+        if (event.puzzleId) {
+          try {
+            // Get puzzle details
+            const puzzle = await client.query(api.puzzles.getPuzzleById, {
+              puzzleId: event.puzzleId as any,
+            });
+
+            if (puzzle) {
+              status = `[Used in Puzzle #${puzzle.puzzleNumber}]`;
+            } else {
+              status = "[Used in Unknown Puzzle]";
+            }
+          } catch {
+            status = "[Used in Unknown Puzzle]";
+          }
+        }
+
+        // Format: 1. "Event text" [Status]
+        console.log(`${i + 1}. "${event.event}" ${status}`);
+      }
+
+      // Summary
+      const usedCount = events.filter((e) => e.puzzleId).length;
+      const availableCount = events.length - usedCount;
+
+      console.log(
+        `\n📊 Summary: ${events.length} total events (${usedCount} used, ${availableCount} available)`,
+      );
+    } catch (error: any) {
+      console.error(`❌ Error showing events:`, error.message);
+      process.exit(1);
+    }
+  });
+
+// Validate command: Check data integrity
+program
+  .command("validate")
+  .description("Validate all event data for integrity issues")
+  .action(async () => {
+    try {
+      const client = await getConvexClient();
+
+      console.log("🔍 Validating event data integrity...\n");
+
+      let totalIssues = 0;
+      const issues: string[] = [];
+
+      // Get all year statistics
+      const yearStats = await client.query(api.events.getAllYearsWithStats);
+
+      // Check 1: All years should have exactly 6 events (warn if not)
+      console.log("✓ Checking event counts per year...");
+      let eventCountIssues = 0;
+      for (const stats of yearStats) {
+        if (stats.total !== 6) {
+          eventCountIssues++;
+          issues.push(
+            `   Year ${stats.year}: Has ${stats.total} events (expected 6)`,
+          );
+        }
+      }
+      if (eventCountIssues > 0) {
+        console.log(
+          `⚠️  ${eventCountIssues} years have incorrect event counts`,
+        );
+        totalIssues += eventCountIssues;
+      } else {
+        console.log("✅ All years have correct event counts");
+      }
+
+      // Check 2: No duplicate events within a year
+      console.log("\n✓ Checking for duplicate events...");
+      let duplicateIssues = 0;
+      for (const stats of yearStats) {
+        // Get all events for this year
+        const events = await client.query(api.events.getYearEvents, {
+          year: stats.year,
+        });
+        const eventTexts = events.map((e: any) => e.event);
+        const uniqueEventTexts = new Set(eventTexts);
+
+        if (eventTexts.length !== uniqueEventTexts.size) {
+          const duplicateCount = eventTexts.length - uniqueEventTexts.size;
+          duplicateIssues++;
+          issues.push(
+            `   Year ${stats.year}: Has ${duplicateCount} duplicate event(s)`,
+          );
+
+          // Find which events are duplicated
+          const seen = new Set<string>();
+          const duplicates = new Set<string>();
+          for (const text of eventTexts) {
+            if (seen.has(text)) {
+              duplicates.add(text);
+            }
+            seen.add(text);
+          }
+
+          for (const dup of duplicates) {
+            issues.push(`     - Duplicate: "${dup.substring(0, 50)}..."`);
+          }
+        }
+      }
+      if (duplicateIssues > 0) {
+        console.log(`⚠️  ${duplicateIssues} years have duplicate events`);
+        totalIssues += duplicateIssues;
+      } else {
+        console.log("✅ No duplicate events found");
+      }
+
+      // Check 3: All puzzleIds reference valid puzzles
+      console.log("\n✓ Checking puzzle references...");
+      let puzzleRefIssues = 0;
+      const puzzleIdSet = new Set<string>();
+
+      // Collect all unique puzzle IDs from events
+      for (const stats of yearStats) {
+        const events = await client.query(api.events.getYearEvents, {
+          year: stats.year,
+        });
+        for (const event of events) {
+          if (event.puzzleId) {
+            puzzleIdSet.add(event.puzzleId);
+          }
+        }
+      }
+
+      // Verify each puzzle ID exists
+      for (const puzzleId of puzzleIdSet) {
+        try {
+          const puzzle = await client.query(api.puzzles.getPuzzleById, {
+            puzzleId: puzzleId as any,
+          });
+          if (!puzzle) {
+            puzzleRefIssues++;
+            issues.push(`   Invalid puzzle reference: ${puzzleId}`);
+          }
+        } catch {
+          puzzleRefIssues++;
+          issues.push(
+            `   Invalid puzzle reference: ${puzzleId} (error querying)`,
+          );
+        }
+      }
+
+      if (puzzleRefIssues > 0) {
+        console.log(`⚠️  ${puzzleRefIssues} invalid puzzle references found`);
+        totalIssues += puzzleRefIssues;
+      } else {
+        console.log("✅ All puzzle references are valid");
+      }
+
+      // Check 4: Years are within valid range (-2000 to 2025)
+      console.log("\n✓ Checking year ranges...");
+      let yearRangeIssues = 0;
+      for (const stats of yearStats) {
+        if (stats.year < -2000 || stats.year > 2025) {
+          yearRangeIssues++;
+          issues.push(
+            `   Year ${stats.year}: Outside valid range (-2000 to 2025)`,
+          );
+        }
+      }
+      if (yearRangeIssues > 0) {
+        console.log(`⚠️  ${yearRangeIssues} years are outside valid range`);
+        totalIssues += yearRangeIssues;
+      } else {
+        console.log("✅ All years are within valid range");
+      }
+
+      // Final report
+      console.log("\n" + "=".repeat(50));
+      if (totalIssues === 0) {
+        console.log(`✅ ${yearStats.length} years validated, 0 issues found`);
+      } else {
+        console.log(
+          `⚠️  ${yearStats.length} years validated, ${totalIssues} issues found:\n`,
+        );
+        for (const issue of issues) {
+          console.log(issue);
+        }
+      }
+
+      // Exit with error code if issues found
+      if (totalIssues > 0) {
+        process.exit(1);
+      }
+    } catch (error: any) {
+      console.error(`❌ Error validating events:`, error.message);
+      process.exit(1);
+    }
+  });
+
+// Parse command line arguments
+program.parse(process.argv);
+
+// If no command specified, show help
+if (!process.argv.slice(2).length) {
+  program.outputHelp();
+}

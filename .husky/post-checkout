@@ -1,0 +1,18 @@
+#!/bin/sh
+# Post-checkout hook: Clear cache when switching branches to prevent stale cache issues
+
+# Exit early if this is a file checkout, not a branch checkout
+if [ "$3" = "0" ]; then
+  exit 0
+fi
+
+echo "🔄 Branch checkout detected..."
+
+# Check if critical files have changed between old and new branches
+if git diff --name-only "$1" "$2" | grep -qE "(package\.json|next\.config\.|tailwind\.config\.|tsconfig\.json)"; then
+  echo "📦 Critical configuration files changed, clearing cache..."
+  rm -rf .next tsconfig.tsbuildinfo
+  echo "✅ Cache cleared successfully"
+else
+  echo "ℹ️  No critical config changes detected, cache preserved"
+fi

@@ -1,9 +1,17 @@
-'use client';
+"use client";
 
-import React, { useState, useCallback, FormEvent, useRef, useEffect, KeyboardEvent } from 'react';
-import { isValidYear, GAME_CONFIG } from '@/lib/constants';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import React, {
+  useState,
+  useCallback,
+  FormEvent,
+  useRef,
+  useEffect,
+  KeyboardEvent,
+} from "react";
+import { isValidYear, GAME_CONFIG } from "@/lib/constants";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { validateGuessInputProps } from "@/lib/propValidation";
 
 interface GuessInputProps {
   onGuess: (guess: number) => void;
@@ -11,16 +19,22 @@ interface GuessInputProps {
   remainingGuesses: number;
   onValidationError?: (message: string) => void;
   className?: string;
+  isLoading?: boolean;
 }
 
-export const GuessInput: React.FC<GuessInputProps> = ({
-  onGuess,
-  disabled,
-  remainingGuesses,
-  onValidationError,
-  className = ''
-}) => {
-  const [inputValue, setInputValue] = useState('');
+export const GuessInput: React.FC<GuessInputProps> = (props) => {
+  // Validate props in development
+  validateGuessInputProps(props);
+
+  const {
+    onGuess,
+    disabled,
+    remainingGuesses,
+    onValidationError,
+    className = "",
+    isLoading = false,
+  } = props;
+  const [inputValue, setInputValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -33,71 +47,100 @@ export const GuessInput: React.FC<GuessInputProps> = ({
 
   // Auto-focus after successful submission (when inputValue resets to empty)
   useEffect(() => {
-    if (inputValue === '' && !disabled && inputRef.current) {
+    if (inputValue === "" && !disabled && inputRef.current) {
       // Small delay to ensure DOM updates complete
       setTimeout(() => inputRef.current?.focus(), 0);
     }
   }, [inputValue, disabled]);
 
   // Keyboard navigation: Arrow keys for year increment/decrement
-  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLInputElement>) => {
-    if (disabled) return;
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLInputElement>) => {
+      if (disabled) return;
 
-    const currentValue = parseInt(inputValue, 10) || new Date().getFullYear();
+      const currentValue = parseInt(inputValue, 10) || new Date().getFullYear();
 
-    switch (e.key) {
-      case 'ArrowUp':
-        e.preventDefault();
-        const increment = e.shiftKey ? 10 : 1;
-        const newUpValue = Math.min(currentValue + increment, GAME_CONFIG.MAX_YEAR);
-        setInputValue(newUpValue.toString());
-        break;
+      switch (e.key) {
+        case "ArrowUp":
+          e.preventDefault();
+          const increment = e.shiftKey ? 10 : 1;
+          const newUpValue = Math.min(
+            currentValue + increment,
+            GAME_CONFIG.MAX_YEAR,
+          );
+          setInputValue(newUpValue.toString());
+          break;
 
-      case 'ArrowDown':
-        e.preventDefault();
-        const decrement = e.shiftKey ? 10 : 1;
-        const newDownValue = Math.max(currentValue - decrement, GAME_CONFIG.MIN_YEAR);
-        setInputValue(newDownValue.toString());
-        break;
-    }
-  }, [inputValue, disabled]);
+        case "ArrowDown":
+          e.preventDefault();
+          const decrement = e.shiftKey ? 10 : 1;
+          const newDownValue = Math.max(
+            currentValue - decrement,
+            GAME_CONFIG.MIN_YEAR,
+          );
+          setInputValue(newDownValue.toString());
+          break;
+      }
+    },
+    [inputValue, disabled],
+  );
 
-  const handleSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
 
-    // Prevent double submission during animation
-    if (isSubmitting) return;
+      // Prevent double submission during animation
+      if (isSubmitting) return;
 
-    const guess = parseInt(inputValue, 10);
+      const guess = parseInt(inputValue, 10);
 
-    // Validation
-    if (isNaN(guess) || !isValidYear(guess)) {
-      onValidationError?.('Please enter a valid year.');
-      return;
-    }
+      // Validation
+      if (isNaN(guess) || !isValidYear(guess)) {
+        onValidationError?.("Please enter a valid year.");
+        return;
+      }
 
-    // Trigger animation immediately for instant feedback
-    setIsSubmitting(true);
+      // Trigger animation immediately for instant feedback
+      setIsSubmitting(true);
 
-    // Use requestAnimationFrame for optimal timing
-    requestAnimationFrame(() => {
-      // Make the guess
-      onGuess(guess);
-      setInputValue('');
+      // Use requestAnimationFrame for optimal timing
+      requestAnimationFrame(() => {
+        // Make the guess
+        onGuess(guess);
+        setInputValue("");
 
-      // Remove animation class after animation completes (150ms)
-      setTimeout(() => {
-        setIsSubmitting(false);
-      }, 150);
-    });
-  }, [inputValue, onGuess, onValidationError, isSubmitting]);
+        // Remove animation class after animation completes (150ms)
+        setTimeout(() => {
+          setIsSubmitting(false);
+        }, 150);
+      });
+    },
+    [inputValue, onGuess, onValidationError, isSubmitting],
+  );
 
-  const buttonText = disabled ? 'Game Over' : 'Guess';
+  const getButtonText = (
+    remainingGuesses: number,
+    disabled: boolean,
+    isLoading: boolean,
+  ): string => {
+    // Show loading state first, before checking disabled
+    if (isLoading) return "Loading game...";
+    // Only show "Game Over" if disabled and NOT loading
+    if (disabled) return "Game Over";
+    if (remainingGuesses === 0) return "No guesses remaining";
+    if (remainingGuesses === 1) return "1 guess remaining";
+    return `${remainingGuesses} guesses remaining`;
+  };
+
+  const buttonText = getButtonText(remainingGuesses, disabled, isLoading);
   const isSubmitDisabled = disabled || remainingGuesses <= 0;
 
   return (
     <div className={`${className} mb-0`}>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row mb-0">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-3 sm:flex-row mb-0"
+      >
         {/* Clean Input Field */}
         <Input
           ref={inputRef}
@@ -118,10 +161,11 @@ export const GuessInput: React.FC<GuessInputProps> = ({
           type="submit"
           disabled={isSubmitDisabled}
           size="lg"
-          className={`h-12 px-8 text-lg font-accent font-semibold tracking-wide transition-all duration-200 w-full sm:w-auto ${isSubmitting
-            ? 'scale-105 bg-primary/90 shadow-lg animate-pulse'
-            : 'hover:bg-primary/90'
-            }`}
+          className={`h-12 px-8 text-lg font-accent font-semibold tracking-wide transition-all duration-200 w-full sm:w-auto ${
+            isSubmitting
+              ? "scale-105 bg-primary/90 shadow-lg animate-pulse"
+              : "hover:bg-primary/90"
+          }`}
         >
           {buttonText}
         </Button>

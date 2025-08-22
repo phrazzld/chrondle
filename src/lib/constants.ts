@@ -3,13 +3,8 @@
 
 // --- API CONFIGURATION ---
 
-// API Ninjas Key - exposed in client-side code for prototype
-// The API has rate limits (50k requests/month) and only provides historical data
-export const API_NINJAS_KEY = "O8VgZplfhWSNdCsgoeVaZg==2bwPJnxstEQPzmvn";
-
 // API Endpoints
 export const API_ENDPOINTS = {
-  API_NINJAS: "https://api.api-ninjas.com/v1/historicalevents",
   WIKIDATA_SPARQL: "https://query.wikidata.org/sparql",
   OPENAI: "https://api.openai.com/v1/chat/completions",
   WIKIPEDIA_ON_THIS_DAY:
@@ -140,16 +135,6 @@ export const SPARQL_CONFIG = {
   MAX_RESULTS: 25,
   MAX_EVENTS_TO_USE: 20,
   LANGUAGE: "en",
-} as const;
-
-// --- LOCAL STORAGE KEYS ---
-
-export const STORAGE_KEYS = {
-  PROGRESS_PREFIX: "chrondle-progress-",
-  SETTINGS: "chrondle-settings",
-  HAS_PLAYED: "chrondle-has-played",
-  STREAK_DATA: "chrondle-streak-data",
-  NOTIFICATION_SETTINGS: "chrondle-notification-settings",
 } as const;
 
 // --- UI CONSTANTS ---
@@ -365,7 +350,6 @@ export type HighRecognitionTerm = (typeof HIGH_RECOGNITION_TERMS)[number];
 export type MediumRecognitionTerm = (typeof MEDIUM_RECOGNITION_TERMS)[number];
 export type WikidataEntityType =
   (typeof WIKIDATA_ENTITY_TYPES)[keyof typeof WIKIDATA_ENTITY_TYPES];
-export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
 export type ApiEndpoint = (typeof API_ENDPOINTS)[keyof typeof API_ENDPOINTS];
 
 // --- VALIDATION HELPERS ---

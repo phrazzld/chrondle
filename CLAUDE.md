@@ -1,14 +1,39 @@
 # Claude's Guide to Chrondle
 
+## 🎯 IMPORTANT: How Puzzles Work in Chrondle
+
+**PUZZLES ARE GENERATED DYNAMICALLY - NOT STORED STATICALLY**
+
+The Convex database contains:
+
+- **1,821 historical events** in the `events` table spanning years -776 to 2008
+- **6 puzzle records** in the `puzzles` table (for tracking metadata)
+- Events are grouped by year and selected deterministically each day
+
+**How Daily Puzzles Work:**
+
+1. Each day, the system uses a deterministic hash of the date to select a year
+2. All events from that year are retrieved from the `events` table
+3. These events become the hints for that day's puzzle
+4. The same date always produces the same puzzle globally
+
+**THIS IS THE INTENDED DESIGN - THE DATABASE IS WORKING CORRECTLY**
+
+- There are NOT 239 pre-stored puzzles that need migration
+- Puzzles are generated on-demand from the events table
+- The production database has all necessary data
+
+---
+
 ## What is Chrondle?
 
 Chrondle is a daily historical guessing game built with Next.js 15, React 19, and TypeScript. Players guess the year of historical events based on progressive hints, similar to Wordle but for historical knowledge. It features:
 
 - **Daily Puzzle Mechanics**: One puzzle per day, globally synchronized using deterministic algorithms
 - **Progressive Hint System**: 6 hints per puzzle, ordered from obscure to obvious historical events
-- **Static Puzzle Database**: 136 curated historical events spanning years -776 to 2008
+- **Convex Backend**: Real-time database with 1,821 historical events spanning years -776 to 2008, generating daily puzzles dynamically
 - **Accessibility-First Design**: Screen reader support, keyboard navigation, and mobile-optimized interface
-- **Zero Server Dependencies**: Entirely client-side with localStorage persistence
+- **User Authentication**: Clerk integration with Convex for progress tracking and streaks
 
 ## Your Role
 
@@ -27,6 +52,8 @@ As Claude working on Chrondle, you are responsible for:
 - **Next.js 15**: App Router with React 19 support, Turbopack for development
 - **React 19**: Modern hook patterns, concurrent features, strict mode compatibility
 - **TypeScript 5**: Strict mode enforcement with comprehensive type safety
+- **Convex**: Real-time database and backend-as-a-service for puzzle storage and user data
+- **Clerk**: Authentication and user management with Convex integration
 - **Tailwind CSS 4**: CSS variables-based design system with OKLCH color space
 - **Radix UI**: Unstyled, accessible primitives for compound components
 - **Vitest**: Testing framework with jsdom environment and React Testing Library
@@ -37,9 +64,8 @@ As Claude working on Chrondle, you are responsible for:
 **Custom Hooks as Domain Services:**
 
 ```typescript
-// Primary game state management
-const { gameState, makeGuess, resetGame, remainingGuesses } =
-  useGameState(debugMode);
+// Primary game state management with pure functional derivation
+const { gameState, submitGuess, resetGame } = useChrondle();
 
 // Achievement and streak tracking
 const { streakData, updateStreak, achievements } = useStreak();
@@ -48,12 +74,14 @@ const { streakData, updateStreak, achievements } = useStreak();
 const { themeMode, setThemeMode, mounted } = useEnhancedTheme();
 ```
 
-**Static Data Architecture:**
+**Convex Database Architecture:**
 
-- Puzzle database: `src/data/puzzles.json` (136 curated events)
-- Deterministic selection: Hash-based daily algorithm
-- Event ordering: Recognizability scoring system
-- Validation scripts: Automated data integrity checks
+- **CRITICAL**: Two separate Convex deployments exist:
+  - **DEV**: `handsome-raccoon-955` (development deployment) ✅
+  - **PROD**: `fleet-goldfish-183` (production deployment with all event data) ✅
+- Real-time puzzle database with events, puzzles, users, and plays tables
+- Cron jobs for daily puzzle generation
+- Authentication integration with Clerk for user progress tracking
 
 **Component Composition:**
 
@@ -64,6 +92,8 @@ const { themeMode, setThemeMode, mounted } = useEnhancedTheme();
 
 ### Critical Dependencies
 
+- **convex**: Real-time database and backend-as-a-service
+- **@clerk/nextjs**: Authentication and user management
 - **@radix-ui/\***: Accessibility-first component primitives
 - **class-variance-authority**: Type-safe component variants
 - **motion**: Animation library for user feedback
@@ -78,14 +108,21 @@ const { themeMode, setThemeMode, mounted } = useEnhancedTheme();
 # Install dependencies (pnpm only)
 pnpm install
 
+# IMPORTANT: Set up Convex environment first
+# Copy .env.example to .env.local and configure Convex deployment
+# Currently points to PRODUCTION (empty) - needs dev data migration!
+
+# Start Convex in development mode
+npx convex dev
+
 # Start development server with Turbopack
 pnpm dev
 
 # Run all quality checks
 pnpm lint && pnpm type-check && pnpm test
 
-# Validate puzzle data integrity
-pnpm validate-puzzles
+# Validate Convex database integrity
+npx convex run puzzles:getTotalPuzzles
 ```
 
 ### Key Files and Directories
@@ -99,7 +136,7 @@ pnpm validate-puzzles
 
 **State Management:**
 
-- `src/hooks/useGameState.ts` - Main game state hook with derived state
+- `src/hooks/useChrondle.ts` - Main game state hook with pure functional state derivation
 - `src/hooks/useStreak.ts` - Win/loss streaks and achievements
 - `src/hooks/useEnhancedTheme.ts` - Theme management with persistence
 
@@ -216,7 +253,7 @@ const makeGuess = useCallback(
 **File Naming:**
 
 - Components: PascalCase (`GameHeader.tsx`)
-- Hooks: camelCase with `use` prefix (`useGameState.ts`)
+- Hooks: camelCase with `use` prefix (`useChrondle.ts`)
 - Utilities: camelCase (`puzzleData.ts`)
 - Constants: SCREAMING_SNAKE_CASE in `constants.ts`
 
@@ -657,8 +694,8 @@ test('should display current hint', () => {
 
 // Hook testing with renderHook
 test('should calculate remaining guesses correctly', () => {
-  const { result } = renderHook(() => useGameState());
-  expect(result.current.remainingGuesses).toBe(6);
+  const { result } = renderHook(() => useChrondle());
+  expect(result.current.gameState.status === 'ready' && result.current.gameState.remainingGuesses).toBe(6);
 });
 ```
 
