@@ -81,8 +81,8 @@ export const Timeline: React.FC<TimelineProps> = ({
   // Initialize display range on first render with reasonable range for puzzles
   useEffect(() => {
     const currentYear = new Date().getFullYear();
-    // Start with a more reasonable range - most puzzles are from 1900-present
-    const initialRange = { min: 1900, max: currentYear };
+    // Show full historical range from 2500 BC to current year
+    const initialRange = { min: -2500, max: currentYear };
 
     // Set initial previous values to avoid animation on first load
     prevMinRef.current = initialRange.min;
@@ -117,7 +117,6 @@ export const Timeline: React.FC<TimelineProps> = ({
             key={`min-${currentDisplayRange.min}`}
             value={Math.round(currentDisplayRange.min)}
             startValue={Math.round(prevMinRef.current)}
-            initialValue={1900} // Prevent jarring animation from extreme values
             className="text-sm sm:text-sm font-bold text-blue-500/80 dark:text-blue-400/80 whitespace-nowrap"
             duration={800}
           />
@@ -219,7 +218,6 @@ export const Timeline: React.FC<TimelineProps> = ({
             key={`max-${currentDisplayRange.max}`}
             value={Math.round(currentDisplayRange.max)}
             startValue={Math.round(prevMaxRef.current)}
-            initialValue={new Date().getFullYear()} // Start with current year
             className="text-sm sm:text-sm font-bold text-red-500/80 dark:text-red-400/80 whitespace-nowrap"
             duration={800}
           />
