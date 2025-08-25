@@ -78,11 +78,16 @@ export const Timeline: React.FC<TimelineProps> = ({
     return 50 + percentage * 700; // 50 to 750 on the SVG viewBox for full timeline width
   };
 
-  // Initialize display range on first render with reasonable range for puzzles
+  /**
+   * Initialize display range on first render
+   * -2500 represents 2500 BC, covering the full historical span of the game
+   * This range encompasses all possible puzzle years while maintaining a
+   * comprehensible scope for players (ancient history to present)
+   */
   useEffect(() => {
     const currentYear = new Date().getFullYear();
-    // Start with a more reasonable range - most puzzles are from 1900-present
-    const initialRange = { min: 1900, max: currentYear };
+    // Show full historical range from 2500 BC to current year
+    const initialRange = { min: -2500, max: currentYear };
 
     // Set initial previous values to avoid animation on first load
     prevMinRef.current = initialRange.min;
@@ -117,7 +122,6 @@ export const Timeline: React.FC<TimelineProps> = ({
             key={`min-${currentDisplayRange.min}`}
             value={Math.round(currentDisplayRange.min)}
             startValue={Math.round(prevMinRef.current)}
-            initialValue={1900} // Prevent jarring animation from extreme values
             className="text-sm sm:text-sm font-bold text-blue-500/80 dark:text-blue-400/80 whitespace-nowrap"
             duration={800}
           />
@@ -219,7 +223,6 @@ export const Timeline: React.FC<TimelineProps> = ({
             key={`max-${currentDisplayRange.max}`}
             value={Math.round(currentDisplayRange.max)}
             startValue={Math.round(prevMaxRef.current)}
-            initialValue={new Date().getFullYear()} // Start with current year
             className="text-sm sm:text-sm font-bold text-red-500/80 dark:text-red-400/80 whitespace-nowrap"
             duration={800}
           />

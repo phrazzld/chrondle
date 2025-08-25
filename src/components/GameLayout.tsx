@@ -111,7 +111,7 @@ export function GameLayout(props: GameLayoutProps) {
 
           {/* Timeline - Shows after first guess */}
           <Timeline
-            minYear={-2000}
+            minYear={-2500}
             maxYear={new Date().getFullYear()}
             guesses={gameState.guesses}
             targetYear={targetYear}

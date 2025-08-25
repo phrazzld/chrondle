@@ -4,6 +4,12 @@
 
 - paywall puzzle archive with stripe
 
+## Timeline Component Enhancements (from PR #11 review)
+
+- [ ] [LOW] Add unit tests for BC/AD formatYear edge cases (year 0, large negative years) | Gain: Prevent formatting bugs
+- [ ] [FUTURE] Implement virtual timeline rendering for 10,000+ year ranges | Gain: Support for prehistoric dates
+- [ ] [LOW] Create GitHub issue for timeline zoom controls and era markers | Gain: Enhanced user interaction
+
 ## Critical Priority - Security & Production Readiness
 
 - [ ] [HIGH] [SECURITY] Validate localStorage data to prevent JSON injection attacks | Risk: Malicious data could crash app or expose information
