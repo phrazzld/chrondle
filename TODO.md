@@ -169,12 +169,19 @@ Generated from TASK.md on 2024-01-25
 
 ## Documentation & Cleanup
 
-- [ ] Document the performance optimization regression
+- [x] Document the performance optimization regression
 
   - Success criteria: Clear explanation of what broke and why in code comments
   - Can start: Immediately
   - Estimated complexity: SIMPLE
   - Files: Add comment in `src/components/Timeline.tsx`
+  - **FROM REVIEW**: Add JSDoc explaining why -2500 was chosen (line 84)
+
+  ```
+  Work Log:
+  - ✅ Added comprehensive JSDoc comment explaining -2500 BC choice
+  - Explains historical span coverage and player comprehension
+  ```
 
 - [ ] Update component documentation
 
@@ -182,6 +189,21 @@ Generated from TASK.md on 2024-01-25
   - Dependencies: All fixes complete
   - Estimated complexity: SIMPLE
   - Files: `src/components/Timeline.tsx`
+
+- [x] Integrate performance test into test suite
+
+  - Success criteria: Performance test runs as part of regular test suite
+  - Can start: Immediately
+  - Estimated complexity: SIMPLE (15 minutes)
+  - Files: Convert `scripts/test-timeline-performance.mjs` to Vitest test
+  - **FROM REVIEW**: Prevents future performance regressions
+
+  ```
+  Work Log:
+  - ✅ Created src/lib/__tests__/timeline-performance.test.ts
+  - All 4 performance tests passing
+  - Tests verify <16ms render time and efficient BC/AD formatting
+  ```
 
 - [x] Run linting and type checking
   - Success criteria: No TypeScript errors, no linting warnings

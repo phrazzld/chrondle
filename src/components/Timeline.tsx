@@ -78,7 +78,12 @@ export const Timeline: React.FC<TimelineProps> = ({
     return 50 + percentage * 700; // 50 to 750 on the SVG viewBox for full timeline width
   };
 
-  // Initialize display range on first render with reasonable range for puzzles
+  /**
+   * Initialize display range on first render
+   * -2500 represents 2500 BC, covering the full historical span of the game
+   * This range encompasses all possible puzzle years while maintaining a
+   * comprehensible scope for players (ancient history to present)
+   */
   useEffect(() => {
     const currentYear = new Date().getFullYear();
     // Show full historical range from 2500 BC to current year
