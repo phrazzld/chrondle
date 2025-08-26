@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { openRouterService } from "@/lib/openrouter";
 import { AI_CONFIG } from "@/lib/constants";
 import type {
@@ -22,6 +22,9 @@ export function useHistoricalContext(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [enabled, setEnabled] = useState(true);
+
+  // Track if component is still mounted to safely update state
+  const isMountedRef = useRef(true);
 
   // Generate context for given year and events
   const generateContext = useCallback(
@@ -70,6 +73,10 @@ export function useHistoricalContext(
             err.message === "Request aborted" ||
             err.message === "The operation was aborted")
         ) {
+          // Clear loading state even on abort if component is still mounted
+          if (isMountedRef.current) {
+            setLoading(false);
+          }
           return;
         }
 
@@ -82,7 +89,8 @@ export function useHistoricalContext(
           setError(errorMessage);
         }
       } finally {
-        if (!abortSignal?.aborted) {
+        // Always clear loading if component is still mounted
+        if (isMountedRef.current) {
           setLoading(false);
         }
       }
@@ -141,6 +149,13 @@ export function useHistoricalContext(
       abortController.abort();
     };
   }, [year, events, enabled, generateContext]);
+
+  // Track unmounting
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Create actions object
   const actions: AIContextActions = useMemo(
