@@ -96,6 +96,7 @@ export function GameLayout(props: GameLayoutProps) {
             guesses={gameState.guesses}
             timeString={countdown?.timeString}
             isArchive={isArchive}
+            puzzleEvents={gameState.puzzle?.events || []}
           />
 
           {/* Guess Input - Below instructions */}

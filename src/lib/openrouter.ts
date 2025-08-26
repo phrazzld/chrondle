@@ -100,7 +100,11 @@ export class OpenRouterService {
     for (let attempt = 0; attempt <= this.config.maxRetries; attempt++) {
       // Check if aborted before making request
       if (abortSignal?.aborted) {
-        throw new Error("Request aborted");
+        const abortError = new DOMException(
+          "The operation was aborted",
+          "AbortError",
+        );
+        throw abortError;
       }
 
       try {
@@ -129,7 +133,11 @@ export class OpenRouterService {
 
         // Check if aborted before sleeping
         if (abortSignal?.aborted) {
-          throw new Error("Request aborted");
+          const abortError = new DOMException(
+            "The operation was aborted",
+            "AbortError",
+          );
+          throw abortError;
         }
 
         // Calculate exponential backoff delay with jitter
@@ -172,9 +180,9 @@ export class OpenRouterService {
       const data = await response.json();
       return this.validateResponse(data);
     } catch (error) {
-      // Handle AbortController timeout
+      // Re-throw AbortError as-is (could be from timeout or component unmount)
       if (error instanceof Error && error.name === "AbortError") {
-        throw new OpenRouterTimeoutError(`Request timed out`);
+        throw error;
       }
 
       // Handle network errors that might return null response

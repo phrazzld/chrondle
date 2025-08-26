@@ -64,7 +64,12 @@ export function useHistoricalContext(
         }
       } catch (err) {
         // Ignore AbortError when request is cancelled
-        if (err instanceof Error && err.name === "AbortError") {
+        if (
+          err instanceof Error &&
+          (err.name === "AbortError" ||
+            err.message === "Request aborted" ||
+            err.message === "The operation was aborted")
+        ) {
           return;
         }
 
