@@ -18,6 +18,7 @@ interface GameInstructionsProps {
   puzzleEvents?: string[];
   closestGuess?: ClosestGuessData | null;
   isArchive?: boolean;
+  historicalContext?: string;
 }
 
 export const GameInstructions: React.FC<GameInstructionsProps> = ({
@@ -28,6 +29,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
   guesses = [],
   timeString,
   puzzleEvents = [],
+  historicalContext,
   closestGuess,
   isArchive = false,
 }) => {
@@ -235,10 +237,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
 
       {/* Historical Context Card - Below the next puzzle section */}
       <HistoricalContextCard
-        year={isGameComplete && targetYear ? targetYear : undefined}
-        events={
-          isGameComplete && puzzleEvents.length > 0 ? puzzleEvents : undefined
-        }
+        context={isGameComplete ? historicalContext : undefined}
         className=""
       />
     </div>

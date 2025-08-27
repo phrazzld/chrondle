@@ -121,10 +121,8 @@ These events symbolize 1969's dual legacy of technological achievement and cultu
       const response = await POST(request);
       const data = await response.json();
 
-      expect(response.status).toBe(502);
-      expect(data.error).toBe(
-        "Failed to generate historical context from AI service",
-      );
+      expect(response.status).toBe(500);
+      expect(data.error).toBe("Failed to generate historical context");
     });
 
     it("should handle invalid OpenRouter API response", async () => {
@@ -284,7 +282,9 @@ These events symbolize 1969's dual legacy of technological achievement and cultu
       const data = await response.json();
 
       expect(response.status).toBe(500);
-      expect(data.error).toBe("Failed to generate historical context");
+      expect(data.error).toBe(
+        "Historical context generation is not configured. Please check server logs.",
+      );
     });
 
     it("should handle request timeout (AbortError)", async () => {

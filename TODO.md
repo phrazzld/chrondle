@@ -15,47 +15,47 @@ Client-side context generation causes rate limiting (5 req/hour), duplicate API 
 - [x] Create `/convex/actions/historicalContext.ts` file with proper TypeScript module structure and Convex action imports
 - [x] Implement `generateHistoricalContext` action with args: `{puzzleId: v.id("puzzles"), year: v.number(), events: v.array(v.string())}`
 - [x] Add OpenRouter API key to Convex environment variables via `npx convex env set OPENROUTER_API_KEY` (get from .env.local)
-- [ ] Implement fetch call to OpenRouter API endpoint `https://openrouter.ai/api/v1/chat/completions` with proper headers including `HTTP-Referer` and `X-Title`
-- [ ] Use model `google/gemini-2.0-flash-exp:free` with existing prompt templates from `/src/lib/constants.ts` lines 233-254
-- [ ] Add exponential backoff retry logic (max 3 attempts) with base delay 1000ms for transient failures
-- [ ] Parse OpenRouter response and extract content from `choices[0].message.content` with proper error handling for malformed responses
-- [ ] Call internal mutation `updateHistoricalContext` to persist generated context to database
-- [ ] Add comprehensive error logging with context including puzzleId, year, attempt number, and error details
+- [x] Implement fetch call to OpenRouter API endpoint `https://openrouter.ai/api/v1/chat/completions` with proper headers including `HTTP-Referer` and `X-Title`
+- [x] Use model `google/gemini-2.5-flash` with existing prompt templates from `/src/lib/constants.ts` lines 233-254
+- [x] Add exponential backoff retry logic (max 3 attempts) with base delay 1000ms for transient failures
+- [x] Parse OpenRouter response and extract content from `choices[0].message.content` with proper error handling for malformed responses
+- [x] Call internal mutation `updateHistoricalContext` to persist generated context to database
+- [x] Add comprehensive error logging with context including puzzleId, year, attempt number, and error details
 
 ## Phase 3: Internal Mutation for Context Storage
 
-- [ ] Add `updateHistoricalContext` internal mutation to `/convex/puzzles.ts` accepting `{puzzleId: v.id("puzzles"), context: v.string()}`
-- [ ] Implement patch operation to update puzzle document with `historicalContext` and `historicalContextGeneratedAt` fields
-- [ ] Add validation to ensure context is non-empty string (min 100 chars) before storing
-- [ ] Add error handling for invalid puzzleId references with proper error messages
+- [x] Add `updateHistoricalContext` internal mutation to `/convex/puzzles.ts` accepting `{puzzleId: v.id("puzzles"), context: v.string()}`
+- [x] Implement patch operation to update puzzle document with `historicalContext` and `historicalContextGeneratedAt` fields
+- [x] Add validation to ensure context is non-empty string (min 100 chars) before storing
+- [x] Add error handling for invalid puzzleId references with proper error messages
 
 ## Phase 4: Cron Job Integration
 
-- [ ] Modify `generateDailyPuzzle` function in `/convex/puzzles.ts` at line ~95 after puzzle creation
-- [ ] Add `ctx.scheduler.runAfter(0, internal.actions.historicalContext.generateHistoricalContext, {...})` with puzzleId, year, and events
-- [ ] Ensure scheduler call happens AFTER events are patched with puzzleId (line ~93) to maintain data consistency
-- [ ] Add fallback mechanism: if context generation fails, log error but don't fail puzzle creation
+- [x] Modify `generateDailyPuzzle` function in `/convex/puzzles.ts` at line ~95 after puzzle creation
+- [x] Add `ctx.scheduler.runAfter(0, internal.actions.historicalContext.generateHistoricalContext, {...})` with puzzleId, year, and events
+- [x] Ensure scheduler call happens AFTER events are patched with puzzleId (line ~93) to maintain data consistency
+- [x] Add fallback mechanism: if context generation fails, log error but don't fail puzzle creation
 
 ## Phase 5: Query Updates for Historical Context
 
-- [ ] Update `getDailyPuzzle` query in `/convex/puzzles.ts` to include `historicalContext` field in return value
-- [ ] Update `getPuzzleById` query to include `historicalContext` field
-- [ ] Update `getPuzzleByNumber` query to include `historicalContext` field
-- [ ] Update `getArchivePuzzles` query to include `historicalContext` field in paginated results
+- [x] Update `getDailyPuzzle` query in `/convex/puzzles.ts` to include `historicalContext` field in return value
+- [x] Update `getPuzzleById` query to include `historicalContext` field
+- [x] Update `getPuzzleByNumber` query to include `historicalContext` field
+- [x] Update `getArchivePuzzles` query to include `historicalContext` field in paginated results
 
 ## Phase 6: Client Data Hook Updates
 
-- [ ] Update `ConvexPuzzle` interface in `/src/hooks/data/usePuzzleData.ts` line ~10 to include `historicalContext?: string`
-- [ ] Update `PuzzleData` interface at line ~21 to include `historicalContext?: string`
-- [ ] Update normalization logic at lines ~106 and ~144 to map `historicalContext` from Convex to normalized data structure
+- [x] Update `ConvexPuzzle` interface in `/src/hooks/data/usePuzzleData.ts` line ~10 to include `historicalContext?: string`
+- [x] Update `PuzzleData` interface at line ~21 to include `historicalContext?: string`
+- [x] Update normalization logic at lines ~106 and ~144 to map `historicalContext` from Convex to normalized data structure
 
 ## Phase 7: Component Simplification
 
-- [ ] Create new simplified `HistoricalContextCard` component that accepts `context?: string` prop directly
-- [ ] Remove all loading state logic from HistoricalContextCard (lines 165-167, 236-244)
-- [ ] Remove all error state logic from HistoricalContextCard (lines 167-188, 247-274)
-- [ ] Remove manual generation trigger logic (handleToggle function lines 90-148)
-- [ ] Update expand/collapse to only toggle visibility of pre-fetched content
+- [x] Create new simplified `HistoricalContextCard` component that accepts `context?: string` prop directly
+- [x] Remove all loading state logic from HistoricalContextCard (lines 165-167, 236-244)
+- [x] Remove all error state logic from HistoricalContextCard (lines 167-188, 247-274)
+- [x] Remove manual generation trigger logic (handleToggle function lines 90-148)
+- [x] Update expand/collapse to only toggle visibility of pre-fetched content
 - [ ] Update GameInstructions.tsx to pass `puzzle.historicalContext` directly to HistoricalContextCard
 - [ ] Remove `useHistoricalContext` hook import and usage from HistoricalContextCard
 
@@ -100,6 +100,10 @@ Client-side context generation causes rate limiting (5 req/hour), duplicate API 
 - [ ] Monitor error logs for failed context generations
 - [ ] Verify cron job successfully generates context for new daily puzzles
 - [ ] Remove feature flag or gradual rollout after 24 hours of stability
+
+## Miscellaneous
+
+- [ ] Show Chrondle puzzle number in share text
 
 ## Success Metrics
 
