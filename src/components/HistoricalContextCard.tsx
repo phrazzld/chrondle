@@ -32,6 +32,11 @@ export const HistoricalContextCard: React.FC<HistoricalContextCardProps> = ({
     typeof window !== "undefined" &&
     window.location.search.includes("debug=true");
 
+  // Add comprehensive logging for component mount
+  useEffect(() => {
+    // Component mounted with year and events
+  }, []);
+
   // Removed auto-expansion - user must manually expand to view content
 
   // Save expansion preference and interaction state to sessionStorage
@@ -75,6 +80,8 @@ export const HistoricalContextCard: React.FC<HistoricalContextCardProps> = ({
   }, [year, isDebugMode]);
 
   const handleToggle = () => {
+    // Button clicked, checking current state
+
     if (isDebugMode) {
       logger.debug(
         `[HistoricalContextCard] Button clicked - current state: expanded=${isExpanded}, hasData=${!!aiContext.data}, error=${!!aiContext.error}, loading=${aiContext.loading}`,
@@ -85,6 +92,7 @@ export const HistoricalContextCard: React.FC<HistoricalContextCardProps> = ({
     setHasUserInteracted(true);
 
     if (aiContext.error) {
+      // Retrying due to error
       if (isDebugMode)
         logger.debug(
           "[HistoricalContextCard] Retrying generation due to error",
@@ -96,6 +104,8 @@ export const HistoricalContextCard: React.FC<HistoricalContextCardProps> = ({
       year &&
       events.length > 0
     ) {
+      // First-time generation starting
+
       if (isDebugMode)
         logger.debug(
           "[HistoricalContextCard] Generating context for first time",
@@ -105,11 +115,15 @@ export const HistoricalContextCard: React.FC<HistoricalContextCardProps> = ({
     } else if (aiContext.data) {
       // Data exists - toggle between expanded/collapsed
       const newState = !isExpanded;
+      // Data exists, toggling expansion
+
       if (isDebugMode)
         logger.debug(
           `[HistoricalContextCard] Toggling expansion: ${isExpanded} -> ${newState}`,
         );
       setIsExpanded(newState);
+    } else {
+      // Unexpected state - no action taken
     }
   };
 

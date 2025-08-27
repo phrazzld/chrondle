@@ -33,7 +33,12 @@ export function useHistoricalContext(
       targetEvents: string[],
       abortSignal?: AbortSignal,
     ): Promise<void> => {
-      if (!enabled) return;
+      // Generation started for year and events
+
+      if (!enabled) {
+        // Feature disabled, skipping generation
+        return;
+      }
 
       // Validate inputs before making API call
       if (
@@ -42,7 +47,7 @@ export function useHistoricalContext(
         targetEvents.length === 0
       ) {
         console.warn(
-          "useHistoricalContext: Invalid inputs - year:",
+          "[useHistoricalContext] Invalid inputs - year:",
           targetYear,
           "events:",
           targetEvents,
@@ -50,10 +55,13 @@ export function useHistoricalContext(
         return;
       }
 
+      // Starting generation, setting loading state
       setLoading(true);
       setError(null);
 
       try {
+        // Calling OpenRouter service
+
         // Generate new context using OpenRouter service (relies on OpenRouter's caching)
         const response = await openRouterService.getHistoricalContext(
           targetYear,
@@ -61,9 +69,14 @@ export function useHistoricalContext(
           abortSignal,
         );
 
+        // Response received
+
         // Only update state if not aborted
         if (!abortSignal?.aborted) {
+          // Setting data in state
           setData(response);
+        } else {
+          // Request was aborted, not updating state
         }
       } catch (err) {
         // Ignore AbortError when request is cancelled
@@ -73,6 +86,7 @@ export function useHistoricalContext(
             err.message === "Request aborted" ||
             err.message === "The operation was aborted")
         ) {
+          // Request aborted, cleaning up
           // Clear loading state even on abort if component is still mounted
           if (isMountedRef.current) {
             setLoading(false);
@@ -84,14 +98,20 @@ export function useHistoricalContext(
           err instanceof Error
             ? err.message
             : "Failed to generate historical context";
-        console.error("Historical context generation error:", err);
+        console.error("[useHistoricalContext] Generation error:", err);
+        console.error("[useHistoricalContext] Error message:", errorMessage);
+
         if (!abortSignal?.aborted) {
+          // Setting error state
           setError(errorMessage);
         }
       } finally {
         // Always clear loading if component is still mounted
         if (isMountedRef.current) {
+          // Clearing loading state
           setLoading(false);
+        } else {
+          // Component unmounted, not updating loading state
         }
       }
     },
@@ -135,23 +155,32 @@ export function useHistoricalContext(
 
   // Auto-generate context when year/events change (if enabled)
   useEffect(() => {
-    if (!enabled || !year || !Array.isArray(events) || events.length === 0)
+    // Effect triggered for year and events
+
+    if (!enabled || !year || !Array.isArray(events) || events.length === 0) {
+      // Skipping auto-generation due to missing requirements
       return;
+    }
 
     // Create AbortController for this effect
     const abortController = new AbortController();
+    // Created AbortController for auto-generation
 
     // Generate context with abort signal
     generateContext(year, events, abortController.signal);
 
     // Cleanup: abort any pending requests when effect runs again or component unmounts
     return () => {
+      // Effect cleanup - aborting any pending requests
       abortController.abort();
     };
   }, [year, events, enabled, generateContext]);
 
-  // Track unmounting
+  // Track mounting/unmounting
   useEffect(() => {
+    // Reset to true on mount (handles StrictMode remounts)
+    isMountedRef.current = true;
+
     return () => {
       isMountedRef.current = false;
     };

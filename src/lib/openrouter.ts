@@ -93,6 +93,8 @@ export class OpenRouterService {
     events: string[],
     abortSignal?: AbortSignal,
   ): Promise<AIContextResponse> {
+    // Starting request for year with events
+    const startTime = this.config.timeProvider.now();
     const request: AIContextRequest = { year, events };
 
     let lastError: Error | null = null;
@@ -100,6 +102,10 @@ export class OpenRouterService {
     for (let attempt = 0; attempt <= this.config.maxRetries; attempt++) {
       // Check if aborted before making request
       if (abortSignal?.aborted) {
+        console.error(
+          "[OpenRouter] Request aborted before attempt",
+          attempt + 1,
+        );
         const abortError = new DOMException(
           "The operation was aborted",
           "AbortError",
@@ -107,10 +113,30 @@ export class OpenRouterService {
         throw abortError;
       }
 
+      console.error(
+        "[OpenRouter] Attempt",
+        attempt + 1,
+        "of",
+        this.config.maxRetries + 1,
+      );
+      const attemptStartTime = this.config.timeProvider.now();
+
       try {
-        return await this.makeRequest(request, abortSignal);
+        const response = await this.makeRequest(request, abortSignal);
+        console.error(
+          "[OpenRouter] Request successful after",
+          this.config.timeProvider.now() - attemptStartTime,
+          "ms",
+        );
+        console.error(
+          "[OpenRouter] Total time:",
+          this.config.timeProvider.now() - startTime,
+          "ms",
+        );
+        return response;
       } catch (error) {
         lastError = error as Error;
+        console.error("[OpenRouter] Attempt", attempt + 1, "failed:", error);
 
         // Don't retry on client errors or rate limits
         if (
@@ -118,21 +144,28 @@ export class OpenRouterService {
           error.status &&
           error.status < 500
         ) {
+          console.error(
+            "[OpenRouter] Not retrying - client error with status:",
+            error.status,
+          );
           throw error;
         }
 
         // Don't retry on rate limit errors
         if (error instanceof OpenRouterRateLimitError) {
+          console.error("[OpenRouter] Not retrying - rate limit error");
           throw error;
         }
 
         // Don't retry on last attempt
         if (attempt === this.config.maxRetries) {
+          console.error("[OpenRouter] Max retries reached");
           break;
         }
 
         // Check if aborted before sleeping
         if (abortSignal?.aborted) {
+          console.error("[OpenRouter] Request aborted before retry sleep");
           const abortError = new DOMException(
             "The operation was aborted",
             "AbortError",
@@ -142,6 +175,7 @@ export class OpenRouterService {
 
         // Calculate exponential backoff delay with jitter
         const delay = this.calculateBackoffDelay(attempt);
+        console.error("[OpenRouter] Waiting", delay, "ms before retry...");
         await this.config.timeProvider.sleep(delay);
       }
     }
@@ -157,6 +191,9 @@ export class OpenRouterService {
     request: AIContextRequest,
     abortSignal?: AbortSignal,
   ): Promise<AIContextResponse> {
+    console.error("[OpenRouter] Making request to:", this.config.apiEndpoint);
+    const requestStartTime = this.config.timeProvider.now();
+
     try {
       const response = await fetch(this.config.apiEndpoint, {
         method: "POST",
@@ -167,18 +204,31 @@ export class OpenRouterService {
         signal: abortSignal,
       });
 
+      console.error(
+        "[OpenRouter] Response received in",
+        this.config.timeProvider.now() - requestStartTime,
+        "ms",
+      );
+      console.error("[OpenRouter] Response status:", response?.status);
+
       // Handle non-success HTTP status codes
       if (!response || !response.ok) {
         if (response) {
+          console.error("[OpenRouter] Handling HTTP error...");
           await this.handleHTTPError(response);
         } else {
+          console.error("[OpenRouter] No response received");
           throw new OpenRouterAPIError("Invalid response received");
         }
       }
 
       // Parse and validate response
+      console.error("[OpenRouter] Parsing response JSON...");
       const data = await response.json();
-      return this.validateResponse(data);
+      console.error("[OpenRouter] Validating response structure...");
+      const validatedResponse = this.validateResponse(data);
+      console.error("[OpenRouter] Response validated successfully");
+      return validatedResponse;
     } catch (error) {
       // Re-throw AbortError as-is (could be from timeout or component unmount)
       if (error instanceof Error && error.name === "AbortError") {

@@ -225,36 +225,33 @@ export const LLM_CONFIG = {
 export const AI_CONFIG = {
   MODEL: "google/gemini-2.5-flash",
   TEMPERATURE: 0.3, // Reduced for more consistent output
-  MAX_TOKENS: 4000, // High limit to prevent truncation
-  REQUEST_TIMEOUT: 10000, // 10 seconds
+  MAX_TOKENS: 8000, // Increased for longer, unconstrained narratives
+  REQUEST_TIMEOUT: 30000, // 30 seconds - increased to accommodate longer AI responses
   FEATURE_ENABLED: true,
-  RETRY_ATTEMPTS: 3,
+  RETRY_ATTEMPTS: 2, // Reduced from 3 to prevent excessive waiting
   RETRY_DELAY: 1000, // 1 second base delay for exponential backoff
-  SYSTEM_PROMPT: `You are a sharp historical writer creating punchy, focused narratives about specific years. Write with precision and impact - every word counts.
+  SYSTEM_PROMPT: `You are a masterful historical storyteller who brings the past to life through engaging, insightful narratives. Your writing is both educational and entertaining, with a keen sense of what makes history compelling.
 
-Your writing must:
-- Be exactly 2-3 tight paragraphs (no more, no less)
-- Reference ALL provided events naturally within the narrative flow
-- Use present tense for immediacy and punch
-- Lead with the most dramatic or significant event
-- Connect events to show the year's broader significance
-- End with a sharp insight about the year's lasting impact
-- Keep total length under 200 words for maximum impact
+Your approach:
+- Begin by establishing the historical era and its defining characteristics
+- Then zoom into the specific year, showing how it exemplifies or challenges its era
+- Weave in the most significant and interesting events naturally, without forcing every detail
+- Conclude with something creative and memorable that captures the year's essence
 
-Write for smart readers who want substance fast. No filler, no generic historical platitudes. Make every sentence drive the story forward with vivid, specific details that bring the year to life.`,
-  CONTEXT_PROMPT_TEMPLATE: `Write a sharp, focused narrative about {year}. You MUST weave ALL of these events into your story:
+Your creative endings should be high quality and match the tone of the content - whether that's a haiku capturing the year's spirit, a witty observation about historical irony, a punchy tagline that could title a documentary, or another creative format that feels right.
 
+Write with energy and precision. Make readers feel the weight and wonder of history.`,
+  CONTEXT_PROMPT_TEMPLATE: `Tell the story of the year {year}.
+
+Context for this year (these are events that happened, incorporate the most compelling ones naturally):
 {events}
 
-Requirements:
-- Exactly 2-3 paragraphs, under 200 words total
-- Reference every single event naturally within the narrative
-- Start with the most impactful event
-- Show how events connect to reveal the year's significance
-- End with a punchy insight about lasting impact
-- Present tense, vivid details, zero filler
+Structure your response as:
+1. First, establish what historical era {year} falls within and what defined that era
+2. Then explore how {year} specifically embodied or challenged its era through its events
+3. Finally, end with something creative and memorable - let the content guide whether that's a haiku, a witty observation, a punchy tagline, or another form that fits
 
-Make {year} come alive through these specific events.`,
+Focus on creating an engaging narrative that helps readers understand both the era and the specific year's significance.`,
 } as const;
 
 // --- STREAK CONFIGURATION ---

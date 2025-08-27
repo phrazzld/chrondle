@@ -73,9 +73,3 @@
 - [ ] [MED] [PERF] Implement client-side timeout in OpenRouterService | Gain: Prevent hanging requests
 - [ ] [LOW] [UI/UX] Surface rate limit retry information in HistoricalContextCard | Gain: Smart retry UI with countdown
 - [ ] [LOW] [MAINTAIN] Clean up unused config.timeout if client timeout not needed | Debt: Unused configuration
-
-### Task Format
-
-- `- [ ] [HIGH/MED/LOW] [TYPE] Description | Impact/Risk`
-- Types: SECURITY, ALIGN, SIMPLIFY, PERF, DX, MAINTAIN, FEATURE, GORDIAN, BUG, UI/UX
-- Example: `- [ ] [HIGH] [SECURITY] Add input validation | Risk: XSS attacks`
