@@ -62,6 +62,18 @@
 - [ ] [MED] [SECURITY] Implement rate limiting for API endpoints when needed
 - [ ] [LOW] [FEATURE] Offline fallback behavior (localStorage when Convex unavailable)
 
+## Code Quality & Cleanup (From Historical Context PR Review)
+
+- [ ] [LOW] [MAINTAIN] Remove unused OpenRouterTimeoutError class | Debt: Dead code after AbortError changes
+- [ ] [LOW] [MAINTAIN] Clarify retry semantics (maxRetries vs maxRetries+1) | Debt: Semantic confusion
+- [ ] [LOW] [SIMPLIFY] Simplify AbortError detection to rely on err.name only | Gain: Cleaner code
+
+## Feature Enhancements (From Historical Context PR Review)
+
+- [ ] [MED] [PERF] Implement client-side timeout in OpenRouterService | Gain: Prevent hanging requests
+- [ ] [LOW] [UI/UX] Surface rate limit retry information in HistoricalContextCard | Gain: Smart retry UI with countdown
+- [ ] [LOW] [MAINTAIN] Clean up unused config.timeout if client timeout not needed | Debt: Unused configuration
+
 ### Task Format
 
 - `- [ ] [HIGH/MED/LOW] [TYPE] Description | Impact/Risk`
