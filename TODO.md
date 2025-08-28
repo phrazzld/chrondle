@@ -1,5 +1,48 @@
 # TODO: Server-Side Historical Context Generation Refactor
 
+## URGENT: CI Pipeline Fix Required [CI FIX]
+
+**Issue**: CI failures blocking PR #13 due to missing Convex generated TypeScript files
+**Classification**: CI Infrastructure Issue (NOT a code issue)
+**Impact**: All CI runs failing, PR cannot be merged
+
+### CI Resolution Tasks
+
+- [x] **[CI FIX]** Add Convex code generation step to `.github/workflows/ci.yml` before type checking
+  - Add after line 42 (Install dependencies): `- name: Generate Convex files`
+  - Command: `npx convex codegen --no-push`
+  - Environment: `CONVEX_DEPLOYMENT: fleet-goldfish-183`
+- [x] **[CI FIX]** Verify Convex files are generated correctly in CI
+  - Add verification step: `ls -la convex/_generated/` to confirm files exist
+  - Should see: `api.d.ts`, `server.d.ts`, `dataModel.d.ts`
+- [x] **[CI FIX]** Update build job to also generate Convex files
+  - Add same Convex codegen step after line 105 in build job
+  - Ensures build has necessary TypeScript definitions
+- [~] **[CI FIX]** Test fix by pushing to current PR branch
+  - Commit workflow changes with message: "fix(ci): add Convex codegen step to CI pipeline"
+  - Monitor CI run to verify all checks pass
+- [ ] **[CI FIX]** Add CI setup documentation to README or CONTRIBUTING.md
+  - Document that Convex files must be generated before type checking
+  - Explain why these files are gitignored
+  - Note the production deployment ID for CI usage
+- [ ] **[CI FIX]** Consider caching generated Convex files to speed up CI
+  - Cache path: `convex/_generated`
+  - Cache key: Based on `convex/schema.ts` hash
+  - Restore on subsequent runs to avoid regeneration
+- [ ] **[CI FIX]** Update Vercel build command if needed
+  - Check if Vercel needs explicit Convex codegen in build settings
+  - May need to prepend: `npx convex codegen --no-push && ` to build command
+
+### Verification Checklist
+
+- [ ] TypeScript compilation passes in CI
+- [ ] All test suites run successfully
+- [ ] Build job completes without errors
+- [ ] Vercel deployment succeeds
+- [ ] PR checks all show green status
+
+---
+
 ## Problem Statement
 
 Client-side context generation causes rate limiting (5 req/hour), duplicate API calls ($$$), and poor UX with loading states. Solution: Generate once server-side during puzzle creation, store in Convex.

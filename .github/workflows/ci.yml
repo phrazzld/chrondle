@@ -41,6 +41,11 @@ jobs:
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
       
+    - name: Generate Convex files
+      run: npx convex codegen --no-push
+      env:
+        CONVEX_DEPLOYMENT: fleet-goldfish-183
+      
     - name: Run linting
       run: pnpm lint
       
@@ -103,6 +108,11 @@ jobs:
           
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
+      
+    - name: Generate Convex files
+      run: npx convex codegen --no-push
+      env:
+        CONVEX_DEPLOYMENT: fleet-goldfish-183
       
     - name: Build application
       run: pnpm build
