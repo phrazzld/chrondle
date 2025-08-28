@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
+import ReactMarkdown from "react-markdown";
 
 interface HistoricalContextCardProps {
   context?: string;
@@ -86,14 +87,34 @@ export const HistoricalContextCard: React.FC<HistoricalContextCardProps> = ({
             >
               <div className="px-6 pt-1 pb-6">
                 {/* Content */}
-                <div className="prose prose-sm max-w-none dark:prose-invert text-left">
-                  <div className="text-foreground leading-relaxed">
-                    {context.split("\n\n").map((paragraph, index) => (
-                      <p key={index} className="mb-3 last:mb-0 text-left">
-                        {paragraph}
-                      </p>
-                    ))}
-                  </div>
+                <div className="prose prose-sm max-w-none dark:prose-invert text-left text-foreground leading-relaxed">
+                  <ReactMarkdown
+                    components={{
+                      // Ensure paragraphs have proper spacing
+                      p: ({ children }) => (
+                        <p className="mb-3 last:mb-0 text-left">{children}</p>
+                      ),
+                      // Style emphasis (italics) appropriately
+                      em: ({ children }) => (
+                        <em className="italic">{children}</em>
+                      ),
+                      // Only allow safe elements
+                      script: () => null,
+                      iframe: () => null,
+                    }}
+                    allowedElements={[
+                      "p",
+                      "em",
+                      "strong",
+                      "ul",
+                      "ol",
+                      "li",
+                      "blockquote",
+                      "br",
+                    ]}
+                  >
+                    {context}
+                  </ReactMarkdown>
                 </div>
               </div>
             </motion.div>

@@ -15,6 +15,9 @@
 - [ ] [HIGH] [SECURITY] Validate localStorage data to prevent JSON injection attacks | Risk: Malicious data could crash app or expose information
 - [ ] [HIGH] [SECURITY] Remove debug utilities from production builds | Risk: Game state manipulation and sensitive data exposure via window.chrondle
 - [ ] [HIGH] [SECURITY] Add rate limiting to historical context API endpoint | Risk: API abuse and OpenRouter cost overruns
+- [ ] [HIGH] [RELIABILITY] Add request timeout (AbortController) to Convex historicalContext action fetch to prevent indefinite hangs
+- [ ] [HIGH] [DOCS] Unify documentation: Convex generated files MUST be committed (update docs/guides/contributing.md to remove conflicting guidance about gitignoring)
+- [ ] [HIGH] [DOCS] Update docs and tooling to state OPENROUTER_API_KEY must be set in Convex environment (not Vercel) now that generation runs server-side in Convex
 - [ ] [HIGH] [MAINTAIN] Implement proper error boundaries and production telemetry | Debt: Invisible production errors with no monitoring
 - [ ] [HIGH] [SECURITY] Configure security headers in Next.js config | Risk: XSS, clickjacking, and client-side attacks
 
@@ -25,6 +28,8 @@
 - [ ] [HIGH] [PERF] Optimize localStorage operations with debouncing and caching | Gain: 50-70% reduction in I/O operations
 - [ ] [HIGH] [ALIGN] Split GameTimeline.tsx (311 lines) into focused sub-components | Principle: Simplicity & Modularity
 - [ ] [HIGH] [MAINTAIN] Add comprehensive test coverage for untested custom hooks | Debt: 10+ hooks without any tests
+- [ ] [HIGH] [RELIABILITY] Handle 429 rate limits in Convex context generation: either retry with backoff or reschedule later via ctx.scheduler; avoid dropping work during migrations
+- [ ] [HIGH] [RELIABILITY] Throttle migration scheduling to a steady drip rate to avoid upstream overload (batch spacing and per-item delay tuning)
 
 ## Medium Priority - Developer Experience & Performance
 
@@ -35,6 +40,11 @@
 - [ ] [MED] [DX] Create development environment validation script | Time saved: 0.5-1 hour per week
 - [ ] [MED] [ALIGN] Add tests for remaining custom hooks (useNotifications, useClipboard, useDebugMode)
 - [ ] [MED] [UI/UX] Configure BTCPayServer or easy Bitcoin donation method in footer
+- [ ] [MED] [ARCH] Centralize AI prompt/model/params in a shared constants module; reduce max_tokens in action to a measured safe value; keep one source of truth
+- [ ] [MED] [OBS] Enrich puzzles with historical context metadata (e.g., model, temperature, promptVersion) for provenance and audits
+- [ ] [MED] [OBS] Track historicalContextStatus (pending/success/failed) on puzzles to enable retries and operational visibility
+- [ ] [MED] [LOGGING] Use info/log for normal progress in actions/migrations; reserve error for failures to keep logs meaningful
+- [ ] [MED] [CI] Revisit CI codegen step: since convex/\_generated is committed, consider removing or guarding it to avoid production deployment coupling and fork/PR failures
 
 ## Low Priority - Optimization & Cleanup
 
