@@ -133,6 +133,70 @@ error TS2307: Cannot find module '../_generated/api'
 npx convex codegen && pnpm build
 ```
 
+## ⚠️ Critical: Convex Generated Files
+
+Unlike typical generated files, the files in `convex/_generated/` **MUST be committed to Git**.
+
+### Why This Exception Exists
+
+This is a **deliberate architectural decision**, not an oversight:
+
+- **Vercel cannot generate**: The deployment environment lacks access to CONVEX_DEPLOYMENT
+- **Production depends on them**: All deployments will fail without these files
+- **Security benefit**: Keeps deployment credentials separate from build environment
+- **Historical context**: Previously deleted in commit 08ee80b, breaking all deployments
+
+### When to Update These Files
+
+You must regenerate and commit these files when:
+
+1. **Schema changes**: After modifying `convex/schema.ts`
+2. **Function changes**: After adding/removing/modifying Convex functions
+3. **Type changes**: After changing function arguments or return types
+
+### How to Update
+
+```bash
+# Option 1: Use dev server (auto-generates on save)
+npx convex dev
+
+# Option 2: Generate without dev server
+npx convex codegen
+
+# Always commit the changes
+git add convex/_generated/
+git commit -m "chore: update Convex generated files"
+```
+
+### Common Mistakes to Avoid
+
+❌ **DO NOT** delete these files as "cleanup"
+❌ **DO NOT** add `convex/_generated/` to .gitignore
+❌ **DO NOT** assume Vercel will generate them
+
+### Verification Commands
+
+```bash
+# Check files are present and committed
+pnpm verify:convex
+
+# Full deployment readiness check
+pnpm deployment:check
+
+# Diagnose Vercel failures
+node scripts/diagnose-vercel-failure.mjs
+```
+
+### CI Protection
+
+Our CI pipeline includes multiple safeguards:
+
+- Pre-push hooks verify files aren't deleted
+- CI checks confirm files are committed
+- Deployment readiness scripts catch issues early
+
+See `convex/_generated/README.md` for detailed technical explanation.
+
 ## 📊 Quality Gates
 
 ### Performance Metrics
