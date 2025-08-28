@@ -1,3 +1,5 @@
 {
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "buildCommand": "npx convex codegen && pnpm build",
+  "installCommand": "pnpm install --frozen-lockfile"
 }

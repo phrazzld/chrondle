@@ -37,9 +37,17 @@
   - Applied to both test and build jobs for consistency
   - Expected time savings: ~2-3 seconds per CI run when cache hits
   ```
-- [ ] **[CI FIX]** Update Vercel build command if needed
+- [x] **[CI FIX]** Update Vercel build command if needed
   - Check if Vercel needs explicit Convex codegen in build settings
   - May need to prepend: `npx convex codegen --no-push && ` to build command
+  ```
+  Work Log:
+  - Vercel deployment was failing due to missing Convex generated files
+  - Added explicit buildCommand to vercel.json: "npx convex codegen && pnpm build"
+  - Added installCommand for consistency: "pnpm install --frozen-lockfile"
+  - Note: CONVEX_DEPLOYMENT env var must be set in Vercel dashboard to "fleet-goldfish-183"
+  - The codegen command doesn't use --no-push flag (that flag doesn't exist)
+  ```
 
 ### Verification Checklist
 
