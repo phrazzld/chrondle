@@ -18,6 +18,8 @@ interface GameInstructionsProps {
   puzzleEvents?: string[];
   closestGuess?: ClosestGuessData | null;
   isArchive?: boolean;
+  historicalContext?: string;
+  puzzleNumber?: number;
 }
 
 export const GameInstructions: React.FC<GameInstructionsProps> = ({
@@ -28,8 +30,10 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
   guesses = [],
   timeString,
   puzzleEvents = [],
+  historicalContext,
   closestGuess,
   isArchive = false,
+  puzzleNumber,
 }) => {
   // Share functionality - always initialize hook (React hooks rule)
   const { shareGame, shareStatus, shareMethod, isSharing } = useShareGame(
@@ -37,6 +41,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
     targetYear || 0,
     hasWon,
     puzzleEvents,
+    puzzleNumber,
   );
 
   // Active game state - show normal instructions
@@ -235,10 +240,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
 
       {/* Historical Context Card - Below the next puzzle section */}
       <HistoricalContextCard
-        year={isGameComplete && targetYear ? targetYear : undefined}
-        events={
-          isGameComplete && puzzleEvents.length > 0 ? puzzleEvents : undefined
-        }
+        context={isGameComplete ? historicalContext : undefined}
         className=""
       />
     </div>

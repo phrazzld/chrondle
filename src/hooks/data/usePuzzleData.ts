@@ -13,6 +13,7 @@ interface ConvexPuzzle {
   events: string[];
   puzzleNumber: number;
   date?: string;
+  historicalContext?: string;
 }
 
 /**
@@ -23,6 +24,7 @@ interface PuzzleData {
   targetYear: number;
   events: string[];
   puzzleNumber: number;
+  historicalContext?: string;
 }
 
 /**
@@ -108,6 +110,7 @@ export function usePuzzleData(
         targetYear: puzzleData.targetYear,
         events: puzzleData.events,
         puzzleNumber: puzzleData.puzzleNumber,
+        historicalContext: puzzleData.historicalContext,
       };
 
       return {
@@ -146,6 +149,7 @@ export function usePuzzleData(
       targetYear: convexPuzzle.targetYear,
       events: convexPuzzle.events,
       puzzleNumber: convexPuzzle.puzzleNumber,
+      historicalContext: convexPuzzle.historicalContext,
     };
 
     // Return successful result

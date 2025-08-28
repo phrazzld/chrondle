@@ -79,6 +79,124 @@ pnpm format        # Format with Prettier
 pnpm size          # Check bundle size (<170KB limit)
 ```
 
+## 🔧 CI/CD Setup Requirements
+
+### Convex Code Generation
+
+This project uses **Convex** as its backend database. Convex auto-generates TypeScript definitions that are required for type checking but are **gitignored** to avoid merge conflicts.
+
+#### Why are Convex files gitignored?
+
+- **Auto-generated**: Files in `convex/_generated/` are created from your schema
+- **Environment-specific**: Different deployments may have different schemas
+- **Merge conflicts**: Generated files would cause unnecessary conflicts
+- **Best practice**: Generated code should not be committed to version control
+
+#### CI Pipeline Requirements
+
+The CI pipeline **must** generate these files before running type checks:
+
+```yaml
+# Required in .github/workflows/ci.yml
+- name: Generate Convex files
+  run: npx convex codegen
+  env:
+    CONVEX_DEPLOYMENT: fleet-goldfish-183 # Production deployment ID
+```
+
+#### Local Development
+
+For local development, Convex files are generated automatically when you run:
+
+```bash
+npx convex dev  # Starts Convex in development mode and generates files
+```
+
+#### Troubleshooting CI Failures
+
+**Problem:** TypeScript errors about missing modules from `convex/_generated/`
+
+**Symptoms:**
+
+```
+error TS2307: Cannot find module '../_generated/server'
+error TS2307: Cannot find module '../_generated/api'
+```
+
+**Solution:** Ensure the Convex codegen step runs before type checking in CI
+
+**Problem:** Vercel deployment fails with Convex import errors
+
+**Solution:** Add Convex codegen to your Vercel build command:
+
+```bash
+npx convex codegen && pnpm build
+```
+
+## ⚠️ Critical: Convex Generated Files
+
+Unlike typical generated files, the files in `convex/_generated/` **MUST be committed to Git**.
+
+### Why This Exception Exists
+
+This is a **deliberate architectural decision**, not an oversight:
+
+- **Vercel cannot generate**: The deployment environment lacks access to CONVEX_DEPLOYMENT
+- **Production depends on them**: All deployments will fail without these files
+- **Security benefit**: Keeps deployment credentials separate from build environment
+- **Historical context**: Previously deleted in commit 08ee80b, breaking all deployments
+
+### When to Update These Files
+
+You must regenerate and commit these files when:
+
+1. **Schema changes**: After modifying `convex/schema.ts`
+2. **Function changes**: After adding/removing/modifying Convex functions
+3. **Type changes**: After changing function arguments or return types
+
+### How to Update
+
+```bash
+# Option 1: Use dev server (auto-generates on save)
+npx convex dev
+
+# Option 2: Generate without dev server
+npx convex codegen
+
+# Always commit the changes
+git add convex/_generated/
+git commit -m "chore: update Convex generated files"
+```
+
+### Common Mistakes to Avoid
+
+❌ **DO NOT** delete these files as "cleanup"
+❌ **DO NOT** add `convex/_generated/` to .gitignore
+❌ **DO NOT** assume Vercel will generate them
+
+### Verification Commands
+
+```bash
+# Check files are present and committed
+pnpm verify:convex
+
+# Full deployment readiness check
+pnpm deployment:check
+
+# Diagnose Vercel failures
+node scripts/diagnose-vercel-failure.mjs
+```
+
+### CI Protection
+
+Our CI pipeline includes multiple safeguards:
+
+- Pre-push hooks verify files aren't deleted
+- CI checks confirm files are committed
+- Deployment readiness scripts catch issues early
+
+See `convex/_generated/README.md` for detailed technical explanation.
+
 ## 📊 Quality Gates
 
 ### Performance Metrics

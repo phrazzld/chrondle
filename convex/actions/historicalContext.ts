@@ -1,0 +1,241 @@
+"use node";
+
+// Convex Action for Historical Context Generation
+// Handles external API calls to OpenRouter for AI-generated historical narratives
+// This action is called during puzzle generation to create context server-side
+
+import { v } from "convex/values";
+import { internalAction } from "../_generated/server";
+import { internal } from "../_generated/api";
+import type { ActionCtx } from "../_generated/server";
+
+// Error type for HTTP errors with status codes
+interface ErrorWithStatus extends Error {
+  status?: number;
+}
+
+/**
+ * Internal action to generate historical context for a puzzle
+ * Called by the puzzle generation cron job after creating a new puzzle
+ * Makes external API call to OpenRouter to generate AI narrative
+ */
+export const generateHistoricalContext = internalAction({
+  args: {
+    puzzleId: v.id("puzzles"),
+    year: v.number(),
+    events: v.array(v.string()),
+  },
+  handler: async (ctx: ActionCtx, args): Promise<void> => {
+    const { puzzleId, year } = args;
+
+    console.error(
+      `[HistoricalContext] Starting generation for puzzle ${puzzleId}, year ${year}`,
+    );
+
+    try {
+      // Get API key from environment
+      const apiKey = process.env.OPENROUTER_API_KEY;
+      if (!apiKey) {
+        throw new Error(
+          "OPENROUTER_API_KEY not found in environment variables",
+        );
+      }
+
+      // Prepare prompt using template from constants
+      const eventsText = args.events.join("\n");
+      const prompt = `Tell the story of the year ${year}.
+
+Context for this year (these are events that happened, incorporate the most compelling ones naturally):
+${eventsText}
+
+Structure your response as:
+1. First, establish what historical era ${year} falls within and what defined that era
+2. Then explore how ${year} specifically embodied or challenged its era through its events
+3. Finally, end with something creative and memorable - let the content guide whether that's a haiku, a witty observation, a punchy tagline, or another form that fits
+
+Focus on creating an engaging narrative that helps readers understand both the era and the specific year's significance.`;
+
+      // Helper functions for retry logic
+      const sleep = (ms: number): Promise<void> => {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      };
+
+      const calculateBackoffDelay = (attempt: number): number => {
+        const baseDelay = 1000; // 1 second base delay
+        const exponentialDelay = baseDelay * Math.pow(2, attempt);
+        const jitter = Math.random() * 0.5 + 0.75; // ±25% jitter
+        return Math.floor(exponentialDelay * jitter);
+      };
+
+      const shouldRetry = (error: ErrorWithStatus | Error): boolean => {
+        // Check if error has status property (type guard)
+        const errorWithStatus = error as ErrorWithStatus;
+
+        // Don't retry client errors (4xx) or rate limits
+        if (
+          errorWithStatus.status &&
+          errorWithStatus.status >= 400 &&
+          errorWithStatus.status < 500
+        ) {
+          return false;
+        }
+
+        // Retry server errors (5xx) and network failures
+        const message = error.message?.toLowerCase() || "";
+        return (
+          message.includes("network") ||
+          message.includes("server error") ||
+          message.includes("timeout") ||
+          message.includes("fetch") ||
+          message.includes("500") ||
+          message.includes("502") ||
+          message.includes("503") ||
+          message.includes("504") ||
+          message.includes("failed to fetch") ||
+          message.includes("request failed") ||
+          (errorWithStatus.status !== undefined &&
+            errorWithStatus.status >= 500)
+        );
+      };
+
+      // Retry loop with exponential backoff (max 3 attempts)
+      const maxAttempts = 3;
+      let lastError: Error = new Error(
+        "Unknown error occurred during context generation",
+      );
+      let generatedContext: string | undefined;
+
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        try {
+          console.error(
+            `[HistoricalContext] Attempt ${attempt + 1}/${maxAttempts} for puzzle ${puzzleId}, year ${year}`,
+          );
+
+          // Make fetch call to OpenRouter API
+          const response = await fetch(
+            "https://openrouter.ai/api/v1/chat/completions",
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://chrondle.com",
+                "X-Title": "Chrondle Historical Context",
+              },
+              body: JSON.stringify({
+                model: "google/gemini-2.5-flash",
+                messages: [
+                  {
+                    role: "system",
+                    content: `You are a masterful historical storyteller who brings the past to life through engaging, insightful narratives. Your writing is both educational and entertaining, with a keen sense of what makes history compelling.
+
+Your approach:
+- Begin by establishing the historical era and its defining characteristics
+- Then zoom into the specific year, showing how it exemplifies or challenges its era
+- Weave in the most significant and interesting events naturally, without forcing every detail
+- Conclude with something creative and memorable that captures the year's essence
+
+Your creative endings should be high quality and match the tone of the content - whether that's a haiku capturing the year's spirit, a witty observation about historical irony, a punchy tagline that could title a documentary, or another creative format that feels right.
+
+Write with energy and precision. Make readers feel the weight and wonder of history.`,
+                  },
+                  {
+                    role: "user",
+                    content: prompt,
+                  },
+                ],
+                temperature: 0.3,
+                max_tokens: 8000,
+              }),
+            },
+          );
+
+          // Check if request was successful
+          if (!response.ok) {
+            const errorText = await response.text();
+            const error: ErrorWithStatus = new Error(
+              `OpenRouter API request failed: ${response.status} ${response.statusText}`,
+            );
+            error.status = response.status;
+            console.error(
+              `[HistoricalContext] Attempt ${attempt + 1} failed - OpenRouter API error: ${response.status}`,
+            );
+            console.error(`[HistoricalContext] Error text: ${errorText}`);
+            throw error;
+          }
+
+          // Parse response
+          const responseData = await response.json();
+          generatedContext = responseData.choices?.[0]?.message?.content;
+
+          if (!generatedContext || typeof generatedContext !== "string") {
+            console.error(
+              `[HistoricalContext] Attempt ${attempt + 1} failed - Invalid response structure from OpenRouter`,
+            );
+            throw new Error("Invalid response from OpenRouter API");
+          }
+
+          // Success! Break out of retry loop
+          console.error(
+            `[HistoricalContext] Attempt ${attempt + 1} succeeded - Generated ${generatedContext.length} characters for year ${year}`,
+          );
+          break;
+        } catch (error) {
+          lastError = error as Error;
+          console.error(
+            `[HistoricalContext] Attempt ${attempt + 1}/${maxAttempts} failed for puzzle ${puzzleId}:`,
+            error,
+          );
+
+          // Check if we should retry this error
+          if (!shouldRetry(error as Error) || attempt === maxAttempts - 1) {
+            // Don't retry, or this was the last attempt
+            console.error(
+              `[HistoricalContext] Not retrying error for puzzle ${puzzleId}:`,
+              error,
+            );
+            throw error;
+          }
+
+          // Calculate delay and sleep before next attempt
+          const delay = calculateBackoffDelay(attempt);
+          console.error(
+            `[HistoricalContext] Retrying in ${delay}ms for puzzle ${puzzleId}...`,
+          );
+          await sleep(delay);
+        }
+      }
+
+      if (!generatedContext) {
+        throw (
+          lastError ||
+          new Error("Failed to generate historical context after all retries")
+        );
+      }
+
+      console.error(
+        `[HistoricalContext] Generated ${generatedContext.length} characters of context for year ${year}`,
+      );
+
+      // Call internal mutation to update puzzle with generated context
+      await ctx.runMutation(internal.puzzles.updateHistoricalContext, {
+        puzzleId,
+        context: generatedContext,
+      });
+
+      console.error(
+        `[HistoricalContext] Successfully persisted context to database for puzzle ${puzzleId}`,
+      );
+
+      console.error(
+        `[HistoricalContext] Successfully generated context for puzzle ${puzzleId}`,
+      );
+    } catch (error) {
+      console.error(
+        `[HistoricalContext] Failed to generate context for puzzle ${puzzleId}:`,
+        error,
+      );
+      throw error;
+    }
+  },
+});

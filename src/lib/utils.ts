@@ -123,13 +123,15 @@ export function generateShareText(
   targetYear: number,
   hasWon: boolean,
   puzzleEvents?: string[],
+  puzzleNumber?: number,
 ): string {
   try {
     // Validate inputs
     if (
       !Array.isArray(guesses) ||
       typeof targetYear !== "number" ||
-      typeof hasWon !== "boolean"
+      typeof hasWon !== "boolean" ||
+      (puzzleNumber !== undefined && typeof puzzleNumber !== "number")
     ) {
       console.error("Invalid inputs to generateShareText");
       return "Chrondle share text generation failed";
@@ -155,7 +157,7 @@ export function generateShareText(
       // Continue without closest guess message
     }
 
-    let result = `Chrondle: ${dateString} - ${score}${closestMessage}\n`;
+    let result = `Chrondle ${puzzleNumber ? `#${puzzleNumber}` : ""}: ${dateString} - ${score}${closestMessage}\n`;
 
     // Add first hint if available (directly below the top line)
     if (

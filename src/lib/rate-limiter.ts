@@ -137,14 +137,3 @@ function cleanupExpiredEntries(now: number): void {
     }
   }
 }
-
-/**
- * Specialized rate limiter for historical context API
- * More restrictive limits due to AI service costs
- */
-export const HISTORICAL_CONTEXT_RATE_LIMIT: RateLimitConfig = {
-  windowMs: 60 * 60 * 1000, // 1 hour window
-  maxRequests: 5, // Only 5 requests per hour per IP
-  message:
-    "Historical context rate limit exceeded. Please try again in an hour.",
-};

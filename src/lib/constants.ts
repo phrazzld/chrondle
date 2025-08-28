@@ -220,43 +220,6 @@ export const LLM_CONFIG = {
     "Convert this historical event into a clear, engaging hint for a year-guessing game. Make it informative but don't include the year or obvious time markers. Keep it under 20 words: {description}",
 } as const;
 
-// --- AI CONTEXT CONFIGURATION ---
-
-export const AI_CONFIG = {
-  MODEL: "google/gemini-2.5-flash",
-  TEMPERATURE: 0.3, // Reduced for more consistent output
-  MAX_TOKENS: 4000, // High limit to prevent truncation
-  REQUEST_TIMEOUT: 10000, // 10 seconds
-  FEATURE_ENABLED: true,
-  RETRY_ATTEMPTS: 3,
-  RETRY_DELAY: 1000, // 1 second base delay for exponential backoff
-  SYSTEM_PROMPT: `You are a sharp historical writer creating punchy, focused narratives about specific years. Write with precision and impact - every word counts.
-
-Your writing must:
-- Be exactly 2-3 tight paragraphs (no more, no less)
-- Reference ALL provided events naturally within the narrative flow
-- Use present tense for immediacy and punch
-- Lead with the most dramatic or significant event
-- Connect events to show the year's broader significance
-- End with a sharp insight about the year's lasting impact
-- Keep total length under 200 words for maximum impact
-
-Write for smart readers who want substance fast. No filler, no generic historical platitudes. Make every sentence drive the story forward with vivid, specific details that bring the year to life.`,
-  CONTEXT_PROMPT_TEMPLATE: `Write a sharp, focused narrative about {year}. You MUST weave ALL of these events into your story:
-
-{events}
-
-Requirements:
-- Exactly 2-3 paragraphs, under 200 words total
-- Reference every single event naturally within the narrative
-- Start with the most impactful event
-- Show how events connect to reveal the year's significance
-- End with a punchy insight about lasting impact
-- Present tense, vivid details, zero filler
-
-Make {year} come alive through these specific events.`,
-} as const;
-
 // --- STREAK CONFIGURATION ---
 
 export const STREAK_CONFIG = {

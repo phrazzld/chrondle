@@ -17,6 +17,7 @@ export function useShareGame(
   targetYear: number,
   hasWon: boolean,
   puzzleEvents?: string[],
+  puzzleNumber?: number,
   options?: UseShareGameOptions,
 ) {
   const { onSuccess, onError, detailed = false } = options || {};
@@ -29,12 +30,14 @@ export function useShareGame(
     targetYear,
     hasWon,
     puzzleEvents,
+    puzzleNumber,
   );
   const detailedShareText = generateShareText(
     guesses,
     targetYear,
     hasWon,
     puzzleEvents,
+    puzzleNumber,
   );
   const emojiBarcode = generateEmojiTimeline(guesses, targetYear);
 

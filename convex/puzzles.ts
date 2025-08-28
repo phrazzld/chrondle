@@ -6,6 +6,7 @@ import {
   DatabaseWriter,
 } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
+import { internal } from "./_generated/api";
 
 // Internal mutation for cron job to generate daily puzzle
 export const generateDailyPuzzle = internalMutation({
@@ -90,6 +91,29 @@ export const generateDailyPuzzle = internalMutation({
         puzzleId,
         updatedAt: Date.now(),
       });
+    }
+
+    // Schedule historical context generation (non-blocking)
+    try {
+      await ctx.scheduler.runAfter(
+        0, // Run immediately
+        internal.actions.historicalContext.generateHistoricalContext,
+        {
+          puzzleId,
+          year: randomYear.year,
+          events: selectedEvents.map((e) => e.event),
+        },
+      );
+
+      console.warn(
+        `Scheduled historical context generation for puzzle ${puzzleId} (year ${randomYear.year})`,
+      );
+    } catch (schedulerError) {
+      // Log but don't fail puzzle creation - graceful degradation
+      console.error(
+        `[generateDailyPuzzle] Failed to schedule context generation for puzzle ${puzzleId}:`,
+        schedulerError,
+      );
     }
 
     console.warn(
@@ -445,6 +469,48 @@ export const manualGeneratePuzzle = mutation({
       status: "error",
       message:
         "Manual generation temporarily disabled due to circular dependency. Use cron job instead.",
+    };
+  },
+});
+
+// Internal mutation to update puzzle with historical context
+export const updateHistoricalContext = internalMutation({
+  args: {
+    puzzleId: v.id("puzzles"),
+    context: v.string(),
+  },
+  handler: async (ctx, { puzzleId, context }) => {
+    // Validate puzzle exists
+    const puzzle = await ctx.db.get(puzzleId);
+    if (!puzzle) {
+      throw new Error("Puzzle not found");
+    }
+
+    // Validate context is non-empty string (min 100 chars)
+    if (!context || typeof context !== "string") {
+      throw new Error("Context must be a non-empty string");
+    }
+
+    if (context.length < 100) {
+      throw new Error("Context must be at least 100 characters long");
+    }
+
+    // Update puzzle with historical context and timestamp
+    await ctx.db.patch(puzzleId, {
+      historicalContext: context,
+      historicalContextGeneratedAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+
+    console.error(
+      `[updateHistoricalContext] Successfully updated puzzle ${puzzleId} with ${context.length} character context`,
+    );
+
+    return {
+      success: true,
+      puzzleId,
+      contextLength: context.length,
+      generatedAt: Date.now(),
     };
   },
 });

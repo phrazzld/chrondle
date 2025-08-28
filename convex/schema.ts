@@ -21,6 +21,8 @@ export default defineSchema({
     events: v.array(v.string()), // 6 events (denormalized for performance)
     playCount: v.number(), // Social proof: "1,234 players"
     avgGuesses: v.number(), // Difficulty: "Avg: 3.2 guesses"
+    historicalContext: v.optional(v.string()), // AI-generated narrative (3000-4000 chars)
+    historicalContextGeneratedAt: v.optional(v.number()), // Unix timestamp when context was generated
     updatedAt: v.number(), // For stats updates
   })
     .index("by_number", ["puzzleNumber"])
