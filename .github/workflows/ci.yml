@@ -41,7 +41,17 @@ jobs:
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
       
+    - name: Cache Convex generated files
+      id: convex-cache
+      uses: actions/cache@v4
+      with:
+        path: convex/_generated
+        key: ${{ runner.os }}-convex-${{ hashFiles('convex/schema.ts', 'convex/**/*.ts') }}
+        restore-keys: |
+          ${{ runner.os }}-convex-
+      
     - name: Generate Convex files
+      if: steps.convex-cache.outputs.cache-hit != 'true'
       run: npx convex codegen
       env:
         CONVEX_DEPLOYMENT: fleet-goldfish-183
@@ -109,7 +119,17 @@ jobs:
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
       
+    - name: Cache Convex generated files
+      id: convex-cache
+      uses: actions/cache@v4
+      with:
+        path: convex/_generated
+        key: ${{ runner.os }}-convex-${{ hashFiles('convex/schema.ts', 'convex/**/*.ts') }}
+        restore-keys: |
+          ${{ runner.os }}-convex-
+      
     - name: Generate Convex files
+      if: steps.convex-cache.outputs.cache-hit != 'true'
       run: npx convex codegen
       env:
         CONVEX_DEPLOYMENT: fleet-goldfish-183

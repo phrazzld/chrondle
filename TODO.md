@@ -25,10 +25,18 @@
   - Document that Convex files must be generated before type checking
   - Explain why these files are gitignored
   - Note the production deployment ID for CI usage
-- [ ] **[CI FIX]** Consider caching generated Convex files to speed up CI
+- [x] **[CI FIX]** Consider caching generated Convex files to speed up CI
   - Cache path: `convex/_generated`
   - Cache key: Based on `convex/schema.ts` hash
   - Restore on subsequent runs to avoid regeneration
+  ```
+  Work Log:
+  - Added caching step using actions/cache@v4 (consistent with other caching)
+  - Cache key includes all Convex TypeScript files to invalidate on schema changes
+  - Made codegen conditional: only runs if cache miss (cache-hit != 'true')
+  - Applied to both test and build jobs for consistency
+  - Expected time savings: ~2-3 seconds per CI run when cache hits
+  ```
 - [ ] **[CI FIX]** Update Vercel build command if needed
   - Check if Vercel needs explicit Convex codegen in build settings
   - May need to prepend: `npx convex codegen --no-push && ` to build command
