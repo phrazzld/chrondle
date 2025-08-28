@@ -42,7 +42,7 @@ jobs:
       run: pnpm install --frozen-lockfile
       
     - name: Generate Convex files
-      run: npx convex codegen --no-push
+      run: npx convex codegen
       env:
         CONVEX_DEPLOYMENT: fleet-goldfish-183
       
@@ -110,7 +110,7 @@ jobs:
       run: pnpm install --frozen-lockfile
       
     - name: Generate Convex files
-      run: npx convex codegen --no-push
+      run: npx convex codegen
       env:
         CONVEX_DEPLOYMENT: fleet-goldfish-183
       
