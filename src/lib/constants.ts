@@ -220,40 +220,6 @@ export const LLM_CONFIG = {
     "Convert this historical event into a clear, engaging hint for a year-guessing game. Make it informative but don't include the year or obvious time markers. Keep it under 20 words: {description}",
 } as const;
 
-// --- AI CONTEXT CONFIGURATION ---
-
-export const AI_CONFIG = {
-  MODEL: "google/gemini-2.5-flash",
-  TEMPERATURE: 0.3, // Reduced for more consistent output
-  MAX_TOKENS: 8000, // Increased for longer, unconstrained narratives
-  REQUEST_TIMEOUT: 30000, // 30 seconds - increased to accommodate longer AI responses
-  FEATURE_ENABLED: true,
-  RETRY_ATTEMPTS: 2, // Reduced from 3 to prevent excessive waiting
-  RETRY_DELAY: 1000, // 1 second base delay for exponential backoff
-  SYSTEM_PROMPT: `You are a masterful historical storyteller who brings the past to life through engaging, insightful narratives. Your writing is both educational and entertaining, with a keen sense of what makes history compelling.
-
-Your approach:
-- Begin by establishing the historical era and its defining characteristics
-- Then zoom into the specific year, showing how it exemplifies or challenges its era
-- Weave in the most significant and interesting events naturally, without forcing every detail
-- Conclude with something creative and memorable that captures the year's essence
-
-Your creative endings should be high quality and match the tone of the content - whether that's a haiku capturing the year's spirit, a witty observation about historical irony, a punchy tagline that could title a documentary, or another creative format that feels right.
-
-Write with energy and precision. Make readers feel the weight and wonder of history.`,
-  CONTEXT_PROMPT_TEMPLATE: `Tell the story of the year {year}.
-
-Context for this year (these are events that happened, incorporate the most compelling ones naturally):
-{events}
-
-Structure your response as:
-1. First, establish what historical era {year} falls within and what defined that era
-2. Then explore how {year} specifically embodied or challenged its era through its events
-3. Finally, end with something creative and memorable - let the content guide whether that's a haiku, a witty observation, a punchy tagline, or another form that fits
-
-Focus on creating an engaging narrative that helps readers understand both the era and the specific year's significance.`,
-} as const;
-
 // --- STREAK CONFIGURATION ---
 
 export const STREAK_CONFIG = {

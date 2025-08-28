@@ -1,3 +1,5 @@
+"use node";
+
 // Convex Action for Historical Context Generation
 // Handles external API calls to OpenRouter for AI-generated historical narratives
 // This action is called during puzzle generation to create context server-side

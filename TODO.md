@@ -56,39 +56,39 @@ Client-side context generation causes rate limiting (5 req/hour), duplicate API 
 - [x] Remove all error state logic from HistoricalContextCard (lines 167-188, 247-274)
 - [x] Remove manual generation trigger logic (handleToggle function lines 90-148)
 - [x] Update expand/collapse to only toggle visibility of pre-fetched content
-- [ ] Update GameInstructions.tsx to pass `puzzle.historicalContext` directly to HistoricalContextCard
-- [ ] Remove `useHistoricalContext` hook import and usage from HistoricalContextCard
+- [x] Update GameInstructions.tsx to pass `puzzle.historicalContext` directly to HistoricalContextCard
+- [x] Remove `useHistoricalContext` hook import and usage from HistoricalContextCard
 
 ## Phase 8: Dead Code Removal
 
-- [ ] Delete `/src/hooks/useHistoricalContext.ts` (234 lines) - completely replaced by server-side generation
-- [ ] Delete `/src/lib/openrouter.ts` (318 lines) - moved to Convex action
-- [ ] Delete `/src/app/api/historical-context/route.ts` (180 lines) - no longer needed
-- [ ] Remove `HISTORICAL_CONTEXT_RATE_LIMIT` constant from `/src/lib/rate-limiter.ts` line 145
-- [ ] Remove historical context rate limiting logic from `/src/lib/rate-limiter.ts`
-- [ ] Remove OpenRouter-related types from `/src/lib/types/aiContext.ts` if no longer referenced
-- [ ] Remove AI_CONFIG constants that are only used by deleted code from `/src/lib/constants.ts`
+- [x] Delete `/src/hooks/useHistoricalContext.ts` (234 lines) - completely replaced by server-side generation
+- [x] Delete `/src/lib/openrouter.ts` (318 lines) - moved to Convex action
+- [x] Delete `/src/app/api/historical-context/route.ts` (180 lines) - no longer needed
+- [x] Remove `HISTORICAL_CONTEXT_RATE_LIMIT` constant from `/src/lib/rate-limiter.ts` line 145
+- [x] Remove historical context rate limiting logic from `/src/lib/rate-limiter.ts`
+- [x] Remove OpenRouter-related types from `/src/lib/types/aiContext.ts` if no longer referenced
+- [x] Remove AI_CONFIG constants that are only used by deleted code from `/src/lib/constants.ts`
 
 ## Phase 9: Migration Script for Existing Puzzles
 
-- [ ] Create `/convex/migrations/generateMissingContext.ts` internal mutation
-- [ ] Query all puzzles where `historicalContext === undefined` ordered by puzzleNumber ascending
-- [ ] Batch process in groups of 5 to avoid overwhelming OpenRouter API
-- [ ] Schedule context generation action for each puzzle with 2-second delays between batches
-- [ ] Add progress logging showing X/Y puzzles processed
-- [ ] Add dry-run mode that counts puzzles needing migration without executing
-- [ ] Test on single puzzle first before running full migration
+- [x] Create `/convex/migrations/generateMissingContext.ts` internal mutation
+- [x] Query all puzzles where `historicalContext === undefined` ordered by puzzleNumber ascending
+- [x] Batch process in groups of 5 to avoid overwhelming OpenRouter API
+- [x] Schedule context generation action for each puzzle with 2-second delays between batches
+- [x] Add progress logging showing X/Y puzzles processed
+- [x] Add dry-run mode that counts puzzles needing migration without executing
+- [x] Test on single puzzle first before running full migration
 
 ## Phase 10: Testing & Verification
 
-- [ ] Test action with mock year 1969 and Apollo 11 events to verify prompt formatting
-- [ ] Verify context persists to database and is retrievable via queries
+- [x] Test action with mock year 1969 and Apollo 11 events to verify prompt formatting
+- [x] Verify context persists to database and is retrievable via queries
 - [ ] Test error handling by temporarily using invalid API key
 - [ ] Verify retry logic by simulating network timeouts
 - [ ] Load test with 10 rapid puzzle generations to ensure no rate limiting
-- [ ] Verify client instantly displays context with no loading spinners
-- [ ] Test expand/collapse functionality still works correctly
-- [ ] Measure API cost reduction: log before (client requests) vs after (server requests) metrics
+- [x] Verify client instantly displays context with no loading spinners
+- [x] Test expand/collapse functionality still works correctly
+- [x] Measure API cost reduction: log before (client requests) vs after (server requests) metrics
 
 ## Phase 11: Production Deployment
 
@@ -103,7 +103,7 @@ Client-side context generation causes rate limiting (5 req/hour), duplicate API 
 
 ## Miscellaneous
 
-- [ ] Show Chrondle puzzle number in share text
+- [x] Show Chrondle puzzle number in share text
 
 ## Success Metrics
 

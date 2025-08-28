@@ -16,6 +16,8 @@ export interface GameLayoutProps {
     puzzle: {
       year: number;
       events: string[];
+      puzzleNumber?: number;
+      historicalContext?: string;
     } | null;
     guesses: number[];
     isGameOver: boolean;
@@ -97,6 +99,8 @@ export function GameLayout(props: GameLayoutProps) {
             timeString={countdown?.timeString}
             isArchive={isArchive}
             puzzleEvents={gameState.puzzle?.events || []}
+            puzzleNumber={gameState.puzzle?.puzzleNumber}
+            historicalContext={gameState.puzzle?.historicalContext}
           />
 
           {/* Guess Input - Below instructions */}

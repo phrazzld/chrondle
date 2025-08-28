@@ -104,3 +104,6 @@ logs_result.json
 
 # Playwright test artifacts
 .playwright-mcp/
+
+# Convex generated files
+convex/_generated/
