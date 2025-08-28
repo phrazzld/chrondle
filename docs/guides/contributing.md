@@ -79,6 +79,60 @@ pnpm format        # Format with Prettier
 pnpm size          # Check bundle size (<170KB limit)
 ```
 
+## 🔧 CI/CD Setup Requirements
+
+### Convex Code Generation
+
+This project uses **Convex** as its backend database. Convex auto-generates TypeScript definitions that are required for type checking but are **gitignored** to avoid merge conflicts.
+
+#### Why are Convex files gitignored?
+
+- **Auto-generated**: Files in `convex/_generated/` are created from your schema
+- **Environment-specific**: Different deployments may have different schemas
+- **Merge conflicts**: Generated files would cause unnecessary conflicts
+- **Best practice**: Generated code should not be committed to version control
+
+#### CI Pipeline Requirements
+
+The CI pipeline **must** generate these files before running type checks:
+
+```yaml
+# Required in .github/workflows/ci.yml
+- name: Generate Convex files
+  run: npx convex codegen
+  env:
+    CONVEX_DEPLOYMENT: fleet-goldfish-183 # Production deployment ID
+```
+
+#### Local Development
+
+For local development, Convex files are generated automatically when you run:
+
+```bash
+npx convex dev  # Starts Convex in development mode and generates files
+```
+
+#### Troubleshooting CI Failures
+
+**Problem:** TypeScript errors about missing modules from `convex/_generated/`
+
+**Symptoms:**
+
+```
+error TS2307: Cannot find module '../_generated/server'
+error TS2307: Cannot find module '../_generated/api'
+```
+
+**Solution:** Ensure the Convex codegen step runs before type checking in CI
+
+**Problem:** Vercel deployment fails with Convex import errors
+
+**Solution:** Add Convex codegen to your Vercel build command:
+
+```bash
+npx convex codegen && pnpm build
+```
+
 ## 📊 Quality Gates
 
 ### Performance Metrics

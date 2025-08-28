@@ -18,10 +18,10 @@
 - [x] **[CI FIX]** Update build job to also generate Convex files
   - Add same Convex codegen step after line 105 in build job
   - Ensures build has necessary TypeScript definitions
-- [~] **[CI FIX]** Test fix by pushing to current PR branch
+- [x] **[CI FIX]** Test fix by pushing to current PR branch
   - Commit workflow changes with message: "fix(ci): add Convex codegen step to CI pipeline"
   - Monitor CI run to verify all checks pass
-- [ ] **[CI FIX]** Add CI setup documentation to README or CONTRIBUTING.md
+- [x] **[CI FIX]** Add CI setup documentation to README or CONTRIBUTING.md
   - Document that Convex files must be generated before type checking
   - Explain why these files are gitignored
   - Note the production deployment ID for CI usage
@@ -35,11 +35,11 @@
 
 ### Verification Checklist
 
-- [ ] TypeScript compilation passes in CI
-- [ ] All test suites run successfully
-- [ ] Build job completes without errors
-- [ ] Vercel deployment succeeds
-- [ ] PR checks all show green status
+- [x] TypeScript compilation passes in CI
+- [x] All test suites run successfully
+- [x] Build job completes without errors
+- [ ] Vercel deployment succeeds (separate issue - needs investigation)
+- [ ] PR checks all show green status (Vercel still failing)
 
 ---
 
