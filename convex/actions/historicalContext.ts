@@ -15,6 +15,25 @@ interface ErrorWithStatus extends Error {
 }
 
 /**
+ * Post-processing function to enforce BC/AD format as a safety net
+ * Replaces any remaining BCE/CE occurrences with BC/AD
+ */
+function enforceADBC(text: string): string {
+  // Replace BCE with BC (case insensitive, word boundary aware)
+  let result = text.replace(/\bBCE\b/gi, "BC");
+
+  // Replace CE with AD (more careful to avoid replacing parts of words)
+  // Only replace CE when it's preceded by a number or space and followed by word boundary
+  result = result.replace(/(\d+\s*)CE\b/gi, "$1AD");
+  result = result.replace(/\s+CE\b/gi, " AD");
+
+  // Handle cases like "5th century CE" -> "5th century AD"
+  result = result.replace(/century\s+CE\b/gi, "century AD");
+
+  return result;
+}
+
+/**
  * Internal action to generate historical context for a puzzle
  * Called by the puzzle generation cron job after creating a new puzzle
  * Makes external API call to OpenRouter to generate AI narrative
@@ -33,6 +52,9 @@ export const generateHistoricalContext = internalAction({
     );
 
     try {
+      // Check if GPT-5 is enabled (allows quick rollback to Gemini if needed)
+      const gpt5Enabled = process.env.OPENAI_GPT5_ENABLED !== "false";
+
       // Get API key from environment
       const apiKey = process.env.OPENROUTER_API_KEY;
       if (!apiKey) {
@@ -53,7 +75,9 @@ Structure your response as:
 2. Then explore how ${year} specifically embodied or challenged its era through its events
 3. Finally, end with something creative and memorable - let the content guide whether that's a haiku, a witty observation, a punchy tagline, or another form that fits
 
-Focus on creating an engaging narrative that helps readers understand both the era and the specific year's significance.`;
+Focus on creating an engaging narrative that helps readers understand both the era and the specific year's significance.
+
+Remember: Use BC/AD format exclusively for all dates.`;
 
       // Helper functions for retry logic
       const sleep = (ms: number): Promise<void> => {
@@ -104,6 +128,18 @@ Focus on creating an engaging narrative that helps readers understand both the e
         "Unknown error occurred during context generation",
       );
       let generatedContext: string | undefined;
+      let currentModel = gpt5Enabled
+        ? "openai/gpt-5"
+        : "google/gemini-2.5-flash"; // Use GPT-5 if enabled
+      let hasHitRateLimit = false;
+
+      // Log model selection
+      console.error(
+        "[HistoricalContext] Using model:",
+        currentModel,
+        "for puzzle:",
+        puzzleId,
+      );
 
       for (let attempt = 0; attempt < maxAttempts; attempt++) {
         try {
@@ -120,14 +156,14 @@ Focus on creating an engaging narrative that helps readers understand both the e
                 Authorization: `Bearer ${apiKey}`,
                 "Content-Type": "application/json",
                 "HTTP-Referer": "https://chrondle.com",
-                "X-Title": "Chrondle Historical Context",
+                "X-Title": "Chrondle Historical Context GPT-5",
               },
               body: JSON.stringify({
-                model: "google/gemini-2.5-flash",
+                model: currentModel,
                 messages: [
                   {
                     role: "system",
-                    content: `You are a masterful historical storyteller who brings the past to life through engaging, insightful narratives. Your writing is both educational and entertaining, with a keen sense of what makes history compelling.
+                    content: `You are a master historian, storyteller, and teacher crafting engaging historical narratives. CRITICAL REQUIREMENT: You MUST use BC/AD date format exclusively. Never use BCE/CE. For dates before year 1, always append 'BC'. For dates after year 1, always append 'AD'. Examples: '776 BC', '44 BC', '476 AD', '1066 AD'. This is non-negotiable.
 
 Your approach:
 - Begin by establishing the historical era and its defining characteristics
@@ -137,14 +173,14 @@ Your approach:
 
 Your creative endings should be high quality and match the tone of the content - whether that's a haiku capturing the year's spirit, a witty observation about historical irony, a punchy tagline that could title a documentary, or another creative format that feels right.
 
-Write with energy and precision. Make readers feel the weight and wonder of history.`,
+Write with energy and precision. Make readers feel the weight and wonder of history. Remember: Use BC/AD format exclusively for all dates.`,
                   },
                   {
                     role: "user",
                     content: prompt,
                   },
                 ],
-                temperature: 0.3,
+                temperature: 1.0,
                 max_tokens: 8000,
               }),
             },
@@ -153,12 +189,14 @@ Write with energy and precision. Make readers feel the weight and wonder of hist
           // Check if request was successful
           if (!response.ok) {
             const errorText = await response.text();
+            const isGPT5Error = currentModel.includes("gpt-5");
+            const errorPrefix = isGPT5Error ? "GPT-5 API" : "OpenRouter API";
             const error: ErrorWithStatus = new Error(
-              `OpenRouter API request failed: ${response.status} ${response.statusText}`,
+              `${errorPrefix} request failed: ${response.status} ${response.statusText}${isGPT5Error && response.status === 429 ? " (rate limited)" : ""}`,
             );
             error.status = response.status;
             console.error(
-              `[HistoricalContext] Attempt ${attempt + 1} failed - OpenRouter API error: ${response.status}`,
+              `[HistoricalContext] Attempt ${attempt + 1} failed - ${errorPrefix} error: ${response.status}`,
             );
             console.error(`[HistoricalContext] Error text: ${errorText}`);
             throw error;
@@ -175,6 +213,19 @@ Write with energy and precision. Make readers feel the weight and wonder of hist
             throw new Error("Invalid response from OpenRouter API");
           }
 
+          // Apply BC/AD format enforcement as safety net
+          generatedContext = enforceADBC(generatedContext);
+
+          // Cost estimation for GPT-5 ($0.01/1K input tokens + $0.03/1K output tokens)
+          if (currentModel.includes("gpt-5")) {
+            const inputTokens = Math.ceil(prompt.length / 4); // Rough estimate: 4 chars per token
+            const outputTokens = Math.ceil(generatedContext.length / 4);
+            const costEstimate = inputTokens * 0.00001 + outputTokens * 0.00003;
+            console.error(
+              `[HistoricalContext] Cost estimate for ${currentModel}: $${costEstimate.toFixed(4)} (${inputTokens} input, ${outputTokens} output tokens)`,
+            );
+          }
+
           // Success! Break out of retry loop
           console.error(
             `[HistoricalContext] Attempt ${attempt + 1} succeeded - Generated ${generatedContext.length} characters for year ${year}`,
@@ -182,10 +233,27 @@ Write with energy and precision. Make readers feel the weight and wonder of hist
           break;
         } catch (error) {
           lastError = error as Error;
+          const errorWithStatus = error as ErrorWithStatus;
           console.error(
             `[HistoricalContext] Attempt ${attempt + 1}/${maxAttempts} failed for puzzle ${puzzleId}:`,
             error,
           );
+
+          // Check for rate limit (429) and switch to GPT-5-mini if not already using it
+          if (
+            errorWithStatus.status === 429 &&
+            !hasHitRateLimit &&
+            currentModel === "openai/gpt-5"
+          ) {
+            console.error(
+              `[HistoricalContext] Rate limit hit with GPT-5, switching to GPT-5-mini for retry`,
+            );
+            currentModel = "openai/gpt-5-mini";
+            hasHitRateLimit = true;
+            // Continue to next iteration to retry with GPT-5-mini
+            await sleep(calculateBackoffDelay(attempt));
+            continue;
+          }
 
           // Check if we should retry this error
           if (!shouldRetry(error as Error) || attempt === maxAttempts - 1) {

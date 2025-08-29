@@ -70,20 +70,18 @@ describe("GuessInput Component Interface", () => {
       expect(button.disabled).toBe(true);
     });
 
-    it("shows remaining guesses in button text", () => {
+    it("shows 'Guess' as button text", () => {
       render(<GuessInput {...defaultProps} remainingGuesses={3} />);
 
       const button = screen.getByRole("button");
-      expect(button.textContent).toContain("3");
-      expect(button.textContent).toMatch(/guess/i);
+      expect(button.textContent).toBe("Guess");
     });
 
     it("handles single guess remaining", () => {
       render(<GuessInput {...defaultProps} remainingGuesses={1} />);
 
       const button = screen.getByRole("button");
-      expect(button.textContent).toContain("1");
-      expect(button.textContent).toMatch(/guess/i);
+      expect(button.textContent).toBe("Guess");
     });
 
     it("handles no guesses remaining", () => {
@@ -211,7 +209,7 @@ describe("GuessInput Component Interface", () => {
       render(<GuessInput {...defaultProps} remainingGuesses={100} />);
 
       const button = screen.getByRole("button");
-      expect(button.textContent).toContain("100");
+      expect(button.textContent).toBe("Guess");
     });
 
     it("clears input after successful submission", async () => {
