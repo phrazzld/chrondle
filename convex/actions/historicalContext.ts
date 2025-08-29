@@ -34,6 +34,33 @@ function enforceADBC(text: string): string {
 }
 
 /**
+ * Post-processing to clean up formatting issues in generated content
+ */
+function cleanupHistoricalContext(text: string): string {
+  let result = text;
+
+  // Remove numbered section markers like "1)", "2)", "3)" or "1.", "2.", "3." at the start of lines
+  result = result.replace(/^\d+[)\.]\s*/gm, "");
+
+  // Remove awkward haiku labels like "Haiku for 30 AD:" or "Haiku:"
+  result = result.replace(/^Haiku\s*(for\s+[\d\s]+(BC|AD))?:?\s*/gim, "");
+
+  // Remove tagline labels like "Tagline:" or "Tagline to remember:"
+  result = result.replace(
+    /^Tagline\s*(to\s+remember\s*(it\s+)?by)?:?\s*/gim,
+    "",
+  );
+
+  // Clean up excessive whitespace
+  result = result.replace(/\n{3,}/g, "\n\n");
+
+  // Trim leading/trailing whitespace
+  result = result.trim();
+
+  return result;
+}
+
+/**
  * Internal action to generate historical context for a puzzle
  * Called by the puzzle generation cron job after creating a new puzzle
  * Makes external API call to OpenRouter to generate AI narrative
@@ -65,19 +92,24 @@ export const generateHistoricalContext = internalAction({
 
       // Prepare prompt using template from constants
       const eventsText = args.events.join("\n");
-      const prompt = `Tell the story of the year ${year}.
+      const prompt = `Tell the story of ${year} in a vivid, concise narrative.
 
-Context for this year (these are events that happened, incorporate the most compelling ones naturally):
+Events from this year:
 ${eventsText}
 
-Structure your response as:
-1. First, establish what historical era ${year} falls within and what defined that era
-2. Then explore how ${year} specifically embodied or challenged its era through its events
-3. Finally, end with something creative and memorable - let the content guide whether that's a haiku, a witty observation, a punchy tagline, or another form that fits
+Create a flowing narrative that opens with the era's context, reveals why ${year} mattered through its most compelling events, and closes with something memorable.
 
-Focus on creating an engaging narrative that helps readers understand both the era and the specific year's significance.
+For your ending:
+- If using a haiku, format with two spaces at line ends:
+  Line one  
+  Line two  
+  Line three
 
-Remember: Use BC/AD format exclusively for all dates.`;
+- If using a tagline, italicize with *asterisks*
+- Keep the entire narrative under 500 words
+- Let the year's character guide your creative choice
+
+Remember: Use BC/AD format exclusively.`;
 
       // Helper functions for retry logic
       const sleep = (ms: number): Promise<void> => {
@@ -163,17 +195,23 @@ Remember: Use BC/AD format exclusively for all dates.`;
                 messages: [
                   {
                     role: "system",
-                    content: `You are a master historian, storyteller, and teacher crafting engaging historical narratives. CRITICAL REQUIREMENT: You MUST use BC/AD date format exclusively. Never use BCE/CE. For dates before year 1, always append 'BC'. For dates after year 1, always append 'AD'. Examples: '776 BC', '44 BC', '476 AD', '1066 AD'. This is non-negotiable.
+                    content: `You are a master historian crafting vivid, concise historical narratives for a daily puzzle game.
 
-Your approach:
-- Begin by establishing the historical era and its defining characteristics
-- Then zoom into the specific year, showing how it exemplifies or challenges its era
-- Weave in the most significant and interesting events naturally, without forcing every detail
-- Conclude with something creative and memorable that captures the year's essence
+CRITICAL: Use BC/AD format exclusively. Never use BCE/CE. For dates before year 1, always append 'BC'. For dates after year 1, always append 'AD'. Examples: '776 BC', '44 BC', '476 AD', '1066 AD'.
 
-Your creative endings should be high quality and match the tone of the content - whether that's a haiku capturing the year's spirit, a witty observation about historical irony, a punchy tagline that could title a documentary, or another creative format that feels right.
+Your narrative approach:
+- Open with the era's context in 2-3 punchy sentences
+- Transition seamlessly into why this specific year mattered
+- Weave the most compelling events naturally into the narrative flow
+- Close with ONE memorable element that captures the year's essence
 
-Write with energy and precision. Make readers feel the weight and wonder of history. Remember: Use BC/AD format exclusively for all dates.`,
+For your creative ending, choose what fits the year best:
+- A haiku (formatted with two spaces at line ends for markdown line breaks)
+- A punchy tagline (documentary-style, italicized with *asterisks*)
+- A paradox or irony that reveals the year's contradictions
+- A single powerful image that crystallizes the moment
+
+Write with energy and precision. Every sentence must earn its place. Make readers feel history's weight and wonder in under 500 words total.`,
                   },
                   {
                     role: "user",
@@ -213,8 +251,9 @@ Write with energy and precision. Make readers feel the weight and wonder of hist
             throw new Error("Invalid response from OpenRouter API");
           }
 
-          // Apply BC/AD format enforcement as safety net
+          // Apply post-processing: BC/AD format enforcement and cleanup
           generatedContext = enforceADBC(generatedContext);
+          generatedContext = cleanupHistoricalContext(generatedContext);
 
           // Cost estimation for GPT-5 ($0.01/1K input tokens + $0.03/1K output tokens)
           if (currentModel.includes("gpt-5")) {
