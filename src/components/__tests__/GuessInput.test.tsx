@@ -148,7 +148,7 @@ describe("GuessInput Component Interface", () => {
       expect(mockOnGuess).not.toHaveBeenCalled();
     });
 
-    it("accepts valid BCE years", async () => {
+    it("accepts valid BC years", async () => {
       render(<GuessInput {...defaultProps} />);
 
       const input = screen.getByRole("textbox") as HTMLInputElement;

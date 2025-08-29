@@ -122,16 +122,24 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
     remainingGuesses: number,
     disabled: boolean,
     isLoading: boolean,
+    isSubmitting: boolean,
   ): string => {
     // Show loading state first, before checking disabled
     if (isLoading) return "Loading game...";
+    // Show submitting state during guess submission
+    if (isSubmitting) return "Guessing...";
     // Only show "Game Over" if disabled and NOT loading
     if (disabled) return "Game Over";
     if (remainingGuesses === 0) return "No guesses remaining";
     return "Guess";
   };
 
-  const buttonText = getButtonText(remainingGuesses, disabled, isLoading);
+  const buttonText = getButtonText(
+    remainingGuesses,
+    disabled,
+    isLoading,
+    isSubmitting,
+  );
   const isSubmitDisabled = disabled || remainingGuesses <= 0;
 
   return (
@@ -164,7 +172,7 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
           disabled={isSubmitDisabled}
           size="lg"
           aria-label={`Submit guess (${remainingGuesses} remaining)`}
-          className={`h-12 px-8 text-lg font-accent font-semibold tracking-wide transition-all duration-200 w-full sm:w-auto ${
+          className={`h-12 px-8 text-lg font-accent font-semibold tracking-wide transition-all duration-200 w-full sm:w-auto sm:min-w-[140px] ${
             isSubmitting
               ? "scale-105 bg-primary/90 shadow-lg animate-pulse"
               : "hover:bg-primary/90"

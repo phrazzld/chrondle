@@ -18,6 +18,7 @@ import type * as crons from "../crons.js";
 import type * as events from "../events.js";
 import type * as migrations_generateMissingContext from "../migrations/generateMissingContext.js";
 import type * as migrations_migrateEvents from "../migrations/migrateEvents.js";
+import type * as migrations_regenerateHistoricalContextGPT5 from "../migrations/regenerateHistoricalContextGPT5.js";
 import type * as puzzles from "../puzzles.js";
 import type * as users from "../users.js";
 
@@ -35,6 +36,7 @@ declare const fullApi: ApiFromModules<{
   events: typeof events;
   "migrations/generateMissingContext": typeof migrations_generateMissingContext;
   "migrations/migrateEvents": typeof migrations_migrateEvents;
+  "migrations/regenerateHistoricalContextGPT5": typeof migrations_regenerateHistoricalContextGPT5;
   puzzles: typeof puzzles;
   users: typeof users;
 }>;

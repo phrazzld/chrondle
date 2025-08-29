@@ -286,13 +286,30 @@ Write with energy and precision. Make readers feel the weight and wonder of hist
       );
 
       // Call internal mutation to update puzzle with generated context
-      await ctx.runMutation(internal.puzzles.updateHistoricalContext, {
-        puzzleId,
-        context: generatedContext,
-      });
+      const updateResult = await ctx.runMutation(
+        internal.puzzles.updateHistoricalContext,
+        {
+          puzzleId,
+          context: generatedContext,
+        },
+      );
+
+      // Verify the update was successful using the returned puzzle data
+      if (
+        !updateResult.success ||
+        !updateResult.updatedPuzzle ||
+        !updateResult.updatedPuzzle.historicalContext
+      ) {
+        throw new Error(
+          `Failed to verify historical context update for puzzle ${puzzleId}. ` +
+            `Update result: success=${updateResult.success}, ` +
+            `puzzle=${updateResult.updatedPuzzle ? "exists" : "null"}, ` +
+            `context=${updateResult.updatedPuzzle?.historicalContext ? "present" : "missing"}`,
+        );
+      }
 
       console.error(
-        `[HistoricalContext] Successfully persisted context to database for puzzle ${puzzleId}`,
+        `[HistoricalContext] Successfully persisted and verified context to database for puzzle ${puzzleId}`,
       );
 
       console.error(
