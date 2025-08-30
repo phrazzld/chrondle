@@ -122,17 +122,24 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
     remainingGuesses: number,
     disabled: boolean,
     isLoading: boolean,
+    isSubmitting: boolean,
   ): string => {
     // Show loading state first, before checking disabled
     if (isLoading) return "Loading game...";
+    // Show submitting state during guess submission
+    if (isSubmitting) return "Guessing...";
     // Only show "Game Over" if disabled and NOT loading
     if (disabled) return "Game Over";
     if (remainingGuesses === 0) return "No guesses remaining";
-    if (remainingGuesses === 1) return "1 guess remaining";
-    return `${remainingGuesses} guesses remaining`;
+    return "Guess";
   };
 
-  const buttonText = getButtonText(remainingGuesses, disabled, isLoading);
+  const buttonText = getButtonText(
+    remainingGuesses,
+    disabled,
+    isLoading,
+    isSubmitting,
+  );
   const isSubmitDisabled = disabled || remainingGuesses <= 0;
 
   return (
@@ -145,10 +152,13 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
         <Input
           ref={inputRef}
           type="text"
+          inputMode="numeric"
+          pattern="[0-9-]*"
+          enterKeyHint="done"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Enter year (e.g. 1969)"
+          placeholder="Enter year (e.g. 1969 or -776 for BC)"
           className="text-lg sm:text-2xl text-left font-accent font-bold h-12 bg-background border-2 border-input focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all duration-200 shadow-sm w-full sm:flex-1 tracking-wide"
           title="Use ↑↓ arrow keys (±1 year) or Shift+↑↓ (±10 years). Use negative numbers for BC years (e.g. -450 for 450 BC)"
           required
@@ -161,7 +171,8 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
           type="submit"
           disabled={isSubmitDisabled}
           size="lg"
-          className={`h-12 px-8 text-lg font-accent font-semibold tracking-wide transition-all duration-200 w-full sm:w-auto ${
+          aria-label={`Submit guess (${remainingGuesses} remaining)`}
+          className={`h-12 px-8 text-lg font-accent font-semibold tracking-wide transition-all duration-200 w-full sm:w-auto sm:min-w-[140px] ${
             isSubmitting
               ? "scale-105 bg-primary/90 shadow-lg animate-pulse"
               : "hover:bg-primary/90"

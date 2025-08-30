@@ -82,11 +82,6 @@ export const getCurrentUser = query({
 
     // Add debug logging when user lookup returns null
     if (!user && identity.subject) {
-      // console.log("[getCurrentUser] No user found for Clerk ID:", {
-      //   clerkId: identity.subject,
-      //   email: identity.email,
-      //   timestamp: new Date().toISOString(),
-      // });
     }
 
     return user;
@@ -111,12 +106,6 @@ export const getOrCreateCurrentUser = mutation({
         .first();
 
       if (existingUser) {
-        // console.log("[getOrCreateCurrentUser] Found existing user:", {
-        //   userId: existingUser._id,
-        //   clerkId: identity.subject,
-        //   email: existingUser.email,
-        //   timestamp: new Date().toISOString(),
-        // });
         return existingUser;
       }
 
@@ -138,16 +127,6 @@ export const getOrCreateCurrentUser = mutation({
         username = identity.firstName;
       }
 
-      // console.log("[getOrCreateCurrentUser] Creating new user:", {
-      //   clerkId: identity.subject,
-      //   email,
-      //   username,
-      //   hasEmail: typeof identity.email === "string",
-      //   hasNickname: typeof identity.nickname === "string",
-      //   hasFirstName: typeof identity.firstName === "string",
-      //   timestamp: new Date().toISOString(),
-      // });
-
       const userId = await ctx.db.insert("users", {
         clerkId: identity.subject,
         email,
@@ -164,14 +143,6 @@ export const getOrCreateCurrentUser = mutation({
       if (!newUser) {
         throw new Error("Failed to retrieve newly created user record");
       }
-
-      // console.log("[getOrCreateCurrentUser] User created successfully:", {
-      //   userId: newUser._id,
-      //   clerkId: newUser.clerkId,
-      //   email: newUser.email,
-      //   username: newUser.username,
-      //   timestamp: new Date().toISOString(),
-      // });
 
       return newUser;
     } catch (error) {

@@ -227,3 +227,64 @@ export const getEventPoolStats = query({
     };
   },
 });
+
+// Delete a single event (if not used in a puzzle)
+export const deleteEvent = mutation({
+  args: {
+    eventId: v.id("events"),
+  },
+  handler: async (ctx, { eventId }) => {
+    const event = await ctx.db.get(eventId);
+
+    if (!event) {
+      throw new Error(`Event with ID ${eventId} not found.`);
+    }
+
+    if (event.puzzleId !== undefined) {
+      throw new Error("Cannot delete event: It is used in a puzzle.");
+    }
+
+    await ctx.db.delete(eventId);
+
+    return { deleted: true, eventId };
+  },
+});
+
+// Update a single event (if not used in a puzzle)
+export const updateEvent = mutation({
+  args: {
+    eventId: v.id("events"),
+    newEvent: v.string(),
+  },
+  handler: async (ctx, { eventId, newEvent }) => {
+    const event = await ctx.db.get(eventId);
+
+    if (!event) {
+      throw new Error(`Event with ID ${eventId} not found.`);
+    }
+
+    if (event.puzzleId !== undefined) {
+      throw new Error("Cannot update event: It is used in a puzzle.");
+    }
+
+    // Check if the new event text already exists for that year
+    const existing = await ctx.db
+      .query("events")
+      .withIndex("by_year", (q) => q.eq("year", event.year))
+      .filter((q) => q.eq(q.field("event"), newEvent))
+      .first();
+
+    if (existing && existing._id !== eventId) {
+      throw new Error(
+        `An event with this text already exists for the year ${event.year}.`,
+      );
+    }
+
+    await ctx.db.patch(eventId, {
+      event: newEvent,
+      updatedAt: Date.now(),
+    });
+
+    return { updated: true, eventId };
+  },
+});

@@ -15,6 +15,52 @@ interface ErrorWithStatus extends Error {
 }
 
 /**
+ * Post-processing function to enforce BC/AD format as a safety net
+ * Replaces any remaining BCE/CE occurrences with BC/AD
+ */
+function enforceADBC(text: string): string {
+  // Replace BCE with BC (case insensitive, word boundary aware)
+  let result = text.replace(/\bBCE\b/gi, "BC");
+
+  // Replace CE with AD (more careful to avoid replacing parts of words)
+  // Only replace CE when it's preceded by a number or space and followed by word boundary
+  result = result.replace(/(\d+\s*)CE\b/gi, "$1AD");
+  result = result.replace(/\s+CE\b/gi, " AD");
+
+  // Handle cases like "5th century CE" -> "5th century AD"
+  result = result.replace(/century\s+CE\b/gi, "century AD");
+
+  return result;
+}
+
+/**
+ * Post-processing to clean up formatting issues in generated content
+ */
+function cleanupHistoricalContext(text: string): string {
+  let result = text;
+
+  // Remove numbered section markers like "1)", "2)", "3)" or "1.", "2.", "3." at the start of lines
+  result = result.replace(/^\d+[)\.]\s*/gm, "");
+
+  // Remove awkward haiku labels like "Haiku for 30 AD:" or "Haiku:"
+  result = result.replace(/^Haiku\s*(for\s+[\d\s]+(BC|AD))?:?\s*/gim, "");
+
+  // Remove tagline labels like "Tagline:" or "Tagline to remember:"
+  result = result.replace(
+    /^Tagline\s*(to\s+remember\s*(it\s+)?by)?:?\s*/gim,
+    "",
+  );
+
+  // Clean up excessive whitespace
+  result = result.replace(/\n{3,}/g, "\n\n");
+
+  // Trim leading/trailing whitespace
+  result = result.trim();
+
+  return result;
+}
+
+/**
  * Internal action to generate historical context for a puzzle
  * Called by the puzzle generation cron job after creating a new puzzle
  * Makes external API call to OpenRouter to generate AI narrative
@@ -33,6 +79,9 @@ export const generateHistoricalContext = internalAction({
     );
 
     try {
+      // Check if GPT-5 is enabled (allows quick rollback to Gemini if needed)
+      const gpt5Enabled = process.env.OPENAI_GPT5_ENABLED !== "false";
+
       // Get API key from environment
       const apiKey = process.env.OPENROUTER_API_KEY;
       if (!apiKey) {
@@ -43,17 +92,24 @@ export const generateHistoricalContext = internalAction({
 
       // Prepare prompt using template from constants
       const eventsText = args.events.join("\n");
-      const prompt = `Tell the story of the year ${year}.
+      const prompt = `Tell the story of ${year} in a vivid, concise narrative.
 
-Context for this year (these are events that happened, incorporate the most compelling ones naturally):
+Events from this year:
 ${eventsText}
 
-Structure your response as:
-1. First, establish what historical era ${year} falls within and what defined that era
-2. Then explore how ${year} specifically embodied or challenged its era through its events
-3. Finally, end with something creative and memorable - let the content guide whether that's a haiku, a witty observation, a punchy tagline, or another form that fits
+Create a flowing narrative that opens with the era's context, reveals why ${year} mattered through its most compelling events, and closes with something memorable.
 
-Focus on creating an engaging narrative that helps readers understand both the era and the specific year's significance.`;
+For your ending:
+- If using a haiku, format with two spaces at line ends:
+  Line one  
+  Line two  
+  Line three
+
+- If using a tagline, italicize with *asterisks*
+- Keep the entire narrative under 500 words
+- Let the year's character guide your creative choice
+
+Remember: Use BC/AD format exclusively.`;
 
       // Helper functions for retry logic
       const sleep = (ms: number): Promise<void> => {
@@ -104,6 +160,18 @@ Focus on creating an engaging narrative that helps readers understand both the e
         "Unknown error occurred during context generation",
       );
       let generatedContext: string | undefined;
+      let currentModel = gpt5Enabled
+        ? "openai/gpt-5"
+        : "google/gemini-2.5-flash"; // Use GPT-5 if enabled
+      let hasHitRateLimit = false;
+
+      // Log model selection
+      console.error(
+        "[HistoricalContext] Using model:",
+        currentModel,
+        "for puzzle:",
+        puzzleId,
+      );
 
       for (let attempt = 0; attempt < maxAttempts; attempt++) {
         try {
@@ -120,31 +188,37 @@ Focus on creating an engaging narrative that helps readers understand both the e
                 Authorization: `Bearer ${apiKey}`,
                 "Content-Type": "application/json",
                 "HTTP-Referer": "https://chrondle.com",
-                "X-Title": "Chrondle Historical Context",
+                "X-Title": "Chrondle Historical Context GPT-5",
               },
               body: JSON.stringify({
-                model: "google/gemini-2.5-flash",
+                model: currentModel,
                 messages: [
                   {
                     role: "system",
-                    content: `You are a masterful historical storyteller who brings the past to life through engaging, insightful narratives. Your writing is both educational and entertaining, with a keen sense of what makes history compelling.
+                    content: `You are a master historian crafting vivid, concise historical narratives for a daily puzzle game.
 
-Your approach:
-- Begin by establishing the historical era and its defining characteristics
-- Then zoom into the specific year, showing how it exemplifies or challenges its era
-- Weave in the most significant and interesting events naturally, without forcing every detail
-- Conclude with something creative and memorable that captures the year's essence
+CRITICAL: Use BC/AD format exclusively. Never use BCE/CE. For dates before year 1, always append 'BC'. For dates after year 1, always append 'AD'. Examples: '776 BC', '44 BC', '476 AD', '1066 AD'.
 
-Your creative endings should be high quality and match the tone of the content - whether that's a haiku capturing the year's spirit, a witty observation about historical irony, a punchy tagline that could title a documentary, or another creative format that feels right.
+Your narrative approach:
+- Open with the era's context in 2-3 punchy sentences
+- Transition seamlessly into why this specific year mattered
+- Weave the most compelling events naturally into the narrative flow
+- Close with ONE memorable element that captures the year's essence
 
-Write with energy and precision. Make readers feel the weight and wonder of history.`,
+For your creative ending, choose what fits the year best:
+- A haiku (formatted with two spaces at line ends for markdown line breaks)
+- A punchy tagline (documentary-style, italicized with *asterisks*)
+- A paradox or irony that reveals the year's contradictions
+- A single powerful image that crystallizes the moment
+
+Write with energy and precision. Every sentence must earn its place. Make readers feel history's weight and wonder in under 500 words total.`,
                   },
                   {
                     role: "user",
                     content: prompt,
                   },
                 ],
-                temperature: 0.3,
+                temperature: 1.0,
                 max_tokens: 8000,
               }),
             },
@@ -153,12 +227,14 @@ Write with energy and precision. Make readers feel the weight and wonder of hist
           // Check if request was successful
           if (!response.ok) {
             const errorText = await response.text();
+            const isGPT5Error = currentModel.includes("gpt-5");
+            const errorPrefix = isGPT5Error ? "GPT-5 API" : "OpenRouter API";
             const error: ErrorWithStatus = new Error(
-              `OpenRouter API request failed: ${response.status} ${response.statusText}`,
+              `${errorPrefix} request failed: ${response.status} ${response.statusText}${isGPT5Error && response.status === 429 ? " (rate limited)" : ""}`,
             );
             error.status = response.status;
             console.error(
-              `[HistoricalContext] Attempt ${attempt + 1} failed - OpenRouter API error: ${response.status}`,
+              `[HistoricalContext] Attempt ${attempt + 1} failed - ${errorPrefix} error: ${response.status}`,
             );
             console.error(`[HistoricalContext] Error text: ${errorText}`);
             throw error;
@@ -175,6 +251,20 @@ Write with energy and precision. Make readers feel the weight and wonder of hist
             throw new Error("Invalid response from OpenRouter API");
           }
 
+          // Apply post-processing: BC/AD format enforcement and cleanup
+          generatedContext = enforceADBC(generatedContext);
+          generatedContext = cleanupHistoricalContext(generatedContext);
+
+          // Cost estimation for GPT-5 ($0.01/1K input tokens + $0.03/1K output tokens)
+          if (currentModel.includes("gpt-5")) {
+            const inputTokens = Math.ceil(prompt.length / 4); // Rough estimate: 4 chars per token
+            const outputTokens = Math.ceil(generatedContext.length / 4);
+            const costEstimate = inputTokens * 0.00001 + outputTokens * 0.00003;
+            console.error(
+              `[HistoricalContext] Cost estimate for ${currentModel}: $${costEstimate.toFixed(4)} (${inputTokens} input, ${outputTokens} output tokens)`,
+            );
+          }
+
           // Success! Break out of retry loop
           console.error(
             `[HistoricalContext] Attempt ${attempt + 1} succeeded - Generated ${generatedContext.length} characters for year ${year}`,
@@ -182,10 +272,27 @@ Write with energy and precision. Make readers feel the weight and wonder of hist
           break;
         } catch (error) {
           lastError = error as Error;
+          const errorWithStatus = error as ErrorWithStatus;
           console.error(
             `[HistoricalContext] Attempt ${attempt + 1}/${maxAttempts} failed for puzzle ${puzzleId}:`,
             error,
           );
+
+          // Check for rate limit (429) and switch to GPT-5-mini if not already using it
+          if (
+            errorWithStatus.status === 429 &&
+            !hasHitRateLimit &&
+            currentModel === "openai/gpt-5"
+          ) {
+            console.error(
+              `[HistoricalContext] Rate limit hit with GPT-5, switching to GPT-5-mini for retry`,
+            );
+            currentModel = "openai/gpt-5-mini";
+            hasHitRateLimit = true;
+            // Continue to next iteration to retry with GPT-5-mini
+            await sleep(calculateBackoffDelay(attempt));
+            continue;
+          }
 
           // Check if we should retry this error
           if (!shouldRetry(error as Error) || attempt === maxAttempts - 1) {
@@ -218,13 +325,30 @@ Write with energy and precision. Make readers feel the weight and wonder of hist
       );
 
       // Call internal mutation to update puzzle with generated context
-      await ctx.runMutation(internal.puzzles.updateHistoricalContext, {
-        puzzleId,
-        context: generatedContext,
-      });
+      const updateResult = await ctx.runMutation(
+        internal.puzzles.updateHistoricalContext,
+        {
+          puzzleId,
+          context: generatedContext,
+        },
+      );
+
+      // Verify the update was successful using the returned puzzle data
+      if (
+        !updateResult.success ||
+        !updateResult.updatedPuzzle ||
+        !updateResult.updatedPuzzle.historicalContext
+      ) {
+        throw new Error(
+          `Failed to verify historical context update for puzzle ${puzzleId}. ` +
+            `Update result: success=${updateResult.success}, ` +
+            `puzzle=${updateResult.updatedPuzzle ? "exists" : "null"}, ` +
+            `context=${updateResult.updatedPuzzle?.historicalContext ? "present" : "missing"}`,
+        );
+      }
 
       console.error(
-        `[HistoricalContext] Successfully persisted context to database for puzzle ${puzzleId}`,
+        `[HistoricalContext] Successfully persisted and verified context to database for puzzle ${puzzleId}`,
       );
 
       console.error(

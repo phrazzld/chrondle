@@ -93,7 +93,6 @@ async function ArchivePageContent({
       convexUser = await client.query(api.users.getUserByClerkId, {
         clerkId: clerkUser.id,
       });
-      // console.log("[Archive] Convex user found:", { userId: convexUser?._id });
     } catch (error) {
       console.error("[Archive] getUserByClerkId failed:", error);
       // Continue with null user - don't cascade failure
@@ -259,7 +258,6 @@ async function ArchivePageContent({
     environment,
     timestamp: new Date().toISOString(),
   };
-  // console.log("[Archive] Auth state:", authState);
 
   return (
     <UserCreationHandler authState={authState}>

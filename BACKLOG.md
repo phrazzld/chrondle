@@ -3,6 +3,10 @@
 ## Miscellaneous
 
 - paywall puzzle archive with stripe
+- show current hint above guess input
+- accuracy agent for auditing events in the database
+- generation agent for creating events in the database
+- quality agent for updating and tidying events, duplicates, etc
 
 ## Timeline Component Enhancements (from PR #11 review)
 
