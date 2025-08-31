@@ -11,7 +11,7 @@ import { internal } from "../_generated/api";
  * Features:
  * - Queries ALL puzzles for regeneration (not just missing context)
  * - Updates existing context with GPT-5 generated content
- * - Enforces BC/AD date format (replaces BCE/CE)
+ * - Enforces BC/AD date format consistently
  * - Batch processing with GPT-5 rate limit handling
  * - Migration metadata tracking
  * - Rollback snapshot reminder

@@ -186,6 +186,7 @@
 - [ ] Remove commented-out Gemini model configuration code
 - [x] Delete migration dry-run test files if created
 - [x] Clean up any TODO comments added during implementation
+- [x] Clean up remaining BCE/CE references in comments (2 files: historicalContext.ts:140, regenerateHistoricalContextGPT5.ts:14)
 
 ### Documentation Updates
 
@@ -210,8 +211,15 @@
 - [x] Verify daily puzzle generation: Ensure tomorrow's puzzle generates with GPT-5 successfully
 - [x] Review performance metrics: Confirm API response times remain under 10 seconds
 
+## Pre-Merge Cleanup Tasks (From PR Review)
+
+### Immediate Cleanup (5 minutes)
+
+- [x] Remove BCE/CE reference in `/convex/actions/historicalContext.ts:140` comment - changed to "Use BC/AD dating exclusively"
+- [x] Remove BCE/CE reference in `/convex/migrations/regenerateHistoricalContextGPT5.ts:14` comment - changed to "Enforces BC/AD date format consistently"
+
 ---
 
-**Total Estimated Time**: 4 hours 15 minutes  
-**Priority Order**: Phase 1 � Phase 5 � Phase 2 � Phase 3 � Phase 4 � Phase 6 � Phase 7  
-**Critical Path**: AI Model Migration � BC/AD Format � Migration Execution
+**Total Estimated Time**: 4 hours 20 minutes  
+**Priority Order**: Pre-Merge Cleanup → Phase 6 → Phase 7 → Post-Deployment  
+**Critical Path**: AI Model Migration → BC/AD Format → Migration Execution → Pre-Merge Cleanup

@@ -137,7 +137,7 @@ End with a haiku.`;
                 messages: [
                   {
                     role: "system",
-                    content: `You write vivid historical narratives for a daily puzzle game. Use BC/AD dating (never BCE/CE).
+                    content: `You write vivid historical narratives for a daily puzzle game. Use BC/AD dating exclusively.
 
 Start with the era's context, reveal why the year mattered through its key events, and end with a haiku. Write with energy and precision—tight and punchy, but give the year its due.`,
                   },

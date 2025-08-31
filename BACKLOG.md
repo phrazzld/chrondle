@@ -1,5 +1,23 @@
 # BACKLOG
 
+## PR Review Feedback (GPT-5 Migration)
+
+### Cost Monitoring & Management
+
+- [ ] [HIGH] [MONITORING] Implement GPT-5 cost monitoring with alerts when daily spend exceeds thresholds | Impact: ~4x higher costs than Gemini
+- [ ] [HIGH] [MONITORING] Track historical context generation latency and success rates | Data: Monitor API response times < 10s
+- [ ] [MED] [PERF] A/B test GPT-5 vs Gemini quality with user feedback | Gain: Data-driven decision on cost vs quality tradeoff
+
+### Production Monitoring & Logging
+
+- [ ] [HIGH] [MAINTAIN] Replace console.error() calls with structured logging for production | Debt: Better error tracking and debugging
+- [ ] [MED] [MONITORING] Implement production telemetry for context generation (success/failure rates, latency, costs) | Gain: Operational visibility
+
+### Code Quality Improvements
+
+- [x] [LOW] [CLEANUP] ~~Remove lingering BCE/CE references from comments in 2 files~~ | **COMPLETED**: Changed to avoid BCE/CE mentions
+- [ ] [LOW] [CLEANUP] Remove commented-out Gemini model configuration code | Debt: Dead code cleanup
+
 ## Miscellaneous
 
 - paywall puzzle archive with stripe
@@ -7,6 +25,7 @@
 - accuracy agent for auditing events in the database
 - generation agent for creating events in the database
 - quality agent for updating and tidying events, duplicates, etc
+- haiku generation flow, iterate on historical context generation prompt
 
 ## Timeline Component Enhancements (from PR #11 review)
 
