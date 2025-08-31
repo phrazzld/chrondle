@@ -15,6 +15,35 @@ interface ErrorWithStatus extends Error {
 }
 
 /**
+ * Enforces BC/AD date format in historical context text
+ * Replaces any BCE/CE occurrences with BC/AD
+ */
+function enforceADBC(text: string): string {
+  return text
+    .replace(/\bBCE\b/g, "BC")
+    .replace(/\bCE\b/g, "AD")
+    .replace(/\b(\d+)\s*BCE\b/gi, "$1 BC")
+    .replace(/\b(\d+)\s*CE\b/gi, "$1 AD");
+}
+
+/**
+ * Enhances the generated historical context with post-processing
+ * Applies BC/AD enforcement and formatting improvements
+ */
+function enhanceHistoricalContext(text: string): string {
+  // 1. Enforce BC/AD format
+  let enhanced = enforceADBC(text);
+
+  // 2. Ensure proper paragraph spacing for readability
+  enhanced = enhanced.replace(/\n{3,}/g, "\n\n"); // Remove excessive line breaks
+
+  // 3. Trim any trailing whitespace
+  enhanced = enhanced.trim();
+
+  return enhanced;
+}
+
+/**
  * Internal action to generate historical context for a puzzle
  * Called by the puzzle generation cron job after creating a new puzzle
  * Makes external API call to OpenRouter to generate AI narrative
@@ -46,12 +75,17 @@ export const generateHistoricalContext = internalAction({
 
       // Prepare prompt using template from constants
       const eventsText = args.events.join("\n");
-      const prompt = `Write a narrative for the year ${year}.
+      const prompt = `Create a compelling historical narrative for the year ${year}.
 
-Key events:
+Key events to weave into your narrative:
 ${eventsText}
 
-End with a haiku.`;
+Requirements:
+- Focus on cause and effect - how events connected and influenced each other
+- Include specific details that bring the era to life
+- Show the human element - who was affected and how
+- Use BC/AD format for all dates
+- Write in an engaging, literary style that educates while it entertains`;
 
       // Helper functions for retry logic
       const sleep = (ms: number): Promise<void> => {
@@ -137,9 +171,18 @@ End with a haiku.`;
                 messages: [
                   {
                     role: "system",
-                    content: `You write vivid historical narratives for a daily puzzle game. Use BC/AD dating exclusively.
+                    content: `You are a master historian crafting vivid historical narratives for a daily puzzle game. Use BC/AD dating exclusively.
 
-Start with the era's context, reveal why the year mattered through its key events, and end with a haiku. Write with energy and precision—tight and punchy, but give the year its due.`,
+Write with precision and energy—tight and punchy, but give the year its due. Your narrative should:
+
+1. Open with the era's broader context
+2. Reveal why this specific year mattered through its key events  
+3. Show the human drama and consequences
+4. Connect events to their lasting impact
+5. Use sensory details and active voice
+6. Maintain narrative tension throughout
+
+Aim for 4-5 compelling paragraphs that make the reader feel they're witnessing history unfold.`,
                   },
                   {
                     role: "user",
@@ -248,12 +291,18 @@ Start with the era's context, reveal why the year mattered through its key event
         `[HistoricalContext] Generated ${generatedContext.length} characters of context for year ${year}`,
       );
 
-      // Call internal mutation to update puzzle with generated context
+      // Apply post-processing to enhance the generated context
+      const enhancedContext = enhanceHistoricalContext(generatedContext);
+      console.error(
+        `[HistoricalContext] Enhanced context to ${enhancedContext.length} characters after post-processing`,
+      );
+
+      // Call internal mutation to update puzzle with enhanced context
       const updateResult = await ctx.runMutation(
         internal.puzzles.updateHistoricalContext,
         {
           puzzleId,
-          context: generatedContext,
+          context: enhancedContext,
         },
       );
 
