@@ -2,6 +2,7 @@
 
 import React from "react";
 import { GameInstructions } from "@/components/GameInstructions";
+import { CurrentHintCard } from "@/components/CurrentHintCard";
 import { GuessInput } from "@/components/GuessInput";
 import { Timeline } from "@/components/Timeline";
 import { ProximityDisplay } from "@/components/ui/ProximityDisplay";
@@ -103,7 +104,19 @@ export function GameLayout(props: GameLayoutProps) {
             historicalContext={gameState.puzzle?.historicalContext}
           />
 
-          {/* Guess Input - Below instructions */}
+          {/* Current Hint Card - Above input for mobile visibility */}
+          {!isGameComplete && gameState.puzzle && (
+            <CurrentHintCard
+              event={gameState.puzzle.events[currentHintIndex] || null}
+              hintNumber={currentHintIndex + 1}
+              totalHints={gameState.puzzle.events.length}
+              remainingGuesses={remainingGuesses}
+              isLoading={isLoading}
+              error={error}
+            />
+          )}
+
+          {/* Guess Input - Below current hint */}
           {!isGameComplete && (
             <GuessInput
               onGuess={onGuess}
@@ -139,9 +152,6 @@ export function GameLayout(props: GameLayoutProps) {
 
           {/* Game Progress - Always visible */}
           <GameProgress
-            currentHintIndex={currentHintIndex}
-            isGameWon={hasWon}
-            isGameComplete={isGameComplete}
             guessCount={gameState.guesses.length}
             totalHints={gameState.puzzle?.events.length || 6}
           />
@@ -151,9 +161,7 @@ export function GameLayout(props: GameLayoutProps) {
             events={gameState.puzzle?.events || []}
             guesses={gameState.guesses}
             targetYear={targetYear}
-            currentHintIndex={currentHintIndex}
             isGameComplete={isGameComplete}
-            isLoading={isLoading}
             error={error}
           />
         </div>

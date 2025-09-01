@@ -3,7 +3,6 @@
 import React, { useEffect, useRef } from "react";
 import { formatYear } from "@/lib/utils";
 import { Separator } from "@/components/ui/Separator";
-import { TextAnimate } from "@/components/magicui/text-animate";
 import { Check } from "lucide-react";
 import {
   motion,
@@ -18,19 +17,9 @@ interface HintsDisplayProps {
   events: string[];
   guesses: number[];
   targetYear: number;
-  currentHintIndex: number;
   isGameComplete?: boolean;
-  isLoading: boolean;
   error: string | null;
   className?: string;
-}
-
-interface CurrentHintProps {
-  hintNumber: number;
-  hintText: string | null;
-  isLoading: boolean;
-  shouldReduceMotion?: boolean;
-  totalHints: number;
 }
 
 interface PastHintProps {
@@ -46,62 +35,6 @@ interface FutureHintProps {
   hintText: string;
   shouldReduceMotion?: boolean;
 }
-
-const CurrentHint: React.FC<CurrentHintProps> = React.memo(
-  ({
-    hintNumber,
-    hintText,
-    isLoading,
-    shouldReduceMotion = false,
-    totalHints,
-  }) => {
-    return (
-      <motion.div
-        layout={!shouldReduceMotion}
-        layoutId={shouldReduceMotion ? undefined : "current-hint"}
-        initial={shouldReduceMotion ? undefined : { opacity: 0, scale: 0.95 }}
-        animate={shouldReduceMotion ? undefined : { opacity: 1, scale: 1 }}
-        exit={shouldReduceMotion ? undefined : { opacity: 0, scale: 0.95 }}
-        transition={{
-          type: "spring",
-          stiffness: 400,
-          damping: 25,
-          opacity: { duration: 0.3 },
-        }}
-        className="py-4 px-4 rounded-lg border-2 border-primary/50 bg-gradient-to-br from-muted/10 to-muted/20 shadow-lg"
-      >
-        <h3 className="text-xs text-primary mb-2 text-left uppercase font-accent tracking-wide flex items-center gap-2">
-          <span className="inline-flex w-5 h-5 rounded-full bg-primary text-white items-center justify-center text-[10px] font-bold">
-            {hintNumber}
-          </span>
-          Hint {hintNumber} of {totalHints}
-        </h3>
-        {isLoading ? (
-          <div className="flex items-center gap-3">
-            <LoadingSpinner size="sm" />
-            <span className="text-lg font-body text-muted-foreground">
-              Loading hint...
-            </span>
-          </div>
-        ) : (
-          <TextAnimate
-            key={hintText}
-            className="text-lg sm:text-xl text-left font-body leading-relaxed text-foreground"
-            animation="blurIn"
-            by="word"
-            duration={0.8}
-            startOnView={false}
-            delay={0.1}
-          >
-            {hintText || "No hint available"}
-          </TextAnimate>
-        )}
-      </motion.div>
-    );
-  },
-);
-
-CurrentHint.displayName = "CurrentHint";
 
 const PastHint: React.FC<PastHintProps> = React.memo(
   ({ hintNumber, hintText, guess, targetYear, shouldReduceMotion = false }) => {
@@ -259,10 +192,8 @@ const areHintsDisplayPropsEqual = (
 ): boolean => {
   // Check primitive props
   if (
-    prevProps.currentHintIndex !== nextProps.currentHintIndex ||
     prevProps.targetYear !== nextProps.targetYear ||
     prevProps.isGameComplete !== nextProps.isGameComplete ||
-    prevProps.isLoading !== nextProps.isLoading ||
     prevProps.error !== nextProps.error ||
     prevProps.className !== nextProps.className
   ) {
@@ -303,9 +234,7 @@ export const HintsDisplay: React.FC<HintsDisplayProps> = React.memo((props) => {
     events,
     guesses,
     targetYear,
-    currentHintIndex,
     isGameComplete = false,
-    isLoading,
     error,
     className = "",
   } = props;
@@ -369,14 +298,6 @@ export const HintsDisplay: React.FC<HintsDisplayProps> = React.memo((props) => {
     };
   });
 
-  const currentHint =
-    !isGameComplete && currentHintIndex < events.length
-      ? {
-          hintNumber: currentHintIndex + 1,
-          hintText: events[currentHintIndex],
-        }
-      : null;
-
   const futureHints = isGameComplete
     ? events.slice(guesses.length).map((text, index) => ({
         hintNumber: guesses.length + index + 1,
@@ -386,21 +307,10 @@ export const HintsDisplay: React.FC<HintsDisplayProps> = React.memo((props) => {
 
   return (
     <div ref={containerRef} className={`${className} space-y-3`}>
-      {/* Container with normal flex direction to show current hint at top */}
+      {/* Container for past hints only */}
       <div className="flex flex-col gap-3">
         <LayoutGroup>
-          {/* Current Hint - Always at top */}
-          {currentHint && (
-            <CurrentHint
-              hintNumber={currentHint.hintNumber}
-              hintText={currentHint.hintText}
-              isLoading={isLoading || !currentHint.hintText}
-              shouldReduceMotion={shouldReduceMotion ?? false}
-              totalHints={events.length}
-            />
-          )}
-
-          {/* Past Hints - Stack downward from current hint in reverse chronological order */}
+          {/* Past Hints - Stack downward in reverse chronological order */}
           <AnimatePresence>
             {pastHints.map((hint, index) => (
               <motion.div
