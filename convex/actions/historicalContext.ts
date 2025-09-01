@@ -80,12 +80,26 @@ export const generateHistoricalContext = internalAction({
 Key events to weave into your narrative:
 ${eventsText}
 
-Requirements:
-- Focus on cause and effect - how events connected and influenced each other
-- Include specific details that bring the era to life
-- Show the human element - who was affected and how
-- Use BC/AD format for all dates
-- Write in an engaging, literary style that educates while it entertains`;
+APPROACH:
+Begin by establishing the era's broader context. What world did these events emerge from? What forces were in motion? Paint the zeitgeist—the unspoken assumptions, the dominant powers, the emerging tensions. Then narrow your focus to show how this specific year became a turning point.
+
+Weave the events into a flowing narrative where each development feels both surprising and inevitable. Show the connections—how one event triggered another, how distant occurrences rhymed or collided. Build momentum. Make readers feel they're watching history unfold in real time, not knowing how it will end.
+
+Ground everything in human experience. Include sensory details that make the era tangible—what people saw, heard, feared, celebrated. Show how these grand events rippled through daily life. Remember: the people living through ${year} experienced it as their present, full of uncertainty and possibility.
+
+Throughout your narrative, search for the deeper pattern—the thread that connects these seemingly disparate events. What transformation was occurring? What was this year really about? By the end, readers should understand why ${year} mattered, not through the lens of hindsight, but through the power of its own unfolding story.
+
+STYLE NOTES:
+- Write with the urgency of unfolding drama, even in past tense
+- Favor concrete details over abstractions 
+- Show cause and effect through your narrative flow
+- Mix punchy, declarative sentences with flowing, complex ones
+- Make the pace match the period—frenetic for revolutionary years, deliberate for slow-burning changes
+- Use "meanwhile" and "at the same time" to show simultaneity
+- Include at least one moment that makes readers think "I had no idea that happened then"
+- End with something memorable—a line that captures the year's essence
+
+Remember: you're not just listing events or teaching history—you're telling the story of a year that changed the world.`;
 
       // Helper functions for retry logic
       const sleep = (ms: number): Promise<void> => {
@@ -171,18 +185,11 @@ Requirements:
                 messages: [
                   {
                     role: "system",
-                    content: `You are a master historian crafting vivid historical narratives for a daily puzzle game. Use BC/AD dating exclusively.
+                    content: `You are a master historian crafting a vivid narrative. Channel the storytelling power of Barbara Tuchman, the narrative confidence of Tom Holland, and the immersive drama of Dan Carlin.
 
-Write with precision and energy—tight and punchy, but give the year its due. Your narrative should:
+Your readers need to understand not just what happened, but what it felt like to live through this year—its texture, its tensions, its transformations.
 
-1. Open with the era's broader context
-2. Reveal why this specific year mattered through its key events  
-3. Show the human drama and consequences
-4. Connect events to their lasting impact
-5. Use sensory details and active voice
-6. Maintain narrative tension throughout
-
-Aim for 4-5 compelling paragraphs that make the reader feel they're witnessing history unfold.`,
+Use BC/AD dating exclusively. Write 350-450 words that make readers feel they're witnessing history unfold.`,
                   },
                   {
                     role: "user",
