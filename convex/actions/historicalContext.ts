@@ -15,6 +15,35 @@ interface ErrorWithStatus extends Error {
 }
 
 /**
+ * Enforces BC/AD date format in historical context text
+ * Replaces any BCE/CE occurrences with BC/AD
+ */
+function enforceADBC(text: string): string {
+  return text
+    .replace(/\bBCE\b/g, "BC")
+    .replace(/\bCE\b/g, "AD")
+    .replace(/\b(\d+)\s*BCE\b/gi, "$1 BC")
+    .replace(/\b(\d+)\s*CE\b/gi, "$1 AD");
+}
+
+/**
+ * Enhances the generated historical context with post-processing
+ * Applies BC/AD enforcement and formatting improvements
+ */
+function enhanceHistoricalContext(text: string): string {
+  // 1. Enforce BC/AD format
+  let enhanced = enforceADBC(text);
+
+  // 2. Ensure proper paragraph spacing for readability
+  enhanced = enhanced.replace(/\n{3,}/g, "\n\n"); // Remove excessive line breaks
+
+  // 3. Trim any trailing whitespace
+  enhanced = enhanced.trim();
+
+  return enhanced;
+}
+
+/**
  * Internal action to generate historical context for a puzzle
  * Called by the puzzle generation cron job after creating a new puzzle
  * Makes external API call to OpenRouter to generate AI narrative
@@ -33,6 +62,9 @@ export const generateHistoricalContext = internalAction({
     );
 
     try {
+      // Check if GPT-5 is enabled (allows quick rollback to Gemini if needed)
+      const gpt5Enabled = process.env.OPENAI_GPT5_ENABLED !== "false";
+
       // Get API key from environment
       const apiKey = process.env.OPENROUTER_API_KEY;
       if (!apiKey) {
@@ -43,17 +75,31 @@ export const generateHistoricalContext = internalAction({
 
       // Prepare prompt using template from constants
       const eventsText = args.events.join("\n");
-      const prompt = `Tell the story of the year ${year}.
+      const prompt = `Create a compelling historical narrative for the year ${year}.
 
-Context for this year (these are events that happened, incorporate the most compelling ones naturally):
+Key events to weave into your narrative:
 ${eventsText}
 
-Structure your response as:
-1. First, establish what historical era ${year} falls within and what defined that era
-2. Then explore how ${year} specifically embodied or challenged its era through its events
-3. Finally, end with something creative and memorable - let the content guide whether that's a haiku, a witty observation, a punchy tagline, or another form that fits
+APPROACH:
+Begin by establishing the era's broader context. What world did these events emerge from? What forces were in motion? Paint the zeitgeist—the unspoken assumptions, the dominant powers, the emerging tensions. Then narrow your focus to show how this specific year became a turning point.
 
-Focus on creating an engaging narrative that helps readers understand both the era and the specific year's significance.`;
+Weave the events into a flowing narrative where each development feels both surprising and inevitable. Show the connections—how one event triggered another, how distant occurrences rhymed or collided. Build momentum. Make readers feel they're watching history unfold in real time, not knowing how it will end.
+
+Ground everything in human experience. Include sensory details that make the era tangible—what people saw, heard, feared, celebrated. Show how these grand events rippled through daily life. Remember: the people living through ${year} experienced it as their present, full of uncertainty and possibility.
+
+Throughout your narrative, search for the deeper pattern—the thread that connects these seemingly disparate events. What transformation was occurring? What was this year really about? By the end, readers should understand why ${year} mattered, not through the lens of hindsight, but through the power of its own unfolding story.
+
+STYLE NOTES:
+- Write with the urgency of unfolding drama, even in past tense
+- Favor concrete details over abstractions 
+- Show cause and effect through your narrative flow
+- Mix punchy, declarative sentences with flowing, complex ones
+- Make the pace match the period—frenetic for revolutionary years, deliberate for slow-burning changes
+- Use "meanwhile" and "at the same time" to show simultaneity
+- Include at least one moment that makes readers think "I had no idea that happened then"
+- End with something memorable—a line that captures the year's essence
+
+Remember: you're not just listing events or teaching history—you're telling the story of a year that changed the world.`;
 
       // Helper functions for retry logic
       const sleep = (ms: number): Promise<void> => {
@@ -104,6 +150,18 @@ Focus on creating an engaging narrative that helps readers understand both the e
         "Unknown error occurred during context generation",
       );
       let generatedContext: string | undefined;
+      let currentModel = gpt5Enabled
+        ? "openai/gpt-5"
+        : "google/gemini-2.5-flash"; // Use GPT-5 if enabled
+      let hasHitRateLimit = false;
+
+      // Log model selection
+      console.error(
+        "[HistoricalContext] Using model:",
+        currentModel,
+        "for puzzle:",
+        puzzleId,
+      );
 
       for (let attempt = 0; attempt < maxAttempts; attempt++) {
         try {
@@ -120,31 +178,25 @@ Focus on creating an engaging narrative that helps readers understand both the e
                 Authorization: `Bearer ${apiKey}`,
                 "Content-Type": "application/json",
                 "HTTP-Referer": "https://chrondle.com",
-                "X-Title": "Chrondle Historical Context",
+                "X-Title": "Chrondle Historical Context GPT-5",
               },
               body: JSON.stringify({
-                model: "google/gemini-2.5-flash",
+                model: currentModel,
                 messages: [
                   {
                     role: "system",
-                    content: `You are a masterful historical storyteller who brings the past to life through engaging, insightful narratives. Your writing is both educational and entertaining, with a keen sense of what makes history compelling.
+                    content: `You are a master historian crafting a vivid narrative. Channel the storytelling power of Barbara Tuchman, the narrative confidence of Tom Holland, and the immersive drama of Dan Carlin.
 
-Your approach:
-- Begin by establishing the historical era and its defining characteristics
-- Then zoom into the specific year, showing how it exemplifies or challenges its era
-- Weave in the most significant and interesting events naturally, without forcing every detail
-- Conclude with something creative and memorable that captures the year's essence
+Your readers need to understand not just what happened, but what it felt like to live through this year—its texture, its tensions, its transformations.
 
-Your creative endings should be high quality and match the tone of the content - whether that's a haiku capturing the year's spirit, a witty observation about historical irony, a punchy tagline that could title a documentary, or another creative format that feels right.
-
-Write with energy and precision. Make readers feel the weight and wonder of history.`,
+Use BC/AD dating exclusively. Write 350-450 words that make readers feel they're witnessing history unfold.`,
                   },
                   {
                     role: "user",
                     content: prompt,
                   },
                 ],
-                temperature: 0.3,
+                temperature: 1.0,
                 max_tokens: 8000,
               }),
             },
@@ -153,12 +205,14 @@ Write with energy and precision. Make readers feel the weight and wonder of hist
           // Check if request was successful
           if (!response.ok) {
             const errorText = await response.text();
+            const isGPT5Error = currentModel.includes("gpt-5");
+            const errorPrefix = isGPT5Error ? "GPT-5 API" : "OpenRouter API";
             const error: ErrorWithStatus = new Error(
-              `OpenRouter API request failed: ${response.status} ${response.statusText}`,
+              `${errorPrefix} request failed: ${response.status} ${response.statusText}${isGPT5Error && response.status === 429 ? " (rate limited)" : ""}`,
             );
             error.status = response.status;
             console.error(
-              `[HistoricalContext] Attempt ${attempt + 1} failed - OpenRouter API error: ${response.status}`,
+              `[HistoricalContext] Attempt ${attempt + 1} failed - ${errorPrefix} error: ${response.status}`,
             );
             console.error(`[HistoricalContext] Error text: ${errorText}`);
             throw error;
@@ -175,6 +229,16 @@ Write with energy and precision. Make readers feel the weight and wonder of hist
             throw new Error("Invalid response from OpenRouter API");
           }
 
+          // Cost estimation for GPT-5 ($0.01/1K input tokens + $0.03/1K output tokens)
+          if (currentModel.includes("gpt-5")) {
+            const inputTokens = Math.ceil(prompt.length / 4); // Rough estimate: 4 chars per token
+            const outputTokens = Math.ceil(generatedContext.length / 4);
+            const costEstimate = inputTokens * 0.00001 + outputTokens * 0.00003;
+            console.error(
+              `[HistoricalContext] Cost estimate for ${currentModel}: $${costEstimate.toFixed(4)} (${inputTokens} input, ${outputTokens} output tokens)`,
+            );
+          }
+
           // Success! Break out of retry loop
           console.error(
             `[HistoricalContext] Attempt ${attempt + 1} succeeded - Generated ${generatedContext.length} characters for year ${year}`,
@@ -182,10 +246,27 @@ Write with energy and precision. Make readers feel the weight and wonder of hist
           break;
         } catch (error) {
           lastError = error as Error;
+          const errorWithStatus = error as ErrorWithStatus;
           console.error(
             `[HistoricalContext] Attempt ${attempt + 1}/${maxAttempts} failed for puzzle ${puzzleId}:`,
             error,
           );
+
+          // Check for rate limit (429) and switch to GPT-5-mini if not already using it
+          if (
+            errorWithStatus.status === 429 &&
+            !hasHitRateLimit &&
+            currentModel === "openai/gpt-5"
+          ) {
+            console.error(
+              `[HistoricalContext] Rate limit hit with GPT-5, switching to GPT-5-mini for retry`,
+            );
+            currentModel = "openai/gpt-5-mini";
+            hasHitRateLimit = true;
+            // Continue to next iteration to retry with GPT-5-mini
+            await sleep(calculateBackoffDelay(attempt));
+            continue;
+          }
 
           // Check if we should retry this error
           if (!shouldRetry(error as Error) || attempt === maxAttempts - 1) {
@@ -217,14 +298,37 @@ Write with energy and precision. Make readers feel the weight and wonder of hist
         `[HistoricalContext] Generated ${generatedContext.length} characters of context for year ${year}`,
       );
 
-      // Call internal mutation to update puzzle with generated context
-      await ctx.runMutation(internal.puzzles.updateHistoricalContext, {
-        puzzleId,
-        context: generatedContext,
-      });
+      // Apply post-processing to enhance the generated context
+      const enhancedContext = enhanceHistoricalContext(generatedContext);
+      console.error(
+        `[HistoricalContext] Enhanced context to ${enhancedContext.length} characters after post-processing`,
+      );
+
+      // Call internal mutation to update puzzle with enhanced context
+      const updateResult = await ctx.runMutation(
+        internal.puzzles.updateHistoricalContext,
+        {
+          puzzleId,
+          context: enhancedContext,
+        },
+      );
+
+      // Verify the update was successful using the returned puzzle data
+      if (
+        !updateResult.success ||
+        !updateResult.updatedPuzzle ||
+        !updateResult.updatedPuzzle.historicalContext
+      ) {
+        throw new Error(
+          `Failed to verify historical context update for puzzle ${puzzleId}. ` +
+            `Update result: success=${updateResult.success}, ` +
+            `puzzle=${updateResult.updatedPuzzle ? "exists" : "null"}, ` +
+            `context=${updateResult.updatedPuzzle?.historicalContext ? "present" : "missing"}`,
+        );
+      }
 
       console.error(
-        `[HistoricalContext] Successfully persisted context to database for puzzle ${puzzleId}`,
+        `[HistoricalContext] Successfully persisted and verified context to database for puzzle ${puzzleId}`,
       );
 
       console.error(

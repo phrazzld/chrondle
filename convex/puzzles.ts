@@ -506,11 +506,15 @@ export const updateHistoricalContext = internalMutation({
       `[updateHistoricalContext] Successfully updated puzzle ${puzzleId} with ${context.length} character context`,
     );
 
+    // Read back the updated puzzle to verify the update succeeded
+    const updatedPuzzle = await ctx.db.get(puzzleId);
+
     return {
       success: true,
       puzzleId,
       contextLength: context.length,
       generatedAt: Date.now(),
+      updatedPuzzle, // Include the updated puzzle for verification
     };
   },
 });

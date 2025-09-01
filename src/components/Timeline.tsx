@@ -118,13 +118,18 @@ export const Timeline: React.FC<TimelineProps> = ({
       <div className="flex items-center justify-between gap-1 sm:gap-2 px-1">
         {/* Left bookend label */}
         <div className="min-w-0 flex-shrink-0 text-left">
-          <NumberTicker
-            key={`min-${currentDisplayRange.min}`}
-            value={Math.round(currentDisplayRange.min)}
-            startValue={Math.round(prevMinRef.current)}
-            className="text-sm sm:text-sm font-bold text-blue-500/80 dark:text-blue-400/80 whitespace-nowrap"
-            duration={800}
-          />
+          <span className="inline-flex items-baseline">
+            <NumberTicker
+              key={`min-${currentDisplayRange.min}`}
+              value={Math.abs(Math.round(currentDisplayRange.min))}
+              startValue={Math.abs(Math.round(prevMinRef.current))}
+              className="text-sm sm:text-sm font-bold text-blue-500/80 dark:text-blue-400/80 whitespace-nowrap"
+              duration={800}
+            />
+            <span className="text-sm sm:text-sm font-bold text-blue-500/80 dark:text-blue-400/80 ml-1">
+              {currentDisplayRange.min < 0 ? "BC" : "AD"}
+            </span>
+          </span>
         </div>
 
         {/* Timeline SVG */}
@@ -219,13 +224,18 @@ export const Timeline: React.FC<TimelineProps> = ({
 
         {/* Right bookend label */}
         <div className="min-w-0 flex-shrink-0 text-right">
-          <NumberTicker
-            key={`max-${currentDisplayRange.max}`}
-            value={Math.round(currentDisplayRange.max)}
-            startValue={Math.round(prevMaxRef.current)}
-            className="text-sm sm:text-sm font-bold text-red-500/80 dark:text-red-400/80 whitespace-nowrap"
-            duration={800}
-          />
+          <span className="inline-flex items-baseline">
+            <NumberTicker
+              key={`max-${currentDisplayRange.max}`}
+              value={Math.abs(Math.round(currentDisplayRange.max))}
+              startValue={Math.abs(Math.round(prevMaxRef.current))}
+              className="text-sm sm:text-sm font-bold text-red-500/80 dark:text-red-400/80 whitespace-nowrap"
+              duration={800}
+            />
+            <span className="text-sm sm:text-sm font-bold text-red-500/80 dark:text-red-400/80 ml-1">
+              {currentDisplayRange.max < 0 ? "BC" : "AD"}
+            </span>
+          </span>
         </div>
       </div>
     </div>

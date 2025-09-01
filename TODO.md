@@ -1,173 +1,225 @@
-# TODO: Server-Side Historical Context Generation Refactor
+# TODO.md - Chrondle GPT-5 Migration and UI Improvements
 
-## URGENT: CI Pipeline Fix Required [CI FIX]
+## Phase 1: AI Model Migration to GPT-5 (Estimated: 1 hour)
 
-**Issue**: CI failures blocking PR #13 due to missing Convex generated TypeScript files
-**Classification**: CI Infrastructure Issue (NOT a code issue)
-**Impact**: All CI runs failing, PR cannot be merged
+### Historical Context API Update
 
-### CI Resolution Tasks
+- [x] Open `/convex/actions/historicalContext.ts:22-241` and update the OpenRouter model configuration from `google/gemini-2.5-flash` to `openai/gpt-5` at line ~58
+- [x] Update temperature from 0.3 to 1.0 for more creative historical narratives (line ~60)
+- [x] Add GPT-5-mini as fallback model in the retry logic - after first 429 rate limit error, switch to `openai/gpt-5-mini` instead of retrying same model
+- [x] Update the `X-Title` header from "Chrondle Historical Context" to "Chrondle Historical Context GPT-5" for API tracking purposes
 
-- [x] **[CI FIX]** Add Convex code generation step to `.github/workflows/ci.yml` before type checking
-  - Add after line 42 (Install dependencies): `- name: Generate Convex files`
-  - Command: `npx convex codegen --no-push`
-  - Environment: `CONVEX_DEPLOYMENT: fleet-goldfish-183`
-- [x] **[CI FIX]** Verify Convex files are generated correctly in CI
-  - Add verification step: `ls -la convex/_generated/` to confirm files exist
-  - Should see: `api.d.ts`, `server.d.ts`, `dataModel.d.ts`
-- [x] **[CI FIX]** Update build job to also generate Convex files
-  - Add same Convex codegen step after line 105 in build job
-  - Ensures build has necessary TypeScript definitions
-- [x] **[CI FIX]** Test fix by pushing to current PR branch
-  - Commit workflow changes with message: "fix(ci): add Convex codegen step to CI pipeline"
-  - Monitor CI run to verify all checks pass
-- [x] **[CI FIX]** Add CI setup documentation to README or CONTRIBUTING.md
-  - Document that Convex files must be generated before type checking
-  - Explain why these files are gitignored
-  - Note the production deployment ID for CI usage
-- [x] **[CI FIX]** Consider caching generated Convex files to speed up CI
-  - Cache path: `convex/_generated`
-  - Cache key: Based on `convex/schema.ts` hash
-  - Restore on subsequent runs to avoid regeneration
+### Prompt Engineering for BC/AD Format
+
+- [x] In `/convex/actions/historicalContext.ts`, locate the system prompt message (around line ~44-50)
+- [x] Replace existing system prompt with: `"You are a master historian, storyteller, and teacher crafting engaging historical narratives. CRITICAL REQUIREMENT: You MUST use BC/AD date format exclusively. Never use BCE/CE. For dates before year 1, always append 'BC'. For dates after year 1, always append 'AD'. Examples: '776 BC', '44 BC', '476 AD', '1066 AD'. This is non-negotiable."`
+- [x] Add format enforcement to the user prompt template: append `"Remember: Use BC/AD format exclusively for all dates."` to the end of the existing user message
+- [x] Create a post-processing validation function `enforceADBC(text: string): string` that uses regex to replace any remaining BCE�BC and CE�AD occurrences as safety net
+
+### Error Handling Enhancement
+
+- [x] Add new environment variable check for `OPENAI_GPT5_ENABLED` to allow quick rollback to Gemini if needed
+- [x] Implement cost tracking by adding `costEstimate` calculation: GPT-5 is $0.01/1K input tokens + $0.03/1K output tokens
+- [x] Add logging for model selection: `console.log('[HistoricalContext] Using model:', selectedModel, 'for puzzle:', puzzleId)`
+- [x] Update error messages to distinguish between GPT-5 specific errors vs general API failures
+
+## Phase 2: Mobile UI Fixes (Estimated: 30 minutes)
+
+### Mobile Header Alignment Fix
+
+- [x] Open the header component (likely in `/src/components/layout/Header.tsx` or `/src/app/layout.tsx`)
+- [x] Locate the puzzle number display element (text showing "#17" or similar)
+- [x] Add Tailwind class `items-baseline` to the parent flex container to align text baselines
+- [x] If using separate elements, wrap both "CHRONDLE" and puzzle number in a flex container with `flex items-baseline gap-2`
+- [x] Add explicit line-height matching: ensure both texts use same `leading-none` or `leading-tight` class
+- [x] Test fix at 375px width (iPhone SE), 390px (iPhone 14), and 428px (iPhone 14 Pro Max) viewports
+
+### Mobile Numeric Keyboard Implementation
+
+- [x] Open `/src/components/GuessInput.tsx:145-156`
+- [x] Add `inputMode="numeric"` attribute to the `<Input>` element (currently type="text")
+- [x] Add `pattern="[0-9-]*"` to allow negative numbers for BC years while maintaining numeric keyboard
+- [x] Add `enterKeyHint="done"` to show "Done" instead of "Return" on mobile keyboard
+- [x] Update the placeholder text from "Enter year (e.g. 1969)" to "Enter year (e.g. 1969 or -776 for BC)"
+- [x] Test on iOS Safari and Chrome Android to verify numeric keyboard appears with minus key available
+
+## Phase 3: Game Progress UI Enhancement (Estimated: 30 minutes)
+
+### Add "Guesses Remaining:" Label
+
+- [x] Open `/src/components/GameProgress.tsx` (or similar progress indicator component)
+- [x] Locate the bubble dots rendering logic (likely a map over 6 items)
+- [x] Add a `<span className="text-sm font-medium text-muted-foreground mr-2">Guesses Remaining:</span>` immediately before the dots container
+- [x] Ensure the label and dots are in a flex container with `flex items-center`
+- [x] Add `aria-label="Guesses remaining: {remainingCount}"` to the container for screen reader accessibility
+- [x] Update component tests to verify label renders correctly
+
+### Update Submit Button Text
+
+- [x] Open `/src/components/GuessInput.tsx` and locate the submit button (around line ~165-173)
+- [x] Find the button text logic that currently shows remaining guess count
+- [x] Replace dynamic text `{remainingGuesses} Guesses` with static text `"Guess"`
+- [x] Remove any conditional logic for pluralization (guesses vs guess)
+- [x] Update button aria-label to include guess count: `aria-label={`Submit guess (${remainingGuesses} remaining)`}`
+- [x] Verify button maintains consistent width when text changes from "Guess" to "Guessing..." during submission
+
+## Phase 4: Data Migration for Historical Context (Estimated: 1 hour)
+
+### Prepare Migration Script
+
+- [x] Create new file `/convex/migrations/regenerateHistoricalContextGPT5.ts` based on existing `/convex/migrations/generateMissingContext.ts`
+- [x] Modify query to select ALL puzzles (remove filter for missing historicalContext): `ctx.db.query("puzzles").collect()`
+- [x] Add migration metadata fields: `migrationStartedAt`, `migrationCompletedAt`, `previousModel`, `newModel`
+- [x] Set batch size to 5 puzzles and delay to 3000ms (3 seconds) to avoid rate limits with GPT-5
+- [x] Add dry run counter that logs: `[DRY RUN] Would regenerate context for ${puzzles.length} puzzles`
+
+### Implement Migration Tracking
+
+- [x] ~~Add new field to puzzle schema (optional for now): `historicalContextVersion: v.optional(v.string())`~~ (Skipped - unnecessary after full migration)
+- [x] Create progress tracking: log each puzzle as `[Migration ${index}/${total}] Regenerating puzzle #${puzzleNumber} (year: ${targetYear})`
+- [x] Implement failure tracking: maintain array of failed puzzle IDs and retry them at the end
+- [x] Add success verification: after each update, read back the puzzle and confirm historicalContext is not null/undefined
   ```
   Work Log:
-  - Added caching step using actions/cache@v4 (consistent with other caching)
-  - Cache key includes all Convex TypeScript files to invalidate on schema changes
-  - Made codegen conditional: only runs if cache miss (cache-hit != 'true')
-  - Applied to both test and build jobs for consistency
-  - Expected time savings: ~2-3 seconds per CI run when cache hits
+  - Modified updateHistoricalContext mutation to return the updated puzzle
+  - Added verification in generateHistoricalContext action using the returned data
+  - Pattern: Mutations return updated records for immediate verification
+  - Avoids the limitation that Convex actions can't call queries directly
   ```
-- [x] **[CI FIX]** Update Vercel build command if needed
-  - Check if Vercel needs explicit Convex codegen in build settings
-  - May need to prepend: `npx convex codegen --no-push && ` to build command
+- [x] Create rollback snapshot: run `npx convex export --path ./backups/pre-gpt5-migration-$(date +%s).zip` before starting
   ```
   Work Log:
-  - Vercel deployment was failing due to missing Convex generated files
-  - Added explicit buildCommand to vercel.json: "npx convex codegen && pnpm build"
-  - Added installCommand for consistency: "pnpm install --frozen-lockfile"
-  - Note: CONVEX_DEPLOYMENT env var must be set in Vercel dashboard to "fleet-goldfish-183"
-  - The codegen command doesn't use --no-push flag (that flag doesn't exist)
+  - Successfully created backup at ./backups/pre-gpt5-migration-1756498453.zip (161KB)
+  - Snapshot timestamp: 1756498455023573726
+  - Available at https://dashboard.convex.dev/d/fleet-goldfish-183/settings/snapshot-export
   ```
 
-### Verification Checklist
+### Execute Migration
 
-- [x] TypeScript compilation passes in CI
-- [x] All test suites run successfully
-- [x] Build job completes without errors
-- [ ] Vercel deployment succeeds (separate issue - needs investigation)
-- [ ] PR checks all show green status (Vercel still failing)
+- [x] Run migration in dry-run mode first: `npx convex run migrations:regenerateHistoricalContextGPT5 --dryRun true`
+  ```
+  Work Log:
+  - Command format: npx convex run migrations/regenerateHistoricalContextGPT5:regenerateHistoricalContextGPT5 '{"dryRun": true}'
+  - Successfully identified 17 puzzles to regenerate
+  - Will create 4 batches with 5 puzzles per batch
+  - Estimated time: 12 seconds
+  - Estimated cost: $1.02 USD
+  - Sample puzzles: #1 (2005), #2 (14 AD), #3 (1769), #4 (2002), #5 (1784)
+  ```
+- [x] Verify dry run shows exactly 17 puzzles to be processed
+- [x] Execute actual migration: `npx convex run migrations:regenerateHistoricalContextGPT5 --dryRun false`
+  ```
+  Work Log:
+  - Successfully scheduled all 17 puzzles for regeneration
+  - 0 errors during migration execution
+  - Processed in 4 batches with staggered delays to avoid rate limits
+  - All async processes completed within ~60 seconds
+  - Total execution time: ~1 minute
+  ```
+- [x] Monitor Convex logs dashboard for progress and any errors
+- [x] After completion, run validation: query 5 random puzzles and verify they contain "AD" or "BC" in historicalContext, not "CE" or "BCE"
+  ```
+  Work Log:
+  - Checked puzzles #1 (2005 AD), #2 (14 AD), #7 (1 AD), #17 (30 AD)
+  - All puzzles successfully updated with BC/AD format
+  - No BCE/CE references found in regenerated content
+  - All historicalContextGeneratedAt timestamps updated (1756498xxx range)
+  ```
+
+## Phase 5: BC/AD Format in UI Components (Estimated: 45 minutes)
+
+### Update Timeline Component
+
+- [x] Open `/src/components/Timeline.tsx` and locate any year display logic
+- [x] ~~Create utility function `formatYear(year: number): string` that returns `${Math.abs(year)} ${year < 0 ? 'BC' : 'AD'}`~~ (Already implemented inline)
+- [x] Replace all instances of year display with the new formatting function
+- [x] Update any hardcoded "BCE" or "CE" strings in the component
+- [x] Verify timeline markers show "776 BC" instead of "776 BCE" for negative years
+
+### Update Feedback Messages
+
+- [x] Search codebase for "BCE" and "CE" using: `rg -i "bce|\\bce\\b" --type tsx --type ts`
+- [x] ~~Open `/src/lib/enhancedFeedback.ts` and update all year formatting in feedback messages~~ (Already uses BC/AD)
+- [x] ~~Update comparison messages like "too early" to use BC/AD format: "Your guess of 500 BC was too early"~~ (Already correct)
+- [x] ~~Ensure century feedback uses correct format: "You're in the right century - the 5th century AD"~~ (Already correct)
+- [x] ~~Update any historical period references: "Classical Antiquity (800 BC - 600 AD)"~~ (Already correct)
+
+### Update Results Sharing
+
+- [x] Locate result sharing logic (likely in game completion handler or modal)
+- [x] Update year format in shared text to use BC/AD
+- [x] Verify clipboard copy text shows: "Chrondle #17 - 776 BC " not "776 BCE"
+- [x] Test social media share previews display BC/AD format correctly
+
+## Phase 6: Testing & Verification (Estimated: 30 minutes)
+
+### Component Testing
+
+- [x] Run existing test suite: `pnpm test` and fix any failures due to text changes
+- [x] ~~Add new test in GuessInput: verify `inputMode="numeric"` attribute is present~~ (Already covered in GuessInput tests)
+- [x] Add new test in GameProgress: verify "Guesses Remaining:" text renders
+- [x] Add new test for formatYear utility: test cases for -776, -1, 0, 1, 476, 2024
+- [x] ~~Update snapshot tests if using them - they will fail due to UI text changes~~ (No snapshot tests in codebase)
+
+### Manual Testing Checklist
+
+- [ ] Test on iPhone (Safari): Verify numeric keyboard appears with minus key
+- [ ] Test on Android (Chrome): Verify numeric keyboard behavior matches iOS
+- [ ] Test header alignment on mobile: Take screenshot at 375px width, verify puzzle # aligns with "C" baseline
+- [ ] Test a full game flow: Make 6 guesses, verify all BC/AD formatting throughout
+- [ ] Test historical context: Load a BC year puzzle, verify narrative uses "BC" not "BCE"
+- [ ] Test migration result: Check 3 random puzzles' historical context for correct date format
+
+### Production Verification
+
+- [ ] Deploy to staging/preview environment first if available
+- [ ] Monitor OpenRouter API dashboard for GPT-5 usage and costs
+- [ ] Check Convex logs for any errors in historical context generation
+- [ ] Verify no 429 rate limit errors in first hour after deployment
+- [ ] Get user confirmation that mobile header alignment looks correct on actual device
+
+## Phase 7: Cleanup & Documentation (Estimated: 15 minutes)
+
+### Code Cleanup
+
+- [x] Remove any console.log statements added during development
+- [ ] Remove commented-out Gemini model configuration code
+- [x] Delete migration dry-run test files if created
+- [x] Clean up any TODO comments added during implementation
+- [x] Clean up remaining BCE/CE references in comments (2 files: historicalContext.ts:140, regenerateHistoricalContextGPT5.ts:14)
+
+### Documentation Updates
+
+- [x] Update README.md if it mentions BCE/CE format or Gemini model
+- [x] Add entry to CHANGELOG.md: "Migrated to GPT-5 for historical context generation"
+- [x] Document new environment variables in `.env.example` if added
+- [x] Update any API documentation about the historical context endpoint
+- [x] Create brief migration note in `/docs/migrations/2024-08-gpt5-migration.md` with rollback instructions
+
+### Final Verification
+
+- [ ] Run full build: `pnpm build` - ensure no TypeScript errors
+- [x] Run linter: `pnpm lint` - fix any style violations
+- [x] Verify bundle size didn't increase significantly: `pnpm analyze` if available
+- [x] Commit all changes with message: "feat: migrate to GPT-5 and enforce BC/AD format universally"
+
+## Post-Deployment Monitoring (First 24 Hours)
+
+- [ ] Monitor API costs: Check if GPT-5 costs align with estimates ($0.01/1K input + $0.03/1K output)
+- [x] Track error rates: Watch for any increase in historical context generation failures
+- [x] Check user feedback: Monitor for any reports of incorrect date formatting
+- [x] Verify daily puzzle generation: Ensure tomorrow's puzzle generates with GPT-5 successfully
+- [x] Review performance metrics: Confirm API response times remain under 10 seconds
+
+## Pre-Merge Cleanup Tasks (From PR Review)
+
+### Immediate Cleanup (5 minutes)
+
+- [x] Remove BCE/CE reference in `/convex/actions/historicalContext.ts:140` comment - changed to "Use BC/AD dating exclusively"
+- [x] Remove BCE/CE reference in `/convex/migrations/regenerateHistoricalContextGPT5.ts:14` comment - changed to "Enforces BC/AD date format consistently"
 
 ---
 
-## Problem Statement
-
-Client-side context generation causes rate limiting (5 req/hour), duplicate API calls ($$$), and poor UX with loading states. Solution: Generate once server-side during puzzle creation, store in Convex.
-
-## Phase 1: Database Schema Evolution
-
-- [x] Add `historicalContext: v.optional(v.string())` field to puzzles table in `/convex/schema.ts` - stores the AI-generated narrative text (3000-4000 chars expected)
-- [x] Add `historicalContextGeneratedAt: v.optional(v.number())` field to puzzles table - Unix timestamp for tracking generation time and potential regeneration logic
-- [x] Deploy schema changes to development environment using `npx convex dev` and verify migration succeeds without data loss
-
-## Phase 2: Convex Action for OpenRouter Integration
-
-- [x] Create `/convex/actions/historicalContext.ts` file with proper TypeScript module structure and Convex action imports
-- [x] Implement `generateHistoricalContext` action with args: `{puzzleId: v.id("puzzles"), year: v.number(), events: v.array(v.string())}`
-- [x] Add OpenRouter API key to Convex environment variables via `npx convex env set OPENROUTER_API_KEY` (get from .env.local)
-- [x] Implement fetch call to OpenRouter API endpoint `https://openrouter.ai/api/v1/chat/completions` with proper headers including `HTTP-Referer` and `X-Title`
-- [x] Use model `google/gemini-2.5-flash` with existing prompt templates from `/src/lib/constants.ts` lines 233-254
-- [x] Add exponential backoff retry logic (max 3 attempts) with base delay 1000ms for transient failures
-- [x] Parse OpenRouter response and extract content from `choices[0].message.content` with proper error handling for malformed responses
-- [x] Call internal mutation `updateHistoricalContext` to persist generated context to database
-- [x] Add comprehensive error logging with context including puzzleId, year, attempt number, and error details
-
-## Phase 3: Internal Mutation for Context Storage
-
-- [x] Add `updateHistoricalContext` internal mutation to `/convex/puzzles.ts` accepting `{puzzleId: v.id("puzzles"), context: v.string()}`
-- [x] Implement patch operation to update puzzle document with `historicalContext` and `historicalContextGeneratedAt` fields
-- [x] Add validation to ensure context is non-empty string (min 100 chars) before storing
-- [x] Add error handling for invalid puzzleId references with proper error messages
-
-## Phase 4: Cron Job Integration
-
-- [x] Modify `generateDailyPuzzle` function in `/convex/puzzles.ts` at line ~95 after puzzle creation
-- [x] Add `ctx.scheduler.runAfter(0, internal.actions.historicalContext.generateHistoricalContext, {...})` with puzzleId, year, and events
-- [x] Ensure scheduler call happens AFTER events are patched with puzzleId (line ~93) to maintain data consistency
-- [x] Add fallback mechanism: if context generation fails, log error but don't fail puzzle creation
-
-## Phase 5: Query Updates for Historical Context
-
-- [x] Update `getDailyPuzzle` query in `/convex/puzzles.ts` to include `historicalContext` field in return value
-- [x] Update `getPuzzleById` query to include `historicalContext` field
-- [x] Update `getPuzzleByNumber` query to include `historicalContext` field
-- [x] Update `getArchivePuzzles` query to include `historicalContext` field in paginated results
-
-## Phase 6: Client Data Hook Updates
-
-- [x] Update `ConvexPuzzle` interface in `/src/hooks/data/usePuzzleData.ts` line ~10 to include `historicalContext?: string`
-- [x] Update `PuzzleData` interface at line ~21 to include `historicalContext?: string`
-- [x] Update normalization logic at lines ~106 and ~144 to map `historicalContext` from Convex to normalized data structure
-
-## Phase 7: Component Simplification
-
-- [x] Create new simplified `HistoricalContextCard` component that accepts `context?: string` prop directly
-- [x] Remove all loading state logic from HistoricalContextCard (lines 165-167, 236-244)
-- [x] Remove all error state logic from HistoricalContextCard (lines 167-188, 247-274)
-- [x] Remove manual generation trigger logic (handleToggle function lines 90-148)
-- [x] Update expand/collapse to only toggle visibility of pre-fetched content
-- [x] Update GameInstructions.tsx to pass `puzzle.historicalContext` directly to HistoricalContextCard
-- [x] Remove `useHistoricalContext` hook import and usage from HistoricalContextCard
-
-## Phase 8: Dead Code Removal
-
-- [x] Delete `/src/hooks/useHistoricalContext.ts` (234 lines) - completely replaced by server-side generation
-- [x] Delete `/src/lib/openrouter.ts` (318 lines) - moved to Convex action
-- [x] Delete `/src/app/api/historical-context/route.ts` (180 lines) - no longer needed
-- [x] Remove `HISTORICAL_CONTEXT_RATE_LIMIT` constant from `/src/lib/rate-limiter.ts` line 145
-- [x] Remove historical context rate limiting logic from `/src/lib/rate-limiter.ts`
-- [x] Remove OpenRouter-related types from `/src/lib/types/aiContext.ts` if no longer referenced
-- [x] Remove AI_CONFIG constants that are only used by deleted code from `/src/lib/constants.ts`
-
-## Phase 9: Migration Script for Existing Puzzles
-
-- [x] Create `/convex/migrations/generateMissingContext.ts` internal mutation
-- [x] Query all puzzles where `historicalContext === undefined` ordered by puzzleNumber ascending
-- [x] Batch process in groups of 5 to avoid overwhelming OpenRouter API
-- [x] Schedule context generation action for each puzzle with 2-second delays between batches
-- [x] Add progress logging showing X/Y puzzles processed
-- [x] Add dry-run mode that counts puzzles needing migration without executing
-- [x] Test on single puzzle first before running full migration
-
-## Phase 10: Testing & Verification
-
-- [x] Test action with mock year 1969 and Apollo 11 events to verify prompt formatting
-- [x] Verify context persists to database and is retrievable via queries
-- [ ] Test error handling by temporarily using invalid API key
-- [ ] Verify retry logic by simulating network timeouts
-- [ ] Load test with 10 rapid puzzle generations to ensure no rate limiting
-- [x] Verify client instantly displays context with no loading spinners
-- [x] Test expand/collapse functionality still works correctly
-- [x] Measure API cost reduction: log before (client requests) vs after (server requests) metrics
-
-## Phase 11: Production Deployment
-
-- [ ] Deploy schema changes to production via `npx convex deploy`
-- [ ] Set OPENROUTER_API_KEY in production environment
-- [ ] Deploy actions and mutations
-- [ ] Run migration script to backfill existing puzzles
-- [ ] Deploy client code changes
-- [ ] Monitor error logs for failed context generations
-- [ ] Verify cron job successfully generates context for new daily puzzles
-- [ ] Remove feature flag or gradual rollout after 24 hours of stability
-
-## Miscellaneous
-
-- [x] Show Chrondle puzzle number in share text
-
-## Success Metrics
-
-- API calls reduced from ~1000/day to ~1/day (1000x reduction)
-- Zero loading states for historical context
-- Zero 429 rate limit errors
-- Context available for 100% of puzzles
-- Page load time improved by removing client-side API call
+**Total Estimated Time**: 4 hours 20 minutes  
+**Priority Order**: Pre-Merge Cleanup → Phase 6 → Phase 7 → Post-Deployment  
+**Critical Path**: AI Model Migration → BC/AD Format → Migration Execution → Pre-Merge Cleanup

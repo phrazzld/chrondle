@@ -63,7 +63,6 @@ export function UserCreationHandler({
           setUserCreationLoading(true);
           await getOrCreateUser({});
 
-          // console.log("[UserCreationHandler] User creation completed successfully");
           setUserCreationCompleted(true);
 
           // Trigger page refresh to get updated completion data
@@ -96,7 +95,6 @@ export function UserCreationHandler({
   // Handle page refresh after successful user creation
   useEffect(() => {
     if (shouldRefresh && !userCreationLoading) {
-      // console.log("[UserCreationHandler] Refreshing page to show updated completion data");
       // Small delay to ensure mutation is fully processed
       setTimeout(() => {
         window.location.reload();

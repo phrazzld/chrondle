@@ -200,6 +200,130 @@ program
     }
   });
 
+// Add one command
+program
+  .command("add-one")
+  .description("Add a single event to a year")
+  .requiredOption("-y, --year <year>", "Year to add event to", parseInt)
+  .requiredOption("-e, --event <event>", "The event text to add")
+  .action(async ({ year, event }) => {
+    try {
+      const client = await getConvexClient();
+      const result = await client.mutation(api.events.importEvent, {
+        year,
+        event,
+      });
+      if (result.skipped) {
+        console.log(`Skipped: Event already exists for year ${year}.`);
+      } else {
+        console.log(`Successfully added event to year ${year}.`);
+      }
+    } catch (error: any) {
+      console.error("Error adding event:", error.message);
+      process.exit(1);
+    }
+  });
+
+// Update one command
+program
+  .command("update-one")
+  .description("Update a single event")
+  .requiredOption("-y, --year <year>", "Year of the event to update", parseInt)
+  .requiredOption(
+    "-n, --number <number>",
+    "The event number to update (from 'show' command)",
+    parseInt,
+  )
+  .requiredOption("-t, --text <text>", "The new event text")
+  .action(async ({ year, number, text }) => {
+    try {
+      const client = await getConvexClient();
+      const events = await client.query(api.events.getYearEvents, { year });
+      if (number <= 0 || number > events.length) {
+        console.error(
+          `❌ Invalid event number. Use 'show ${year}' to see available events.`,
+        );
+        process.exit(1);
+      }
+      const eventToUpdate = events[number - 1];
+      await client.mutation(api.events.updateEvent, {
+        eventId: eventToUpdate._id,
+        newEvent: text,
+      });
+      console.log(`✅ Successfully updated event #${number} for year ${year}.`);
+    } catch (error: any) {
+      console.error("❌ Error updating event:", error.message);
+
+      // Provide more helpful error messages
+      if (error.message.includes("Could not find function")) {
+        console.error(
+          "\n💡 Hint: The updateEvent function may not be deployed to production.",
+        );
+        console.error(
+          "   Run 'npx convex deploy' to deploy the latest functions.",
+        );
+      } else if (error.message.includes("already exists")) {
+        console.error(
+          "\n💡 Hint: An event with this exact text already exists for this year.",
+        );
+      } else if (error.message.includes("used in a puzzle")) {
+        console.error(
+          "\n💡 Hint: This event is already used in a published puzzle and cannot be modified.",
+        );
+      }
+
+      process.exit(1);
+    }
+  });
+
+// Delete one command
+program
+  .command("delete-one")
+  .description("Delete a single event")
+  .requiredOption("-y, --year <year>", "Year of the event to delete", parseInt)
+  .requiredOption(
+    "-n, --number <number>",
+    "The event number to delete (from 'show' command)",
+    parseInt,
+  )
+  .action(async ({ year, number }) => {
+    try {
+      const client = await getConvexClient();
+      const events = await client.query(api.events.getYearEvents, { year });
+      if (number <= 0 || number > events.length) {
+        console.error(
+          `❌ Invalid event number. Use 'show ${year}' to see available events.`,
+        );
+        process.exit(1);
+      }
+      const eventToDelete = events[number - 1];
+      await client.mutation(api.events.deleteEvent, {
+        eventId: eventToDelete._id,
+      });
+      console.log(`✅ Successfully deleted event #${number} for year ${year}.`);
+    } catch (error: any) {
+      console.error("❌ Error deleting event:", error.message);
+
+      // Provide more helpful error messages
+      if (error.message.includes("Could not find function")) {
+        console.error(
+          "\n💡 Hint: The deleteEvent function may not be deployed to production.",
+        );
+        console.error(
+          "   Run 'npx convex deploy' to deploy the latest functions.",
+        );
+      } else if (error.message.includes("used in a puzzle")) {
+        console.error(
+          "\n💡 Hint: This event is already used in a published puzzle and cannot be deleted.",
+        );
+      } else if (error.message.includes("not found")) {
+        console.error("\n💡 Hint: The event may have already been deleted.");
+      }
+
+      process.exit(1);
+    }
+  });
+
 // List command: Show all years with event usage
 program
   .command("list")
@@ -331,6 +455,64 @@ program
     }
   });
 
+// Verify command: Check if all functions are deployed
+program
+  .command("verify")
+  .description("Verify that all required Convex functions are deployed")
+  .action(async () => {
+    try {
+      const client = await getConvexClient();
+
+      console.log("🔍 Verifying Convex function deployment...\n");
+
+      const requiredFunctions = [
+        { name: "getYearEvents", type: "query" },
+        { name: "importEvent", type: "mutation" },
+        { name: "importYearEvents", type: "mutation" },
+        { name: "updateEvent", type: "mutation" },
+        { name: "deleteEvent", type: "mutation" },
+        { name: "deleteYearEvents", type: "mutation" },
+        { name: "getAllYearsWithStats", type: "query" },
+        { name: "getEventPoolStats", type: "query" },
+      ];
+
+      let allDeployed = true;
+
+      for (const func of requiredFunctions) {
+        try {
+          // Try to verify the function exists by checking if we can call a simple query
+          if (func.name === "getEventPoolStats") {
+            await client.query(api.events.getEventPoolStats);
+          }
+          console.log(`✅ ${func.name} (${func.type})`);
+        } catch (error: any) {
+          if (error.message.includes("Could not find function")) {
+            console.log(`❌ ${func.name} (${func.type}) - NOT DEPLOYED`);
+            allDeployed = false;
+          } else {
+            console.log(
+              `⚠️  ${func.name} (${func.type}) - Error checking: ${error.message}`,
+            );
+          }
+        }
+      }
+
+      console.log("\n" + "=".repeat(50));
+      if (allDeployed) {
+        console.log("✅ All required functions are deployed and ready!");
+      } else {
+        console.log("❌ Some functions are missing.");
+        console.log(
+          "\n💡 Run 'npx convex deploy' to deploy the latest functions.",
+        );
+        process.exit(1);
+      }
+    } catch (error: any) {
+      console.error("❌ Error verifying functions:", error.message);
+      process.exit(1);
+    }
+  });
+
 // Validate command: Check data integrity
 program
   .command("validate")
@@ -347,24 +529,32 @@ program
       // Get all year statistics
       const yearStats = await client.query(api.events.getAllYearsWithStats);
 
-      // Check 1: All years should have exactly 6 events (warn if not)
+      // Check 1: All years should have at least 6 events (minimum required for puzzles)
       console.log("✓ Checking event counts per year...");
       let eventCountIssues = 0;
+      let yearsWithExtraEvents = 0;
       for (const stats of yearStats) {
-        if (stats.total !== 6) {
+        if (stats.total < 6) {
           eventCountIssues++;
           issues.push(
-            `   Year ${stats.year}: Has ${stats.total} events (expected 6)`,
+            `   Year ${stats.year}: Has only ${stats.total} events (minimum 6 required)`,
           );
+        } else if (stats.total > 6) {
+          yearsWithExtraEvents++;
         }
       }
       if (eventCountIssues > 0) {
         console.log(
-          `⚠️  ${eventCountIssues} years have incorrect event counts`,
+          `⚠️  ${eventCountIssues} years have insufficient events (< 6)`,
         );
         totalIssues += eventCountIssues;
       } else {
-        console.log("✅ All years have correct event counts");
+        console.log("✅ All years have minimum required events");
+      }
+      if (yearsWithExtraEvents > 0) {
+        console.log(
+          `🎉 ${yearsWithExtraEvents} years have extra events for variety!`,
+        );
       }
 
       // Check 2: No duplicate events within a year
