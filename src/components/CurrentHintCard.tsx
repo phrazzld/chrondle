@@ -2,20 +2,19 @@
 
 import React from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { TextAnimate } from "@/components/magicui/text-animate";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { HintText } from "@/components/ui/HintText";
 
 interface CurrentHintCardProps {
   event: string | null;
   hintNumber: number;
   totalHints: number;
-  remainingGuesses: number;
   isLoading: boolean;
   error: string | null;
 }
 
 export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
-  ({ event, hintNumber, totalHints, remainingGuesses, isLoading, error }) => {
+  ({ event, hintNumber, totalHints, isLoading, error }) => {
     const shouldReduceMotion = useReducedMotion();
 
     // Don't render if we have an error
@@ -40,18 +39,14 @@ export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
         }}
         className="w-full"
       >
-        <div className="py-3 px-4 rounded-lg border border-border/50 bg-muted/30 shadow-sm">
-          <div className="flex items-start justify-between gap-2 mb-2">
+        <div className="py-3 px-4 rounded-lg border border-border/70 bg-muted/30 shadow-md shadow-primary/5 hover:shadow-lg hover:shadow-primary/10 transition-shadow duration-200">
+          <div className="mb-2">
             <h3 className="text-xs text-muted-foreground uppercase font-accent tracking-wide flex items-center gap-2">
               <span className="inline-flex w-5 h-5 rounded-full bg-primary/10 text-primary items-center justify-center text-[10px] font-bold">
                 {hintNumber}
               </span>
               Hint {hintNumber} of {totalHints}
             </h3>
-            <span className="text-xs text-muted-foreground">
-              {remainingGuesses} {remainingGuesses === 1 ? "guess" : "guesses"}{" "}
-              left
-            </span>
           </div>
 
           {isLoading ? (
@@ -63,17 +58,9 @@ export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
             </div>
           ) : (
             <div role="status" aria-live="polite" aria-atomic="true">
-              <TextAnimate
-                key={hintText}
-                className="text-base sm:text-lg text-left font-body leading-relaxed text-foreground"
-                animation="blurIn"
-                by="word"
-                duration={0.6}
-                startOnView={false}
-                delay={0.05}
-              >
+              <HintText className="text-base sm:text-lg text-left font-body leading-relaxed text-foreground">
                 {hintText}
-              </TextAnimate>
+              </HintText>
             </div>
           )}
         </div>

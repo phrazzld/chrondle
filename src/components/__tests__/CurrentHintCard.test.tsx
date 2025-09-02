@@ -14,6 +14,10 @@ vi.mock("@/components/ui/LoadingSpinner", () => ({
   LoadingSpinner: () => <div data-testid="loading-spinner">Loading...</div>,
 }));
 
+vi.mock("@/components/ui/HintText", () => ({
+  HintText: ({ children }: { children: string }) => <span>{children}</span>,
+}));
+
 vi.mock("motion/react", () => ({
   motion: {
     div: ({ children, ...props }: React.HTMLProps<HTMLDivElement>) => (
@@ -32,7 +36,6 @@ describe("CurrentHintCard", () => {
     event: "Sample current hint",
     hintNumber: 1,
     totalHints: 6,
-    remainingGuesses: 6,
     isLoading: false,
     error: null as string | null,
   };
@@ -59,14 +62,10 @@ describe("CurrentHintCard", () => {
     expect(screen.getByText(/Loading hint/i)).toBeTruthy();
   });
 
-  it("renders remaining guesses with correct pluralization", () => {
-    const { rerender } = render(
-      <CurrentHintCard {...baseProps} remainingGuesses={2} />,
-    );
-    expect(screen.getByText(/2 guesses left/)).toBeTruthy();
+  it("renders hint content with proper formatting", () => {
+    render(<CurrentHintCard {...baseProps} />);
 
-    rerender(<CurrentHintCard {...baseProps} remainingGuesses={1} />);
-    expect(screen.getByText(/1 guess left/)).toBeTruthy();
+    expect(screen.getByText("Sample current hint")).toBeTruthy();
   });
 
   it("does not render when error is present", () => {

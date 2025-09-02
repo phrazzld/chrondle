@@ -66,6 +66,8 @@ scripts/generate-puzzles.mjs
 # Temporary data files
 temp-data/
 ALIGN-CONTEXT.md
+events_list.txt
+existing_years.txt
 
 # Project documentation that should stay in docs/
 /*_AUDIT.md

@@ -53,8 +53,9 @@ program
   .description("Add events for a specific year")
   .requiredOption("-y, --year <year>", "Year to add events for", parseInt)
   .requiredOption("-e, --events <events...>", "List of 6 historical events")
+  .option("-f, --force", "Force adding events even if year already exists")
   .action(async (options) => {
-    const { year, events } = options;
+    const { year, events, force } = options;
 
     // Validate year range
     if (year < -2000 || year > 2025) {
@@ -79,9 +80,27 @@ program
       const existingEvents = await client.query(api.events.getYearEvents, {
         year,
       });
-      if (existingEvents.length >= 6) {
+
+      if (existingEvents.length > 0 && !force) {
+        console.error(
+          `❌ Error: Year ${year} already exists with ${existingEvents.length} events.`,
+        );
+        console.error(`\n💡 Options:`);
+        console.error(
+          `   1. Use 'pnpm events show ${year}' to review existing events`,
+        );
+        console.error(
+          `   2. Use 'pnpm events add-one -y ${year} -e "..."' to add individual events`,
+        );
+        console.error(
+          `   3. Use 'pnpm events add -y ${year} -e ... --force' to force adding (creates duplicates)`,
+        );
+        process.exit(1);
+      }
+
+      if (existingEvents.length >= 6 && force) {
         console.warn(
-          `⚠️  Warning: Year ${year} already has ${existingEvents.length} events`,
+          `⚠️  Warning: Year ${year} already has ${existingEvents.length} events. Adding more...`,
         );
       }
 
@@ -676,6 +695,258 @@ program
       }
     } catch (error: any) {
       console.error(`❌ Error validating events:`, error.message);
+      process.exit(1);
+    }
+  });
+
+// Check-years command: Bulk check if years exist
+program
+  .command("check-years <years...>")
+  .description("Check which years exist in the database vs which are missing")
+  .action(async (years) => {
+    try {
+      const client = await getConvexClient();
+
+      console.log("🔍 Checking year existence...\n");
+
+      const results = {
+        existing: [] as number[],
+        missing: [] as number[],
+      };
+
+      for (const yearStr of years) {
+        const year = parseInt(yearStr);
+
+        if (isNaN(year)) {
+          console.log(`⚠️  Skipping invalid year: ${yearStr}`);
+          continue;
+        }
+
+        try {
+          const events = await client.query(api.events.getYearEvents, { year });
+
+          if (events.length > 0) {
+            results.existing.push(year);
+            console.log(`✅ ${year}: EXISTS (${events.length} events)`);
+          } else {
+            results.missing.push(year);
+            console.log(`❌ ${year}: MISSING`);
+          }
+        } catch {
+          results.missing.push(year);
+          console.log(`❌ ${year}: MISSING`);
+        }
+      }
+
+      // Summary
+      console.log("\n" + "=".repeat(50));
+      console.log(`📊 Summary:`);
+      console.log(`   Years checked: ${years.length}`);
+      console.log(`   Existing: ${results.existing.length}`);
+      console.log(`   Missing: ${results.missing.length}`);
+
+      if (results.missing.length > 0) {
+        console.log(`\n🆕 Missing years to add: ${results.missing.join(", ")}`);
+      }
+
+      if (results.existing.length > 0) {
+        console.log(
+          `\n✅ Existing years to review: ${results.existing.join(", ")}`,
+        );
+      }
+    } catch (error: any) {
+      console.error("❌ Error checking years:", error.message);
+      process.exit(1);
+    }
+  });
+
+// Find-missing command: Find gaps in historical coverage
+program
+  .command("find-missing")
+  .description("Find missing years in a range")
+  .option("--from <year>", "Start year", parseInt)
+  .option("--to <year>", "End year", parseInt)
+  .action(async (options) => {
+    try {
+      const from = options.from || 1400;
+      const to = options.to || 2000;
+      const client = await getConvexClient();
+
+      console.log(`🔍 Finding missing years from ${from} to ${to}...\n`);
+
+      // Get all existing years
+      const yearStats = await client.query(api.events.getAllYearsWithStats);
+      const existingYears = new Set(yearStats.map((s) => s.year));
+
+      const missingYears: number[] = [];
+
+      for (let year = from; year <= to; year++) {
+        if (!existingYears.has(year)) {
+          missingYears.push(year);
+        }
+      }
+
+      if (missingYears.length === 0) {
+        console.log(`✅ All years from ${from} to ${to} have events!`);
+      } else {
+        console.log(`Found ${missingYears.length} missing years:\n`);
+
+        // Group by decade for readability
+        const decades: { [key: string]: number[] } = {};
+
+        for (const year of missingYears) {
+          const decade = Math.floor(year / 10) * 10;
+          const decadeKey = `${decade}s`;
+          if (!decades[decadeKey]) {
+            decades[decadeKey] = [];
+          }
+          decades[decadeKey].push(year);
+        }
+
+        for (const [decade, years] of Object.entries(decades)) {
+          console.log(`${decade}: ${years.join(", ")}`);
+        }
+
+        console.log(`\n📊 Total missing: ${missingYears.length} years`);
+      }
+    } catch (error: any) {
+      console.error("❌ Error finding missing years:", error.message);
+      process.exit(1);
+    }
+  });
+
+// Audit command: Quality assessment
+program
+  .command("audit")
+  .description("Audit database for quality issues and prioritize work")
+  .action(async () => {
+    try {
+      const client = await getConvexClient();
+
+      console.log("🔍 Auditing database quality...\n");
+
+      const yearStats = await client.query(api.events.getAllYearsWithStats);
+
+      // Categorize years
+      const categories = {
+        depleted: [] as any[], // Red: 0 available
+        lowAvailability: [] as any[], // Yellow: 1-5 available
+        unused: [] as any[], // Green with 0 used
+        healthy: [] as any[], // Green with some usage
+      };
+
+      const qualityIssues: { year: number; issues: string[] }[] = [];
+
+      for (const stats of yearStats) {
+        // Categorize by availability
+        if (stats.available === 0) {
+          categories.depleted.push(stats);
+        } else if (stats.available < 6) {
+          categories.lowAvailability.push(stats);
+        } else if (stats.used === 0) {
+          categories.unused.push(stats);
+        } else {
+          categories.healthy.push(stats);
+        }
+
+        // Check for quality issues
+        const events = await client.query(api.events.getYearEvents, {
+          year: stats.year,
+        });
+
+        const yearIssues: string[] = [];
+
+        for (const event of events) {
+          // Check for missing proper nouns (no capital letters after first word)
+          const words = event.event.split(" ");
+          const hasProperNoun = words
+            .slice(1)
+            .some(
+              (word) => word.length > 0 && word[0] === word[0].toUpperCase(),
+            );
+
+          if (!hasProperNoun && !event.puzzleId) {
+            yearIssues.push(
+              `Possibly vague: "${event.event.substring(0, 50)}..."`,
+            );
+          }
+        }
+
+        if (yearIssues.length > 0) {
+          qualityIssues.push({ year: stats.year, issues: yearIssues });
+        }
+      }
+
+      // Report findings
+      console.log("📊 DATABASE STATUS\n");
+      console.log("=".repeat(50));
+
+      console.log("\n🔴 PRIORITY 1: Depleted Years (need more events)");
+      if (categories.depleted.length > 0) {
+        for (const year of categories.depleted) {
+          console.log(`   ${year.year}: All ${year.total} events used`);
+        }
+      } else {
+        console.log("   None - all years have available events!");
+      }
+
+      console.log("\n🟡 PRIORITY 2: Low Availability (< 6 available)");
+      if (categories.lowAvailability.length > 0) {
+        for (const year of categories.lowAvailability) {
+          console.log(
+            `   ${year.year}: Only ${year.available} available (${year.used}/${year.total} used)`,
+          );
+        }
+      } else {
+        console.log("   None - all years have sufficient availability!");
+      }
+
+      console.log("\n🟢 PRIORITY 3: Unused Years (quality review needed)");
+      if (categories.unused.length > 0) {
+        console.log(
+          `   ${categories.unused.length} years with 0 puzzles created`,
+        );
+        console.log(
+          `   Years: ${categories.unused
+            .map((y) => y.year)
+            .slice(0, 10)
+            .join(", ")}${categories.unused.length > 10 ? "..." : ""}`,
+        );
+      } else {
+        console.log("   None - all years have been used!");
+      }
+
+      console.log("\n⚠️  QUALITY ISSUES (vague events without proper nouns)");
+      if (qualityIssues.length > 0) {
+        const topIssues = qualityIssues.slice(0, 5);
+        for (const { year, issues } of topIssues) {
+          console.log(`\n   Year ${year}:`);
+          for (const issue of issues.slice(0, 2)) {
+            console.log(`     - ${issue}`);
+          }
+        }
+        if (qualityIssues.length > 5) {
+          console.log(
+            `\n   ... and ${qualityIssues.length - 5} more years with issues`,
+          );
+        }
+      } else {
+        console.log(
+          "   None detected - all events appear to use proper nouns!",
+        );
+      }
+
+      // Summary
+      console.log("\n" + "=".repeat(50));
+      console.log("📈 SUMMARY");
+      console.log(`   Total years: ${yearStats.length}`);
+      console.log(`   Healthy years: ${categories.healthy.length}`);
+      console.log(
+        `   Needs attention: ${categories.depleted.length + categories.lowAvailability.length}`,
+      );
+      console.log(`   Quality review needed: ${qualityIssues.length}`);
+    } catch (error: any) {
+      console.error("❌ Error auditing database:", error.message);
       process.exit(1);
     }
   });

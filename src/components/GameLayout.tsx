@@ -110,7 +110,6 @@ export function GameLayout(props: GameLayoutProps) {
               event={gameState.puzzle.events[currentHintIndex] || null}
               hintNumber={currentHintIndex + 1}
               totalHints={gameState.puzzle.events.length}
-              remainingGuesses={remainingGuesses}
               isLoading={isLoading}
               error={error}
             />

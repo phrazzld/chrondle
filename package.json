@@ -34,6 +34,7 @@
     "check-cache": "node scripts/check-cache-age.mjs",
     "predev": "node scripts/check-cache-age.mjs || true",
     "events": "tsx scripts/manage-events.ts",
+    "events:audit": "tsx scripts/audit-events.ts",
     "deploy:verify": "node scripts/verify-deployment.mjs",
     "deploy": "convex deploy && pnpm deploy:verify",
     "validate-puzzles": "node scripts/check-convex-state.mjs",

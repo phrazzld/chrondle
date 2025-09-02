@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { formatYear } from "@/lib/utils";
 import { Separator } from "@/components/ui/Separator";
 import { Check } from "lucide-react";
+import { HintText } from "@/components/ui/HintText";
 import {
   motion,
   AnimatePresence,
@@ -97,7 +98,7 @@ const PastHint: React.FC<PastHintProps> = React.memo(
           stiffness: 500,
           damping: 30,
         }}
-        className={`py-3 px-4 rounded-lg border-2 ${backgroundClass} opacity-90 hover:opacity-100 transition-opacity duration-200 shadow-sm`}
+        className={`py-3 px-4 rounded-lg border-2 ${backgroundClass} opacity-90 hover:opacity-100 transition-all duration-200 shadow-md shadow-primary/5 hover:shadow-lg hover:shadow-primary/10`}
       >
         {/* Enhanced header with proximity indicator */}
         <div className="flex items-center gap-3 mb-2">
@@ -128,9 +129,9 @@ const PastHint: React.FC<PastHintProps> = React.memo(
 
         {/* Content section */}
         <div>
-          <p className="text-sm text-left font-body leading-relaxed text-foreground">
-            {hintText}
-          </p>
+          <div className="text-sm text-left font-body leading-relaxed text-foreground">
+            <HintText>{hintText}</HintText>
+          </div>
         </div>
       </motion.div>
     );
@@ -157,7 +158,7 @@ const FutureHint: React.FC<FutureHintProps> = React.memo(
           damping: 25,
           delay: 0.1,
         }}
-        className="py-3 px-4 rounded-lg border border-dashed border-muted/40 bg-muted/10 opacity-75 hover:opacity-90 transition-opacity duration-200"
+        className="py-3 px-4 rounded-lg border border-dashed border-muted/50 bg-muted/10 opacity-75 hover:opacity-90 transition-all duration-200 shadow-sm shadow-muted/10 hover:shadow-md hover:shadow-muted/20"
       >
         {/* Enhanced header for unused hints */}
         <div className="flex items-center gap-3 mb-2">
@@ -179,9 +180,9 @@ const FutureHint: React.FC<FutureHintProps> = React.memo(
 
         {/* Content section */}
         <div className="pl-2">
-          <p className="text-sm text-muted-foreground text-left font-body leading-relaxed">
-            {hintText || "No hint available"}
-          </p>
+          <div className="text-sm text-muted-foreground text-left font-body leading-relaxed">
+            <HintText>{hintText || "No hint available"}</HintText>
+          </div>
         </div>
       </motion.div>
     );

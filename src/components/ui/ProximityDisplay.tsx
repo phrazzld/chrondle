@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { motion, useReducedMotion } from 'motion/react';
-import { formatYear } from '@/lib/utils';
+import React from "react";
+import { motion, useReducedMotion } from "motion/react";
+import { formatYear } from "@/lib/utils";
 
 interface ProximityDisplayProps {
   currentGuess: number;
@@ -19,7 +19,7 @@ export const ProximityDisplay: React.FC<ProximityDisplayProps> = ({
   targetYear,
   hasWon,
   guessCount,
-  className = ''
+  className = "",
 }) => {
   const shouldReduceMotion = useReducedMotion() ?? false;
 
@@ -30,27 +30,27 @@ export const ProximityDisplay: React.FC<ProximityDisplayProps> = ({
 
   // Get temperature emoji that changes based on distance
   const getTemperatureEmoji = (distance: number): string => {
-    if (distance === 0) return '🎯'; // Perfect
-    if (distance <= 10) return '🔥'; // Very hot
-    if (distance <= 50) return '♨️'; // Hot  
-    if (distance <= 150) return '🌡️'; // Warm
-    if (distance <= 500) return '❄️'; // Cold
-    return '🧊'; // Very cold
+    if (distance === 0) return "🎯"; // Perfect
+    if (distance <= 10) return "🔥"; // Very hot
+    if (distance <= 50) return "♨️"; // Hot
+    if (distance <= 150) return "🌡️"; // Warm
+    if (distance <= 500) return "❄️"; // Cold
+    return "🧊"; // Very cold
   };
 
   // Get temperature text based on distance (no exact distances)
   const getTemperatureText = (distance: number): string => {
-    if (distance === 0) return 'Perfect!';
-    if (distance <= 10) return 'Very hot';
-    if (distance <= 50) return 'Hot';  
-    if (distance <= 150) return 'Warm';
-    if (distance <= 500) return 'Cold';
-    return 'Very cold';
+    if (distance === 0) return "Perfect!";
+    if (distance <= 10) return "Very hot";
+    if (distance <= 50) return "Hot";
+    if (distance <= 150) return "Warm";
+    if (distance <= 500) return "Cold";
+    return "Very cold";
   };
 
   // Get simple direction without arrow
   const getDirection = (guess: number, targetYear: number): string => {
-    return guess < targetYear ? 'Try a later year' : 'Try an earlier year';
+    return guess < targetYear ? "Try a later year" : "Try an earlier year";
   };
 
   // Calculate display values
@@ -59,7 +59,7 @@ export const ProximityDisplay: React.FC<ProximityDisplayProps> = ({
   const direction = getDirection(currentGuess, targetYear);
 
   // Simple accessibility description
-  const accessibilityLabel = `Your guess ${formatYear(currentGuess)}, ${temperatureText.toLowerCase()}, ${direction.toLowerCase()}`;
+  const accessibilityLabel = `Last guess: ${formatYear(currentGuess)}, ${temperatureText.toLowerCase()}, ${direction.toLowerCase()}`;
 
   return (
     <motion.div
@@ -77,6 +77,9 @@ export const ProximityDisplay: React.FC<ProximityDisplayProps> = ({
     >
       <span className="text-lg" role="img" aria-label="temperature indicator">
         {temperatureEmoji}
+      </span>
+      <span className="text-muted-foreground text-xs uppercase tracking-wide">
+        Last guess:
       </span>
       <span className="text-foreground font-semibold">
         {formatYear(currentGuess)}
