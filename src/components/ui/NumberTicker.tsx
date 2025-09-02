@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { motion, useMotionValue, animate } from "motion/react";
-import { formatYear } from "@/lib/utils";
 import { logger } from "@/lib/logger";
 
 interface NumberTickerProps {
@@ -97,7 +96,7 @@ export const NumberTicker: React.FC<NumberTickerProps> = ({
   useEffect(() => {
     const unsubscribe = motionValue.on("change", (latest) => {
       if (ref.current) {
-        ref.current.textContent = formatYear(Math.round(latest));
+        ref.current.textContent = Math.round(latest).toString();
       }
     });
 
@@ -111,7 +110,7 @@ export const NumberTicker: React.FC<NumberTickerProps> = ({
       initial={{ opacity: 1 }}
       style={{ willChange: "transform" }}
     >
-      {formatYear(initialValue ?? value)}
+      {(initialValue ?? value).toString()}
     </motion.span>
   );
 };

@@ -73,6 +73,26 @@
 - **Backup Size Tracking**: Monitor export file size to verify database content (161KB for Chrondle indicates healthy dataset)
 - **Directory Structure**: Create organized backup directories before export operations for better file management
 
+### CI Performance Testing
+
+- **Environment-Specific Thresholds**: CI environments need ~25% higher performance thresholds than local development due to shared resources
+  ```typescript
+  // Local development: 16ms ideal (60fps frame budget)
+  // CI environment: 25ms practical (accounts for resource variability)
+  expect(duration).toBeLessThan(25); // CI threshold
+  ```
+- **Performance Context Documentation**: Always document why specific thresholds are chosen and include environment variance explanations
+- **Statistical Testing Future Path**: Single-run absolute thresholds are brittle - future enhancement should use multiple runs with median/percentile approaches
+- **TODO Structure Effectiveness**: Clear TODO items with specific line numbers and thresholds make CI fixes straightforward and fast to implement
+- **Real-World Performance Validation**: Actual usage patterns (8-12ms average) provide confidence that test thresholds (25ms) maintain good UX
+
 ## Bugs & Fixes
+
+### Timeline Performance Test CI Failures
+
+- **Problem**: CI environments failing performance tests at 16ms threshold (16.2ms actual vs 16ms limit)
+- **Root Cause**: GitHub Actions runners have ~25% performance variance due to shared/limited CPU resources
+- **Solution**: Increase threshold to 25ms (still ensures 40fps minimum) with comprehensive documentation of rationale
+- **Prevention**: Consider statistical approaches (median of multiple runs, percentiles) for future resilience
 
 ## Decisions

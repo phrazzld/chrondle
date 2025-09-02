@@ -11,16 +11,6 @@ vi.mock("@/components/ui/Separator", () => ({
   Separator: () => <hr data-testid="separator" />,
 }));
 
-vi.mock("@/components/magicui/text-animate", () => ({
-  TextAnimate: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="text-animate">{children}</div>
-  ),
-}));
-
-vi.mock("@/components/ui/LoadingSpinner", () => ({
-  LoadingSpinner: () => <div data-testid="loading-spinner">Loading...</div>,
-}));
-
 vi.mock("lucide-react", () => ({
   Check: () => <span data-testid="check-icon">✓</span>,
 }));
@@ -32,6 +22,9 @@ vi.mock("motion/react", () => ({
     ),
     p: ({ children, ...props }: React.HTMLProps<HTMLParagraphElement>) => (
       <p {...props}>{children}</p>
+    ),
+    span: ({ children, ...props }: React.HTMLProps<HTMLSpanElement>) => (
+      <span {...props}>{children}</span>
     ),
   },
   AnimatePresence: ({ children }: { children: React.ReactNode }) => (
@@ -58,9 +51,7 @@ describe("HintsDisplay Component Interface", () => {
     ],
     guesses: [] as number[],
     targetYear: 1969,
-    currentHintIndex: 0,
     isGameComplete: false,
-    isLoading: false,
     error: null as string | null,
   });
 
@@ -69,12 +60,12 @@ describe("HintsDisplay Component Interface", () => {
   });
 
   describe("Required Props", () => {
-    it("renders with all required props", () => {
+    it("renders past hints for each guess", () => {
       const props = createDefaultProps();
+      props.guesses = [1970];
+
       render(<HintsDisplay {...props} />);
 
-      const heading = screen.getByRole("heading", { level: 3 });
-      expect(heading.textContent).toMatch(/hint 1 of 6/i);
       expect(screen.getByText(props.events[0])).toBeTruthy();
     });
 
@@ -85,40 +76,29 @@ describe("HintsDisplay Component Interface", () => {
       expect(mockValidate).toHaveBeenCalledWith(props);
     });
 
-    it("shows correct hint based on currentHintIndex", () => {
+    it("shows future hints only when game is complete", () => {
       const props = createDefaultProps();
-      props.currentHintIndex = 2;
-
-      render(<HintsDisplay {...props} />);
-
-      const heading = screen.getByRole("heading", { level: 3 });
-      expect(heading.textContent).toMatch(/hint 3 of 6/i);
-      expect(screen.getByText(props.events[2])).toBeTruthy();
-    });
-
-    it("shows all hints when game is complete", () => {
-      const props = createDefaultProps();
+      props.guesses = [1970, 1968, 1969];
       props.isGameComplete = true;
-      props.guesses = [1970, 1968, 1969]; // Won on third guess
 
       render(<HintsDisplay {...props} />);
 
-      // Should show all events
-      props.events.forEach((event) => {
-        expect(screen.getByText(event)).toBeTruthy();
-      });
+      // Past hints present
+      expect(screen.getByText(props.events[0])).toBeTruthy();
+      expect(screen.getByText(props.events[1])).toBeTruthy();
+      expect(screen.getByText(props.events[2])).toBeTruthy();
+      // Future hints section header appears
+      expect(screen.getByText(/Unused Hints Revealed/i)).toBeTruthy();
     });
 
-    it("handles empty guesses array", () => {
+    it("handles empty guesses array (no past hints)", () => {
       const props = createDefaultProps();
       props.guesses = [];
 
       render(<HintsDisplay {...props} />);
 
-      const heading = screen.getByRole("heading", { level: 3 });
-      expect(heading.textContent).toMatch(/hint 1 of 6/i);
-      const checkIcons = screen.queryAllByText("✓");
-      expect(checkIcons.length).toBe(0);
+      // No past hint text visible
+      expect(screen.queryByText(props.events[0])).toBe(null);
     });
   });
 
@@ -132,26 +112,16 @@ describe("HintsDisplay Component Interface", () => {
       const wrapper = container.firstChild as HTMLElement;
       expect(wrapper.className).toContain("custom-class");
     });
-
-    it("renders without isGameComplete prop", () => {
-      const props = createDefaultProps();
-      // Don't set isGameComplete
-
-      render(<HintsDisplay {...props} />);
-
-      const heading = screen.getByRole("heading", { level: 3 });
-      expect(heading.textContent).toMatch(/hint 1 of 6/i);
-    });
   });
 
   describe("Loading and Error States", () => {
-    it("shows loading spinner when isLoading is true", () => {
+    it("shows loading state when events are empty", () => {
       const props = createDefaultProps();
-      props.isLoading = true;
+      props.events = [];
 
       render(<HintsDisplay {...props} />);
 
-      expect(screen.getByTestId("loading-spinner")).toBeTruthy();
+      expect(screen.getByText("Loading puzzle events...")).toBeTruthy();
     });
 
     it("shows error message when error is present", () => {
@@ -163,39 +133,34 @@ describe("HintsDisplay Component Interface", () => {
     });
 
     it("prioritizes error over loading state", () => {
-      const props = {
-        ...createDefaultProps(),
-        isLoading: true,
-        error: "Error occurred",
-      };
+      const props = createDefaultProps();
+      props.events = [];
+      props.error = "Error occurred";
 
       render(<HintsDisplay {...props} />);
 
       expect(screen.getByText(/Unable to Load Puzzle/i)).toBeTruthy();
-      expect(screen.queryByTestId("loading-spinner")).toBe(null);
+      expect(screen.queryByText("Loading puzzle events...")).toBe(null);
     });
   });
 
   describe("Hint Progression", () => {
-    it("shows hints up to current index", () => {
+    it("shows hints up to the number of guesses", () => {
       const props = createDefaultProps();
-      props.currentHintIndex = 2;
       props.guesses = [1970, 1968];
 
       render(<HintsDisplay {...props} />);
 
-      // Should show hints 0, 1, and 2
+      // Should show hints 0 and 1
       expect(screen.getByText(props.events[0])).toBeTruthy();
       expect(screen.getByText(props.events[1])).toBeTruthy();
-      expect(screen.getByText(props.events[2])).toBeTruthy();
-
       // Should not show later hints
-      expect(screen.queryByText(props.events[3])).toBe(null);
+      expect(screen.queryByText(props.events[2])).toBe(null);
     });
 
     it("shows check marks for correct guesses", () => {
       const props = createDefaultProps();
-      props.currentHintIndex = 3;
+      props.targetYear = 1969;
       props.guesses = [1970, 1969, 1971]; // Second guess is correct
 
       render(<HintsDisplay {...props} />);
@@ -205,11 +170,10 @@ describe("HintsDisplay Component Interface", () => {
       expect(checkIcons.length).toBe(1);
     });
 
-    it("formats target year correctly", () => {
+    it("formats guessed years correctly (BC)", () => {
       const props = createDefaultProps();
-      props.targetYear = -776;
-      props.isGameComplete = true;
-      props.guesses = [100, -500, -776]; // Add guesses to see the year display
+      props.targetYear = 0; // arbitrary
+      props.guesses = [-776];
 
       render(<HintsDisplay {...props} />);
 
@@ -226,54 +190,28 @@ describe("HintsDisplay Component Interface", () => {
 
       render(<HintsDisplay {...props} />);
 
-      // Empty events show loading state, no heading
+      // Empty events show loading state
       expect(screen.getByText("Loading puzzle events...")).toBeTruthy();
-      expect(screen.queryByRole("heading", { level: 3 })).toBe(null);
     });
 
-    it("handles wrong number of events", () => {
+    it("handles wrong number of events (len=2)", () => {
       const props = createDefaultProps();
       props.events = ["Event 1", "Event 2"]; // Only 2 events
+      props.guesses = [1970];
 
       render(<HintsDisplay {...props} />);
-
-      const heading = screen.getByRole("heading", { level: 3 });
-      expect(heading.textContent).toMatch(/hint 1 of 2/i);
-    });
-
-    it("handles currentHintIndex out of bounds", () => {
-      const props = createDefaultProps();
-      props.currentHintIndex = 10; // Out of bounds
-
-      render(<HintsDisplay {...props} />);
-
-      // Out of bounds index means no current hint renders
-      expect(screen.queryByRole("heading", { level: 3 })).toBe(null);
-      // Past hints should still be visible
-      expect(screen.queryByText(props.events[0])).toBe(null); // No hints shown when no guesses
-    });
-
-    it("handles negative currentHintIndex", () => {
-      const props = createDefaultProps();
-      props.currentHintIndex = -1;
-
-      render(<HintsDisplay {...props} />);
-
-      // Negative index still renders CurrentHint with hintNumber = 0
-      const heading = screen.getByRole("heading", { level: 3 });
-      expect(heading.textContent).toMatch(/hint 0 of 6/i);
+      // Should show the first event as a past hint
+      expect(screen.getByText("Event 1")).toBeTruthy();
     });
 
     it("handles more guesses than events", () => {
       const props = createDefaultProps();
       props.guesses = [1970, 1968, 1971, 1967, 1966, 1965, 1964];
-      props.currentHintIndex = 5;
 
       render(<HintsDisplay {...props} />);
 
-      // Should show all 6 events, but no check marks since no correct guesses
-      const checkIcons = screen.queryAllByText("✓");
-      expect(checkIcons.length).toBe(0); // No correct guesses
+      // Should not crash; missing hint text becomes [DATA MISSING]
+      expect(screen.getAllByText(/Hint #/i).length).toBeGreaterThan(0);
     });
   });
 
@@ -283,16 +221,14 @@ describe("HintsDisplay Component Interface", () => {
         events: ["E1", "E2", "E3", "E4", "E5", "E6"],
         guesses: [1970, 1969],
         targetYear: 1969,
-        currentHintIndex: 2,
         isGameComplete: true,
-        isLoading: false,
         error: null,
         className: "test-class",
       };
 
       // This should compile without TypeScript errors
       render(<HintsDisplay {...props} />);
-      expect(screen.getByText("E3")).toBeTruthy();
+      expect(screen.getByText("E2")).toBeTruthy();
     });
 
     it("validates prop types at runtime", () => {
@@ -300,8 +236,6 @@ describe("HintsDisplay Component Interface", () => {
         events: "not an array" as unknown as string[],
         guesses: "not an array" as unknown as number[],
         targetYear: "not a number" as unknown as number,
-        currentHintIndex: "not a number" as unknown as number,
-        isLoading: "not a boolean" as unknown as boolean,
         error: 123 as unknown as string | null,
       };
 
@@ -313,23 +247,18 @@ describe("HintsDisplay Component Interface", () => {
   });
 
   describe("Accessibility", () => {
-    it("uses semantic HTML structure", () => {
+    it("provides proximity aria-labels on past hints", () => {
       const props = createDefaultProps();
-      render(<HintsDisplay {...props} />);
-
-      // Should have proper heading hierarchy
-      const heading = screen.getByRole("heading", { level: 3 });
-      expect(heading.textContent).toMatch(/hint 1 of 6/i);
-    });
-
-    it("announces hint progression to screen readers", () => {
-      const props = createDefaultProps();
-      props.currentHintIndex = 2;
+      props.targetYear = 1969;
+      props.guesses = [1968];
 
       render(<HintsDisplay {...props} />);
 
-      // Current hint should be announced
-      expect(screen.getByText(props.events[2])).toBeTruthy();
+      // Proximity indicator has a role and aria-label
+      const emoji = screen.getByRole("img", {
+        name: /Very close|Close|Warm|Cold|Very cold|Perfect/i,
+      });
+      expect(emoji).toBeTruthy();
     });
   });
 });
