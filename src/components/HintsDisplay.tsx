@@ -38,7 +38,12 @@ interface FutureHintProps {
 
 const PastHint: React.FC<PastHintProps> = React.memo(
   ({ hintNumber, hintText, guess, targetYear, shouldReduceMotion = false }) => {
-    if (!hintText || guess === undefined || !targetYear) {
+    if (
+      !hintText ||
+      guess === undefined ||
+      typeof targetYear !== "number" ||
+      !Number.isFinite(targetYear)
+    ) {
       return (
         <div className="py-2 opacity-50">
           <p className="text-xs text-muted-foreground mb-1 text-left uppercase">

@@ -105,3 +105,15 @@
 - [ ] [MED] [PERF] Implement client-side timeout in OpenRouterService | Gain: Prevent hanging requests
 - [ ] [LOW] [UI/UX] Surface rate limit retry information in HistoricalContextCard | Gain: Smart retry UI with countdown
 - [ ] [LOW] [MAINTAIN] Clean up unused config.timeout if client timeout not needed | Debt: Unused configuration
+
+---
+
+## Post-merge follow-ups (Current Hint relocation)
+
+- [x] [UI/UX] Show current hint above guess input — completed in feat/current-hint-above-input
+- [MED] [DEV] Update validateHintsDisplayProps to reflect new HintsDisplay API (remove currentHintIndex and isLoading checks; keep events, guesses, targetYear, isGameComplete, error, className)
+- [MED] [TEST] Add a negative/edge-case test for GameProgress after clamping (e.g., guessCount > totalHints)
+- [LOW] [A11Y] Consider announcing the “Unused Hints Revealed” section with an aria-live region on game completion
+- [LOW] [UX] Revisit HintsDisplay auto-scroll-to-top behavior or make the container explicitly scrollable if that behavior is desired
+- [LOW] [ALIGN] Decide whether events must always have length 6; align validator, docs, and tests accordingly
+- [LOW] [DOCS] Update architecture/docs to reflect that CurrentHintCard owns the current hint, and HintsDisplay only renders past/future hints

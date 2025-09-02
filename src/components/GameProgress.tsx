@@ -13,7 +13,7 @@ export const GameProgress: React.FC<GameProgressProps> = ({
   totalHints = 6,
   className = "",
 }) => {
-  const remainingGuesses = totalHints - guessCount;
+  const remainingGuesses = Math.max(0, totalHints - guessCount);
 
   return (
     <div className={`flex justify-start items-center gap-2 py-2 ${className}`}>
