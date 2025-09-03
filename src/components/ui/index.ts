@@ -25,3 +25,4 @@ export { Skeleton } from "./Skeleton";
 export { ProgressBar } from "./ProgressBar";
 export { SwipeProgressBar } from "./SwipeProgressBar";
 export { ThemeToggle } from "./ThemeToggle";
+export { EraToggle, EraToggleWithLabel } from "./EraToggle";
