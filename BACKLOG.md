@@ -20,12 +20,6 @@
 
 ## Miscellaneous
 
-- paywall puzzle archive with stripe
-- accuracy agent for auditing events in the database
-- generation agent for creating events in the database
-- quality agent for updating and tidying events, duplicates, etc
-- haiku generation flow, iterate on historical context generation prompt
-
 ## Timeline Component Enhancements (from PR #11 review)
 
 - [ ] [LOW] Add unit tests for BC/AD formatYear edge cases (year 0, large negative years) | Gain: Prevent formatting bugs
