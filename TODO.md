@@ -18,11 +18,21 @@ Generated from TASK.md on 2025-09-03
   - Dependencies: CP-1 (era utilities for validation)
   - Estimated complexity: MEDIUM (60-75 min)
   - Files: Create `src/components/ui/EraToggle.tsx`
-- [~] **CP-3: Refactor GuessInput Component** - Integrate positive input + era toggle
+- [x] **CP-3: Refactor GuessInput Component** - Integrate positive input + era toggle
   - Success criteria: Accepts only positive numbers, era toggle integrated, real-time display works
   - Dependencies: CP-1, CP-2
   - Estimated complexity: COMPLEX (90-120 min)
   - Files: Modify `src/components/GuessInput.tsx`
+  ```
+  Work Log:
+  - Successfully refactored to use positive year + era toggle
+  - Integrated EraToggle component with proper layout
+  - Added real-time formatted display (e.g., "776 BC")
+  - Updated keyboard navigation to respect era bounds
+  - Converts UI format to internal negative numbers on submit
+  - iOS keyboard issue FIXED - no minus sign needed
+  - All existing functionality preserved
+  ```
 
 ## Parallel Work Streams
 
