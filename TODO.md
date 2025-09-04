@@ -18,7 +18,7 @@ Generated from TASK.md on 2025-09-03
   - Dependencies: CP-1 (era utilities for validation)
   - Estimated complexity: MEDIUM (60-75 min)
   - Files: Create `src/components/ui/EraToggle.tsx`
-- [ ] **CP-3: Refactor GuessInput Component** - Integrate positive input + era toggle
+- [~] **CP-3: Refactor GuessInput Component** - Integrate positive input + era toggle
   - Success criteria: Accepts only positive numbers, era toggle integrated, real-time display works
   - Dependencies: CP-1, CP-2
   - Estimated complexity: COMPLEX (90-120 min)
