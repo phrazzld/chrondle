@@ -7,27 +7,32 @@ import { cn } from "@/lib/utils";
 import type { Era } from "@/lib/eraUtils";
 
 const toggleContainerVariants = cva(
-  "inline-flex rounded-md bg-muted p-1 gap-1",
+  "inline-flex rounded-md bg-muted border border-input shadow-sm p-1.5 gap-1",
   {
     variants: {
       size: {
         sm: "h-8 text-xs",
         default: "h-9 text-sm",
-        lg: "h-10 text-base",
+        lg: "h-11 text-base",
+      },
+      width: {
+        auto: "w-auto",
+        full: "w-full",
       },
     },
     defaultVariants: {
       size: "default",
+      width: "auto",
     },
   },
 );
 
 const toggleButtonVariants = cva(
-  "inline-flex items-center justify-center rounded px-3 py-1 font-medium transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center rounded px-3 py-1 font-medium transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1 sm:flex-initial",
   {
     variants: {
       variant: {
-        active: "bg-background text-foreground shadow-sm",
+        active: "bg-primary text-primary-foreground shadow-sm font-semibold",
         inactive:
           "text-muted-foreground hover:text-foreground hover:bg-background/50",
       },
@@ -51,6 +56,7 @@ export interface EraToggleProps
   onChange: (era: Era) => void;
   disabled?: boolean;
   showLabels?: boolean;
+  width?: "auto" | "full";
 }
 
 const EraToggle = React.forwardRef<HTMLDivElement, EraToggleProps>(
@@ -58,6 +64,7 @@ const EraToggle = React.forwardRef<HTMLDivElement, EraToggleProps>(
     {
       className,
       size,
+      width = "auto",
       value,
       onChange,
       disabled = false,
@@ -104,7 +111,7 @@ const EraToggle = React.forwardRef<HTMLDivElement, EraToggleProps>(
         role="radiogroup"
         aria-label="Select era: BC or AD"
         aria-disabled={disabled}
-        className={cn(toggleContainerVariants({ size }), className)}
+        className={cn(toggleContainerVariants({ size, width }), className)}
         onKeyDown={handleKeyDown}
         {...props}
       >
@@ -124,7 +131,7 @@ const EraToggle = React.forwardRef<HTMLDivElement, EraToggleProps>(
           whileTap={!disabled ? { scale: 0.95 } : undefined}
           animate={{
             backgroundColor:
-              value === "BC" ? "var(--background)" : "transparent",
+              value === "BC" ? "hsl(var(--primary))" : "transparent",
           }}
           transition={{ duration: 0.2 }}
         >
@@ -146,7 +153,7 @@ const EraToggle = React.forwardRef<HTMLDivElement, EraToggleProps>(
           whileTap={!disabled ? { scale: 0.95 } : undefined}
           animate={{
             backgroundColor:
-              value === "AD" ? "var(--background)" : "transparent",
+              value === "AD" ? "hsl(var(--primary))" : "transparent",
           }}
           transition={{ duration: 0.2 }}
         >

@@ -154,7 +154,12 @@ describe("GuessInput Component Interface", () => {
       const input = screen.getByRole("textbox") as HTMLInputElement;
       const form = input.closest("form")!;
 
-      fireEvent.change(input, { target: { value: "-776" } });
+      // Select BC era
+      const bcButton = screen.getByRole("radio", { name: /BC/i });
+      fireEvent.click(bcButton);
+
+      // Enter positive year value
+      fireEvent.change(input, { target: { value: "776" } });
       fireEvent.submit(form);
 
       await waitFor(() => {

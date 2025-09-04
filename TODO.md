@@ -49,14 +49,22 @@ Generated from TASK.md on 2025-09-03
 
 ### Stream B: Mobile Optimization
 
-- [ ] **PB-1: Configure Mobile Keyboard Settings** - Optimize input patterns for mobile
+- [x] **PB-1: Configure Mobile Keyboard Settings** - Optimize input patterns for mobile
   - Success criteria: iOS shows numeric keyboard without minus sign
   - Can start: After CP-3
   - Estimated complexity: SIMPLE (15-30 min)
-- [ ] **PB-2: Optimize Touch Targets** - Ensure 44px minimum touch targets
+  - COMPLETED: Numeric keyboard optimized via positive year input
+- [x] **PB-2: Optimize Touch Targets** - Ensure 44px minimum touch targets
   - Success criteria: Era toggle easily tappable on small screens
   - Dependencies: CP-2
   - Estimated complexity: SIMPLE (20-30 min)
+  - COMPLETED: Era toggle enhanced with:
+    - Full-width on mobile
+    - Increased size (lg variant)
+    - 44px+ touch targets
+    - Primary color active state
+    - Border for prominence
+    - Fixed padding (p-1.5)
 
 ### Stream C: Backward Compatibility
 

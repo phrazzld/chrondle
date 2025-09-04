@@ -210,8 +210,9 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
             value={era}
             onChange={setEra}
             disabled={disabled}
-            size="default"
-            className="h-12"
+            size="lg"
+            width="full"
+            className="h-12 sm:w-auto"
             aria-label="Select era: BC or AD"
           />
         </div>
