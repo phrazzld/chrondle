@@ -178,28 +178,3 @@ export function isAmbiguousYear(year: number): boolean {
   // Years 1-1000 could reasonably be either BC or AD in historical context
   return year >= 1 && year <= 1000;
 }
-
-/**
- * Suggests the most likely era based on the year value
- * @param year - Year value
- * @returns Suggested era based on common historical periods
- */
-export function suggestEra(year: number): Era {
-  // Modern years (> 1000) are almost certainly AD
-  if (year > 1000) {
-    return "AD";
-  }
-
-  // Very early years (> 2000) are likely BC
-  if (year > 2000) {
-    return "BC";
-  }
-
-  // Years 500-1000 are more likely AD (Medieval period)
-  if (year >= 500 && year <= 1000) {
-    return "AD";
-  }
-
-  // Years 1-499 could go either way, default to AD for user convenience
-  return "AD";
-}

@@ -69,7 +69,7 @@ Generated from TASK.md on 2025-09-03
 
 ### Unit Testing
 
-- [ ] **T-1: Test Era Conversion Utilities** - Comprehensive unit tests
+- [x] **T-1: Test Era Conversion Utilities** - Comprehensive unit tests
   - Success criteria: 100% coverage, all edge cases handled (year 0, boundaries)
   - Dependencies: CP-1
   - Estimated complexity: MEDIUM (30-45 min)

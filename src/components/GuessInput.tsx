@@ -18,10 +18,8 @@ import type { Era } from "@/lib/eraUtils";
 import {
   convertToInternalYear,
   isValidEraYear,
-  getEraYearRange,
   adjustYearWithinEra,
   formatEraYear,
-  suggestEra,
 } from "@/lib/eraUtils";
 
 interface GuessInputProps {
@@ -57,19 +55,6 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
     const yearValue = parseInt(year, 10);
     if (isNaN(yearValue) || yearValue <= 0) return "";
     return formatEraYear(yearValue, era);
-  }, [year, era]);
-
-  // Auto-suggest era based on year value
-  useEffect(() => {
-    const yearValue = parseInt(year, 10);
-    if (!isNaN(yearValue) && yearValue > 0) {
-      const suggested = suggestEra(yearValue);
-      // Only auto-suggest if user hasn't manually selected an era yet
-      if (year.length <= 4 && suggested !== era) {
-        // Optional: could add logic to only suggest on first input
-        // For now, we'll let users control the era manually
-      }
-    }
   }, [year, era]);
 
   // Auto-focus on mount and after submission
@@ -128,11 +113,7 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
 
       // Validation - check if year is valid for the selected era
       if (isNaN(yearValue) || !isValidEraYear(yearValue, era)) {
-        onValidationError?.(
-          `Please enter a valid ${era} year. Valid range: ${
-            getEraYearRange(era).min
-          } - ${getEraYearRange(era).max}`,
-        );
+        onValidationError?.("Please enter a valid year.");
         return;
       }
 
