@@ -10,7 +10,6 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/components/SessionThemeProvider";
 import { TimePicker } from "@/components/ui/TimePicker";
-import { useBCADToggle } from "@/hooks/useBCADToggle";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -23,7 +22,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 }) => {
   const theme = useTheme();
   const { notifications } = theme;
-  const bcadToggle = useBCADToggle();
 
   const [isTogglingNotifications, setIsTogglingNotifications] = useState(false);
 
@@ -103,33 +101,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               )}
             </div>
           )}
-
-          {/* BC/AD Input Mode Section */}
-          <div>
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <label htmlFor="bcad-toggle" className="font-semibold">
-                  BC/AD Input Mode
-                </label>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Use BC/AD toggle for year input instead of negative numbers
-                </p>
-              </div>
-              <Switch
-                id="bcad-toggle"
-                checked={bcadToggle.isEnabled}
-                onCheckedChange={bcadToggle.setEnabled}
-                disabled={bcadToggle.isLoading}
-                aria-label="Toggle between BC/AD input mode and legacy negative number mode"
-              />
-            </div>
-            {!bcadToggle.isEnabled && (
-              <div className="mt-2 p-2 rounded text-xs bg-muted">
-                ℹ️ Legacy mode: Use negative numbers for BC years (e.g., -776
-                for 776 BC)
-              </div>
-            )}
-          </div>
         </div>
       </DialogContent>
     </Dialog>
