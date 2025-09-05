@@ -11,6 +11,26 @@ vi.mock("@/lib/propValidation", () => ({
   validateGuessInputProps: vi.fn(),
 }));
 
+// Mock motion/react to avoid animation issues
+vi.mock("motion/react", () => ({
+  motion: {
+    button: ({
+      children,
+      type,
+      ...props
+    }: React.HTMLProps<HTMLButtonElement> & {
+      whileTap?: unknown;
+      animate?: unknown;
+      transition?: unknown;
+      type?: "button" | "submit" | "reset";
+    }) => (
+      <button type={type} {...props}>
+        {children}
+      </button>
+    ),
+  },
+}));
+
 describe("GuessInput Component Interface", () => {
   const mockOnGuess = vi.fn();
   const mockOnValidationError = vi.fn();
@@ -148,7 +168,7 @@ describe("GuessInput Component Interface", () => {
       expect(mockOnGuess).not.toHaveBeenCalled();
     });
 
-    it("accepts valid BC years", async () => {
+    it("accepts valid BC years with era toggle", async () => {
       render(<GuessInput {...defaultProps} />);
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
@@ -164,6 +184,21 @@ describe("GuessInput Component Interface", () => {
 
       await waitFor(() => {
         expect(mockOnGuess).toHaveBeenCalledWith(-776);
+      });
+    });
+
+    it("accepts valid AD years with era toggle", async () => {
+      render(<GuessInput {...defaultProps} />);
+
+      const input = screen.getByRole("textbox") as HTMLInputElement;
+      const form = input.closest("form")!;
+
+      // AD is default, just enter year
+      fireEvent.change(input, { target: { value: "1969" } });
+      fireEvent.submit(form);
+
+      await waitFor(() => {
+        expect(mockOnGuess).toHaveBeenCalledWith(1969);
       });
     });
 
@@ -234,6 +269,232 @@ describe("GuessInput Component Interface", () => {
       await waitFor(() => {
         expect(mockOnGuess).toHaveBeenCalledWith(1969);
       });
+    });
+  });
+
+  describe("BC/AD Era Toggle Integration", () => {
+    it("renders era toggle with default AD state", () => {
+      render(<GuessInput {...defaultProps} />);
+
+      const bcButton = screen.getByRole("radio", { name: /BC/i });
+      const adButton = screen.getByRole("radio", { name: /AD/i });
+
+      expect(bcButton).toBeTruthy();
+      expect(adButton).toBeTruthy();
+      expect(adButton.getAttribute("aria-checked")).toBe("true");
+      expect(bcButton.getAttribute("aria-checked")).toBe("false");
+    });
+
+    it("displays formatted year in real-time", async () => {
+      render(<GuessInput {...defaultProps} />);
+
+      const input = screen.getByRole("textbox") as HTMLInputElement;
+
+      // Type AD year
+      fireEvent.change(input, { target: { value: "1969" } });
+
+      await waitFor(() => {
+        const formattedDisplay = document.getElementById("formatted-year");
+        expect(formattedDisplay?.textContent).toBe("1969 AD");
+      });
+
+      // Switch to BC
+      const bcButton = screen.getByRole("radio", { name: /BC/i });
+      fireEvent.click(bcButton);
+
+      await waitFor(() => {
+        const formattedDisplay = document.getElementById("formatted-year");
+        expect(formattedDisplay?.textContent).toBe("1969 BC");
+      });
+    });
+
+    it("persists era selection after submission", async () => {
+      render(<GuessInput {...defaultProps} />);
+
+      const input = screen.getByRole("textbox") as HTMLInputElement;
+      const form = input.closest("form")!;
+      const bcButton = screen.getByRole("radio", { name: /BC/i });
+
+      // Switch to BC
+      fireEvent.click(bcButton);
+      expect(bcButton.getAttribute("aria-checked")).toBe("true");
+
+      // Submit a BC year
+      fireEvent.change(input, { target: { value: "500" } });
+      fireEvent.submit(form);
+
+      await waitFor(() => {
+        expect(mockOnGuess).toHaveBeenCalledWith(-500);
+      });
+
+      // Era should still be BC after submission
+      expect(bcButton.getAttribute("aria-checked")).toBe("true");
+    });
+
+    it("disables era toggle when input is disabled", () => {
+      render(<GuessInput {...defaultProps} disabled={true} />);
+
+      const bcButton = screen.getByRole("radio", {
+        name: /BC/i,
+      }) as HTMLButtonElement;
+      const adButton = screen.getByRole("radio", {
+        name: /AD/i,
+      }) as HTMLButtonElement;
+
+      expect(bcButton.disabled).toBe(true);
+      expect(adButton.disabled).toBe(true);
+    });
+
+    it("handles era switch during input", async () => {
+      render(<GuessInput {...defaultProps} />);
+
+      const input = screen.getByRole("textbox") as HTMLInputElement;
+      const bcButton = screen.getByRole("radio", { name: /BC/i });
+      const adButton = screen.getByRole("radio", { name: /AD/i });
+
+      // Start with AD year
+      fireEvent.change(input, { target: { value: "100" } });
+
+      await waitFor(() => {
+        const formattedDisplay = document.getElementById("formatted-year");
+        expect(formattedDisplay?.textContent).toBe("100 AD");
+      });
+
+      // Switch to BC without changing input
+      fireEvent.click(bcButton);
+
+      await waitFor(() => {
+        const formattedDisplay = document.getElementById("formatted-year");
+        expect(formattedDisplay?.textContent).toBe("100 BC");
+      });
+
+      // Switch back to AD
+      fireEvent.click(adButton);
+
+      await waitFor(() => {
+        const formattedDisplay = document.getElementById("formatted-year");
+        expect(formattedDisplay?.textContent).toBe("100 AD");
+      });
+    });
+  });
+
+  describe("Arrow Key Navigation with Era Bounds", () => {
+    it("handles arrow up navigation within AD era", () => {
+      render(<GuessInput {...defaultProps} />);
+
+      const input = screen.getByRole("textbox") as HTMLInputElement;
+
+      fireEvent.change(input, { target: { value: "100" } });
+      fireEvent.keyDown(input, { key: "ArrowUp", preventDefault: () => {} });
+
+      expect(input.value).toBe("101");
+    });
+
+    it("handles arrow down navigation within AD era", () => {
+      render(<GuessInput {...defaultProps} />);
+
+      const input = screen.getByRole("textbox") as HTMLInputElement;
+
+      fireEvent.change(input, { target: { value: "100" } });
+      fireEvent.keyDown(input, { key: "ArrowDown", preventDefault: () => {} });
+
+      expect(input.value).toBe("99");
+    });
+
+    it("handles shift+arrow for 10x increment", () => {
+      render(<GuessInput {...defaultProps} />);
+
+      const input = screen.getByRole("textbox") as HTMLInputElement;
+
+      fireEvent.change(input, { target: { value: "100" } });
+      fireEvent.keyDown(input, {
+        key: "ArrowUp",
+        shiftKey: true,
+        preventDefault: () => {},
+      });
+
+      expect(input.value).toBe("110");
+    });
+
+    it("handles shift+arrow for 10x decrement", () => {
+      render(<GuessInput {...defaultProps} />);
+
+      const input = screen.getByRole("textbox") as HTMLInputElement;
+
+      fireEvent.change(input, { target: { value: "100" } });
+      fireEvent.keyDown(input, {
+        key: "ArrowDown",
+        shiftKey: true,
+        preventDefault: () => {},
+      });
+
+      expect(input.value).toBe("90");
+    });
+
+    it("respects AD lower bound (year 0)", () => {
+      render(<GuessInput {...defaultProps} />);
+
+      const input = screen.getByRole("textbox") as HTMLInputElement;
+
+      fireEvent.change(input, { target: { value: "5" } });
+      fireEvent.keyDown(input, {
+        key: "ArrowDown",
+        shiftKey: true,
+        preventDefault: () => {},
+      });
+
+      // Should stop at 0, the minimum AD year
+      expect(input.value).toBe("0");
+    });
+
+    it("handles navigation in BC era", () => {
+      render(<GuessInput {...defaultProps} />);
+
+      const input = screen.getByRole("textbox") as HTMLInputElement;
+      const bcButton = screen.getByRole("radio", { name: /BC/i });
+
+      // Switch to BC
+      fireEvent.click(bcButton);
+
+      fireEvent.change(input, { target: { value: "100" } });
+      fireEvent.keyDown(input, { key: "ArrowUp", preventDefault: () => {} });
+
+      // In BC, higher numbers mean earlier dates
+      expect(input.value).toBe("101");
+    });
+  });
+
+  describe("Accessibility", () => {
+    it("provides proper ARIA labels for era context", () => {
+      render(<GuessInput {...defaultProps} />);
+
+      const input = screen.getByRole("textbox");
+      const ariaLabel = input.getAttribute("aria-label");
+
+      expect(ariaLabel).toContain("Current era: AD");
+      expect(ariaLabel).toContain("arrow keys");
+    });
+
+    it("announces formatted year to screen readers", async () => {
+      render(<GuessInput {...defaultProps} />);
+
+      const input = screen.getByRole("textbox") as HTMLInputElement;
+      fireEvent.change(input, { target: { value: "1969" } });
+
+      await waitFor(() => {
+        const formattedDisplay = document.getElementById("formatted-year");
+        expect(formattedDisplay?.getAttribute("aria-live")).toBe("polite");
+      });
+    });
+
+    it("maintains ARIA radiogroup for era toggle", () => {
+      render(<GuessInput {...defaultProps} />);
+
+      const radioGroup = screen.getByRole("radiogroup");
+      expect(radioGroup).toBeTruthy();
+      expect(radioGroup.getAttribute("aria-label")).toBe(
+        "Select era: BC or AD",
+      );
     });
   });
 

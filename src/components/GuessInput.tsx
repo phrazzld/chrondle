@@ -21,6 +21,8 @@ import {
   adjustYearWithinEra,
   formatEraYear,
 } from "@/lib/eraUtils";
+import { useBCADToggle } from "@/hooks/useBCADToggle";
+import { GuessInputLegacy } from "./GuessInputLegacy";
 
 interface GuessInputProps {
   onGuess: (guess: number) => void;
@@ -31,7 +33,34 @@ interface GuessInputProps {
   isLoading?: boolean;
 }
 
+/**
+ * GuessInput component with feature flag for BC/AD toggle
+ * When feature is disabled, renders the legacy negative number input
+ * When feature is enabled, renders the new BC/AD toggle system
+ */
 export const GuessInput: React.FC<GuessInputProps> = (props) => {
+  // Check feature flag
+  const { isEnabled: isBCADEnabled, isLoading: isFeatureLoading } =
+    useBCADToggle();
+
+  // During feature flag loading, show the default (new) version to prevent layout shift
+  // The actual preference will be applied once loaded
+  if (isFeatureLoading) {
+    return <GuessInputBCAD {...props} />;
+  }
+
+  // Render based on feature flag
+  if (!isBCADEnabled) {
+    return <GuessInputLegacy {...props} />;
+  }
+
+  return <GuessInputBCAD {...props} />;
+};
+
+/**
+ * New BC/AD toggle version of GuessInput
+ */
+const GuessInputBCAD: React.FC<GuessInputProps> = (props) => {
   // Validate props in development
   validateGuessInputProps(props);
 
