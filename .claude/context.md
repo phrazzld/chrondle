@@ -2,6 +2,45 @@
 
 ## Patterns
 
+### Utility Function Development - Discovery-First Approach
+
+- **Pattern-Scout Before Building**: Always use pattern-scout or search tools to identify existing patterns before creating new utilities
+  ```bash
+  # ✅ Discover first, then extend
+  rg "formatYear" --type ts  # Find existing patterns
+  ast-grep --lang typescript -p 'function formatYear($_)' # Semantic search
+  ```
+- **Extend Don't Replace**: When existing utilities are found, create comprehensive extensions rather than replacements
+- **Backward Compatibility Preservation**: Export aliases for existing function names to maintain compatibility
+  ```typescript
+  // ✅ Preserve existing API while extending
+  export { formatYearStandard as formatYear }; // Backward compatibility
+  ```
+- **Test-Driven Validation**: Write comprehensive test suites (35+ tests) covering all functionality before implementation
+- **Style Flexibility Planning**: Include multiple formatting styles (standard, abbreviated, BCE/CE, compact) even if not immediately needed
+
+### Display Formatting Architecture
+
+- **Internal Representation Pattern**: Chrondle uses negative numbers for BC years, positive for AD years consistently across codebase
+- **Format Consistency**: Standard format is "NUMBER SPACE ERA" (e.g., "776 BC", "1969 AD") - maintain this pattern
+- **Options-Based API Design**: Use configuration objects with sensible defaults for flexible utility functions
+  ```typescript
+  // ✅ Flexible options pattern
+  interface FormatOptions {
+    style?: FormatStyle;
+    includeEra?: boolean;
+    lowercase?: boolean;
+  }
+  ```
+- **Era Range Optimization**: Same-era ranges can be optimized to "START–END ERA" format instead of "START ERA – END ERA"
+
+### Testing Excellence Indicators
+
+- **First-Try Success**: Well-designed utilities with comprehensive tests pass on first implementation attempt
+- **Edge Case Coverage**: Test century boundaries, ordinal suffixes (11th, 12th, 13th edge cases), year 0 handling
+- **Compatibility Testing**: Include specific tests for backward compatibility aliases and existing API preservation
+- **Performance Validation**: Test functions designed for frequent UI updates should be optimized for repeated calls
+
 ### Convex Function Invocation
 
 - **Function Path Format**: Convex functions require full path format `directory/file:functionName` not `directory:functionName`
@@ -96,3 +135,16 @@
 - **Prevention**: Consider statistical approaches (median of multiple runs, percentiles) for future resilience
 
 ## Decisions
+
+### Display Formatting Utilities Architecture
+
+- **Decision**: Create comprehensive formatting utilities library instead of scattered format functions
+- **Rationale**: Found existing `formatYear()` in utils.ts and `formatEraYear()` in eraUtils.ts - centralized approach provides consistency and maintainability
+- **Implementation**: `/src/lib/displayFormatting.ts` with 10+ formatting functions, extensive test coverage, and backward compatibility
+- **Success Metrics**: 35 tests passing on first implementation, ~20 minute execution time (within estimate), zero breaking changes to existing code
+
+### Utility Development Time Estimation Patterns
+
+- **Accurate Estimation**: 20-30 minute estimate for utility creation matched 20 minute actual execution
+- **Contributing Factors**: Pattern discovery first, comprehensive test writing, existing code analysis
+- **Replication Strategy**: Always start with codebase exploration, write tests before implementation, plan for multiple formatting styles

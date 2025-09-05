@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { getGuessDirectionInfo, formatYear } from "@/lib/utils";
+import { getGuessDirectionInfo } from "@/lib/utils";
+import { formatYear } from "@/lib/displayFormatting";
 import { getEnhancedProximityFeedback } from "@/lib/enhancedFeedback";
 
 interface UseScreenReaderAnnouncementsProps {

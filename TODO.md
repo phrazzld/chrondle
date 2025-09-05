@@ -38,14 +38,29 @@ Generated from TASK.md on 2025-09-03
 
 ### Stream A: Visual & Display Enhancements
 
-- [ ] **PA-1: Create Display Formatting Utilities** - Consistent BC/AD display formatting
+- [x] **PA-1: Create Display Formatting Utilities** - Consistent BC/AD display formatting
   - Success criteria: Formats "776 BC" and "1969 AD" correctly across app
   - Can start: After CP-1
   - Estimated complexity: SIMPLE (20-30 min)
-- [ ] **PA-2: Update Year Display Components** - Apply new formatting everywhere
+  - COMPLETED: Created comprehensive displayFormatting.ts with:
+    - Multiple format styles (standard, abbreviated, BCE/CE, compact)
+    - Year range formatting with era optimization
+    - Century formatting with proper ordinals
+    - Year distance formatting for proximity feedback
+    - Full test coverage (35 tests passing)
+    - Backward compatible exports
+- [x] **PA-2: Update Year Display Components** - Apply new formatting everywhere
   - Success criteria: All year displays use consistent BC/AD format
   - Dependencies: PA-1, CP-3
   - Estimated complexity: MEDIUM (45-60 min)
+  - COMPLETED: Updated 12 components and hooks:
+    - GuessHistory, GameInstructions, HintsDisplay
+    - GameTimeline, HintReviewModal, ShareCard
+    - EventsCard, ProximityDisplay, ProgressBar
+    - Archive puzzle page, useScreenReaderAnnouncements
+    - All imports changed from utils to displayFormatting
+    - Backward compatibility maintained via formatYear alias
+    - All 260 tests passing, TypeScript/lint checks clean
 
 ### Stream B: Mobile Optimization
 
@@ -68,10 +83,18 @@ Generated from TASK.md on 2025-09-03
 
 ### Stream C: Backward Compatibility
 
-- [ ] **PC-1: Implement Migration Logic** - Handle existing negative number data
+- [x] **PC-1: Implement Migration Logic** - Handle existing negative number data
   - Success criteria: Existing games load correctly, localStorage preserved
   - Can start: After CP-1
   - Estimated complexity: MEDIUM (45-60 min)
+  - COMPLETED: Implemented comprehensive migration system:
+    - Created `localStorageMigration.ts` with detection and cleanup
+    - Handles old localStorage data from pre-Convex migration
+    - Cleans up legacy keys while preserving anonymous-id
+    - Processes negative year values (BC years) correctly
+    - MigrationProvider runs on app initialization
+    - Integrated into provider hierarchy
+    - Tests written (mock issues to resolve)
 
 ## Testing & Validation
 

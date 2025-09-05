@@ -3,7 +3,7 @@
 import React from "react";
 import { RippleButton } from "@/components/magicui/ripple-button";
 import { ShareStatus } from "@/hooks/useShareGame";
-import { formatYear } from "@/lib/utils";
+import { formatYear } from "@/lib/displayFormatting";
 import type { ClosestGuessData } from "@/types/game";
 
 interface ShareCardProps {
