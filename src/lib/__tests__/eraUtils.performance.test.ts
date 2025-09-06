@@ -14,7 +14,11 @@ describe("Era Utilities Performance Benchmarks", () => {
   // Performance target: All operations should complete in under 1ms
   // This is critical for maintaining 60fps UI responsiveness
   const PERFORMANCE_TARGET_MS = 1; // 1ms per operation
-  const CI_THRESHOLD_MULTIPLIER = 1.5; // Allow 50% more time in CI
+
+  // CI environments run slower than local development
+  // Apply a multiplier to all thresholds when running in CI
+  const isCI = process.env.CI === "true";
+  const CI_THRESHOLD_MULTIPLIER = isCI ? 3 : 1; // Based on observed CI slowdown
 
   describe("Core Conversion Functions", () => {
     it("convertToInternalYear should execute in under 1ms", () => {
@@ -45,7 +49,9 @@ describe("Era Utilities Performance Benchmarks", () => {
         const avgTime = (endTime - startTime) / iterations;
 
         // Each conversion should be well under 1ms
-        expect(avgTime).toBeLessThan(PERFORMANCE_TARGET_MS);
+        expect(avgTime).toBeLessThan(
+          PERFORMANCE_TARGET_MS * CI_THRESHOLD_MULTIPLIER,
+        );
 
         // Even 1000 iterations should complete quickly
         expect(endTime - startTime).toBeLessThan(10);
@@ -71,8 +77,10 @@ describe("Era Utilities Performance Benchmarks", () => {
         const endTime = performance.now();
         const avgTime = (endTime - startTime) / iterations;
 
-        expect(avgTime).toBeLessThan(PERFORMANCE_TARGET_MS);
-        expect(endTime - startTime).toBeLessThan(10);
+        expect(avgTime).toBeLessThan(
+          PERFORMANCE_TARGET_MS * CI_THRESHOLD_MULTIPLIER,
+        );
+        expect(endTime - startTime).toBeLessThan(10 * CI_THRESHOLD_MULTIPLIER);
       });
     });
   });
@@ -100,7 +108,9 @@ describe("Era Utilities Performance Benchmarks", () => {
         const endTime = performance.now();
         const avgTime = (endTime - startTime) / iterations;
 
-        expect(avgTime).toBeLessThan(PERFORMANCE_TARGET_MS);
+        expect(avgTime).toBeLessThan(
+          PERFORMANCE_TARGET_MS * CI_THRESHOLD_MULTIPLIER,
+        );
       });
     });
 
@@ -120,7 +130,9 @@ describe("Era Utilities Performance Benchmarks", () => {
         const endTime = performance.now();
         const avgTime = (endTime - startTime) / iterations;
 
-        expect(avgTime).toBeLessThan(PERFORMANCE_TARGET_MS);
+        expect(avgTime).toBeLessThan(
+          PERFORMANCE_TARGET_MS * CI_THRESHOLD_MULTIPLIER,
+        );
       });
     });
   });
@@ -147,7 +159,9 @@ describe("Era Utilities Performance Benchmarks", () => {
         const endTime = performance.now();
         const avgTime = (endTime - startTime) / iterations;
 
-        expect(avgTime).toBeLessThan(PERFORMANCE_TARGET_MS);
+        expect(avgTime).toBeLessThan(
+          PERFORMANCE_TARGET_MS * CI_THRESHOLD_MULTIPLIER,
+        );
       });
     });
 
@@ -167,7 +181,9 @@ describe("Era Utilities Performance Benchmarks", () => {
         const endTime = performance.now();
         const avgTime = (endTime - startTime) / iterations;
 
-        expect(avgTime).toBeLessThan(PERFORMANCE_TARGET_MS);
+        expect(avgTime).toBeLessThan(
+          PERFORMANCE_TARGET_MS * CI_THRESHOLD_MULTIPLIER,
+        );
       });
     });
   });
@@ -194,7 +210,9 @@ describe("Era Utilities Performance Benchmarks", () => {
         const endTime = performance.now();
         const avgTime = (endTime - startTime) / iterations;
 
-        expect(avgTime).toBeLessThan(PERFORMANCE_TARGET_MS);
+        expect(avgTime).toBeLessThan(
+          PERFORMANCE_TARGET_MS * CI_THRESHOLD_MULTIPLIER,
+        );
       });
     });
 

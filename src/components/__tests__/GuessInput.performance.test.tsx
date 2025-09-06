@@ -30,6 +30,11 @@ vi.mock("motion/react", () => ({
 }));
 
 describe("BC/AD Input Performance Benchmarks", () => {
+  // CI environments run slower than local development
+  // Apply a multiplier to all thresholds when running in CI
+  const isCI = process.env.CI === "true";
+  const CI_MULTIPLIER = 3; // Based on observed CI slowdown (1.2x to 3.7x)
+
   const mockOnGuess = vi.fn();
   const defaultProps = {
     onGuess: mockOnGuess,
@@ -93,7 +98,8 @@ describe("BC/AD Input Performance Benchmarks", () => {
 
       // Keyboard navigation should be snappy
       // 100 key events should complete quickly
-      expect(duration).toBeLessThan(50); // Sub-millisecond per key event
+      const threshold = 50 * (isCI ? CI_MULTIPLIER : 1);
+      expect(duration).toBeLessThan(threshold); // Sub-millisecond per key event
     });
 
     it("should handle era toggle switching efficiently", () => {
@@ -115,7 +121,8 @@ describe("BC/AD Input Performance Benchmarks", () => {
       const duration = endTime - startTime;
 
       // Era toggling should be instant
-      expect(duration).toBeLessThan(100); // Under 1ms per toggle
+      const threshold = 100 * (isCI ? CI_MULTIPLIER : 1);
+      expect(duration).toBeLessThan(threshold); // Under 1ms per toggle
     });
 
     it("should handle form submission efficiently", async () => {
@@ -172,7 +179,8 @@ describe("BC/AD Input Performance Benchmarks", () => {
 
       // Each conversion should take well under 1ms
       // 10000 conversions should complete very quickly
-      expect(duration).toBeLessThan(100); // 10 microseconds per conversion is still excellent
+      const threshold = 100 * (isCI ? CI_MULTIPLIER : 1);
+      expect(duration).toBeLessThan(threshold); // 10 microseconds per conversion is still excellent
       expect(averageTime).toBeLessThan(0.01); // Well under 1ms target
     });
 
@@ -193,7 +201,8 @@ describe("BC/AD Input Performance Benchmarks", () => {
 
       // Reverse conversion should also be fast
       // With 10000 assertions, allow slightly more time
-      expect(duration).toBeLessThan(75);
+      const threshold = 75 * (isCI ? CI_MULTIPLIER : 1);
+      expect(duration).toBeLessThan(threshold);
     });
 
     it("should validate era years efficiently", () => {
@@ -212,7 +221,8 @@ describe("BC/AD Input Performance Benchmarks", () => {
       const duration = endTime - startTime;
 
       // Validation should be instant
-      expect(duration).toBeLessThan(30);
+      const threshold = 30 * (isCI ? CI_MULTIPLIER : 1);
+      expect(duration).toBeLessThan(threshold);
     });
 
     it("should adjust years within era bounds efficiently", () => {
@@ -232,7 +242,8 @@ describe("BC/AD Input Performance Benchmarks", () => {
       const duration = endTime - startTime;
 
       // Year adjustment with bounds checking should be fast
-      expect(duration).toBeLessThan(40);
+      const threshold = 40 * (isCI ? CI_MULTIPLIER : 1);
+      expect(duration).toBeLessThan(threshold);
     });
 
     it("should format era years for display efficiently", () => {
@@ -251,7 +262,8 @@ describe("BC/AD Input Performance Benchmarks", () => {
       const duration = endTime - startTime;
 
       // String formatting should be efficient
-      expect(duration).toBeLessThan(60);
+      const threshold = 60 * (isCI ? CI_MULTIPLIER : 1);
+      expect(duration).toBeLessThan(threshold);
     });
 
     it("should parse era year strings efficiently", () => {
@@ -280,7 +292,8 @@ describe("BC/AD Input Performance Benchmarks", () => {
       const duration = endTime - startTime;
 
       // Regex parsing should still be reasonably fast
-      expect(duration).toBeLessThan(100);
+      const threshold = 100 * (isCI ? CI_MULTIPLIER : 1);
+      expect(duration).toBeLessThan(threshold);
     });
 
     it("should get era year ranges efficiently", () => {
