@@ -45,6 +45,28 @@ As Claude working on Chrondle, you are responsible for:
 4. **Data Validation**: Ensuring historical accuracy and puzzle data integrity
 5. **Developer Experience**: Maintaining clear architecture and comprehensive testing
 
+## 🚨 CRITICAL: Puzzle Integrity Constraint
+
+**DO NOT EVER IMPLEMENT FEATURES THAT REVEAL PUZZLE ANSWERS OUTSIDE THE INTENDED HINT SYSTEM**
+
+### What This Means:
+
+- ✅ **GOOD - Game Hints**: The 6 progressive historical events that help players deduce the year
+- ❌ **BAD - UI Hints**: Any UI behavior that changes based on the correct answer
+- ❌ **BAD - Smart Suggestions**: Auto-selecting BC/AD, suggesting likely eras, etc.
+- ❌ **BAD - Revealing Validation**: Error messages that give away information ("Year too early for AD")
+
+### Examples of Anti-Patterns to Avoid:
+
+1. **Auto-Era Selection**: NEVER automatically change BC/AD based on the year typed
+2. **Smart Validation Messages**: Keep errors generic ("Please enter a valid year"), not specific
+3. **Predictive Features**: No "likely era" suggestions or intelligent defaults based on input
+4. **Context-Aware UI**: UI should not react differently based on proximity to the answer
+
+### Why This Matters:
+
+The entire fun of Chrondle comes from deducing the year based on historical event hints. Any feature that gives away information outside this system undermines the puzzle challenge. Players should figure out if it's BC or AD based on hints like "The construction of the Pyramids" or "The Battle of Waterloo", not from UI behaviors.
+
 ## Project Architecture & Technology Stack
 
 ### Core Technologies

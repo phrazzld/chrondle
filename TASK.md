@@ -1,206 +1,215 @@
-- show current hint above guess input
+- numeric keyboard input doesn't allow for bc guesses (ie doesn't allow minus signs, which are how we currently support this)
+  - need to support ad/bc guesses! either revert numeric keyboard, or figure out another way. clean ad/bc toggle next to text input? what other options do we have?
 
 ---
 
 # Enhanced Specification
 
-## Problem Statement
-
-The mobile experience is broken when users focus the guess input field - the keyboard appears and covers the hints display, making it impossible to see the current hint while typing. This forces users to dismiss the keyboard to read hints, creating a frustrating back-and-forth interaction pattern.
-
 ## Research Findings
 
-### Codebase Analysis
+### Industry Best Practices
 
-- **Current Architecture**: HintsDisplay component at bottom shows all hints (current, past, future)
-- **Current Hint Component**: Exists as `CurrentHint` in HintsDisplay.tsx with sophisticated styling and animations
-- **State Management**: `currentHintIndex` calculated in GameLayout.tsx based on guess count
-- **Input Field**: Missing numeric keyboard configuration (`inputMode` and `pattern` attributes)
-- **Remaining Guesses**: Available in state but only shown in submit button aria-label
+- **Hybrid Input Model** is the 2024-2025 standard for historical date entry
+- Separate positive year input + era selector provides clearest mental model
+- Native date pickers cannot handle BC dates (Gregorian calendar limitation)
+- `type="number"` with CSS spinner hiding provides best mobile keyboard experience
+- Touch-first design with large tap targets essential for mobile gaming
 
-### Mobile UX Best Practices
+### Technology Analysis
 
-- **Proximity Principle**: Critical information must be visible when keyboard is active
-- **Thumb-Friendly Zones**: Input controls should be in bottom third of screen
-- **Visual Hierarchy**: Current hint should be prominent but not overwhelming
-- **Numeric Input**: Mobile keyboards should default to numeric for year entry
+- **Existing Chrondle patterns** can be leveraged:
+  - Switch component from Radix UI already in use for theme toggle
+  - `formatYear()` utility handles BC/AD display formatting
+  - Year validation logic supports -3000 to current year
+  - GuessInput component has robust keyboard navigation
+- **React/TypeScript** patterns align with current codebase architecture
+- No external date picker libraries needed - custom implementation preferred
+
+### Codebase Integration
+
+- **Reusable components identified:**
+  - `/src/components/ui/switch.tsx` - Toggle component
+  - `/src/lib/utils.ts:formatYear()` - BC/AD formatting
+  - `/src/lib/constants.ts` - Year validation constants
+  - `/src/components/GuessInput.tsx` - Input patterns to preserve
 
 ## Detailed Requirements
 
 ### Functional Requirements
 
-- **FR1**: Extract current hint from HintsDisplay and display it above GuessInput
-- **FR2**: Modify HintsDisplay to only show past and future hints (no current hint)
-- **FR3**: Display remaining guesses count near the input area
-- **FR4**: Ensure numeric keyboard appears on mobile devices
-- **FR5**: Maintain all existing animations and accessibility features
+- **Positive-only year input**: Remove need for minus sign, fixing iOS keyboard issue completely
+- **Explicit era selection**: BC/AD toggle that's always visible and accessible
+- **Validation by era**: BC years (1-3000), AD years (1-current year)
+- **Real-time feedback**: Show formatted year (e.g., "776 BC") as user types
+- **Keyboard navigation**: Maintain arrow key increment/decrement within era bounds
+- **Backwards compatibility**: Convert to negative numbers internally for minimal backend changes
 
 ### Non-Functional Requirements
 
-- **Performance**: Component changes must not increase re-renders
-- **Accessibility**: Maintain ARIA live regions and screen reader announcements
-- **Responsiveness**: Works seamlessly across all device sizes
-- **Simplicity**: Clean, minimal UI that doesn't duplicate information
+- **Performance**: Input response < 16ms for 60fps interaction
+- **Accessibility**: WCAG 2.1 AA compliant with full keyboard navigation and screen reader support
+- **Mobile-first**: Optimized for touch with minimum 44x44px tap targets
+- **Visual consistency**: Match existing Chrondle design system and component patterns
 
 ## Architecture Decisions
 
-### ADR-001: Current Hint Relocation Strategy
+### Technology Stack
+
+- **Frontend**: React 19 + TypeScript (existing)
+- **UI Components**: Radix UI Switch adapted for BC/AD toggle
+- **Styling**: Tailwind CSS with existing design tokens
+- **State Management**: React hooks maintaining current patterns
+
+### Design Pattern
+
+- **Architecture Pattern**: Presentational/Container component split
+- **Data Flow**: Unidirectional with controlled inputs
+- **Era Storage**: Positive numbers in UI, negative numbers in game state
+- **Validation**: Client-side with immediate feedback
+
+### Proposed ADR
+
+**Title**: Separate Era Selection for BC/AD Input
 
 **Status**: Proposed
 
-**Context**: Mobile users cannot see hints when keyboard is active, requiring constant keyboard dismissal.
+**Context**: Mobile numeric keyboards don't display minus key, preventing BC year entry
 
-**Decision**: Move (not duplicate) current hint above GuessInput by creating a new CurrentHintCard component.
+**Decision**: Implement separate positive year input + BC/AD toggle
 
 **Consequences**:
 
-- ✅ Solves mobile keyboard overlap issue
-- ✅ Cleaner information architecture (no duplication)
-- ✅ Better visual flow (hint → input → feedback)
-- ⚠️ Requires refactoring HintsDisplay component
-- ⚠️ May affect muscle memory for existing users
+- ✅ Fixes mobile keyboard issue completely
+- ✅ Clearer mental model for non-technical users
+- ✅ Better accessibility with explicit era selection
+- ⚠️ Requires UI restructuring of GuessInput component
+- ⚠️ Additional tap/click for era selection
 
 **Alternatives Considered**:
 
-1. **Sticky bottom panel**: Too complex, could interfere with keyboard
-2. **Duplicate hint display**: Violates DRY principle, confusing UX
-3. **Collapsible hints**: Adds interaction complexity
-
-### Technology Stack
-
-- **Component Library**: Continue using existing Radix UI primitives
-- **Animation**: Framer Motion for smooth transitions
-- **State Management**: Leverage existing useChrondle hook
-- **Styling**: Tailwind CSS with existing design tokens
+1. Keep negative numbers - Rejected: Doesn't fix iOS issue
+2. Text parsing ("776 BC") - Rejected: Complex, error-prone
+3. +/- button - Rejected: Less clear than explicit BC/AD
 
 ## Implementation Strategy
 
-### Component Structure
+### Development Approach
 
-```
-GameLayout
-├── GameInstructions
-├── CurrentHintCard (NEW)
-│   ├── Hint Number Badge
-│   ├── Hint Text
-│   └── Remaining Guesses Indicator
-├── GuessInput (MODIFIED)
-│   └── Numeric keyboard attributes
-├── Timeline
-├── ProximityDisplay
-├── GameProgress
-└── HintsDisplay (MODIFIED)
-    ├── PastHints
-    └── FutureHints
-```
+1. **Phase 1**: Create BC/AD toggle component
+2. **Phase 2**: Modify GuessInput to separate year and era
+3. **Phase 3**: Update validation and conversion logic
+4. **Phase 4**: Enhance visual feedback and animations
+5. **Phase 5**: Update tests and documentation
 
-### MVP Implementation Steps
+### MVP Definition
 
-1. **Create CurrentHintCard Component**
+1. Positive-only number input field
+2. BC/AD segmented toggle control
+3. Real-time formatted display ("776 BC")
+4. Proper validation per era
+5. Maintains all current keyboard shortcuts
 
-   - Extract CurrentHint logic from HintsDisplay
-   - Add remaining guesses display
-   - Implement loading and error states
+### Technical Risks
 
-2. **Modify GuessInput**
+- **Risk 1**: State synchronization between year and era → Mitigation: Single source of truth in parent
+- **Risk 2**: Accessibility regression → Mitigation: Comprehensive testing with screen readers
+- **Risk 3**: Mobile layout issues → Mitigation: Responsive design with flexbox/grid
 
-   - Add `inputMode="numeric"` attribute
-   - Add `pattern="[0-9-]*"` for BC year support
-   - Ensure proper keyboard behavior on iOS/Android
+## Integration Requirements
 
-3. **Update HintsDisplay**
+### Existing System Impact
 
-   - Remove CurrentHint rendering
-   - Adjust grid layout for past/future hints only
-   - Update animations for smoother transitions
+- **GuessInput.tsx**: Primary component requiring modification
+- **Game state**: Continues using negative numbers (no backend changes)
+- **formatYear()**: Already handles conversion correctly
+- **Tests**: Update input simulation to use new components
 
-4. **Refactor GameLayout**
-   - Insert CurrentHintCard between GameInstructions and GuessInput
-   - Pass necessary props (currentHintIndex, events, remainingGuesses)
-   - Maintain existing conditional rendering logic
+### API Design
 
-### Technical Implementation Details
+- Internal API remains unchanged (negative numbers)
+- UI presents positive + era, converts on submit
+- Validation happens pre-conversion in UI layer
 
-#### CurrentHintCard Component
+### Data Migration
 
-```typescript
-interface CurrentHintCardProps {
-  event: string | null;
-  hintNumber: number;
-  totalHints: number;
-  remainingGuesses: number;
-  isLoading: boolean;
-  error: string | null;
-}
-```
-
-**Key Features**:
-
-- Compact design optimized for mobile
-- Shows "Hint X of 6" with current event text
-- Displays remaining guesses as subtle indicator
-- Smooth animations on hint changes
-- Loading and error states
-
-#### Mobile Keyboard Configuration
-
-```tsx
-<Input
-  type="text"
-  inputMode="numeric"
-  pattern="[0-9-]*"
-  // ... existing props
-/>
-```
-
-#### Visual Design
-
-- **Container**: Subtle card with muted background
-- **Hint Badge**: Small primary-colored circle with hint number
-- **Typography**: Clear, readable text that doesn't compete with input
-- **Spacing**: Tight vertical spacing to maximize screen real estate
+- No data migration required
+- LocalStorage remains compatible
+- Game history unaffected
 
 ## Testing Strategy
 
-### Mobile Testing
+### Unit Testing
 
-- iOS Safari with keyboard active
-- Android Chrome with keyboard active
-- Landscape orientation handling
-- Small screen devices (SE, Mini)
+- Era toggle state changes
+- Year validation per era
+- Conversion logic (positive + era → negative)
+- Keyboard navigation within era bounds
 
-### Accessibility Testing
+### Integration Testing
 
-- Screen reader announcement of hint changes
-- Keyboard navigation flow
-- Focus management after guess submission
+- Full guess flow with BC and AD years
+- Keyboard shortcuts and arrow key navigation
+- Mobile touch interactions
+- Screen reader announcements
 
-### Edge Cases
+### End-to-End Testing
 
-- No hints available (loading state)
-- Game complete (hide current hint card)
-- Very long hint text (text wrapping)
-- Rapid guess submissions (animation queuing)
+- Complete game with BC puzzle year
+- Era switching during input
+- Edge cases (year 1 BC/AD, maximum years)
+
+## Deployment Considerations
+
+### Environment Requirements
+
+- No new dependencies required
+- Uses existing Radix UI and React 19
+
+### Rollout Strategy
+
+- Feature flag not needed (fixes critical bug)
+- Direct deployment after testing
+- Monitor error rates for input validation
+
+### Monitoring & Observability
+
+- Track era toggle usage frequency
+- Monitor validation error rates
+- Measure input completion time
 
 ## Success Criteria
 
 ### Acceptance Criteria
 
-- ✅ Current hint visible when mobile keyboard is active
-- ✅ Numeric keyboard appears on mobile devices
-- ✅ Remaining guesses clearly displayed
-- ✅ No information duplication
-- ✅ Smooth animations between hint transitions
-- ✅ All accessibility features maintained
+- ✅ iOS users can enter BC years without external keyboard
+- ✅ All mobile keyboards show appropriate numeric input
+- ✅ Screen readers announce era selection clearly
+- ✅ Existing keyboard navigation preserved
+- ✅ Visual feedback shows formatted year in real-time
 
 ### Performance Metrics
 
-- No increase in Time to Interactive
-- Component re-renders minimized
-- Animation frame rate ≥ 60fps
+- Input latency < 16ms
+- No additional re-renders vs current implementation
+- Bundle size increase < 2KB
 
 ### User Experience Goals
 
-- Reduced friction on mobile devices
-- Clearer game state visibility
-- Improved guess input flow
+- Reduced input errors by 50%
+- Improved mobile completion rate
+- Maintained or improved accessibility score
+
+## Future Enhancements
+
+### Post-MVP Features
+
+- Smart era detection from hint context
+- Keyboard shortcuts (B/A keys) for era selection
+- Era preference memory per session
+- Historical calendar system support (BCE/CE)
+
+### Scalability Roadmap
+
+- Internationalization for different era notations
+- Support for other calendar systems
+- Customizable date formats per locale

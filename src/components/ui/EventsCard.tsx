@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { formatYear } from '@/lib/utils';
+import React from "react";
+import { formatYear } from "@/lib/displayFormatting";
 
 interface EventsCardProps {
   events: string[];
@@ -10,7 +10,7 @@ interface EventsCardProps {
 
 export const EventsCard: React.FC<EventsCardProps> = ({
   events,
-  targetYear
+  targetYear,
 }) => {
   return (
     <div className="bg-gradient-to-br from-card via-card to-muted/50 rounded-2xl p-4 border border-border/50 shadow-lg">
@@ -37,7 +37,7 @@ export const EventsCard: React.FC<EventsCardProps> = ({
                 <div className="flex-shrink-0 mt-2">
                   <div className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-blue-600 group-hover:scale-125 transition-transform duration-200" />
                 </div>
-                
+
                 {/* Event text */}
                 <p className="text-sm leading-relaxed text-foreground group-hover:text-foreground/90 transition-colors duration-200">
                   {event}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { formatYear } from "@/lib/utils";
+import { formatYear } from "@/lib/displayFormatting";
 import { Separator } from "@/components/ui/Separator";
 import { Check } from "lucide-react";
 import { HintText } from "@/components/ui/HintText";

@@ -21,8 +21,8 @@ describe("GuessInput Button Width Consistency", () => {
     // Initial state - button should show "Guess"
     expect(button.textContent).toBe("Guess");
 
-    // Check that button has minimum width class on desktop
-    expect(button.className).toContain("sm:min-w-[140px]");
+    // Button should have full width class
+    expect(button.className).toContain("w-full");
 
     // Type a valid year
     fireEvent.change(input, { target: { value: "1969" } });
@@ -100,7 +100,7 @@ describe("GuessInput Button Width Consistency", () => {
     expect(button.textContent).toBe("No guesses remaining");
   });
 
-  it("button maintains full width on mobile and auto width with min-width on desktop", () => {
+  it("button maintains full width", () => {
     render(
       <GuessInput
         onGuess={mockOnGuess}
@@ -111,9 +111,7 @@ describe("GuessInput Button Width Consistency", () => {
 
     const button = screen.getByRole("button");
 
-    // Check responsive width classes
-    expect(button.className).toContain("w-full"); // Full width on mobile
-    expect(button.className).toContain("sm:w-auto"); // Auto width on desktop
-    expect(button.className).toContain("sm:min-w-[140px]"); // Min width on desktop
+    // Check that button has full width class
+    expect(button.className).toContain("w-full");
   });
 });
