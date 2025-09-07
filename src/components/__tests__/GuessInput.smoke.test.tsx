@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { GuessInput } from "../GuessInput";
 
@@ -138,30 +138,8 @@ describe("GuessInput Smoke Tests", () => {
     expect(submitBtn.getAttribute("aria-label")).toContain("3 remaining");
   });
 
-  it("handles keyboard navigation for year increment", async () => {
-    const mockOnGuess = vi.fn();
-
-    render(
-      <GuessInput
-        onGuess={mockOnGuess}
-        disabled={false}
-        remainingGuesses={6}
-      />,
-    );
-
-    const input = screen.getByRole("textbox") as HTMLInputElement;
-
-    // Type initial year
-    fireEvent.change(input, { target: { value: "1969" } });
-
-    // Press arrow up to increment
-    fireEvent.keyDown(input, { key: "ArrowUp" });
-    expect(input.value).toBe("1970");
-
-    // Press arrow down to decrement
-    fireEvent.keyDown(input, { key: "ArrowDown" });
-    expect(input.value).toBe("1969");
-  });
+  // Arrow key navigation test removed - feature disabled for game integrity
+  // Per CLAUDE.md: UI should not react differently based on proximity to answer
 
   it("clears input after successful submission", async () => {
     const mockOnGuess = vi.fn();
