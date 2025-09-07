@@ -88,6 +88,27 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     
+    # ENVIRONMENT VARIABLES DOCUMENTATION
+    # ====================================
+    # This job requires the following environment variables:
+    #
+    # Required for Convex (backend):
+    # - CONVEX_DEPLOYMENT: The Convex deployment identifier (used for codegen)
+    # - NEXT_PUBLIC_CONVEX_URL: The public Convex URL (embedded in client bundle)
+    #
+    # Required for Clerk (authentication):
+    # - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: Public key for Clerk auth (embedded in client bundle)
+    #
+    # Optional:
+    # - LHCI_GITHUB_APP_TOKEN: GitHub token for Lighthouse CI comments (stored as secret)
+    #
+    # IMPORTANT: Only NEXT_PUBLIC_* prefixed variables are embedded in the client bundle.
+    # Server-side variables (without NEXT_PUBLIC_ prefix) remain secure on the server.
+    #
+    # These variables must be provided at:
+    # 1. Build time - for Next.js to embed them in the client bundle
+    # 2. Runtime - for the production server to start without errors (Lighthouse CI)
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -156,12 +177,15 @@ jobs:
       if: steps.convex-cache.outputs.cache-hit != 'true'
       run: npx convex codegen
       env:
+        # Server-side only: Used to identify which Convex deployment to generate types for
         CONVEX_DEPLOYMENT: fleet-goldfish-183
       
     - name: Build application
       run: pnpm build
       env:
+        # Client-side: Embedded in the JavaScript bundle for browser access
         NEXT_PUBLIC_CONVEX_URL: https://fleet-goldfish-183.convex.cloud
+        # Client-side: Public key for Clerk authentication (safe to expose)
         NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_aGVhbHRoeS1kb2UtMjMuY2xlcmsuYWNjb3VudHMuZGV2JA
       
     - name: Verify environment variable handling
@@ -216,8 +240,11 @@ jobs:
         }
         echo "✅ Lighthouse performance checks passed"
       env:
+        # Runtime variables: Required for the production server to start without 500 errors
+        # These same variables were used during build and must be present at runtime
         NEXT_PUBLIC_CONVEX_URL: https://fleet-goldfish-183.convex.cloud
         NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_aGVhbHRoeS1kb2UtMjMuY2xlcmsuYWNjb3VudHMuZGV2JA
+        # Optional: Enables Lighthouse CI to post comments on PRs (requires GitHub App setup)
         LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
       
     - name: Upload build artifacts

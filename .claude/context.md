@@ -191,6 +191,40 @@
 - **TODO Structure Effectiveness**: Clear TODO items with specific line numbers and thresholds make CI fixes straightforward and fast to implement
 - **Real-World Performance Validation**: Actual usage patterns (8-12ms average) provide confidence that test thresholds (25ms) maintain good UX
 
+### Environment Variable Security Patterns
+
+- **Early Validation Pattern**: Check for missing environment variables at application startup in providers.tsx with clear error UI
+  ```typescript
+  // Pattern from providers.tsx:11-20
+  const missingEnvVars: string[] = [];
+  if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
+    missingEnvVars.push("NEXT_PUBLIC_CONVEX_URL");
+  }
+  ```
+- **Environment-Specific Error Messages**: Show detailed help in development, generic messages in production for security
+  ```typescript
+  // Pattern from providers.tsx:40-42
+  {
+    isProduction
+      ? "The application is not properly configured. Please contact support."
+      : "Missing required environment variables. This typically happens in preview deployments.";
+  }
+  ```
+- **CI Security Verification**: Use simple grep/ripgrep checks in CI to verify NEXT*PUBLIC* variables are embedded and sensitive server variables aren't exposed
+  ```bash
+  # ✅ Verify client-side variables are embedded
+  rg "NEXT_PUBLIC_CONVEX_URL" .next/static/chunks/ --files-with-matches
+  # ✅ Ensure no server secrets leak to client
+  ! rg "CONVEX_DEPLOY_KEY|CLERK_SECRET_KEY" .next/static/chunks/
+  ```
+- **Graceful Degradation**: Conditionally initialize services only when required environment variables are present
+  ```typescript
+  // Pattern from providers.tsx:22-25
+  const convex = process.env.NEXT_PUBLIC_CONVEX_URL
+    ? new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL)
+    : null;
+  ```
+
 ### React Component Testing Patterns
 
 - **Motion Library Mocking**: Mock motion/react for consistent test behavior
@@ -516,6 +550,14 @@
 - **Implementation**: Split BC/AD performance tests into dedicated files with 10,000 iteration cycles and CI-appropriate thresholds (25ms vs 16ms local)
 - **Success Metrics**: All performance tests pass on first attempt in both local and CI environments, accurate time estimates (20 min actual vs 30-45 min estimate)
 - **Threshold Strategy**: Use 1.5x multiplier for CI environments + document frame-rate rationale (25ms = 40fps minimum)
+
+### Environment Variable Security Verification
+
+- **Decision**: Add simple grep-based CI verification for environment variable handling instead of complex security scanning
+- **Rationale**: Pattern-scout revealed comprehensive env var validation already exists in providers.tsx - just needed CI verification step
+- **Implementation**: Use ripgrep in CI to verify NEXT*PUBLIC* vars are embedded in client bundle and sensitive server vars aren't exposed
+- **Success Metrics**: 8-minute completion (within 10-minute estimate), discovered mature existing patterns, prevented sensitive data leaks
+- **Key Discovery**: Chrondle already has sophisticated environment-specific error handling and graceful degradation patterns
 
 ### Feature Flag Architecture for BC/AD Toggle
 

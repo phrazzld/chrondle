@@ -44,11 +44,19 @@ Generated from TASK.md on 2025-09-03
   - Fails CI if sensitive variables are found in client bundle
   ```
 
-- [ ] **CI-FIX-3: Add CI environment documentation**
+- [x] **CI-FIX-3: Add CI environment documentation**
   - Priority: LOW
   - Time: 5 minutes
   - Document required CI environment variables
   - Add comments in workflow file
+  ```
+  Work Log:
+  - Added comprehensive documentation block at start of build job
+  - Documented all required environment variables (Convex, Clerk)
+  - Added inline comments explaining purpose of each env var
+  - Clarified NEXT_PUBLIC_ prefix for client-side variables
+  - Explained why same vars needed at build time and runtime
+  ```
 
 ### [CODE FIX] Defensive Code Improvements
 

@@ -132,6 +132,9 @@ Validate each event with at least two reputable sources; discard if dates confli
   - WRONG: "astronomer" → CORRECT: "Galileo"
   - WRONG: "French king" → CORRECT: "Louis XIV"
 - Vary domains (politics, science, culture, tech, sports, etc.).
+- **Strive for maximum event variance.** A good year has high diversity in subjects, geography, and actors.
+  - **POOR EXAMPLE**: The original events for 1431 were all about Joan of Arc. While a major figure, this lacks the variety needed for an engaging puzzle. The events were later revised to be more diverse.
+  - **ACCEPTABLE EXAMPLE**: The events for 218 BC are heavily focused on the Second Punic War. This is more acceptable because year-specific events from antiquity are sparse, making it difficult to achieve broad variance. The goal is _reasonable_ variance based on the available historical record.
 - Ensure every event is unique within its year.
 - **Avoid year-revealing hints**: Hints must not contain the puzzle's year or phrases that make the year obvious.
 
