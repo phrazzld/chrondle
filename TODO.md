@@ -1,15 +1,68 @@
 # BC/AD Input Fix Implementation TODO
 
 Generated from TASK.md on 2025-09-03  
-**Updated**: 2025-09-06 - Added CI performance test cleanup tasks
+**Updated**: 2025-09-07 - Added CI Lighthouse fix tasks
 
 **Goal**: Fix iOS numeric keyboard issue by implementing positive year input + BC/AD toggle
 
-## 🚨 CURRENT STATUS: PR #18 Blocked by CI
+## 🚨 CURRENT STATUS: PR #18 Blocked by CI - Lighthouse CI Failure
 
-**Problem**: Performance tests are measuring jsdom/React Testing Library performance, not actual application performance. They fail randomly based on CI runner load, not code quality.
+**NEW ISSUE (2025-09-07)**: Lighthouse CI failing with 500 error due to missing environment variables in production server.
 
-**Solution**: Delete synthetic performance tests entirely. Replace with meaningful metrics (bundle size, Lighthouse scores). See **CI Performance Test Cleanup** section below for immediate actions.
+## URGENT: CI Lighthouse Fix Tasks
+
+### [CI FIX] Infrastructure Configuration Tasks
+
+- [x] **CI-FIX-1: Add environment variables to Lighthouse CI step**
+
+  - Priority: HIGH - Blocking PR merge
+  - Time: 5 minutes
+  - File: `.github/workflows/ci.yml`
+  - Add env block to "Run Lighthouse CI" step (lines 181-193):
+
+  ```yaml
+  env:
+    NEXT_PUBLIC_CONVEX_URL: https://fleet-goldfish-183.convex.cloud
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_aGVhbHRoeS1kb2UtMjMuY2xlcmsuYWNjb3VudHMuZGV2JA
+    LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+  ```
+
+- [ ] **CI-FIX-2: Verify environment variable handling**
+
+  - Priority: MEDIUM
+  - Time: 10 minutes
+  - Test that Next.js reads runtime env vars correctly
+  - Confirm no sensitive keys exposed in client bundle
+
+- [ ] **CI-FIX-3: Add CI environment documentation**
+  - Priority: LOW
+  - Time: 5 minutes
+  - Document required CI environment variables
+  - Add comments in workflow file
+
+### [CODE FIX] Defensive Code Improvements
+
+- [ ] **CODE-FIX-1: Add graceful error handling for missing env vars**
+
+  - Priority: MEDIUM
+  - Time: 15 minutes
+  - Files: `src/app/layout.tsx`, `src/lib/convex.ts`
+  - Add startup checks for required environment variables
+  - Provide clear error messages instead of 500 errors
+
+- [ ] **CODE-FIX-2: Create CI environment detection utility**
+  - Priority: LOW
+  - Time: 10 minutes
+  - Create `src/lib/environment.ts`
+  - Detect and log CI environment configuration issues
+
+---
+
+## Previous CI Issue (RESOLVED)
+
+**Problem**: Performance tests were measuring jsdom/React Testing Library performance, not actual application performance. They failed randomly based on CI runner load, not code quality.
+
+**Solution**: ✅ Deleted synthetic performance tests entirely. Replaced with meaningful metrics (bundle size, Lighthouse scores).
 
 ## Critical Path Items (Must complete in order)
 

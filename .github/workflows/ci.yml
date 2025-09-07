@@ -192,6 +192,8 @@ jobs:
         }
         echo "✅ Lighthouse performance checks passed"
       env:
+        NEXT_PUBLIC_CONVEX_URL: https://fleet-goldfish-183.convex.cloud
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_aGVhbHRoeS1kb2UtMjMuY2xlcmsuYWNjb3VudHMuZGV2JA
         LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
       
     - name: Upload build artifacts
