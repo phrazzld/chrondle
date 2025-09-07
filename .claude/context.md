@@ -201,13 +201,54 @@
     missingEnvVars.push("NEXT_PUBLIC_CONVEX_URL");
   }
   ```
-- **Environment-Specific Error Messages**: Show detailed help in development, generic messages in production for security
+- **Centralized Validation Library**: Create dedicated `/src/lib/env.ts` module for reusable environment variable validation
   ```typescript
-  // Pattern from providers.tsx:40-42
-  {
-    isProduction
-      ? "The application is not properly configured. Please contact support."
-      : "Missing required environment variables. This typically happens in preview deployments.";
+  // Pattern from env.ts:1-15
+  export function validateEnvironmentVariables(): {
+    isValid: boolean;
+    missing: string[];
+    errors: string[];
+  } {
+    const missing: string[] = [];
+    if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
+      missing.push("NEXT_PUBLIC_CONVEX_URL");
+    }
+    return { isValid: missing.length === 0, missing, errors: [...] };
+  }
+  ```
+- **Context-Aware Error Messages**: Provide different error messages and detail levels based on environment context
+  ```typescript
+  // Pattern from env.ts:25-35
+  export function getEnvironmentErrorMessage(
+    missing: string[],
+    context: "ci" | "production" | "development",
+  ): string {
+    if (context === "ci") {
+      return "Missing environment variables in CI. Check GitHub secrets configuration.";
+    }
+    if (context === "production") {
+      return "Service temporarily unavailable. Please contact support.";
+    }
+    return "Missing required environment variables. Check your .env.local file.";
+  }
+  ```
+- **Environment Detection Helpers**: Create utility functions for clean environment detection throughout the app
+  ```typescript
+  // Pattern from env.ts:45-50
+  export const isCI = (): boolean => !!process.env.CI;
+  export const isProduction = (): boolean =>
+    process.env.NODE_ENV === "production";
+  export const isDevelopment = (): boolean =>
+    process.env.NODE_ENV === "development";
+  ```
+- **Proper HTTP Status Codes**: Use 503 (Service Unavailable) for missing environment variables instead of 500 (Internal Server Error)
+  ```typescript
+  // Pattern from API routes
+  if (!isEnvironmentValid) {
+    return NextResponse.json(
+      { error: "Service temporarily unavailable" },
+      { status: 503 }, // Service Unavailable, not Internal Server Error
+    );
   }
   ```
 - **CI Security Verification**: Use simple grep/ripgrep checks in CI to verify NEXT*PUBLIC* variables are embedded and sensitive server variables aren't exposed
@@ -217,7 +258,7 @@
   # ✅ Ensure no server secrets leak to client
   ! rg "CONVEX_DEPLOY_KEY|CLERK_SECRET_KEY" .next/static/chunks/
   ```
-- **Graceful Degradation**: Conditionally initialize services only when required environment variables are present
+- **Graceful Service Initialization**: Conditionally initialize services only when required environment variables are present
   ```typescript
   // Pattern from providers.tsx:22-25
   const convex = process.env.NEXT_PUBLIC_CONVEX_URL
@@ -550,6 +591,14 @@
 - **Implementation**: Split BC/AD performance tests into dedicated files with 10,000 iteration cycles and CI-appropriate thresholds (25ms vs 16ms local)
 - **Success Metrics**: All performance tests pass on first attempt in both local and CI environments, accurate time estimates (20 min actual vs 30-45 min estimate)
 - **Threshold Strategy**: Use 1.5x multiplier for CI environments + document frame-rate rationale (25ms = 40fps minimum)
+
+### Environment Variable Error Handling Enhancement
+
+- **Decision**: Enhance existing environment variable validation with centralized error handling and improved user messaging
+- **Rationale**: Pattern-scout revealed good existing validation in providers.tsx but needed better error messaging, context-aware responses, and proper HTTP status codes
+- **Implementation**: Created `/src/lib/env.ts` with comprehensive validation, environment-specific error messages, helper functions, and changed API routes to return 503 (Service Unavailable) instead of 500
+- **Success Metrics**: 12-minute completion (within 15-minute estimate), discovered mature existing patterns, enhanced rather than replaced existing functionality
+- **Key Discovery**: Chrondle already had sophisticated error boundaries and graceful degradation - task was enhancement not creation
 
 ### Environment Variable Security Verification
 
