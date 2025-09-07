@@ -77,8 +77,6 @@ jobs:
       
     - name: Run tests (parallel)
       run: pnpm test:ci
-      env:
-        NODE_ENV: test
       
     - name: Run puzzle validation
       run: pnpm validate-puzzles
@@ -167,7 +165,18 @@ jobs:
         NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_aGVhbHRoeS1kb2UtMjMuY2xlcmsuYWNjb3VudHMuZGV2JA
       
     - name: Check bundle size
-      run: pnpm size
+      run: |
+        echo "📊 Checking bundle sizes against configured limits..."
+        pnpm size
+        if [ $? -ne 0 ]; then
+          echo "❌ Bundle size limits exceeded! Please optimize your code."
+          echo "💡 Tips:"
+          echo "   - Check for unnecessary dependencies"
+          echo "   - Use dynamic imports for large components"
+          echo "   - Analyze bundle with 'pnpm bundle-analysis'"
+          exit 1
+        fi
+        echo "✅ Bundle sizes within limits"
       
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
