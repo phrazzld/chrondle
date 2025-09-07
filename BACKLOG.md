@@ -108,6 +108,13 @@
 
 ---
 
+## Post-merge follow-ups (BC/AD Input Fix PR #18)
+
+- [ ] [LOW] [TEST] Add network error handling tests for localStorage operations in private browsing mode
+- [ ] [LOW] [TEST] Add rapid user input stress testing scenarios for GuessInput component
+- [ ] [LOW] [PERF] Consider replacing Framer Motion with CSS transitions in EraToggle for bundle size reduction
+- [ ] [LOW] [REFACTOR] Add named constants for year rounding thresholds in displayFormatting.ts
+
 ## Post-merge follow-ups (Current Hint relocation)
 
 - [x] [UI/UX] Show current hint above guess input — completed in feat/current-hint-above-input

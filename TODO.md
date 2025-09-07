@@ -366,6 +366,51 @@ Before marking complete:
 - [x] All tests passing (313/326 - core features working)
 - [x] Feature flag tested for rollback capability (toggle in settings)
 
+## PR Review Fixes (Critical - Must complete before merge)
+
+- [x] **FIX-1: Remove Game Integrity Issue** - Arrow key navigation revealing puzzle info
+
+  ```
+  Work Log:
+  - Removed adjustYearWithinEra import from GuessInput.tsx
+  - Replaced handleKeyDown function with no-op to prevent game integrity violations
+  - Removed all arrow key navigation tests (6 tests) from GuessInput.test.tsx
+  - Added comments explaining why feature was removed per CLAUDE.md guidelines
+  - All tests passing (29/29)
+  - Completed in ~5 minutes
+  ```
+
+- [ ] **FIX-2: Add setTimeout Cleanup** - Memory leak prevention
+
+  - Location: `src/components/GuessInput.tsx:74`
+  - Problem: setTimeout in useEffect without cleanup
+  - Solution: Return cleanup function from useEffect
+  - Priority: MEDIUM - Could cause memory leaks
+  - Estimated: 5 minutes
+
+- [ ] **FIX-3: Fix Type Safety in displayFormatting** - Input validation
+
+  - Location: `src/lib/displayFormatting.ts:80`
+  - Problem: Math.abs(year) could mask type issues
+  - Solution: Add validation before processing
+  - Priority: MEDIUM - Type safety gap
+  - Estimated: 10 minutes
+
+- [ ] **FIX-4: Enhance localStorage Exception Handling** - Private browsing support
+
+  - Location: `src/lib/localStorageMigration.ts:28-58`
+  - Problem: Could throw in private browsing mode
+  - Solution: Wrap in additional try-catch blocks
+  - Priority: MEDIUM - Edge case handling
+  - Estimated: 10 minutes
+
+- [ ] **FIX-5: Remove Input Mutation in eraUtils** - Avoid side effects
+  - Location: `src/lib/eraUtils.ts:24-28`
+  - Problem: Mutating year parameter with Math.abs
+  - Solution: Return early or throw error instead of mutation
+  - Priority: LOW - Code cleanliness
+  - Estimated: 5 minutes
+
 ## Future Enhancements (BACKLOG.md candidates)
 
 - [ ] Smart era detection based on hint context

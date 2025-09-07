@@ -378,91 +378,9 @@ describe("GuessInput Component Interface", () => {
     });
   });
 
-  describe("Arrow Key Navigation with Era Bounds", () => {
-    it("handles arrow up navigation within AD era", () => {
-      render(<GuessInput {...defaultProps} />);
-
-      const input = screen.getByRole("textbox") as HTMLInputElement;
-
-      fireEvent.change(input, { target: { value: "100" } });
-      fireEvent.keyDown(input, { key: "ArrowUp", preventDefault: () => {} });
-
-      expect(input.value).toBe("101");
-    });
-
-    it("handles arrow down navigation within AD era", () => {
-      render(<GuessInput {...defaultProps} />);
-
-      const input = screen.getByRole("textbox") as HTMLInputElement;
-
-      fireEvent.change(input, { target: { value: "100" } });
-      fireEvent.keyDown(input, { key: "ArrowDown", preventDefault: () => {} });
-
-      expect(input.value).toBe("99");
-    });
-
-    it("handles shift+arrow for 10x increment", () => {
-      render(<GuessInput {...defaultProps} />);
-
-      const input = screen.getByRole("textbox") as HTMLInputElement;
-
-      fireEvent.change(input, { target: { value: "100" } });
-      fireEvent.keyDown(input, {
-        key: "ArrowUp",
-        shiftKey: true,
-        preventDefault: () => {},
-      });
-
-      expect(input.value).toBe("110");
-    });
-
-    it("handles shift+arrow for 10x decrement", () => {
-      render(<GuessInput {...defaultProps} />);
-
-      const input = screen.getByRole("textbox") as HTMLInputElement;
-
-      fireEvent.change(input, { target: { value: "100" } });
-      fireEvent.keyDown(input, {
-        key: "ArrowDown",
-        shiftKey: true,
-        preventDefault: () => {},
-      });
-
-      expect(input.value).toBe("90");
-    });
-
-    it("respects AD lower bound (year 0)", () => {
-      render(<GuessInput {...defaultProps} />);
-
-      const input = screen.getByRole("textbox") as HTMLInputElement;
-
-      fireEvent.change(input, { target: { value: "5" } });
-      fireEvent.keyDown(input, {
-        key: "ArrowDown",
-        shiftKey: true,
-        preventDefault: () => {},
-      });
-
-      // Should stop at 0, the minimum AD year
-      expect(input.value).toBe("0");
-    });
-
-    it("handles navigation in BC era", () => {
-      render(<GuessInput {...defaultProps} />);
-
-      const input = screen.getByRole("textbox") as HTMLInputElement;
-      const bcButton = screen.getByRole("radio", { name: /BC/i });
-
-      // Switch to BC
-      fireEvent.click(bcButton);
-
-      fireEvent.change(input, { target: { value: "100" } });
-      fireEvent.keyDown(input, { key: "ArrowUp", preventDefault: () => {} });
-
-      // In BC, higher numbers mean earlier dates
-      expect(input.value).toBe("101");
-    });
-  });
+  // Arrow Key Navigation tests removed to prevent game integrity issues
+  // Per CLAUDE.md: UI should not react differently based on proximity to answer
+  // The adjustYearWithinEra function could reveal puzzle information by clamping differently
 
   describe("Accessibility", () => {
     it("provides proper ARIA labels for era context", () => {

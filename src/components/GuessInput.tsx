@@ -18,7 +18,6 @@ import type { Era } from "@/lib/eraUtils";
 import {
   convertToInternalYear,
   isValidEraYear,
-  adjustYearWithinEra,
   formatEraYear,
 } from "@/lib/eraUtils";
 
@@ -75,34 +74,16 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
     }
   }, [year, disabled]);
 
-  // Keyboard navigation: Arrow keys for year increment/decrement within era bounds
+  // Keyboard event handler - currently disabled to prevent game integrity issues
+  // Arrow key navigation was removed as it could reveal puzzle information
   const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLInputElement>) => {
-      if (disabled) return;
-
-      const currentYear = parseInt(year, 10) || 1;
-
-      switch (e.key) {
-        case "ArrowUp":
-          e.preventDefault();
-          const increment = e.shiftKey ? 10 : 1;
-          const newUpValue = adjustYearWithinEra(currentYear, era, increment);
-          setYear(newUpValue.toString());
-          break;
-
-        case "ArrowDown":
-          e.preventDefault();
-          const decrement = e.shiftKey ? 10 : 1;
-          const newDownValue = adjustYearWithinEra(
-            currentYear,
-            era,
-            -decrement,
-          );
-          setYear(newDownValue.toString());
-          break;
-      }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (_e: KeyboardEvent<HTMLInputElement>) => {
+      // Disabled to prevent game integrity violations
+      // Per CLAUDE.md: UI should not react differently based on proximity to answer
+      return;
     },
-    [year, era, disabled],
+    [],
   );
 
   const handleSubmit = useCallback(
