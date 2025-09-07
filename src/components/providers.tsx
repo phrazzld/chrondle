@@ -7,17 +7,15 @@ import { SessionThemeProvider } from "@/components/SessionThemeProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { UserCreationProvider } from "@/components/UserCreationProvider";
 import { MigrationProvider } from "@/components/providers/MigrationProvider";
+import {
+  validateEnvironment,
+  getEnvErrorMessage,
+  isProduction,
+} from "@/lib/env";
 
-// Check for missing environment variables
-const missingEnvVars: string[] = [];
-
-if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
-  missingEnvVars.push("NEXT_PUBLIC_CONVEX_URL");
-}
-
-if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
-  missingEnvVars.push("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY");
-}
+// Validate environment variables using enhanced validation
+const envValidation = validateEnvironment();
+const missingEnvVars = envValidation.missingVars;
 
 // Only initialize Convex client if we have the URL
 const convex = process.env.NEXT_PUBLIC_CONVEX_URL
@@ -26,7 +24,7 @@ const convex = process.env.NEXT_PUBLIC_CONVEX_URL
 
 // Component to display when environment variables are missing
 function MissingEnvironmentVariables({ variables }: { variables: string[] }) {
-  const isProduction = process.env.NODE_ENV === "production";
+  const isProd = isProduction();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -37,12 +35,10 @@ function MissingEnvironmentVariables({ variables }: { variables: string[] }) {
           </h1>
 
           <p className="text-foreground mb-6">
-            {isProduction
-              ? "The application is not properly configured. Please contact support."
-              : "Missing required environment variables. This typically happens in preview deployments."}
+            {getEnvErrorMessage(variables)}
           </p>
 
-          {!isProduction && (
+          {!isProd && (
             <>
               <div className="bg-background rounded-md p-4 mb-6">
                 <p className="font-semibold mb-2">Missing variables:</p>
