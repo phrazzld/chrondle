@@ -178,6 +178,22 @@ jobs:
         fi
         echo "✅ Bundle sizes within limits"
       
+    - name: Run Lighthouse CI
+      run: |
+        echo "🔦 Running Lighthouse CI performance audit..."
+        npx lhci autorun --config=./lighthouserc.json || {
+          echo "⚠️ Lighthouse CI failed. Check performance metrics."
+          echo "💡 Tips to improve performance:"
+          echo "   - Optimize images (use next/image component)"
+          echo "   - Reduce JavaScript bundle size"
+          echo "   - Implement code splitting"
+          echo "   - Minimize render-blocking resources"
+          exit 1
+        }
+        echo "✅ Lighthouse performance checks passed"
+      env:
+        LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+      
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:

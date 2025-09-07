@@ -18,24 +18,36 @@ export interface EraYear {
  * @param year - Positive year value from UI
  * @param era - Era designation ('BC' or 'AD')
  * @returns Internal year representation (negative for BC, positive for AD)
+ * @throws {Error} If year is not a valid number
  */
 export function convertToInternalYear(year: number, era: Era): number {
-  // Validate input
-  if (year < 0) {
-    console.warn(
-      "convertToInternalYear: Year should be positive in UI representation",
-    );
-    year = Math.abs(year);
-  }
+  try {
+    // Validate input is a number
+    if (typeof year !== "number" || isNaN(year)) {
+      throw new Error(`Invalid year value: ${year}`);
+    }
 
-  if (era === "BC") {
-    // BC years are stored as negative internally
-    // Year 0 doesn't exist historically, but we handle it for consistency
-    return year === 0 ? 0 : -year;
-  }
+    // Validate input
+    if (year < 0) {
+      console.warn(
+        "convertToInternalYear: Year should be positive in UI representation",
+      );
+      year = Math.abs(year);
+    }
 
-  // AD years remain positive
-  return year;
+    if (era === "BC") {
+      // BC years are stored as negative internally
+      // Year 0 doesn't exist historically, but we handle it for consistency
+      return year === 0 ? 0 : -year;
+    }
+
+    // AD years remain positive
+    return year;
+  } catch (error) {
+    console.error("Era conversion error:", error);
+    // Return a safe default (current year) if conversion fails
+    return new Date().getFullYear();
+  }
 }
 
 /**

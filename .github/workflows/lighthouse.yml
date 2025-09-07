@@ -46,11 +46,10 @@ jobs:
     - name: Build application
       run: pnpm build
       
-    - name: Install @lhci/cli
-      run: npm install -g @lhci/cli@0.13.x
-      
     - name: Run Lighthouse CI
-      run: lhci autorun
+      run: |
+        echo "🔦 Running Lighthouse CI performance checks..."
+        npx lhci autorun --config=./lighthouserc.json
       env:
         LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
         

@@ -121,7 +121,14 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
       }
 
       // Convert UI representation (positive + era) to internal format (negative for BC)
-      const internalYear = convertToInternalYear(yearValue, era);
+      let internalYear: number;
+      try {
+        internalYear = convertToInternalYear(yearValue, era);
+      } catch (error) {
+        console.error("Failed to convert year:", error);
+        onValidationError?.("Failed to process year. Please try again.");
+        return;
+      }
 
       // Double-check the internal year is valid
       if (!isValidYear(internalYear)) {
