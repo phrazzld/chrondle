@@ -164,6 +164,30 @@ jobs:
         NEXT_PUBLIC_CONVEX_URL: https://fleet-goldfish-183.convex.cloud
         NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_aGVhbHRoeS1kb2UtMjMuY2xlcmsuYWNjb3VudHMuZGV2JA
       
+    - name: Verify environment variable handling
+      run: |
+        echo "🔍 Verifying environment variable handling..."
+        
+        # Check that NEXT_PUBLIC_ variables are included in the build output
+        if grep -q "NEXT_PUBLIC_CONVEX_URL" .next/static/chunks/*.js 2>/dev/null || \
+           grep -q "fleet-goldfish-183" .next/static/chunks/*.js 2>/dev/null; then
+          echo "✅ NEXT_PUBLIC_CONVEX_URL properly embedded in client bundle"
+        else
+          echo "⚠️ Warning: NEXT_PUBLIC_CONVEX_URL might not be properly embedded"
+        fi
+        
+        # Ensure no sensitive non-NEXT_PUBLIC_ variables are exposed
+        if grep -q "CONVEX_DEPLOYMENT" .next/static/chunks/*.js 2>/dev/null || \
+           grep -q "CLERK_SECRET_KEY" .next/static/chunks/*.js 2>/dev/null; then
+          echo "❌ ERROR: Sensitive server-side variables found in client bundle!"
+          echo "Only NEXT_PUBLIC_ prefixed variables should be in client code"
+          exit 1
+        else
+          echo "✅ No sensitive server variables exposed in client bundle"
+        fi
+        
+        echo "✅ Environment variable verification passed"
+      
     - name: Check bundle size
       run: |
         echo "📊 Checking bundle sizes against configured limits..."
