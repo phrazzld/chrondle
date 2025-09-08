@@ -232,6 +232,10 @@ jobs:
     - name: Run Lighthouse CI
       run: |
         echo "🔦 Running Lighthouse CI performance audit..."
+        # Export environment variables for the Next.js production server
+        export NEXT_PUBLIC_CONVEX_URL=https://fleet-goldfish-183.convex.cloud
+        export NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_aGVhbHRoeS1kb2UtMjMuY2xlcmsuYWNjb3VudHMuZGV2JA
+        
         npx lhci autorun --config=./lighthouserc.json || {
           echo "⚠️ Lighthouse CI failed. Check performance metrics."
           echo "💡 Tips to improve performance:"
