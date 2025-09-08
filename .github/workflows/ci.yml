@@ -200,15 +200,22 @@ jobs:
           echo "⚠️ Warning: NEXT_PUBLIC_CONVEX_URL might not be properly embedded"
         fi
         
-        # Ensure no sensitive non-NEXT_PUBLIC_ variables are exposed
-        if grep -q "CONVEX_DEPLOYMENT" .next/static/chunks/*.js 2>/dev/null || \
-           grep -q "CLERK_SECRET_KEY" .next/static/chunks/*.js 2>/dev/null; then
-          echo "❌ ERROR: Sensitive server-side variables found in client bundle!"
-          echo "Only NEXT_PUBLIC_ prefixed variables should be in client code"
+        # Ensure no actual sensitive values are exposed (not just variable names)
+        # Check for actual Clerk secret keys (start with sk_test_ or sk_live_ followed by 48+ chars)
+        if grep -E "sk_(test|live)_[A-Za-z0-9]{40,}" .next/static/chunks/*.js 2>/dev/null; then
+          echo "❌ ERROR: Actual Clerk secret key found in client bundle!"
+          echo "Secret keys must never be exposed in client-side code"
           exit 1
-        else
-          echo "✅ No sensitive server variables exposed in client bundle"
         fi
+        
+        # Check for actual Convex deployment keys (format: prod:project-name|base64key)
+        if grep -E "(dev|prod):[a-z-]+\|[A-Za-z0-9+/=]{20,}" .next/static/chunks/*.js 2>/dev/null; then
+          echo "❌ ERROR: Convex deployment key found in client bundle!"
+          echo "Deployment keys must never be exposed in client-side code"
+          exit 1
+        fi
+        
+        echo "✅ No sensitive secrets exposed in client bundle"
         
         echo "✅ Environment variable verification passed"
       
