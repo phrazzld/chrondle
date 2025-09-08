@@ -6,6 +6,26 @@ const withBundleAnalyzer = bundleAnalyzer({
   openAnalyzer: false, // Prevent automatic browser opening
 });
 
+// Helper function to generate Convex URLs from environment variable
+const getConvexUrls = (): string => {
+  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!convexUrl) {
+    // Return empty string during build if env var not set
+    // This allows the build to complete even without the env var
+    return "";
+  }
+
+  try {
+    const url = new URL(convexUrl);
+    const domain = url.hostname;
+    // Return both WebSocket and HTTPS protocols for the domain
+    return `wss://${domain} https://${domain}`;
+  } catch {
+    console.warn("Invalid NEXT_PUBLIC_CONVEX_URL:", convexUrl);
+    return "";
+  }
+};
+
 const nextConfig: NextConfig = {
   // Server Actions are enabled by default in Next.js 15
   // No experimental configuration needed
@@ -57,7 +77,9 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob: https://img.clerk.com https://www.gravatar.com", // Clerk avatar CDN and Gravatar fallback
               "font-src 'self' data: https://fonts.gstatic.com", // Required for Google Fonts
               "worker-src 'self' blob:", // Required for Clerk and canvas-confetti web workers
-              "connect-src 'self' https://openrouter.ai https://query.wikidata.org https://api.wikimedia.org wss://handsome-raccoon-955.convex.cloud https://handsome-raccoon-955.convex.cloud wss://fleet-goldfish-183.convex.cloud https://fleet-goldfish-183.convex.cloud https://healthy-doe-23.clerk.accounts.dev https://clerk-telemetry.com", // Added Convex (dev and prod), Clerk endpoints, and telemetry
+              "connect-src 'self' " +
+                getConvexUrls() +
+                " https://openrouter.ai https://query.wikidata.org https://api.wikimedia.org https://healthy-doe-23.clerk.accounts.dev https://clerk-telemetry.com", // Dynamic Convex URLs from environment
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

@@ -93,6 +93,51 @@ Generated from TASK.md on 2025-09-03
 
 **Solution**: ✅ Deleted synthetic performance tests entirely. Replaced with meaningful metrics (bundle size, Lighthouse scores).
 
+## 🚨 NEW CI FAILURE: Hardcoded Deployment IDs (2025-09-07)
+
+**CRITICAL ISSUE**: Build job failing - hardcoded Convex deployment IDs found in client bundle
+
+### [CODE FIX] Remove Hardcoded Deployment IDs from CSP
+
+- [ ] **CI-SEC-1: Replace hardcoded Convex URLs in next.config.ts**
+
+  - Priority: CRITICAL - Blocking PR merge
+  - Time: 15 minutes
+  - File: `next.config.ts` (line 60)
+  - Problem: Hardcoded deployment IDs in CSP header get embedded in client bundle
+  - Solution: Build CSP dynamically from environment variables
+
+  ```typescript
+  // Add helper function
+  const getConvexUrls = () => {
+    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+    if (!convexUrl) return "";
+    const url = new URL(convexUrl);
+    const domain = url.hostname;
+    return `wss://${domain} https://${domain}`;
+  };
+
+  // Update CSP connect-src
+  "connect-src 'self' " + getConvexUrls() + " https://openrouter.ai ...";
+  ```
+
+- [ ] **CI-SEC-2: Verify no deployment IDs in build output**
+
+  - Priority: HIGH
+  - Time: 5 minutes
+  - Run build locally and check chunks don't contain hardcoded IDs
+  - Commands:
+    ```bash
+    pnpm build
+    rg "fleet-goldfish-183|handsome-raccoon-955" .next/static/chunks/
+    ```
+
+- [ ] **CI-SEC-3: Push and verify CI passes**
+  - Priority: HIGH
+  - Time: 5 minutes
+  - Push changes and confirm all CI checks pass
+  - Verify CSP headers still work in dev/prod environments
+
 ## Critical Path Items (Must complete in order)
 
 ### Foundation Phase
