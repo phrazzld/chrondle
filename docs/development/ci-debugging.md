@@ -20,7 +20,7 @@ Check which job failed in the GitHub Actions UI:
 
 - **test**: Linting, type-check, or test failures
 - **build**: Next.js build or bundle size issues
-- **lighthouse**: Performance regression (main branch only)
+- **bundle-size**: Bundle size regression checks
 
 ### 2. Read Error Messages
 

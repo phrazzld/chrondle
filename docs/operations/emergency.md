@@ -188,7 +188,7 @@ git log --oneline -10
 
 ### Site Loading Too Slowly
 
-1. **Check Lighthouse scores:**
+1. **Check bundle sizes:**
 
    - Look at latest merge commit comments
    - Check performance-data branch
@@ -450,12 +450,12 @@ pnpm install -D @types/react @types/node
    - Ensure build command is correct
    - Verify Node version matches local
 
-### Lighthouse CI Failing
+### Bundle Size Check Failing
 
 1. **Skip temporarily:**
 
    ```yaml
-   # In .github/workflows/lighthouse.yml
+   # In .github/workflows/ci.yml
    # Add continue-on-error: true to the step
    ```
 
@@ -567,7 +567,7 @@ pnpm lint:fix && pnpm format       # Auto-fix code issues
 
 # Performance debugging
 NODE_OPTIONS='--inspect' pnpm dev  # Debug with Chrome DevTools
-pnpm build && pnpm lighthouse      # Run performance audit
+pnpm build && pnpm size      # Run bundle size audit
 
 # Common emergency commands
 git commit --no-verify             # Skip pre-commit hooks

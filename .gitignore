@@ -90,10 +90,6 @@ bundle-composition-history.json
 performance-report.json
 regression-report.json
 
-# Lighthouse CI
-.lighthouseci/
-lighthouse-metrics.json
-lighthouse-summary.md
 # Code review temporary files
 thinktank_*/
 investigation.md

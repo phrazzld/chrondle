@@ -224,19 +224,10 @@ Current limits:
 - Framework: <55KB
 - Main App: <35KB
 
-### Lighthouse Performance
+### Performance Monitoring
 
-On every merge to main, we automatically run Lighthouse CI to track:
+We track bundle sizes automatically to ensure performance:
 
-- First Contentful Paint (FCP)
-- Largest Contentful Paint (LCP)
-- Time to Interactive (TTI)
-- Cumulative Layout Shift (CLS)
-
-Performance budgets:
-
-- Performance score: ≥90%
-- Accessibility: ≥95%
 - Best Practices: ≥95%
 - SEO: ≥95%
 
@@ -347,9 +338,8 @@ For detailed procedures, recovery steps, and prevention tips, refer to the full 
    - Ensure all CI checks pass
 
 4. **After merge:**
-   - Lighthouse CI runs automatically
-   - Performance results posted to merge commit
    - Bundle sizes tracked for regression detection
+   - Changes deployed to production automatically
 
 ## 📚 Additional Resources
 

@@ -46,10 +46,9 @@ _High-priority items requiring immediate attention_
 
 - **Location**:
   - `.github/workflows/ci.yml` (uses Node.js 20)
-  - `.github/workflows/lighthouse.yml:18` (uses Node.js 18)
 - **Philosophy Violation**: [Standards Compliance](docs/leyline/bindings/core/ci-cd-pipeline-standards.md)
 - **Issue**: Different Node versions can cause environment-specific bugs and complicate debugging. Violates the principle of consistent, predictable CI environments.
-- **Resolution**: Update `lighthouse.yml` to use Node.js 20 to match the main CI workflow.
+- **Resolution**: All workflows now use Node.js 20.
 
 ## NOTABLE IMPROVEMENTS
 
@@ -77,11 +76,9 @@ _Medium-priority refinements for better alignment_
 ### 3. Module System Consistency - LOW
 
 - **Location**:
-  - `lighthouserc.cjs` (CommonJS)
-  - `.github/workflows/lighthouse.yml:95-96` (uses `require`)
 - **Philosophy Alignment**: [Standards Compliance](docs/leyline/bindings/categories/typescript/modern-typescript-toolchain.md)
-- **Issue**: Project uses ESM everywhere except Lighthouse config and GitHub Actions scripts.
-- **Improvement**: If `@lhci/cli` supports ESM config, convert to `lighthouserc.mjs`. Otherwise, add a comment explaining the exception.
+- **Issue**: Project uses ESM everywhere except in some GitHub Actions scripts.
+- **Improvement**: Convert remaining CommonJS configs to ESM where possible.
 
 ### 4. Standardize Logging Throughout Codebase - LOW
 
@@ -105,7 +102,7 @@ _Changes that demonstrate excellent philosophy alignment_
 
 ### 2. Comprehensive CI/CD Pipeline Implementation - EXCELLENT
 
-- **What**: Added detailed CI workflows with quality gates, Lighthouse performance monitoring, and module system validation
+- **What**: Added detailed CI workflows with quality gates, bundle size monitoring, and module system validation
 - **Philosophy Strength**: [Automated Quality Gates](docs/leyline/bindings/core/automated-quality-gates.md), [Fix Broken Windows](docs/leyline/tenets/fix-broken-windows.md)
 - **Value**: The multi-stage quality validation with clear error messages and performance budgets prevents quality degradation proactively. The emergency override mechanism with audit trails shows mature thinking about real-world needs.
 

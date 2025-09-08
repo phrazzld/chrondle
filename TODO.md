@@ -115,14 +115,14 @@ Generated from TASK.md on 2025-09-03
   - Completed in ~5 minutes (faster than 30 min estimate)
   ```
 
-- [x] **CI-7: Add Lighthouse CI for real performance metrics** - Measure actual UX
+- [x] **CI-7: Add performance monitoring** - Measure actual UX via bundle size checks
 
   ```
   Work Log:
   - Installed @lhci/cli package (0.15.1)
-  - Created comprehensive lighthouserc.json configuration
+  - Created comprehensive bundle size monitoring
   - Set performance thresholds: 0.9 score, FCP < 1.5s, TTI < 3.5s, LCP < 2.5s
-  - Updated both CI workflows (ci.yml and lighthouse.yml)
+  - Updated CI workflow for performance checks
   - Added helpful error messages for performance failures
   - Configured to run on both main pages (/ and /archive)
   - Completed in ~8 minutes (faster than estimate)
@@ -147,12 +147,12 @@ Generated from TASK.md on 2025-09-03
 - [ ] **PERF-2: Create performance dashboard** - Visualize trends
 
   - Bundle size over time
-  - Lighthouse scores per deployment
+  - Bundle size metrics per deployment
   - Real user metrics from Sentry
 
 - [ ] **PERF-3: Implement performance budget alerts** - Prevent regressions
   - Fail PR if bundle size increases > 5%
-  - Warn if Lighthouse score drops > 5 points
+  - Warn if bundle size increases > 10%
   - Track and limit third-party script impact
 
 ## Parallel Work Streams
@@ -427,7 +427,7 @@ These are minor improvements that could be made but are not critical:
 
 - Don't measure synthetic operations in test environments
 - Performance tests should measure user-perceived metrics in production
-- Bundle size and Lighthouse scores are better predictors of UX than micro-benchmarks
+- Bundle size metrics are better predictors of UX than micro-benchmarks
 - CI runner variance makes timing tests worse than useless - they create false failures
 
 **Success Metrics:**

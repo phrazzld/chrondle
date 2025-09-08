@@ -281,7 +281,7 @@ pnpm test -- --reporter=verbose
 1. **Performance tab**: Record and analyze runtime performance
 2. **Memory tab**: Check for memory leaks
 3. **Coverage tab**: Find unused code
-4. **Lighthouse**: Overall performance audit
+4. **Bundle Analysis**: Overall bundle size audit
 
 ### Performance Debugging Pattern
 
