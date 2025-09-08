@@ -1,5 +1,20 @@
 # BACKLOG
 
+## CI Infrastructure Issues
+
+### Lighthouse CI Configuration
+
+- [ ] [LOW] [CI] Fix Lighthouse CI server startup - production server fails with 500 error when env vars missing
+  - **Problem**: Lighthouse CI starts `pnpm start` without environment variables, causing the Next.js production server to crash
+  - **Attempted fixes**:
+    - ❌ Exporting env vars in CI workflow
+    - ❌ Adding env vars to lighthouserc.json startServerCommand
+    - ❌ Dynamic CSP generation from env vars
+  - **Root cause**: Next.js production build expects NEXT*PUBLIC*\* vars at runtime
+  - **Suggested approach**: Either make Lighthouse CI non-blocking OR provide .env file during CI runs
+  - **Impact**: CI pipeline fails on non-critical performance audits
+  - **Time spent**: ~2 hours attempting fixes (avoid this rabbit hole)
+
 ## PR Review Feedback (GPT-5 Migration)
 
 ### Cost Monitoring & Management

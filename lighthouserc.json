@@ -3,7 +3,7 @@
     "collect": {
       "url": ["http://localhost:3000/", "http://localhost:3000/archive"],
       "numberOfRuns": 3,
-      "startServerCommand": "NEXT_PUBLIC_CONVEX_URL=https://fleet-goldfish-183.convex.cloud NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_aGVhbHRoeS1kb2UtMjMuY2xlcmsuYWNjb3VudHMuZGV2JA pnpm start",
+      "startServerCommand": "pnpm start",
       "startServerReadyPattern": "ready on",
       "startServerReadyTimeout": 30000,
       "settings": {
