@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle 
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { formatYear } from '@/lib/utils';
-import { getEnhancedProximityFeedback } from '@/lib/enhancedFeedback';
+import React from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { formatYear } from "@/lib/displayFormatting";
+import { getEnhancedProximityFeedback } from "@/lib/enhancedFeedback";
 
 interface HintReviewModalProps {
   isOpen: boolean;
@@ -19,7 +19,7 @@ interface HintReviewModalProps {
   targetYear: number;
   hint: string;
   totalGuesses?: number;
-  onNavigate?: (direction: 'prev' | 'next') => void;
+  onNavigate?: (direction: "prev" | "next") => void;
   touchHandlers?: {
     onTouchStart: (e: React.TouchEvent) => void;
     onTouchMove: (e: React.TouchEvent) => void;
@@ -36,11 +36,11 @@ export const HintReviewModal: React.FC<HintReviewModalProps> = ({
   hint,
   totalGuesses = 1,
   onNavigate,
-  touchHandlers
+  touchHandlers,
 }) => {
   const enhancedFeedback = getEnhancedProximityFeedback(guess, targetYear, {
     includeHistoricalContext: true,
-    includeProgressiveTracking: false
+    includeProgressiveTracking: false,
   });
   const distance = Math.abs(guess - targetYear);
   const isCorrect = guess === targetYear;
@@ -52,7 +52,7 @@ export const HintReviewModal: React.FC<HintReviewModalProps> = ({
           <div className="flex items-center justify-between mb-2">
             {totalGuesses > 1 && onNavigate && (
               <Button
-                onClick={() => onNavigate('prev')}
+                onClick={() => onNavigate("prev")}
                 variant="ghost"
                 size="sm"
                 aria-label="Previous guess"
@@ -65,7 +65,7 @@ export const HintReviewModal: React.FC<HintReviewModalProps> = ({
             </DialogTitle>
             {totalGuesses > 1 && onNavigate && (
               <Button
-                onClick={() => onNavigate('next')}
+                onClick={() => onNavigate("next")}
                 variant="ghost"
                 size="sm"
                 aria-label="Next guess"
@@ -80,7 +80,7 @@ export const HintReviewModal: React.FC<HintReviewModalProps> = ({
             </div>
           )}
         </DialogHeader>
-        
+
         <div className="text-center" {...touchHandlers}>
           {/* Header */}
           <div className="mb-6">
@@ -89,10 +89,12 @@ export const HintReviewModal: React.FC<HintReviewModalProps> = ({
                 You guessed: {formatYear(guess)}
               </span>
               {!isCorrect && (
-                <span className={`text-sm px-2 py-1 rounded-lg text-white ${
-                  distance <= 25 ? 'bg-green-600' : 'bg-red-600'
-                }`}>
-                  {distance === 1 ? '1 year off' : `${distance} years off`}
+                <span
+                  className={`text-sm px-2 py-1 rounded-lg text-white ${
+                    distance <= 25 ? "bg-green-600" : "bg-red-600"
+                  }`}
+                >
+                  {distance === 1 ? "1 year off" : `${distance} years off`}
                 </span>
               )}
             </div>
@@ -134,14 +136,17 @@ export const HintReviewModal: React.FC<HintReviewModalProps> = ({
                   Target Year: {formatYear(targetYear)}
                 </p>
                 <p className="text-sm font-body mt-1 text-muted-foreground">
-                  All events in this puzzle happened in <span className="font-accent tracking-wide">{formatYear(targetYear)}</span>
+                  All events in this puzzle happened in{" "}
+                  <span className="font-accent tracking-wide">
+                    {formatYear(targetYear)}
+                  </span>
                 </p>
               </div>
             </div>
           )}
 
           {/* Close Button */}
-          <Button 
+          <Button
             onClick={onClose}
             className="w-full py-3 px-6 text-lg font-accent font-semibold tracking-wide"
           >

@@ -118,4 +118,4 @@ Generated: 2025-07-08
 
 - [ ] First Contentful Paint improvement: 200-400ms
 - [ ] Time to Interactive improvement: 1-2s
-- [ ] Lighthouse Performance Score: +10-20 points
+- [ ] Bundle Size Reduction: -10-20%

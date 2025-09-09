@@ -8,10 +8,13 @@ import React, {
   useEffect,
   KeyboardEvent,
 } from "react";
-import { isValidYear, GAME_CONFIG } from "@/lib/constants";
+import { isValidYear } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EraToggle } from "@/components/ui/EraToggle";
 import { validateGuessInputProps } from "@/lib/propValidation";
+import type { Era } from "@/lib/eraUtils";
+import { convertToInternalYear, isValidEraYear } from "@/lib/eraUtils";
 
 interface GuessInputProps {
   onGuess: (guess: number) => void;
@@ -22,6 +25,9 @@ interface GuessInputProps {
   isLoading?: boolean;
 }
 
+/**
+ * GuessInput component with BC/AD toggle for entering historical years
+ */
 export const GuessInput: React.FC<GuessInputProps> = (props) => {
   // Validate props in development
   validateGuessInputProps(props);
@@ -34,7 +40,10 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
     className = "",
     isLoading = false,
   } = props;
-  const [inputValue, setInputValue] = useState("");
+
+  // Separate year and era states
+  const [year, setYear] = useState("");
+  const [era, setEra] = useState<Era>("AD");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -45,44 +54,24 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
     }
   }, [disabled]); // On mount and when disabled state changes
 
-  // Auto-focus after successful submission (when inputValue resets to empty)
+  // Auto-focus after successful submission (when year resets to empty)
   useEffect(() => {
-    if (inputValue === "" && !disabled && inputRef.current) {
+    if (year === "" && !disabled && inputRef.current) {
       // Small delay to ensure DOM updates complete
       setTimeout(() => inputRef.current?.focus(), 0);
     }
-  }, [inputValue, disabled]);
+  }, [year, disabled]);
 
-  // Keyboard navigation: Arrow keys for year increment/decrement
+  // Keyboard event handler - currently disabled to prevent game integrity issues
+  // Arrow key navigation was removed as it could reveal puzzle information
   const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLInputElement>) => {
-      if (disabled) return;
-
-      const currentValue = parseInt(inputValue, 10) || new Date().getFullYear();
-
-      switch (e.key) {
-        case "ArrowUp":
-          e.preventDefault();
-          const increment = e.shiftKey ? 10 : 1;
-          const newUpValue = Math.min(
-            currentValue + increment,
-            GAME_CONFIG.MAX_YEAR,
-          );
-          setInputValue(newUpValue.toString());
-          break;
-
-        case "ArrowDown":
-          e.preventDefault();
-          const decrement = e.shiftKey ? 10 : 1;
-          const newDownValue = Math.max(
-            currentValue - decrement,
-            GAME_CONFIG.MIN_YEAR,
-          );
-          setInputValue(newDownValue.toString());
-          break;
-      }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (_e: KeyboardEvent<HTMLInputElement>) => {
+      // Disabled to prevent game integrity violations
+      // Per CLAUDE.md: UI should not react differently based on proximity to answer
+      return;
     },
-    [inputValue, disabled],
+    [],
   );
 
   const handleSubmit = useCallback(
@@ -92,10 +81,26 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
       // Prevent double submission during animation
       if (isSubmitting) return;
 
-      const guess = parseInt(inputValue, 10);
+      const yearValue = parseInt(year, 10);
 
-      // Validation
-      if (isNaN(guess) || !isValidYear(guess)) {
+      // Validation - check if year is valid for the selected era
+      if (isNaN(yearValue) || !isValidEraYear(yearValue, era)) {
+        onValidationError?.("Please enter a valid year.");
+        return;
+      }
+
+      // Convert UI representation (positive + era) to internal format (negative for BC)
+      let internalYear: number;
+      try {
+        internalYear = convertToInternalYear(yearValue, era);
+      } catch (error) {
+        console.error("Failed to convert year:", error);
+        onValidationError?.("Failed to process year. Please try again.");
+        return;
+      }
+
+      // Double-check the internal year is valid
+      if (!isValidYear(internalYear)) {
         onValidationError?.("Please enter a valid year.");
         return;
       }
@@ -105,9 +110,10 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
 
       // Use requestAnimationFrame for optimal timing
       requestAnimationFrame(() => {
-        // Make the guess
-        onGuess(guess);
-        setInputValue("");
+        // Make the guess with the internal year format
+        onGuess(internalYear);
+        setYear("");
+        // Keep the era as-is for user convenience (don't reset to default)
 
         // Remove animation class after animation completes (150ms)
         setTimeout(() => {
@@ -115,7 +121,7 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
         }, 150);
       });
     },
-    [inputValue, onGuess, onValidationError, isSubmitting],
+    [year, era, onGuess, onValidationError, isSubmitting],
   );
 
   const getButtonText = (
@@ -144,35 +150,49 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
 
   return (
     <div className={`${className} mb-0`}>
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-3 sm:flex-row mb-0"
-      >
-        {/* Clean Input Field */}
-        <Input
-          ref={inputRef}
-          type="text"
-          inputMode="numeric"
-          pattern="[0-9-]*"
-          enterKeyHint="done"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Enter year (e.g. 1969 or -776 for BC)"
-          className="text-lg sm:text-2xl text-left font-accent font-bold h-12 bg-background border-2 border-input focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all duration-200 shadow-sm w-full sm:flex-1 tracking-wide"
-          title="Use ↑↓ arrow keys (±1 year) or Shift+↑↓ (±10 years). Use negative numbers for BC years (e.g. -450 for 450 BC)"
-          required
-          disabled={disabled}
-          aria-label="Enter your year guess. Use arrow keys to increment or decrement. Use negative numbers for BC years."
-        />
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3 mb-0">
+        {/* Input and Era Toggle Row */}
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+          {/* Positive Year Input Field */}
+          <div className="flex-1 w-full sm:w-auto">
+            <Input
+              ref={inputRef}
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              enterKeyHint="done"
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Enter year (e.g. 1969 or 776)"
+              className="text-lg sm:text-2xl text-left font-accent font-bold h-12 bg-background border-2 border-input focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all duration-200 shadow-sm w-full tracking-wide"
+              title="Use ↑↓ arrow keys (±1 year) or Shift+↑↓ (±10 years) to adjust the year"
+              required
+              disabled={disabled}
+              aria-label={`Enter your year guess. Current era: ${era}. Use arrow keys to increment or decrement.`}
+              aria-describedby={undefined}
+            />
+          </div>
 
-        {/* Clean Submit Button */}
+          {/* BC/AD Era Toggle */}
+          <EraToggle
+            value={era}
+            onChange={setEra}
+            disabled={disabled}
+            size="lg"
+            width="full"
+            className="h-12 sm:w-auto"
+            aria-label="Select era: BC or AD"
+          />
+        </div>
+
+        {/* Submit Button Row */}
         <Button
           type="submit"
           disabled={isSubmitDisabled}
           size="lg"
           aria-label={`Submit guess (${remainingGuesses} remaining)`}
-          className={`h-12 px-8 text-lg font-accent font-semibold tracking-wide transition-all duration-200 w-full sm:w-auto sm:min-w-[140px] ${
+          className={`h-12 px-8 text-lg font-accent font-semibold tracking-wide transition-all duration-200 w-full ${
             isSubmitting
               ? "scale-105 bg-primary/90 shadow-lg animate-pulse"
               : "hover:bg-primary/90"

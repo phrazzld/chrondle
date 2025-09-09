@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { formatYear } from "@/lib/utils";
+import { formatYear } from "@/lib/displayFormatting";
 
 interface ProximityDisplayProps {
   currentGuess: number;

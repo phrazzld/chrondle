@@ -10,10 +10,14 @@
   --muted-foreground: oklch(0.551 0.0234 264.3637);
 
   /* Unified Semantic Color System - WCAG AA Compliant */
-  /* Primary Actions (Vermilion) - 6.8:1 contrast on white */
-  --primary: oklch(0.6231 0.188 259.8145);
+  /* Primary Actions (Vermilion) - Enhanced for toggle contrast */
+  --primary: oklch(0.55 0.25 260);
   --primary-hover: #b8360b;
   --primary-light: #ea5a1b;
+
+  /* Toggle-specific colors for maximum contrast */
+  --toggle-active-bg: oklch(0.55 0.25 260);
+  --toggle-inactive-bg: oklch(0.97 0.01 264);
 
   /* Game Feedback Colors - Historical Palette */
   --feedback-earlier: #d4a574; /* Warm amber - aged parchment feel */
@@ -109,9 +113,13 @@ html.dark {
   --border: #34495e;
 
   /* Dark Mode Semantic Colors - Adjusted for 4.5:1+ contrast on dark backgrounds */
-  --primary: #ea5a1b; /* Vermilion lighter for dark mode */
+  --primary: oklch(0.75 0.2 30); /* Bright amber/gold for dark mode */
   --primary-hover: #ff6b2b;
   --primary-light: #ff7a3b;
+
+  /* Toggle-specific colors for dark mode */
+  --toggle-active-bg: oklch(0.75 0.2 30);
+  --toggle-inactive-bg: oklch(0.25 0.01 264);
 
   /* Game Feedback Colors - Dark Mode Optimized */
   --feedback-earlier: #6366f1; /* Indigo lighter - 4.7:1 on dark */
@@ -138,9 +146,13 @@ html.dark {
     --border: #34495e;
 
     /* System Dark Mode Semantic Colors */
-    --primary: #ea5a1b;
+    --primary: oklch(0.75 0.2 30);
     --primary-hover: #ff6b2b;
     --primary-light: #ff7a3b;
+
+    /* Toggle-specific colors for system dark mode */
+    --toggle-active-bg: oklch(0.75 0.2 30);
+    --toggle-inactive-bg: oklch(0.25 0.01 264);
 
     --feedback-earlier: #6366f1;
     --feedback-later: #14b8a6;

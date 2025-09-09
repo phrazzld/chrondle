@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { formatYear } from "@/lib/utils";
+import { formatYear } from "@/lib/displayFormatting";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Check } from "lucide-react";

@@ -2,6 +2,15 @@
 
 ## PR Review Feedback (GPT-5 Migration)
 
+- [ ] nix review hints thing
+- [ ] keep input focused after submitting a guess
+- [ ] fix streak counter
+- [ ] fix reminders to actually work
+- [ ] fix archive mobile styling (mostly padding)
+- [ ] clerk auth email still says development
+- [ ] clerk auth modal closes when switching apps on mobile, which makes it impossible to use magic link auth
+- [ ] auth should manage anonymous sessions better, leaving the site and coming back shouldn't nuke your puzzle progress / history even for anon users
+
 ### Cost Monitoring & Management
 
 - [ ] [HIGH] [MONITORING] Implement GPT-5 cost monitoring with alerts when daily spend exceeds thresholds | Impact: ~4x higher costs than Gemini
@@ -107,6 +116,13 @@
 - [ ] [LOW] [MAINTAIN] Clean up unused config.timeout if client timeout not needed | Debt: Unused configuration
 
 ---
+
+## Post-merge follow-ups (BC/AD Input Fix PR #18)
+
+- [ ] [LOW] [TEST] Add network error handling tests for localStorage operations in private browsing mode
+- [ ] [LOW] [TEST] Add rapid user input stress testing scenarios for GuessInput component
+- [ ] [LOW] [PERF] Consider replacing Framer Motion with CSS transitions in EraToggle for bundle size reduction
+- [ ] [LOW] [REFACTOR] Add named constants for year rounding thresholds in displayFormatting.ts
 
 ## Post-merge follow-ups (Current Hint relocation)
 

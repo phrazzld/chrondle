@@ -3,14 +3,19 @@ import { headers } from "next/headers";
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { api } from "convex/_generated/api";
 import { ConvexHttpClient } from "convex/browser";
+import { getEnvVar, isProduction } from "@/lib/env";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: Request) {
-  // Validate Convex URL configuration
-  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+  // Validate Convex URL configuration with graceful error handling
+  const convexUrl = getEnvVar("NEXT_PUBLIC_CONVEX_URL");
   if (!convexUrl) {
-    console.error("NEXT_PUBLIC_CONVEX_URL is not configured");
-    return new Response("Error: Server configuration issue", {
-      status: 500,
+    logger.error("NEXT_PUBLIC_CONVEX_URL is not configured for webhook");
+    const errorMessage = isProduction()
+      ? "Service temporarily unavailable"
+      : "Error: NEXT_PUBLIC_CONVEX_URL is not configured";
+    return new Response(errorMessage, {
+      status: 503, // Service Unavailable is more appropriate than 500
     });
   }
 
@@ -33,8 +38,16 @@ export async function POST(req: Request) {
   const payload = await req.json();
   const body = JSON.stringify(payload);
 
+  // Validate webhook secret configuration
+  const webhookSecret = getEnvVar("CLERK_WEBHOOK_SECRET");
+  if (!webhookSecret) {
+    logger.warn(
+      "CLERK_WEBHOOK_SECRET is not configured - webhook verification may fail",
+    );
+  }
+
   // Create a new Svix instance with your webhook secret
-  const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET || "");
+  const wh = new Webhook(webhookSecret || "");
 
   let evt: WebhookEvent;
 

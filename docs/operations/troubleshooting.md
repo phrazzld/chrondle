@@ -399,7 +399,7 @@ git commit -m "Remove .env from tracking"
    # Check .next/server/app for your routes
    ```
 
-### Problem: Lighthouse scores dropping
+### Problem: Bundle sizes increasing
 
 **Solutions:**
 
