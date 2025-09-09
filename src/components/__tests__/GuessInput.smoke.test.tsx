@@ -47,18 +47,15 @@ describe("GuessInput Smoke Tests", () => {
 
     // Verify era toggle exists and AD is selected by default
     const adRadio = screen.getByRole("radio", {
-      name: /AD era/i,
+      name: /AD/i,
     }) as HTMLButtonElement;
     const bcRadio = screen.getByRole("radio", {
-      name: /BC era/i,
+      name: /BC/i,
     }) as HTMLButtonElement;
     expect(adRadio).toBeTruthy();
     expect(bcRadio).toBeTruthy();
     expect(adRadio.getAttribute("aria-checked")).toBe("true");
     expect(bcRadio.getAttribute("aria-checked")).toBe("false");
-
-    // Verify formatted display shows correct year
-    expect(screen.getByText("1969 AD")).toBeTruthy();
   });
 
   it("handles form submission with year and era", async () => {
@@ -82,11 +79,8 @@ describe("GuessInput Smoke Tests", () => {
     await user.type(input, "776");
 
     // Switch to BC
-    const bcRadio = screen.getByRole("radio", { name: /BC era/i });
+    const bcRadio = screen.getByRole("radio", { name: /BC/i });
     await user.click(bcRadio);
-
-    // Verify formatted display updates
-    expect(screen.getByText("776 BC")).toBeTruthy();
 
     // Submit the form
     await user.click(submitButton);
@@ -109,10 +103,10 @@ describe("GuessInput Smoke Tests", () => {
       name: /Submit guess/i,
     }) as HTMLButtonElement;
     const adRadio = screen.getByRole("radio", {
-      name: /AD era/i,
+      name: /AD/i,
     }) as HTMLButtonElement;
     const bcRadio = screen.getByRole("radio", {
-      name: /BC era/i,
+      name: /BC/i,
     }) as HTMLButtonElement;
 
     // Verify all interactive elements are disabled

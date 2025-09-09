@@ -35,15 +35,15 @@ describe("EraToggle", () => {
     it("renders BC and AD buttons", () => {
       render(<EraToggle value="BC" onChange={mockOnChange} />);
 
-      expect(screen.getByRole("radio", { name: /BC era/i })).toBeTruthy();
-      expect(screen.getByRole("radio", { name: /AD era/i })).toBeTruthy();
+      expect(screen.getByRole("radio", { name: /BC/i })).toBeTruthy();
+      expect(screen.getByRole("radio", { name: /AD/i })).toBeTruthy();
     });
 
     it("displays correct active state for BC", () => {
       render(<EraToggle value="BC" onChange={mockOnChange} />);
 
-      const bcButton = screen.getByRole("radio", { name: /BC era/i });
-      const adButton = screen.getByRole("radio", { name: /AD era/i });
+      const bcButton = screen.getByRole("radio", { name: /BC/i });
+      const adButton = screen.getByRole("radio", { name: /AD/i });
 
       expect(bcButton.getAttribute("aria-checked")).toBe("true");
       expect(adButton.getAttribute("aria-checked")).toBe("false");
@@ -52,8 +52,8 @@ describe("EraToggle", () => {
     it("displays correct active state for AD", () => {
       render(<EraToggle value="AD" onChange={mockOnChange} />);
 
-      const bcButton = screen.getByRole("radio", { name: /BC era/i });
-      const adButton = screen.getByRole("radio", { name: /AD era/i });
+      const bcButton = screen.getByRole("radio", { name: /BC/i });
+      const adButton = screen.getByRole("radio", { name: /AD/i });
 
       expect(bcButton.getAttribute("aria-checked")).toBe("false");
       expect(adButton.getAttribute("aria-checked")).toBe("true");
@@ -64,7 +64,7 @@ describe("EraToggle", () => {
     it("calls onChange when clicking BC button", () => {
       render(<EraToggle value="AD" onChange={mockOnChange} />);
 
-      const bcButton = screen.getByRole("radio", { name: /BC era/i });
+      const bcButton = screen.getByRole("radio", { name: /BC/i });
       fireEvent.click(bcButton);
 
       expect(mockOnChange).toHaveBeenCalledWith("BC");
@@ -73,7 +73,7 @@ describe("EraToggle", () => {
     it("calls onChange when clicking AD button", () => {
       render(<EraToggle value="BC" onChange={mockOnChange} />);
 
-      const adButton = screen.getByRole("radio", { name: /AD era/i });
+      const adButton = screen.getByRole("radio", { name: /AD/i });
       fireEvent.click(adButton);
 
       expect(mockOnChange).toHaveBeenCalledWith("AD");
@@ -82,7 +82,7 @@ describe("EraToggle", () => {
     it("does not call onChange when clicking already active button", () => {
       render(<EraToggle value="BC" onChange={mockOnChange} />);
 
-      const bcButton = screen.getByRole("radio", { name: /BC era/i });
+      const bcButton = screen.getByRole("radio", { name: /BC/i });
       fireEvent.click(bcButton);
 
       expect(mockOnChange).not.toHaveBeenCalled();
@@ -178,10 +178,10 @@ describe("EraToggle", () => {
       render(<EraToggle value="BC" onChange={mockOnChange} disabled />);
 
       const bcButton = screen.getByRole("radio", {
-        name: /BC era/i,
+        name: /BC/i,
       }) as HTMLButtonElement;
       const adButton = screen.getByRole("radio", {
-        name: /AD era/i,
+        name: /AD/i,
       }) as HTMLButtonElement;
 
       expect(bcButton.disabled).toBe(true);
@@ -191,7 +191,7 @@ describe("EraToggle", () => {
     it("does not respond to clicks when disabled", () => {
       render(<EraToggle value="BC" onChange={mockOnChange} disabled />);
 
-      const adButton = screen.getByRole("radio", { name: /AD era/i });
+      const adButton = screen.getByRole("radio", { name: /AD/i });
       fireEvent.click(adButton);
 
       expect(mockOnChange).not.toHaveBeenCalled();
@@ -229,8 +229,8 @@ describe("EraToggle", () => {
     it("has proper ARIA radio roles on buttons", () => {
       render(<EraToggle value="BC" onChange={mockOnChange} />);
 
-      const bcButton = screen.getByRole("radio", { name: /BC era/i });
-      const adButton = screen.getByRole("radio", { name: /AD era/i });
+      const bcButton = screen.getByRole("radio", { name: /BC/i });
+      const adButton = screen.getByRole("radio", { name: /AD/i });
 
       expect(bcButton.getAttribute("role")).toBe("radio");
       expect(adButton.getAttribute("role")).toBe("radio");
@@ -241,8 +241,8 @@ describe("EraToggle", () => {
         <EraToggle value="BC" onChange={mockOnChange} />,
       );
 
-      const bcButton = screen.getByRole("radio", { name: /BC era/i });
-      const adButton = screen.getByRole("radio", { name: /AD era/i });
+      const bcButton = screen.getByRole("radio", { name: /BC/i });
+      const adButton = screen.getByRole("radio", { name: /AD/i });
 
       expect(bcButton.getAttribute("aria-checked")).toBe("true");
       expect(adButton.getAttribute("aria-checked")).toBe("false");
@@ -290,10 +290,10 @@ describe("EraToggle", () => {
         <EraToggle value="BC" onChange={mockOnChange} size="sm" />,
       );
 
-      expect(container.querySelector(".h-8")).toBeTruthy();
+      expect(container.querySelector(".h-9")).toBeTruthy();
 
       rerender(<EraToggle value="BC" onChange={mockOnChange} size="lg" />);
-      expect(container.querySelector(".h-11")).toBeTruthy();
+      expect(container.querySelector(".h-12")).toBeTruthy();
     });
 
     it("applies width variant classes", () => {
@@ -324,8 +324,8 @@ describe("EraToggle", () => {
     it("applies active variant styles to selected button", () => {
       render(<EraToggle value="BC" onChange={mockOnChange} />);
 
-      const bcButton = screen.getByRole("radio", { name: /BC era/i });
-      const adButton = screen.getByRole("radio", { name: /AD era/i });
+      const bcButton = screen.getByRole("radio", { name: /BC/i });
+      const adButton = screen.getByRole("radio", { name: /AD/i });
 
       expect(bcButton.className).toContain("bg-primary");
       expect(bcButton.className).toContain("text-primary-foreground");
@@ -337,8 +337,8 @@ describe("EraToggle", () => {
         <EraToggle value="BC" onChange={mockOnChange} />,
       );
 
-      const bcButton = screen.getByRole("radio", { name: /BC era/i });
-      const adButton = screen.getByRole("radio", { name: /AD era/i });
+      const bcButton = screen.getByRole("radio", { name: /BC/i });
+      const adButton = screen.getByRole("radio", { name: /AD/i });
 
       expect(bcButton.className).toContain("bg-primary");
       expect(adButton.className).not.toContain("bg-primary");
@@ -404,10 +404,10 @@ describe("EraToggle", () => {
       );
 
       const bcButton = screen.getByRole("radio", {
-        name: /BC era/i,
+        name: /BC/i,
       }) as HTMLButtonElement;
       const adButton = screen.getByRole("radio", {
-        name: /AD era/i,
+        name: /AD/i,
       }) as HTMLButtonElement;
 
       expect(bcButton.disabled).toBe(true);

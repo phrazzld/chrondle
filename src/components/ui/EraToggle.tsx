@@ -7,13 +7,13 @@ import { cn } from "@/lib/utils";
 import type { Era } from "@/lib/eraUtils";
 
 const toggleContainerVariants = cva(
-  "inline-flex rounded-md bg-muted border border-input shadow-sm p-1.5 gap-1",
+  "inline-flex rounded-lg bg-muted/50 border border-input shadow-sm p-1 gap-1 relative",
   {
     variants: {
       size: {
-        sm: "h-8 text-xs",
-        default: "h-9 text-sm",
-        lg: "h-11 text-base",
+        sm: "h-9 text-xs",
+        default: "h-10 text-sm",
+        lg: "h-12 text-base",
       },
       width: {
         auto: "w-auto",
@@ -28,18 +28,30 @@ const toggleContainerVariants = cva(
 );
 
 const toggleButtonVariants = cva(
-  "inline-flex items-center justify-center rounded px-3 py-1 font-medium transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1 sm:flex-initial",
+  "inline-flex items-center justify-center rounded-md px-3 py-1 transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1 sm:flex-initial relative z-10",
   {
     variants: {
       variant: {
-        active: "bg-primary text-primary-foreground shadow-sm font-semibold",
-        inactive:
-          "text-muted-foreground hover:text-foreground hover:bg-background/50",
+        active: [
+          "bg-primary text-primary-foreground",
+          "font-bold tracking-wide",
+          "shadow-md shadow-primary/20",
+          "ring-2 ring-primary/30 ring-offset-1 ring-offset-background/50",
+          "border-2 border-primary",
+          "scale-[1.02]",
+        ].join(" "),
+        inactive: [
+          "text-muted-foreground hover:text-foreground",
+          "font-medium",
+          "bg-background/30 hover:bg-background/50",
+          "border-2 border-transparent",
+          "hover:border-input/50",
+        ].join(" "),
       },
       size: {
-        sm: "h-6 min-w-[2.5rem] text-xs",
-        default: "h-7 min-w-[3rem] text-sm",
-        lg: "h-8 min-w-[3.5rem] text-base",
+        sm: "h-7 min-w-[2.5rem] text-xs",
+        default: "h-8 min-w-[3rem] text-sm",
+        lg: "h-9 min-w-[3.5rem] text-base",
       },
     },
     defaultVariants: {
@@ -111,6 +123,7 @@ const EraToggle = React.forwardRef<HTMLDivElement, EraToggleProps>(
         role="radiogroup"
         aria-label="Select era: BC or AD"
         aria-disabled={disabled}
+        aria-live="polite"
         className={cn(toggleContainerVariants({ size, width }), className)}
         onKeyDown={handleKeyDown}
         {...props}
@@ -119,7 +132,7 @@ const EraToggle = React.forwardRef<HTMLDivElement, EraToggleProps>(
           type="button"
           role="radio"
           aria-checked={value === "BC"}
-          aria-label={showLabels ? undefined : "BC era"}
+          aria-label={showLabels ? undefined : "BC - Before Common Era"}
           className={cn(
             toggleButtonVariants({
               variant: value === "BC" ? "active" : "inactive",
@@ -128,12 +141,17 @@ const EraToggle = React.forwardRef<HTMLDivElement, EraToggleProps>(
           )}
           onClick={() => handleButtonClick("BC")}
           disabled={disabled}
-          whileTap={!disabled ? { scale: 0.95 } : undefined}
+          whileTap={!disabled ? { scale: 0.98 } : undefined}
+          whileHover={!disabled && value !== "BC" ? { scale: 1.02 } : undefined}
           animate={{
-            backgroundColor:
-              value === "BC" ? "hsl(var(--primary))" : "transparent",
+            opacity: value === "BC" ? 1 : 0.8,
           }}
-          transition={{ duration: 0.2 }}
+          transition={{
+            type: "spring",
+            stiffness: 400,
+            damping: 25,
+            duration: 0.15,
+          }}
         >
           BC
         </motion.button>
@@ -141,7 +159,7 @@ const EraToggle = React.forwardRef<HTMLDivElement, EraToggleProps>(
           type="button"
           role="radio"
           aria-checked={value === "AD"}
-          aria-label={showLabels ? undefined : "AD era"}
+          aria-label={showLabels ? undefined : "AD - Anno Domini (Common Era)"}
           className={cn(
             toggleButtonVariants({
               variant: value === "AD" ? "active" : "inactive",
@@ -150,12 +168,17 @@ const EraToggle = React.forwardRef<HTMLDivElement, EraToggleProps>(
           )}
           onClick={() => handleButtonClick("AD")}
           disabled={disabled}
-          whileTap={!disabled ? { scale: 0.95 } : undefined}
+          whileTap={!disabled ? { scale: 0.98 } : undefined}
+          whileHover={!disabled && value !== "AD" ? { scale: 1.02 } : undefined}
           animate={{
-            backgroundColor:
-              value === "AD" ? "hsl(var(--primary))" : "transparent",
+            opacity: value === "AD" ? 1 : 0.8,
           }}
-          transition={{ duration: 0.2 }}
+          transition={{
+            type: "spring",
+            stiffness: 400,
+            damping: 25,
+            duration: 0.15,
+          }}
         >
           AD
         </motion.button>

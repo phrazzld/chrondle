@@ -7,7 +7,6 @@ import React, {
   useRef,
   useEffect,
   KeyboardEvent,
-  useMemo,
 } from "react";
 import { isValidYear } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
@@ -15,11 +14,7 @@ import { Input } from "@/components/ui/input";
 import { EraToggle } from "@/components/ui/EraToggle";
 import { validateGuessInputProps } from "@/lib/propValidation";
 import type { Era } from "@/lib/eraUtils";
-import {
-  convertToInternalYear,
-  isValidEraYear,
-  formatEraYear,
-} from "@/lib/eraUtils";
+import { convertToInternalYear, isValidEraYear } from "@/lib/eraUtils";
 
 interface GuessInputProps {
   onGuess: (guess: number) => void;
@@ -51,13 +46,6 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
   const [era, setEra] = useState<Era>("AD");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Real-time formatted display
-  const formattedYear = useMemo(() => {
-    const yearValue = parseInt(year, 10);
-    if (isNaN(yearValue) || yearValue <= 0) return "";
-    return formatEraYear(yearValue, era);
-  }, [year, era]);
 
   // Auto-focus on mount and after submission
   useEffect(() => {
@@ -182,18 +170,8 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
               required
               disabled={disabled}
               aria-label={`Enter your year guess. Current era: ${era}. Use arrow keys to increment or decrement.`}
-              aria-describedby={formattedYear ? "formatted-year" : undefined}
+              aria-describedby={undefined}
             />
-            {/* Real-time formatted display */}
-            {formattedYear && (
-              <div
-                id="formatted-year"
-                className="mt-1 text-sm text-muted-foreground font-medium"
-                aria-live="polite"
-              >
-                {formattedYear}
-              </div>
-            )}
           </div>
 
           {/* BC/AD Era Toggle */}
@@ -213,7 +191,7 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
           type="submit"
           disabled={isSubmitDisabled}
           size="lg"
-          aria-label={`Submit guess for ${formattedYear || "year"} (${remainingGuesses} remaining)`}
+          aria-label={`Submit guess (${remainingGuesses} remaining)`}
           className={`h-12 px-8 text-lg font-accent font-semibold tracking-wide transition-all duration-200 w-full ${
             isSubmitting
               ? "scale-105 bg-primary/90 shadow-lg animate-pulse"

@@ -285,26 +285,26 @@ describe("GuessInput Component Interface", () => {
       expect(bcButton.getAttribute("aria-checked")).toBe("false");
     });
 
-    it("displays formatted year in real-time", async () => {
+    it("allows switching between BC and AD eras", async () => {
       render(<GuessInput {...defaultProps} />);
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
 
-      // Type AD year
+      // Type year
       fireEvent.change(input, { target: { value: "1969" } });
 
-      await waitFor(() => {
-        const formattedDisplay = document.getElementById("formatted-year");
-        expect(formattedDisplay?.textContent).toBe("1969 AD");
-      });
+      // Verify AD is selected by default
+      const adButton = screen.getByRole("radio", { name: /AD/i });
+      expect(adButton.getAttribute("aria-checked")).toBe("true");
 
       // Switch to BC
       const bcButton = screen.getByRole("radio", { name: /BC/i });
       fireEvent.click(bcButton);
 
+      // Verify BC is now selected
       await waitFor(() => {
-        const formattedDisplay = document.getElementById("formatted-year");
-        expect(formattedDisplay?.textContent).toBe("1969 BC");
+        expect(bcButton.getAttribute("aria-checked")).toBe("true");
+        expect(adButton.getAttribute("aria-checked")).toBe("false");
       });
     });
 
@@ -352,28 +352,24 @@ describe("GuessInput Component Interface", () => {
       const bcButton = screen.getByRole("radio", { name: /BC/i });
       const adButton = screen.getByRole("radio", { name: /AD/i });
 
-      // Start with AD year
+      // Start with AD year (default)
       fireEvent.change(input, { target: { value: "100" } });
-
-      await waitFor(() => {
-        const formattedDisplay = document.getElementById("formatted-year");
-        expect(formattedDisplay?.textContent).toBe("100 AD");
-      });
+      expect(adButton.getAttribute("aria-checked")).toBe("true");
 
       // Switch to BC without changing input
       fireEvent.click(bcButton);
 
       await waitFor(() => {
-        const formattedDisplay = document.getElementById("formatted-year");
-        expect(formattedDisplay?.textContent).toBe("100 BC");
+        expect(bcButton.getAttribute("aria-checked")).toBe("true");
+        expect(adButton.getAttribute("aria-checked")).toBe("false");
       });
 
       // Switch back to AD
       fireEvent.click(adButton);
 
       await waitFor(() => {
-        const formattedDisplay = document.getElementById("formatted-year");
-        expect(formattedDisplay?.textContent).toBe("100 AD");
+        expect(adButton.getAttribute("aria-checked")).toBe("true");
+        expect(bcButton.getAttribute("aria-checked")).toBe("false");
       });
     });
   });
@@ -391,18 +387,6 @@ describe("GuessInput Component Interface", () => {
 
       expect(ariaLabel).toContain("Current era: AD");
       expect(ariaLabel).toContain("arrow keys");
-    });
-
-    it("announces formatted year to screen readers", async () => {
-      render(<GuessInput {...defaultProps} />);
-
-      const input = screen.getByRole("textbox") as HTMLInputElement;
-      fireEvent.change(input, { target: { value: "1969" } });
-
-      await waitFor(() => {
-        const formattedDisplay = document.getElementById("formatted-year");
-        expect(formattedDisplay?.getAttribute("aria-live")).toBe("polite");
-      });
     });
 
     it("maintains ARIA radiogroup for era toggle", () => {
