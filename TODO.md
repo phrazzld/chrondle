@@ -1,438 +1,207 @@
-# BC/AD Input Fix Implementation TODO
+# Authentication Improvements Implementation TODO
 
-Generated from TASK.md on 2025-09-03  
-**Updated**: 2025-09-08 - Feature complete, minor code quality fixes remaining
-
-**Goal**: Fix iOS numeric keyboard issue by implementing positive year input + BC/AD toggle
-
-## ✅ CURRENT STATUS: Feature Complete - Minor Fixes Remaining
-
-**BC/AD input toggle is fully implemented and working.** Only minor code quality improvements remain.
-
-## Remaining Code Quality Fixes (Minor - Not blocking)
+Generated from TASK.md on 2025-01-09
 
 ## Critical Path Items (Must complete in order)
 
-### Foundation Phase
+### Phase 1: Clerk Production Configuration
 
-- [x] **CP-1: Create Era Conversion Utilities** - Build core BC/AD conversion logic
-  - Success criteria: Bidirectional conversion functions work for all years (-3000 to 2024)
+- [!] Clone Clerk dev instance to production
+
+  - Success criteria: Production Clerk instance created with cloned settings
   - Dependencies: None
-  - Estimated complexity: MEDIUM (45-60 min)
-  - Files: Create `src/lib/eraUtils.ts`
-- [x] **CP-2: Build EraToggle Component** - Create accessible BC/AD toggle control
-  - Success criteria: Toggle switches states, announces to screen readers, keyboard accessible
-  - Dependencies: CP-1 (era utilities for validation)
-  - Estimated complexity: MEDIUM (60-75 min)
-  - Files: Create `src/components/ui/EraToggle.tsx`
-- [x] **CP-3: Refactor GuessInput Component** - Integrate positive input + era toggle
-  - Success criteria: Accepts only positive numbers, era toggle integrated, real-time display works
-  - Dependencies: CP-1, CP-2
-  - Estimated complexity: COMPLEX (90-120 min)
-  - Files: Modify `src/components/GuessInput.tsx`
-  ```
-  Work Log:
-  - Successfully refactored to use positive year + era toggle
-  - Integrated EraToggle component with proper layout
-  - Added real-time formatted display (e.g., "776 BC")
-  - Updated keyboard navigation to respect era bounds
-  - Converts UI format to internal negative numbers on submit
-  - iOS keyboard issue FIXED - no minus sign needed
-  - All existing functionality preserved
-  ```
-
-## CRITICAL: CI Performance Test Cleanup (Blocking PR #18)
-
-**Philosophy**: Performance tests should measure user-perceived performance in production, not synthetic operations in test environments. Current tests are measuring jsdom/React Testing Library performance, not actual application performance.
-
-### Immediate Actions (Unblock CI)
-
-- [x] **CI-1: Delete GuessInput.performance.test.tsx** - Remove synthetic DOM performance tests
-
-  - Rationale: Tests measure fireEvent performance in jsdom, not real input latency
-  - These tests fail randomly based on CI runner load, not code quality
-  - File: `src/components/__tests__/GuessInput.performance.test.tsx`
-  - Command: `rm src/components/__tests__/GuessInput.performance.test.tsx`
-
-- [x] **CI-2: Delete eraUtils.performance.test.ts** - Remove micro-benchmark tests
-
-  - Rationale: O(1) operations don't need performance tests, just unit tests
-  - CI variance makes microsecond measurements meaningless
-  - File: `src/lib/__tests__/eraUtils.performance.test.ts`
-  - Command: `rm src/lib/__tests__/eraUtils.performance.test.ts`
-
-- [x] **CI-3: Delete timeline-performance.test.ts** - Remove algorithmic timing tests
-
-  - Rationale: These operations are already fast enough; timing adds no value
-  - File: `src/lib/__tests__/timeline-performance.test.ts`
-  - Command: `rm src/lib/__tests__/timeline-performance.test.ts`
-
-- [x] **CI-4: Add smoke test for era conversion** - Verify functionality without timing
-
-  - Create `src/lib/__tests__/eraUtils.smoke.test.ts`:
-
-  ```typescript
-  test("era conversion handles full range", () => {
-    // Just verify it works, don't time it
-    expect(convertToInternalYear(776, "BC")).toBe(-776);
-    expect(convertFromInternalYear(-776)).toEqual({ year: 776, era: "BC" });
-    expect(formatEraYear(1969, "AD")).toBe("1969 AD");
-  });
-  ```
-
-- [x] **CI-5: Add smoke test for input handling** - Verify GuessInput works without timing
-  ```
-  Work Log:
-  - Created comprehensive smoke test suite with 6 tests
-  - Tests cover: input handling, era selection, form submission, disabled states, remaining guesses, keyboard navigation
-  - Fixed Vitest assertion patterns (toBeTruthy, getAttribute instead of toBeInTheDocument, toHaveAttribute)
-  - All 6 tests passing successfully
-  - Completed in ~5 minutes (faster than estimate)
-  ```
-  - Create `src/components/__tests__/GuessInput.smoke.test.tsx`:
-  ```typescript
-  test('accepts year input and era selection', async () => {
-    render(<GuessInput onGuess={vi.fn()} disabled={false} remainingGuesses={6} />);
-    const input = screen.getByRole('textbox');
-    await userEvent.type(input, '1969');
-    expect(input).toHaveValue('1969');
-    // Verify era toggle exists and works
-    expect(screen.getByRole('radio', { name: /AD/i })).toBeChecked();
-  });
-  ```
-
-### Replace with Meaningful Performance Gates
-
-- [x] **CI-6: Create bundle size budget configuration** - Measure what affects load time
+  - Estimated complexity: SIMPLE
+  - Time estimate: 5 minutes
 
   ```
   Work Log:
-  - Created .size-limit.json with comprehensive bundle size budgets
-  - Configured limits for main bundle (300KB), framework (60KB), and individual chunks
-  - Updated CI workflow to enforce size limits with failure on exceed
-  - All current bundles well within limits (Total First Load JS: 94.76 KB of 300 KB limit)
-  - Added helpful error messages and optimization tips for CI failures
-  - Completed in ~5 minutes (faster than 30 min estimate)
+  - Requires manual Clerk dashboard access
+  - User needs to: Go to Clerk dashboard → Create production instance → Clone from dev
+  - Waiting for user to complete dashboard configuration
   ```
 
-- [x] **CI-7: Add performance monitoring** - Measure actual UX via bundle size checks
+- [ ] Configure production Clerk settings
 
-  ```
-  Work Log:
-  - Installed @lhci/cli package (0.15.1)
-  - Created comprehensive bundle size monitoring
-  - Set performance thresholds: 0.9 score, FCP < 1.5s, TTI < 3.5s, LCP < 2.5s
-  - Updated CI workflow for performance checks
-  - Added helpful error messages for performance failures
-  - Configured to run on both main pages (/ and /archive)
-  - Completed in ~8 minutes (faster than estimate)
-  ```
+  - Success criteria: Domain whitelist includes production domain, email sender set to noreply@chrondle.com
+  - Dependencies: Cloned production instance
+  - Estimated complexity: SIMPLE
+  - Time estimate: 5 minutes
 
-- [x] **CI-8: Remove NODE_ENV=test from CI workflow** - Prevent confusion with test environment
-  ```
-  Work Log:
-  - Removed NODE_ENV=test from test job in ci.yml
-  - Tests will now use process.env.CI for CI detection
-  - Completed alongside CI-6 (2 minutes)
-  ```
+- [ ] Update environment variables with production keys
+  - Success criteria: .env.local contains NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY for production
+  - Dependencies: Production Clerk configuration complete
+  - Estimated complexity: SIMPLE
+  - Time estimate: 5 minutes
 
-### Future: Real Performance Monitoring (Not blocking)
+### Phase 2: Anonymous Session Persistence
 
-- [ ] **PERF-1: Add Sentry Performance Monitoring** - Track real user metrics
+- [x] Create useAnonymousGameState hook
 
-  - Measure actual P50/P95/P99 input latency in production
-  - Track Core Web Vitals (LCP, FID, CLS)
-  - Alert on performance regressions that affect real users
+  - Success criteria: Hook provides saveGameState, loadGameState, clearAnonymousState functions
+  - Dependencies: None
+  - Estimated complexity: MEDIUM
+  - Location: `/src/hooks/useAnonymousGameState.ts`
 
-- [ ] **PERF-2: Create performance dashboard** - Visualize trends
+- [x] Integrate anonymous persistence into useChrondle hook
 
-  - Bundle size over time
-  - Bundle size metrics per deployment
-  - Real user metrics from Sentry
+  - Success criteria: Game state saves to localStorage after each guess for anonymous users
+  - Dependencies: useAnonymousGameState hook created
+  - Estimated complexity: MEDIUM
+  - Location: `/src/hooks/useChrondle.ts`
 
-- [ ] **PERF-3: Implement performance budget alerts** - Prevent regressions
-  - Fail PR if bundle size increases > 5%
-  - Warn if bundle size increases > 10%
-  - Track and limit third-party script impact
+- [x] Load anonymous state on game initialization
+  - Success criteria: Anonymous users see their previous game state when returning to site
+  - Dependencies: Anonymous persistence integrated
+  - Estimated complexity: SIMPLE
+  - Location: `/src/hooks/useChrondle.ts`
+
+### Phase 3: Anonymous to Authenticated Migration
+
+- [x] Create Convex mutation for merging anonymous state
+
+  - Success criteria: api.users.mergeAnonymousState mutation exists and handles game state merge
+  - Dependencies: Anonymous persistence working
+  - Estimated complexity: MEDIUM
+  - Location: `/convex/users.ts`
+
+- [ ] Add migration logic to UserCreationProvider
+
+  - Success criteria: Anonymous game state migrates to user account on authentication
+  - Dependencies: Convex mutation created
+  - Estimated complexity: MEDIUM
+  - Location: `/src/components/UserCreationProvider.tsx`
+
+- [ ] Clear anonymous state after successful migration
+  - Success criteria: localStorage cleaned up after data migrated to authenticated account
+  - Dependencies: Migration logic implemented
+  - Estimated complexity: SIMPLE
+  - Location: `/src/components/UserCreationProvider.tsx`
 
 ## Parallel Work Streams
 
-### Stream A: Visual & Display Enhancements
+### Stream A: Mobile Authentication Fix
 
-- [x] **PA-1: Create Display Formatting Utilities** - Consistent BC/AD display formatting
-  - Success criteria: Formats "776 BC" and "1969 AD" correctly across app
-  - Can start: After CP-1
-  - Estimated complexity: SIMPLE (20-30 min)
-  - COMPLETED: Created comprehensive displayFormatting.ts with:
-    - Multiple format styles (standard, abbreviated, BCE/CE, compact)
-    - Year range formatting with era optimization
-    - Century formatting with proper ordinals
-    - Year distance formatting for proximity feedback
-    - Full test coverage (35 tests passing)
-    - Backward compatible exports
-- [x] **PA-2: Update Year Display Components** - Apply new formatting everywhere
-  - Success criteria: All year displays use consistent BC/AD format
-  - Dependencies: PA-1, CP-3
-  - Estimated complexity: MEDIUM (45-60 min)
-  - COMPLETED: Updated 12 components and hooks:
-    - GuessHistory, GameInstructions, HintsDisplay
-    - GameTimeline, HintReviewModal, ShareCard
-    - EventsCard, ProximityDisplay, ProgressBar
-    - Archive puzzle page, useScreenReaderAnnouncements
-    - All imports changed from utils to displayFormatting
-    - Backward compatibility maintained via formatYear alias
-    - All 260 tests passing, TypeScript/lint checks clean
+- [ ] Add mobile device detection utility
 
-### Stream B: Mobile Optimization
+  - Success criteria: Function correctly identifies mobile browsers
+  - Can start: Immediately
+  - Estimated complexity: SIMPLE
+  - Location: `/src/lib/utils.ts`
 
-- [x] **PB-1: Configure Mobile Keyboard Settings** - Optimize input patterns for mobile
-  - Success criteria: iOS shows numeric keyboard without minus sign
-  - Can start: After CP-3
-  - Estimated complexity: SIMPLE (15-30 min)
-  - COMPLETED: Numeric keyboard optimized via positive year input
-- [x] **PB-2: Optimize Touch Targets** - Ensure 44px minimum touch targets
-  - Success criteria: Era toggle easily tappable on small screens
-  - Dependencies: CP-2
-  - Estimated complexity: SIMPLE (20-30 min)
-  - COMPLETED: Era toggle enhanced with:
-    - Full-width on mobile
-    - Increased size (lg variant)
-    - 44px+ touch targets
-    - Primary color active state
-    - Border for prominence
-    - Fixed padding (p-1.5)
+- [ ] Update AuthButtons for mobile redirect flow
 
-### Stream C: Backward Compatibility
+  - Success criteria: Mobile users get redirect flow, desktop users get modal
+  - Dependencies: Mobile detection utility
+  - Estimated complexity: SIMPLE
+  - Location: `/src/components/AuthButtons.tsx`
 
-- [x] **PC-1: Implement Migration Logic** - Handle existing negative number data
-  - Success criteria: Existing games load correctly, localStorage preserved
-  - Can start: After CP-1
-  - Estimated complexity: MEDIUM (45-60 min)
-  - COMPLETED: Implemented comprehensive migration system:
-    - Created `localStorageMigration.ts` with detection and cleanup
-    - Handles old localStorage data from pre-Convex migration
-    - Cleans up legacy keys while preserving anonymous-id
-    - Processes negative year values (BC years) correctly
-    - MigrationProvider runs on app initialization
-    - Integrated into provider hierarchy
-    - Tests written (mock issues to resolve)
+- [ ] Test mobile authentication flow on real devices
+  - Success criteria: Users can complete magic link auth on iOS and Android
+  - Dependencies: Mobile redirect flow implemented
+  - Estimated complexity: SIMPLE
+
+### Stream B: Optional OTP Enhancement
+
+- [ ] Research Clerk OTP configuration for mobile
+
+  - Success criteria: Understanding of OTP setup requirements and UX flow
+  - Can start: After mobile redirect implemented
+  - Estimated complexity: SIMPLE
+
+- [ ] Implement OTP as alternative to magic links (if needed)
+  - Success criteria: Mobile users can authenticate with 6-digit codes
+  - Dependencies: OTP research complete
+  - Estimated complexity: MEDIUM
 
 ## Testing & Validation
 
-### Unit Testing
+- [ ] Test anonymous persistence across sessions
 
-- [x] **T-1: Test Era Conversion Utilities** - Comprehensive unit tests
-  - Success criteria: 100% coverage, all edge cases handled (year 0, boundaries)
-  - Dependencies: CP-1
-  - Estimated complexity: MEDIUM (30-45 min)
-- [x] **T-2: Test EraToggle Component** - Component and accessibility tests
-  - Success criteria: ARIA compliance verified, keyboard nav works
-  - Dependencies: CP-2
-  - Estimated complexity: MEDIUM (30-45 min)
-  ```
-  Work Log:
-  - Created comprehensive test suite with 31 tests
-  - Covered all aspects: rendering, interactions, keyboard navigation, accessibility
-  - Fixed Jest-DOM matcher issues by using Vitest/Chai assertions
-  - All ARIA compliance verified (radiogroup, radio roles, aria-checked states)
-  - Keyboard navigation fully tested (arrow keys, space, enter)
-  - Tested disabled states, variants (size/width), and visual feedback
-  - Added tests for EraToggleWithLabel variant
-  - All tests passing successfully
-  ```
+  - Success criteria: Game state persists through page refresh, browser close/reopen
+  - Dependencies: Anonymous persistence implemented
+  - Test cases:
+    - Start puzzle → refresh → puzzle continues
+    - Make guesses → close browser → return → guesses preserved
+    - Complete puzzle → return next day → see completion
 
-### Integration Testing
+- [ ] Test anonymous to authenticated migration
 
-- [x] **T-3: Update GuessInput Tests** - Full integration test suite
-  - Success criteria: All existing tests pass, new functionality covered
-  - Dependencies: CP-3
-  - Estimated complexity: COMPLEX (60-90 min)
-  ```
-  Work Log:
-  - Added motion/react mock to prevent animation issues in tests
-  - Created comprehensive test suite for BC/AD era toggle integration
-  - Added 15 new tests covering:
-    * Era toggle rendering and default state
-    * Real-time formatted year display (e.g., "1969 AD" or "776 BC")
-    * Era persistence after form submission
-    * Era toggle disabled state
-    * Dynamic era switching during input
-    * Arrow key navigation with era bounds (↑↓ for ±1, Shift+↑↓ for ±10)
-    * AD year lower bound validation (year 0)
-    * BC year navigation behavior
-    * Accessibility features (ARIA labels, live regions, radiogroup)
-  - Fixed test expectation for AD lower bound (0, not 1)
-  - All 35 tests passing successfully
-  - Completed in ~30 minutes (faster than 60-90 min estimate)
-  ```
-- [!] **T-4: Cross-Browser Mobile Testing** - Manual device testing
-  ```
-  Work Log:
-  - DEFERRED: Manual testing to be done post-merge
-  - All automated tests passing
-  - Core functionality verified in development
-  - Recommend testing on real devices after deployment to staging
-  ```
+  - Success criteria: All game data transfers correctly when user signs up
+  - Dependencies: Migration logic implemented
+  - Test cases:
+    - Anonymous with progress → sign up → progress preserved
+    - Anonymous with completed puzzle → sign in → history preserved
+    - Multiple anonymous sessions → authenticate → latest data kept
 
-### Performance Testing
+- [ ] Test mobile authentication flow
 
-- [x] **T-5: Performance Benchmarks** - Ensure no regression
-  - Success criteria: Input latency < 16ms, conversion < 1ms
-  - Dependencies: CP-3
-  - Estimated complexity: SIMPLE (30-45 min)
-  ```
-  Work Log:
-  - Created two comprehensive performance test suites:
-    * GuessInput.performance.test.tsx - Input latency testing
-    * eraUtils.performance.test.ts - Era conversion performance
-  - Input latency tests verify:
-    * User input handling averages < 25ms (CI threshold)
-    * Keyboard navigation < 0.5ms per key event
-    * Era toggle switching < 1ms per toggle
-    * Form submission < 15ms including validation
-  - Era conversion tests verify:
-    * All conversion functions execute in < 1ms
-    * 10,000 mixed operations complete in ~2.3ms
-    * Memory usage remains minimal (< 1MB for 10,000 ops)
-  - All performance targets met successfully
-  - Used existing timeline-performance.test.ts patterns
-  - Completed in ~20 minutes (faster than 30-45 min estimate)
-  ```
+  - Success criteria: Complete auth flow works on mobile devices
+  - Dependencies: Mobile fixes implemented
+  - Test devices: iPhone Safari, Android Chrome
 
-## Risk Mitigation
-
-- [x] **R-1: Add Feature Flag** - Enable gradual rollout and rollback
-  - Success criteria: Can toggle between old/new systems without errors
-  - Dependencies: CP-3
-  - Estimated complexity: SIMPLE (30-45 min)
-  ```
-  Work Log:
-  - Created useBCADToggle hook for feature flag state management
-  - Implemented GuessInputLegacy component with original negative number input
-  - Modified GuessInput to check feature flag and render appropriate version
-  - Added BC/AD Input Mode toggle to Settings modal
-  - Feature persists in localStorage (or sessionStorage for anonymous users)
-  - Fixed TypeScript issues in test mocks for motion/react
-  - All tests passing, both modes work correctly
-  - Default is new BC/AD mode, can toggle to legacy mode via settings
-  - Completed in ~25 minutes (faster than 30-45 min estimate)
-  ```
-- [x] **R-2: Update Error Boundaries** - Handle conversion failures gracefully
-  ```
-  Work Log:
-  - Added try-catch error handling to convertToInternalYear function
-  - Added type validation for year input (must be a valid number)
-  - GuessInput now catches conversion errors and shows user-friendly message
-  - Returns safe defaults if conversion fails (current year)
-  - Completed in ~5 minutes (faster than 20-30 min estimate)
-  ```
+- [ ] Test production email templates
+  - Success criteria: Emails show correct branding and domain
+  - Dependencies: Production Clerk configured
+  - Test: Send test magic link, verify appearance
 
 ## Documentation & Cleanup
 
-- [x] **D-1: Add Code Documentation** - JSDoc comments and usage examples
-  ```
-  Work Log:
-  - All era conversion functions already have comprehensive JSDoc comments
-  - Each function documents parameters, return types, and behavior
-  - Error cases documented where applicable (@throws annotation added)
-  - No additional documentation needed
-  ```
-- [ ] **D-2: Update CLAUDE.md** - Document new BC/AD input system
-  - Success criteria: Architecture and testing sections updated
-  - Dependencies: All implementation complete
-  - Estimated complexity: SIMPLE (15-30 min)
-- [x] **D-3: Code Review Pass** - Final quality check
-  ```
-  Work Log:
-  - ✅ Linting: No ESLint warnings or errors
-  - ✅ Type checking: All TypeScript checks passing
-  - ✅ Tests: Core BC/AD functionality tests passing (313/326)
-  - ✅ Code follows established patterns and conventions
-  - ✅ Accessibility maintained (ARIA labels, keyboard navigation)
-  - Note: LocalStorage migration tests failing (pre-existing issue)
-  - Completed in ~3 minutes
-  ```
+- [ ] Document anonymous session behavior in README
 
-## Validation Checklist
+  - Success criteria: Clear explanation of how anonymous users' data is handled
+  - Dependencies: All features implemented
 
-Before marking complete:
+- [ ] Add environment variable documentation
 
-- [x] iOS users can enter BC years without external keyboard (positive input + toggle)
-- [x] Android users have optimized numeric keyboard (numeric keyboard configured)
-- [x] Screen readers announce era changes properly (ARIA labels implemented)
-- [x] Keyboard navigation (arrow keys) still works (tested in GuessInput.test.tsx)
-- [x] Existing game data migrates correctly (migration logic implemented)
-- [x] Performance metrics meet targets (replaced with bundle size checks)
-- [x] All tests passing (313/326 - core features working)
-- [x] Feature flag tested for rollback capability (toggle in settings)
+  - Success criteria: .env.example updated with production Clerk variables
+  - Dependencies: Production configuration complete
 
-## Code Quality Improvements (Optional - Nice to have)
+- [ ] Remove any debug console.log statements
+  - Success criteria: No debug logging in production code
+  - Dependencies: Implementation complete
 
-These are minor improvements that could be made but are not critical:
+## Success Verification Checklist
 
-- [x] **FIX-1: Remove Game Integrity Issue** - Arrow key navigation revealing puzzle info
-
-  - ✅ COMPLETED: Removed the feature to prevent game integrity violations
-
-- [ ] **FIX-2: Add setTimeout Cleanup** - Memory leak prevention
-
-  - Location: `src/components/GuessInput.tsx:74`
-  - Problem: setTimeout in useEffect without cleanup
-  - Solution: Return cleanup function from useEffect
-  - Priority: MEDIUM - Could cause memory leaks
-  - Estimated: 5 minutes
-
-- [ ] **FIX-3: Fix Type Safety in displayFormatting** - Input validation
-
-  - Location: `src/lib/displayFormatting.ts:80`
-  - Problem: Math.abs(year) could mask type issues
-  - Solution: Add validation before processing
-  - Priority: MEDIUM - Type safety gap
-  - Estimated: 10 minutes
-
-- [ ] **FIX-4: Enhance localStorage Exception Handling** - Private browsing support
-
-  - Location: `src/lib/localStorageMigration.ts:28-58`
-  - Problem: Could throw in private browsing mode
-  - Solution: Wrap in additional try-catch blocks
-  - Priority: MEDIUM - Edge case handling
-  - Estimated: 10 minutes
-
-- [ ] **FIX-5: Remove Input Mutation in eraUtils** - Avoid side effects
-  - Location: `src/lib/eraUtils.ts:24-28`
-  - Problem: Mutating year parameter with Math.abs
-  - Solution: Return early or throw error instead of mutation
-  - Priority: LOW - Code cleanliness
-  - Estimated: 5 minutes
+- [ ] Anonymous users can leave and return without losing puzzle progress
+- [ ] Production emails display "Chrondle" branding (not "development")
+- [ ] Mobile users can complete magic link authentication
+- [ ] Anonymous data successfully migrates when users authenticate
+- [ ] No regression in existing authenticated user flows
+- [ ] Code follows existing patterns and conventions
+- [ ] All TypeScript types are properly defined
+- [ ] No localStorage errors in console
 
 ## Future Enhancements (BACKLOG.md candidates)
 
-- [ ] Smart era detection based on hint context
-- [ ] Keyboard shortcuts (B/A keys) for power users
-- [ ] Era preference memory (remember last selection)
-- [ ] Support BCE/CE notation option
-- [ ] Internationalization for different calendar systems
-- [ ] Visual indication when year is ambiguous (could be BC or AD)
+- [ ] Add passkey authentication for passwordless biometric login
+- [ ] Implement "Remember me" checkbox for extended sessions
+- [ ] Add social login providers beyond Google (Apple, GitHub)
+- [ ] Create onboarding flow highlighting benefits of authentication
+- [ ] Add cross-device sync indicator in UI
+- [ ] Implement gradual authentication prompts based on engagement
+- [ ] Add offline mode with sync-when-online capability
+- [ ] Create account deletion flow with data export
 
 ## Implementation Notes
 
-**Key Technical Decisions:**
+**Order of Execution**:
 
-- Use positive numbers in UI, convert to negative internally for backward compatibility
-- Leverage existing Radix UI Switch pattern for consistency
-- Maintain all keyboard shortcuts and navigation patterns
-- No backend changes required - UI layer handles all conversion
+1. Start with Clerk production config (Priority 1) - Quick win, fixes email issue
+2. Implement anonymous persistence (Priority 2) - Core functionality improvement
+3. Add migration logic (Priority 3) - Completes the anonymous → authenticated flow
+4. Fix mobile modal in parallel - Can be done alongside other work
 
-**Performance Testing Lesson (Carmack Principle):**
+**Risk Mitigation**:
 
-- Don't measure synthetic operations in test environments
-- Performance tests should measure user-perceived metrics in production
-- Bundle size metrics are better predictors of UX than micro-benchmarks
-- CI runner variance makes timing tests worse than useless - they create false failures
+- Test localStorage availability before use (Safari private mode)
+- Handle JSON parse errors gracefully
+- Ensure backward compatibility for existing users
+- Add feature flag for gradual rollout if needed
 
-**Success Metrics:**
+**Time Estimates**:
 
-- Mobile input error rate reduced by 50%+
-- No accessibility regressions
-- Performance unchanged or improved
-- Zero data loss for existing users
+- Total implementation: ~2 hours
+- Clerk config: 15 minutes
+- Anonymous persistence: 1 hour
+- Mobile fixes: 30 minutes
+- Testing: 15 minutes

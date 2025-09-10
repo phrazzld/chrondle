@@ -7,9 +7,6 @@
 - [ ] fix streak counter
 - [ ] fix reminders to actually work
 - [ ] fix archive mobile styling (mostly padding)
-- [ ] clerk auth email still says development
-- [ ] clerk auth modal closes when switching apps on mobile, which makes it impossible to use magic link auth
-- [ ] auth should manage anonymous sessions better, leaving the site and coming back shouldn't nuke your puzzle progress / history even for anon users
 
 ### Cost Monitoring & Management
 
