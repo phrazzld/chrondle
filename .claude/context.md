@@ -19,6 +19,97 @@
 - **Test-Driven Validation**: Write comprehensive test suites (35+ tests) covering all functionality before implementation
 - **Style Flexibility Planning**: Include multiple formatting styles (standard, abbreviated, BCE/CE, compact) even if not immediately needed
 
+### Discovery-First Development Pattern
+
+- **Pattern-Scout Strategy**: Always search for existing utilities before building new ones
+  ```bash
+  # ✅ Standard discovery pattern for Chrondle
+  rg "isMobile|mobile.*detect" --type ts  # Find mobile detection
+  find . -name "*platform*" -o -name "*device*"  # Find device utilities
+  ```
+- **Time Estimation Accuracy**: Discovery-first approach dramatically improves time estimates (15 min actual vs 30 min estimated)
+- **Code Reuse Maximization**: Existing utilities like `platformDetection.ts` often have comprehensive implementations already available
+- **Implementation Efficiency**: Finding existing patterns allows extending rather than building from scratch
+
+### Search Tool Performance Optimization
+
+- **Ripgrep Over Grep**: Use `rg` instead of `grep` for significantly faster search performance in codebases
+
+  ```bash
+  # ✅ Fast search with ripgrep
+  rg "console.log" --type ts -n  # Line numbers, TypeScript only
+
+  # ❌ Slower alternative
+  grep -r "console.log" . --include="*.ts"
+  ```
+
+- **Type Filtering Benefits**: `--type ts` parameter provides focused results without noise from node_modules or build artifacts
+- **Context Awareness**: Use `-A 2 -B 2` flags to get surrounding context for better understanding of code patterns
+
+### Multi-File Editing Efficiency
+
+- **MultiEdit Tool Requirements**: Exact string matching required - copy context directly from file content, not paraphrased
+
+  ```bash
+  # ✅ Exact match required for MultiEdit success
+  console.groupCollapsed("🎯 Game state after makeGuess:");
+
+  # ❌ Paraphrased version fails
+  console.groupCollapsed("Game state after makeGuess");
+  ```
+
+- **Context Window Strategy**: Provide 2-3 lines of surrounding context for reliable matching
+- **Batch Operations**: MultiEdit allows efficient removal of debug statements across multiple files simultaneously
+
+### Mobile Device Detection Patterns
+
+- **SSR-Safe Implementation**: Mobile detection utilities must handle server-side rendering gracefully
+  ```typescript
+  // ✅ Pattern from platformDetection.ts
+  export const isMobile = (): boolean => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth <= 768;
+  };
+  ```
+- **Comprehensive Device Coverage**: Existing utilities often cover more cases than initially needed (mobile, tablet, desktop)
+- **Environment Detection**: Use `typeof window === "undefined"` checks for Node.js compatibility
+
+### Authentication Flow Mobile Optimization
+
+- **Conditional Redirect Modes**: Use device detection to optimize authentication flows for different platforms
+  ```typescript
+  // ✅ Pattern for mobile-optimized auth
+  const authMode = isMobile() ? "redirect" : "modal";
+  <SignInButton mode={authMode} />
+  ```
+- **Progressive Enhancement**: Start with universal patterns, then optimize for specific device types
+- **Clerk Integration**: Clerk components accept mode props for platform-specific behavior optimization
+
+### Environment Variable Documentation Patterns
+
+- **Production Deployment Checklists**: Include step-by-step deployment verification in .env.example
+  ```bash
+  # ✅ Production verification pattern
+  # 1. Set NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY in production environment
+  # 2. Set CLERK_SECRET_KEY in secure environment variables
+  # 3. Verify auth redirects work with production domain
+  ```
+- **Security Separation**: Document which variables are client-safe (NEXT*PUBLIC*\*) vs server-only
+- **Platform-Specific Instructions**: Include deployment platform specific configuration notes (Vercel, Netlify, etc.)
+
+### Debug Code Cleanup Strategies
+
+- **Grouped Console Logging**: Chrondle uses `console.groupCollapsed()` for organized debug output
+  ```typescript
+  // ✅ Pattern found in useChrondle.ts
+  console.groupCollapsed("🎯 Game state after makeGuess:");
+  console.log("Previous state:", gameState);
+  console.log("New guess:", guess);
+  console.groupEnd();
+  ```
+- **Conditional Debug Blocks**: Debug logging wrapped in environment checks for production safety
+- **Structured Cleanup**: Use search tools to find and batch-remove debug statements efficiently
+
 ### Display Formatting Architecture
 
 - **Internal Representation Pattern**: Chrondle uses negative numbers for BC years, positive for AD years consistently across codebase
@@ -554,7 +645,79 @@
   ```
 - **Prevention**: When mocking motion/react components, handle HTML prop conflicts by explicit casting
 
+### MultiEdit String Matching Failures
+
+- **Problem**: MultiEdit tool failing to match console.log statements when using paraphrased content
+- **Root Cause**: MultiEdit requires exact string matching - paraphrased descriptions don't match actual file content
+- **Solution**: Copy exact context strings directly from file content for MultiEdit operations
+
+  ```typescript
+  // ✅ Exact match required
+  console.groupCollapsed("🎯 Game state after makeGuess:");
+
+  // ❌ Paraphrased version fails
+  console.groupCollapsed("Game state after makeGuess");
+  ```
+
+- **Prevention**: Always copy-paste exact strings when using MultiEdit tool for reliable batch operations
+
+### Search Tool Performance Issues
+
+- **Problem**: Using `grep` command was significantly slower than expected for codebase searches
+- **Root Cause**: grep processes all files including node_modules and build artifacts, causing performance overhead
+- **Solution**: Switch to `ripgrep (rg)` with type filtering for dramatically faster search performance
+
+  ```bash
+  # ✅ Fast and focused
+  rg "console.log" --type ts -n
+
+  # ❌ Slow and unfocused
+  grep -r "console.log" . --include="*.ts"
+  ```
+
+- **Prevention**: Prefer ripgrep over grep for codebase searches, especially with type filtering
+
 ## Decisions
+
+### Discovery-First Development Strategy
+
+- **Decision**: Always use pattern-scout/search approach before implementing new features or utilities
+- **Rationale**: Task revealed existing `platformDetection.ts` utility with comprehensive mobile detection already implemented
+- **Implementation**: Search for existing patterns first using ripgrep/find, then extend or integrate rather than building from scratch
+- **Success Metrics**: 15-minute completion (vs 30-minute estimate), found complete utility ready for use, no new code needed
+- **Time Accuracy**: Discovery-first approach dramatically improves estimate accuracy
+
+### Mobile Authentication Flow Optimization
+
+- **Decision**: Use conditional Clerk auth modes based on device detection for better mobile UX
+- **Rationale**: Mobile devices perform better with redirect flow vs modal flow for authentication
+- **Implementation**: Leverage existing `isMobile()` utility to conditionally set Clerk SignInButton mode prop
+- **Success Metrics**: 5-minute completion, clean implementation using existing patterns
+- **Mobile UX Enhancement**: Redirect mode provides seamless authentication flow on mobile devices
+
+### Environment Variable Documentation Enhancement
+
+- **Decision**: Enhance .env.example with production deployment verification checklists
+- **Rationale**: Clerk authentication requires proper production domain configuration that's not obvious from variable names alone
+- **Implementation**: Add step-by-step production setup verification with platform-specific notes
+- **Success Metrics**: 3-minute completion, comprehensive production deployment guidance
+- **Developer Experience**: Clear production setup reduces authentication configuration errors
+
+### Debug Code Cleanup Approach
+
+- **Decision**: Use ripgrep + MultiEdit for efficient batch removal of debug console statements
+- **Rationale**: Ripgrep provides much faster search than grep, MultiEdit allows safe batch operations
+- **Implementation**: Search for debug patterns with ripgrep, use MultiEdit with exact string matching for removal
+- **Success Metrics**: 5-minute completion, clean removal of grouped console.log statements across multiple files
+- **Code Quality**: Removes debug overhead while preserving intentional logging structure
+
+### Search Tool Standardization
+
+- **Decision**: Standardize on ripgrep (rg) over grep for all codebase searches
+- **Rationale**: Significant performance improvement and better defaults for development work
+- **Implementation**: Use `rg` with type filtering (`--type ts`) for focused, fast searches
+- **Success Metrics**: ~50% faster search operations, cleaner results without build artifact noise
+- **Developer Productivity**: Faster searches improve debugging and pattern discovery workflows
 
 ### Display Formatting Utilities Architecture
 

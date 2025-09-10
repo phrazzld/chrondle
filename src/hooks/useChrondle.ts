@@ -223,78 +223,11 @@ function useStateTransitionLogger(gameState: GameState): void {
       return;
     }
 
-    const prevState = prevStateRef.current;
-    const timestamp = new Date().toLocaleTimeString();
-
     // Skip first render
     if (firstRenderRef.current) {
       firstRenderRef.current = false;
-      // Development-only state transition logging
-      // eslint-disable-next-line no-console
-      console.groupCollapsed(`[${timestamp}] useChrondle: Initial state`);
-      // eslint-disable-next-line no-console
-      console.log("Status:", gameState.status);
-      if (isReady(gameState)) {
-        // eslint-disable-next-line no-console
-        console.log("Puzzle:", gameState.puzzle.puzzleNumber);
-        // eslint-disable-next-line no-console
-        console.log("Guesses:", gameState.guesses);
-        // eslint-disable-next-line no-console
-        console.log("Complete:", gameState.isComplete);
-        // eslint-disable-next-line no-console
-        console.log("Won:", gameState.hasWon);
-      }
-      // eslint-disable-next-line no-console
-      console.groupEnd();
       prevStateRef.current = gameState;
       return;
-    }
-
-    // Log status changes
-    if (!prevState || prevState.status !== gameState.status) {
-      // eslint-disable-next-line no-console
-      console.groupCollapsed(`[${timestamp}] useChrondle: Status change`);
-      // eslint-disable-next-line no-console
-      console.log("Previous:", prevState?.status || "none");
-      // eslint-disable-next-line no-console
-      console.log("Current:", gameState.status);
-      // eslint-disable-next-line no-console
-      console.groupEnd();
-    }
-
-    // Log guess changes (only in ready state)
-    if (isReady(gameState) && prevState && isReady(prevState)) {
-      const prevGuesses = prevState.guesses;
-      const currGuesses = gameState.guesses;
-
-      if (JSON.stringify(prevGuesses) !== JSON.stringify(currGuesses)) {
-        // eslint-disable-next-line no-console
-        console.groupCollapsed(`[${timestamp}] useChrondle: Guesses changed`);
-        // eslint-disable-next-line no-console
-        console.log("Previous:", prevGuesses);
-        // eslint-disable-next-line no-console
-        console.log("Current:", currGuesses);
-        // eslint-disable-next-line no-console
-        console.log("Remaining:", gameState.remainingGuesses);
-        // eslint-disable-next-line no-console
-        console.groupEnd();
-      }
-
-      // Log completion state changes
-      if (prevState.isComplete !== gameState.isComplete) {
-        // eslint-disable-next-line no-console
-        console.groupCollapsed(
-          `[${timestamp}] useChrondle: Completion changed`,
-        );
-        // eslint-disable-next-line no-console
-        console.log("Is Complete:", gameState.isComplete);
-        // eslint-disable-next-line no-console
-        console.log("Has Won:", gameState.hasWon);
-        // eslint-disable-next-line no-console
-        console.log("Final Guesses:", gameState.guesses);
-        // eslint-disable-next-line no-console
-        console.groupEnd();
-      }
     }
 
     // Update ref for next comparison
