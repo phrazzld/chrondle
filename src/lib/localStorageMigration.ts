@@ -95,12 +95,13 @@ export function migrateLegacyLocalStorage(): MigrationResult {
     // Keys to preserve (still in use)
     const preserveKeys = new Set([
       "chrondle-anonymous-id", // Still used for anonymous user tracking
+      "chrondle-game-state", // Used for anonymous game state persistence
     ]);
 
     // Patterns for keys to remove (no longer used)
     const removePatterns = [
       /^chrondle-progress-/, // Old date-based progress keys
-      /^chrondle-game-/, // Old game state keys
+      /^chrondle-game-\d/, // Old game state keys with dates (not chrondle-game-state)
       /^chrondle-state-/, // Old state keys
       /^chrondle-puzzle-/, // Old puzzle keys
     ];

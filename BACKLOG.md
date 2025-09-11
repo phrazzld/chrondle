@@ -7,6 +7,7 @@
 - [ ] fix streak counter
 - [ ] fix reminders to actually work
 - [ ] fix archive mobile styling (mostly padding)
+- [ ] change cronjob to run at 00:00 central
 
 ### Cost Monitoring & Management
 

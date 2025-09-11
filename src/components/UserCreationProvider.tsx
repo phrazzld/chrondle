@@ -149,8 +149,9 @@ const UserCreationContext = createContext<UserCreationContextType | undefined>(
 export function useUserCreation() {
   const context = useContext(UserCreationContext);
 
-  // During SSR/prerendering, return a safe default state
-  if (typeof window === "undefined") {
+  // During SSR/prerendering or when context is not yet available,
+  // return a safe default state instead of throwing
+  if (typeof window === "undefined" || context === undefined) {
     return {
       userCreated: false,
       userCreationLoading: false,
@@ -160,11 +161,6 @@ export function useUserCreation() {
     };
   }
 
-  if (context === undefined) {
-    throw new Error(
-      "useUserCreation must be used within a UserCreationProvider",
-    );
-  }
   return context;
 }
 
