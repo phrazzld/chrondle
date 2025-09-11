@@ -117,11 +117,22 @@ Generated from TASK.md on 2025-01-09
 
 ### Stream B: Optional OTP Enhancement
 
-- [ ] Research Clerk OTP configuration for mobile
+- [x] Research Clerk OTP configuration for mobile
 
   - Success criteria: Understanding of OTP setup requirements and UX flow
   - Can start: After mobile redirect implemented
   - Estimated complexity: SIMPLE
+
+  ```
+  Work Log:
+  - Clerk supports both email OTP and SMS OTP through custom flows API
+  - SMS OTP requires paid plan and country allowlist configuration
+  - Email OTP is better alternative - no SMS costs, works globally
+  - Implementation requires custom flow with prepareEmailAddressVerification() and attemptEmailAddressVerification()
+  - For mobile: OTP codes better than magic links (no app switching)
+  - Current implementation uses SignInButton component, would need custom flow for OTP
+  - Recommendation: Email OTP over SMS OTP for cost and global reach
+  ```
 
 - [ ] Implement OTP as alternative to magic links (if needed)
   - Success criteria: Mobile users can authenticate with 6-digit codes
