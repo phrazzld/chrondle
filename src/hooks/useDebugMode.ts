@@ -1,10 +1,16 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { createDebugUtilities } from "@/lib/gameState";
 import { GameState } from "@/lib/gameState";
 import { URL_PARAMS } from "@/lib/constants";
 import { logger } from "@/lib/logger";
+import {
+  createDebugUtilities,
+  installDebugUtilities,
+  removeDebugUtilities,
+  isDebugEnabled,
+  type DebugUtilities,
+} from "@/lib/debugUtilities";
 
 export interface UseDebugModeReturn {
   isDebugMode: boolean;
@@ -13,7 +19,7 @@ export interface UseDebugModeReturn {
   debugParams: string;
 
   // Debug utilities
-  debugUtilities: ReturnType<typeof createDebugUtilities> | null;
+  debugUtilities: DebugUtilities | null;
 }
 
 export function useDebugMode(gameState: GameState): UseDebugModeReturn {
@@ -67,13 +73,12 @@ export function useDebugMode(gameState: GameState): UseDebugModeReturn {
   // Set up global debug utilities (DEVELOPMENT ONLY)
   useEffect(() => {
     // Security: Only expose debug utilities in development
-    if (process.env.NODE_ENV !== "development") {
+    if (!isDebugEnabled()) {
       return; // No debug utilities in production
     }
 
-    if (typeof window !== "undefined" && debugUtilities) {
-      // @ts-expect-error - Adding debug utilities to window (dev only)
-      window.chrondle = debugUtilities;
+    if (debugUtilities) {
+      installDebugUtilities(debugUtilities);
 
       if (debugState.isDebugMode) {
         logger.info("🔧 Debug mode active. Use window.chrondle for utilities.");
@@ -86,17 +91,14 @@ export function useDebugMode(gameState: GameState): UseDebugModeReturn {
 
     // Cleanup on unmount
     return () => {
-      if (typeof window !== "undefined") {
-        // @ts-expect-error - Delete debug utilities from window object
-        delete window.chrondle;
-      }
+      removeDebugUtilities();
     };
   }, [debugUtilities, debugState.isDebugMode]);
 
   // Set up debug keyboard shortcuts (DEVELOPMENT ONLY)
   useEffect(() => {
     // Security: Only enable debug shortcuts in development
-    if (process.env.NODE_ENV !== "development") return;
+    if (!isDebugEnabled()) return;
     if (!debugState.isDebugMode || typeof window === "undefined") return;
 
     function handleDebugShortcuts(e: KeyboardEvent) {

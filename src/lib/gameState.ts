@@ -204,45 +204,6 @@ export function cleanupOldStorage(): void {
   logger.debug("Storage cleanup skipped - no localStorage persistence");
 }
 
-// Debug utilities (for window.chrondle object)
-export function createDebugUtilities(gameState: GameState) {
-  return {
-    reset: () => {
-      if (typeof window !== "undefined") {
-        window.location.reload();
-      }
-    },
-    state: () => logger.info("Game state:", gameState),
-    clearStorage: () => {
-      // No localStorage to clear
-      logger.debug("Clear storage skipped - no localStorage persistence");
-      return [];
-    },
-    setYear: (year: number) => {
-      if (gameState.puzzle) {
-        gameState.puzzle.year = year;
-        logger.info(`Forced year to ${year}`);
-      }
-    },
-    testYear: (year: number) => {
-      if (typeof window !== "undefined") {
-        const url = new URL(window.location.href);
-        url.searchParams.set("debug", "true");
-        url.searchParams.set("year", year.toString());
-        window.location.href = url.toString();
-      }
-    },
-    debug: () => {
-      logger.info("🔍 Current date:", new Date().toISOString());
-      logger.info("🔍 Storage key:", getStorageKey());
-      logger.info("🔍 Game state:", gameState);
-
-      // No localStorage entries to show
-      logger.info("🔍 No localStorage entries - using Convex for persistence");
-    },
-  };
-}
-
 // Mark first time player
 export function markFirstTimePlayer(): void {
   // No localStorage tracking - use Convex for user state

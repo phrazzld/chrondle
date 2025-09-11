@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { useAuthState } from "@/hooks/data/useAuthState";
 import { GAME_CONFIG } from "@/lib/constants";
+import { gameStateStorage } from "@/lib/secureStorage";
 
 /**
  * Game state structure for anonymous users
@@ -42,7 +43,6 @@ export interface UseAnonymousGameStateReturn {
   hasAnonymousState: () => boolean;
 }
 
-const STORAGE_KEY = "chrondle-game-state";
 const MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 /**
@@ -66,19 +66,18 @@ export function useAnonymousGameState(): UseAnonymousGameStateReturn {
       }
 
       // Don't save if we're not in a browser environment
-      if (typeof window === "undefined" || !window.localStorage) {
+      if (typeof window === "undefined") {
         return;
       }
 
-      try {
-        const stateWithTimestamp = {
-          ...state,
-          timestamp: Date.now(),
-        };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(stateWithTimestamp));
-      } catch (error) {
-        // Silently fail if localStorage is unavailable (e.g., private browsing)
-        console.warn("Failed to save anonymous game state:", error);
+      const stateWithTimestamp = {
+        ...state,
+        timestamp: Date.now(),
+      };
+
+      const success = gameStateStorage.set(stateWithTimestamp);
+      if (!success) {
+        console.warn("Failed to save anonymous game state");
       }
     },
     [isAuthenticated, isLoading],
@@ -95,52 +94,28 @@ export function useAnonymousGameState(): UseAnonymousGameStateReturn {
     }
 
     // Don't load if we're not in a browser environment
-    if (typeof window === "undefined" || !window.localStorage) {
+    if (typeof window === "undefined") {
       return null;
     }
 
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (!stored) {
-        return null;
-      }
-
-      const parsed = JSON.parse(stored) as AnonymousGameState;
-
-      // Check if state is too old (more than 24 hours)
-      if (parsed.timestamp && Date.now() - parsed.timestamp > MAX_AGE_MS) {
-        localStorage.removeItem(STORAGE_KEY);
-        return null;
-      }
-
-      // Validate the structure
-      if (
-        !parsed.puzzleId ||
-        !Array.isArray(parsed.guesses) ||
-        typeof parsed.isComplete !== "boolean" ||
-        typeof parsed.hasWon !== "boolean"
-      ) {
-        localStorage.removeItem(STORAGE_KEY);
-        return null;
-      }
-
-      // Validate guesses are within reasonable bounds
-      if (parsed.guesses.length > GAME_CONFIG.MAX_GUESSES) {
-        localStorage.removeItem(STORAGE_KEY);
-        return null;
-      }
-
-      return parsed;
-    } catch (error) {
-      // If parsing fails, remove the corrupted data
-      console.warn("Failed to load anonymous game state:", error);
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-      } catch {
-        // Ignore removal errors
-      }
+    const stored = gameStateStorage.get();
+    if (!stored) {
       return null;
     }
+
+    // Check if state is too old (more than 24 hours)
+    if (stored.timestamp && Date.now() - stored.timestamp > MAX_AGE_MS) {
+      gameStateStorage.remove();
+      return null;
+    }
+
+    // Additional validation for guesses length (belt and suspenders)
+    if (stored.guesses.length > GAME_CONFIG.MAX_GUESSES) {
+      gameStateStorage.remove();
+      return null;
+    }
+
+    return stored;
   }, [isAuthenticated]);
 
   /**
@@ -148,14 +123,13 @@ export function useAnonymousGameState(): UseAnonymousGameStateReturn {
    * Used when migrating to authenticated account
    */
   const clearAnonymousState = useCallback(() => {
-    if (typeof window === "undefined" || !window.localStorage) {
+    if (typeof window === "undefined") {
       return;
     }
 
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (error) {
-      console.warn("Failed to clear anonymous game state:", error);
+    const success = gameStateStorage.remove();
+    if (!success) {
+      console.warn("Failed to clear anonymous game state");
     }
   }, []);
 
@@ -163,15 +137,11 @@ export function useAnonymousGameState(): UseAnonymousGameStateReturn {
    * Check if anonymous state exists for migration
    */
   const hasAnonymousState = useCallback((): boolean => {
-    if (typeof window === "undefined" || !window.localStorage) {
+    if (typeof window === "undefined") {
       return false;
     }
 
-    try {
-      return localStorage.getItem(STORAGE_KEY) !== null;
-    } catch {
-      return false;
-    }
+    return gameStateStorage.exists();
   }, []);
 
   // Return memoized object to maintain stable reference

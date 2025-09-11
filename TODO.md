@@ -195,7 +195,7 @@ Generated from TASK.md on 2025-01-09
   - Core functionality confirmed working through code review and unit tests
   ```
 
-- [ ] Test mobile authentication flow
+- [~] Test mobile authentication flow
 
   - Success criteria: Complete auth flow works on mobile devices
   - Dependencies: Mobile fixes implemented
