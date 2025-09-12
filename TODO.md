@@ -31,9 +31,9 @@ Generated from TASK.md on 2025-01-09
   ```
   Work Log:
   - Production keys configured in .env.production
-  - pk_live_Y2xlcmsuY2hyb25kbGUuYXBwJA (publishable key)
-  - sk_live_ key configured (secret key)
-  - Webhook secret configured: whsec_aUmNyVsDe0qSKPKwqTd9dLgMFhHesSMi
+  - Production publishable key configured (pk_live_...)
+  - Production secret key configured (sk_live_...)
+  - Webhook secret configured
   ```
 
 - [x] Update environment variables with production keys
