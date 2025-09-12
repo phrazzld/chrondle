@@ -63,17 +63,24 @@ If the above doesn't work:
 - Or use: <WEBHOOK_SECRET>, <API_KEY>
 ```
 
-### Secret Patterns to Watch For
+### Understanding Key Types
 
-These patterns should NEVER appear in commits with actual values:
+**Publishable Keys (Safe to Expose in Code)**:
 
-- `sk_live_*` - Clerk/Stripe live secret keys
-- `sk_test_*` - Clerk/Stripe test secret keys
-- `pk_live_*` - Publishable keys (less sensitive but still avoid)
-- `whsec_*` - Webhook secrets
+- `pk_test_*` - Test environment publishable keys (commonly used in CI/tests)
+- `pk_live_*` - Production publishable keys (use cautiously but technically safe)
+- These are CLIENT-SIDE keys designed to be public
+- They appear in your JavaScript bundle sent to browsers
+
+**Secret Keys (NEVER Expose)**:
+
+- `sk_test_*` - Test secret keys (still sensitive - can perform API operations!)
+- `sk_live_*` - Production secret keys (full API access)
+- `whsec_*` - Webhook secrets (for verifying webhook signatures)
 - `secret_*` - Generic secrets
 - `api_key_*` - API keys
 - `token_*` - Authentication tokens
+- These are SERVER-SIDE keys that must remain secret
 
 ### Pre-Commit Checklist
 

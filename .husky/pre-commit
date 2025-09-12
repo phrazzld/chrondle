@@ -3,8 +3,8 @@
 # Secret detection - prevent accidental commits of API keys and secrets
 echo "🔍 Checking for secrets in staged files..."
 
-# Check for common secret patterns in staged files
-SECRET_PATTERNS='(sk_live_[a-zA-Z0-9]{20,}|sk_test_[a-zA-Z0-9]{20,}|pk_live_[a-zA-Z0-9]{20,}|pk_test_[a-zA-Z0-9]{20,}|whsec_[a-zA-Z0-9]{20,}|secret_[a-zA-Z0-9]{20,}|api_key_[a-zA-Z0-9]{20,})'
+# Check for common secret patterns in staged files (pk_test_ excluded as they're safe publishable keys)
+SECRET_PATTERNS='(sk_live_[a-zA-Z0-9]{20,}|sk_test_[a-zA-Z0-9]{20,}|pk_live_[a-zA-Z0-9]{20,}|whsec_[a-zA-Z0-9]{20,}|secret_[a-zA-Z0-9]{20,}|api_key_[a-zA-Z0-9]{20,})'
 
 # Get staged files and check for secrets
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
