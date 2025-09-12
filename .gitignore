@@ -42,6 +42,18 @@ yarn-error.log*
 # Allow .env.example to be committed
 !.env.example
 
+# Security - prevent accidental commit of sensitive files
+*.secret
+*_secret*
+*.key
+*.pem
+*.p12
+*.pfx
+*credentials*
+*webhook_secret*
+secrets/
+.secrets/
+
 # vercel
 .vercel
 

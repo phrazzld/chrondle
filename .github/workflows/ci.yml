@@ -14,6 +14,32 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    - name: 🔒 Secret Scanning
+      run: |
+        echo "🔍 Scanning for accidentally committed secrets..."
+        
+        # Define secret patterns to check
+        SECRET_PATTERNS='(sk_live_[a-zA-Z0-9]{20,}|sk_test_[a-zA-Z0-9]{20,}|pk_live_[a-zA-Z0-9]{20,}|pk_test_[a-zA-Z0-9]{20,}|whsec_[a-zA-Z0-9]{20,})'
+        
+        # Check for secrets in all tracked files (excluding .env.example and similar)
+        FOUND_SECRETS=$(git ls-files | \
+          grep -v -E "(\.env\.example|\.env\.sample|example\.|sample\.)" | \
+          xargs grep -E "$SECRET_PATTERNS" 2>/dev/null | \
+          grep -v -E "(YOUR_|PLACEHOLDER|EXAMPLE|<.*>|docs/SECURITY\.md)" || true)
+        
+        if [ -n "$FOUND_SECRETS" ]; then
+          echo "❌ SECURITY ALERT: Potential secrets found in repository!"
+          echo ""
+          echo "Found in files:"
+          echo "$FOUND_SECRETS" | head -10
+          echo ""
+          echo "Please remove secrets and use placeholders instead."
+          echo "See docs/SECURITY.md for proper secret handling."
+          exit 1
+        fi
+        
+        echo "✅ No secrets detected in repository"
+      
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
