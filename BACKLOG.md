@@ -7,9 +7,7 @@
 - [ ] fix streak counter
 - [ ] fix reminders to actually work
 - [ ] fix archive mobile styling (mostly padding)
-- [ ] clerk auth email still says development
-- [ ] clerk auth modal closes when switching apps on mobile, which makes it impossible to use magic link auth
-- [ ] auth should manage anonymous sessions better, leaving the site and coming back shouldn't nuke your puzzle progress / history even for anon users
+- [ ] change cronjob to run at 00:00 central
 
 ### Cost Monitoring & Management
 
@@ -43,8 +41,8 @@
 
 ## Critical Priority - Security & Production Readiness
 
-- [ ] [HIGH] [SECURITY] Validate localStorage data to prevent JSON injection attacks | Risk: Malicious data could crash app or expose information
-- [ ] [HIGH] [SECURITY] Remove debug utilities from production builds | Risk: Game state manipulation and sensitive data exposure via window.chrondle
+- [x] [HIGH] [SECURITY] Validate localStorage data to prevent JSON injection attacks | **COMPLETED**: Implemented secure storage utility with comprehensive validation
+- [x] [HIGH] [SECURITY] Remove debug utilities from production builds | **COMPLETED**: Debug utilities now only available in development with process.env checks
 - [ ] [HIGH] [SECURITY] Add rate limiting to historical context API endpoint | Risk: API abuse and OpenRouter cost overruns
 - [ ] [HIGH] [RELIABILITY] Add request timeout (AbortController) to Convex historicalContext action fetch to prevent indefinite hangs
 - [ ] [HIGH] [DOCS] Unify documentation: Convex generated files MUST be committed (update docs/guides/contributing.md to remove conflicting guidance about gitignoring)

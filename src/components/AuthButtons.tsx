@@ -4,9 +4,17 @@ import { useUser, SignInButton, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
 import { AuthSkeleton } from "@/components/skeletons/AuthSkeleton";
+import { isMobileDevice } from "@/lib/platformDetection";
+import { useEffect, useState } from "react";
 
 export function AuthButtons() {
   const { isLoaded, isSignedIn } = useUser();
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile device after mount to avoid hydration mismatch
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+  }, []);
 
   // Show skeleton while auth is loading to prevent flash
   if (!isLoaded) {
@@ -32,9 +40,9 @@ export function AuthButtons() {
     );
   }
 
-  // Show sign in button
+  // Show sign in button with conditional mode based on device
   return (
-    <SignInButton mode="modal">
+    <SignInButton mode={isMobile ? "redirect" : "modal"}>
       <Button
         variant="ghost"
         size="icon"

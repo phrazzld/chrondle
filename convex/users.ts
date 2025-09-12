@@ -320,6 +320,114 @@ export const updateUserStats = internalMutation({
   },
 });
 
+// Merge anonymous game state when user authenticates
+export const mergeAnonymousState = mutation({
+  args: {
+    puzzleId: v.id("puzzles"),
+    guesses: v.array(v.number()),
+    isComplete: v.boolean(),
+    hasWon: v.boolean(),
+  },
+  handler: async (ctx, { puzzleId, guesses, isComplete, hasWon }) => {
+    // Check authentication
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated - cannot merge anonymous state");
+    }
+
+    // Get the current user
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk", (q) => q.eq("clerkId", identity.subject))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found - cannot merge anonymous state");
+    }
+
+    // Don't process empty game state
+    if (!guesses || guesses.length === 0) {
+      return { success: true, message: "No anonymous state to merge" };
+    }
+
+    try {
+      // Check if user already has a play record for this puzzle
+      const existingPlay = await ctx.db
+        .query("plays")
+        .withIndex("by_user_puzzle", (q) =>
+          q.eq("userId", user._id).eq("puzzleId", puzzleId),
+        )
+        .first();
+
+      if (existingPlay) {
+        // User already played this puzzle - merge guesses if anonymous had more progress
+        if (guesses.length > existingPlay.guesses.length) {
+          // Anonymous user made more progress, update with their guesses
+          await ctx.db.patch(existingPlay._id, {
+            guesses: guesses,
+            completedAt:
+              isComplete && hasWon ? Date.now() : existingPlay.completedAt,
+            updatedAt: Date.now(),
+          });
+        }
+        // Otherwise keep existing authenticated progress
+      } else {
+        // Create new play record from anonymous state
+        await ctx.db.insert("plays", {
+          userId: user._id,
+          puzzleId: puzzleId,
+          guesses: guesses,
+          completedAt: isComplete && hasWon ? Date.now() : undefined,
+          updatedAt: Date.now(),
+        });
+
+        // Update user stats if this was a completed puzzle
+        if (isComplete && hasWon) {
+          const updates: Partial<{
+            totalPlays: number;
+            perfectGames: number;
+            updatedAt: number;
+          }> = {
+            totalPlays: user.totalPlays + 1,
+            updatedAt: Date.now(),
+          };
+
+          // Check if it was a perfect game (1 guess)
+          if (guesses.length === 1) {
+            updates.perfectGames = user.perfectGames + 1;
+          }
+
+          await ctx.db.patch(user._id, updates);
+        }
+      }
+
+      return {
+        success: true,
+        message: existingPlay
+          ? "Anonymous state merged with existing progress"
+          : "Anonymous state migrated to account",
+      };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      console.error("[mergeAnonymousState] Failed to merge anonymous state:", {
+        error: errorMessage,
+        userId: user._id,
+        puzzleId,
+        guessCount: guesses.length,
+        timestamp: new Date().toISOString(),
+      });
+
+      // Don't throw - we don't want to break the auth flow
+      // Just log the error and return success
+      return {
+        success: false,
+        message: `Failed to merge anonymous state: ${errorMessage}`,
+      };
+    }
+  },
+});
+
 // Get user statistics with play history
 export const getUserStats = query({
   handler: async (ctx) => {

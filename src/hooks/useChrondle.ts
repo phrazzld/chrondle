@@ -14,6 +14,7 @@ import { GameState, isReady } from "@/types/gameState";
 import { useAnalytics, usePerformanceTracking } from "@/hooks/useAnalytics";
 import { isValidConvexId } from "@/lib/validation";
 import { useDebouncedValues } from "@/hooks/useDebouncedValue";
+import { useAnonymousGameState } from "@/hooks/useAnonymousGameState";
 
 /**
  * Return type for the useChrondle hook
@@ -111,6 +112,30 @@ export function useChrondle(
   );
   const session = useLocalSession(puzzle.puzzle?.id || null);
 
+  // Anonymous game state persistence
+  const anonymousGameState = useAnonymousGameState();
+
+  // Load anonymous state on mount if not authenticated
+  useEffect(() => {
+    // Only load if not authenticated and we have a puzzle
+    if (!auth.isAuthenticated && !auth.isLoading && puzzle.puzzle) {
+      const savedState = anonymousGameState.loadGameState();
+
+      // If we have saved state for this puzzle, restore the guesses
+      if (savedState && savedState.puzzleId === puzzle.puzzle.id) {
+        // Add each saved guess to the session
+        savedState.guesses.forEach((guess) => {
+          // Check if guess not already in session to avoid duplicates
+          if (!session.sessionGuesses.includes(guess)) {
+            session.addGuess(guess);
+          }
+        });
+      }
+    }
+    // Only run on mount and when auth/puzzle state stabilizes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auth.isAuthenticated, auth.isLoading, puzzle.puzzle?.id]);
+
   // Create data sources object for derivation and actions
   const dataSources: DataSources = useMemo(
     () => ({
@@ -131,6 +156,20 @@ export function useChrondle(
     () => measureDerivation(() => deriveGameState(dataSources)),
     [dataSources, measureDerivation],
   );
+
+  // Save anonymous game state after changes
+  useEffect(() => {
+    // Only save if not authenticated and game is ready
+    if (!auth.isAuthenticated && isReady(gameState)) {
+      anonymousGameState.saveGameState({
+        puzzleId: gameState.puzzle.id,
+        guesses: gameState.guesses,
+        isComplete: gameState.isComplete,
+        hasWon: gameState.hasWon,
+        timestamp: Date.now(),
+      });
+    }
+  }, [auth.isAuthenticated, gameState, anonymousGameState]);
 
   // Get game actions (submitGuess, resetGame, isSubmitting)
   const actions = useGameActions(dataSources);
@@ -184,78 +223,11 @@ function useStateTransitionLogger(gameState: GameState): void {
       return;
     }
 
-    const prevState = prevStateRef.current;
-    const timestamp = new Date().toLocaleTimeString();
-
     // Skip first render
     if (firstRenderRef.current) {
       firstRenderRef.current = false;
-      // Development-only state transition logging
-      // eslint-disable-next-line no-console
-      console.groupCollapsed(`[${timestamp}] useChrondle: Initial state`);
-      // eslint-disable-next-line no-console
-      console.log("Status:", gameState.status);
-      if (isReady(gameState)) {
-        // eslint-disable-next-line no-console
-        console.log("Puzzle:", gameState.puzzle.puzzleNumber);
-        // eslint-disable-next-line no-console
-        console.log("Guesses:", gameState.guesses);
-        // eslint-disable-next-line no-console
-        console.log("Complete:", gameState.isComplete);
-        // eslint-disable-next-line no-console
-        console.log("Won:", gameState.hasWon);
-      }
-      // eslint-disable-next-line no-console
-      console.groupEnd();
       prevStateRef.current = gameState;
       return;
-    }
-
-    // Log status changes
-    if (!prevState || prevState.status !== gameState.status) {
-      // eslint-disable-next-line no-console
-      console.groupCollapsed(`[${timestamp}] useChrondle: Status change`);
-      // eslint-disable-next-line no-console
-      console.log("Previous:", prevState?.status || "none");
-      // eslint-disable-next-line no-console
-      console.log("Current:", gameState.status);
-      // eslint-disable-next-line no-console
-      console.groupEnd();
-    }
-
-    // Log guess changes (only in ready state)
-    if (isReady(gameState) && prevState && isReady(prevState)) {
-      const prevGuesses = prevState.guesses;
-      const currGuesses = gameState.guesses;
-
-      if (JSON.stringify(prevGuesses) !== JSON.stringify(currGuesses)) {
-        // eslint-disable-next-line no-console
-        console.groupCollapsed(`[${timestamp}] useChrondle: Guesses changed`);
-        // eslint-disable-next-line no-console
-        console.log("Previous:", prevGuesses);
-        // eslint-disable-next-line no-console
-        console.log("Current:", currGuesses);
-        // eslint-disable-next-line no-console
-        console.log("Remaining:", gameState.remainingGuesses);
-        // eslint-disable-next-line no-console
-        console.groupEnd();
-      }
-
-      // Log completion state changes
-      if (prevState.isComplete !== gameState.isComplete) {
-        // eslint-disable-next-line no-console
-        console.groupCollapsed(
-          `[${timestamp}] useChrondle: Completion changed`,
-        );
-        // eslint-disable-next-line no-console
-        console.log("Is Complete:", gameState.isComplete);
-        // eslint-disable-next-line no-console
-        console.log("Has Won:", gameState.hasWon);
-        // eslint-disable-next-line no-console
-        console.log("Final Guesses:", gameState.guesses);
-        // eslint-disable-next-line no-console
-        console.groupEnd();
-      }
     }
 
     // Update ref for next comparison

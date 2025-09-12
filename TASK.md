@@ -1,215 +1,193 @@
-- numeric keyboard input doesn't allow for bc guesses (ie doesn't allow minus signs, which are how we currently support this)
-  - need to support ad/bc guesses! either revert numeric keyboard, or figure out another way. clean ad/bc toggle next to text input? what other options do we have?
+improve auth! including but not limited to:
+
+- [ ] clerk auth email still says development
+- [ ] clerk auth modal closes when switching apps on mobile, which makes it impossible to use magic link auth
+- [ ] auth should manage anonymous sessions better, leaving the site and coming back shouldn't nuke your puzzle progress / history even for anon users
 
 ---
 
 # Enhanced Specification
 
-## Research Findings
+## Simplified Auth Improvements for Chrondle
 
-### Industry Best Practices
+### Core Issues & Simple Solutions
 
-- **Hybrid Input Model** is the 2024-2025 standard for historical date entry
-- Separate positive year input + era selector provides clearest mental model
-- Native date pickers cannot handle BC dates (Gregorian calendar limitation)
-- `type="number"` with CSS spinner hiding provides best mobile keyboard experience
-- Touch-first design with large tap targets essential for mobile gaming
+#### 1. Anonymous Game State Persistence
 
-### Technology Analysis
+**Problem**: Anonymous users lose puzzle progress when they leave  
+**Solution**: Save game state to localStorage, just like a shopping cart
 
-- **Existing Chrondle patterns** can be leveraged:
-  - Switch component from Radix UI already in use for theme toggle
-  - `formatYear()` utility handles BC/AD display formatting
-  - Year validation logic supports -3000 to current year
-  - GuessInput component has robust keyboard navigation
-- **React/TypeScript** patterns align with current codebase architecture
-- No external date picker libraries needed - custom implementation preferred
+```typescript
+// After each guess
+localStorage.setItem("chrondle-game-state", JSON.stringify(gameState));
 
-### Codebase Integration
+// On page load
+const saved = localStorage.getItem("chrondle-game-state");
+if (saved && !isAuthenticated) {
+  setGameState(JSON.parse(saved));
+}
+```
 
-- **Reusable components identified:**
-  - `/src/components/ui/switch.tsx` - Toggle component
-  - `/src/lib/utils.ts:formatYear()` - BC/AD formatting
-  - `/src/lib/constants.ts` - Year validation constants
-  - `/src/components/GuessInput.tsx` - Input patterns to preserve
+#### 2. Anonymous → Authenticated Migration
 
-## Detailed Requirements
+**Problem**: Need to preserve progress when users sign up  
+**Solution**: Simple one-way migration on authentication
 
-### Functional Requirements
+```typescript
+// When user authenticates
+const anonymousState = localStorage.getItem("chrondle-game-state");
+if (anonymousState) {
+  await migrateToUserAccount(anonymousState);
+  localStorage.removeItem("chrondle-game-state");
+}
+```
 
-- **Positive-only year input**: Remove need for minus sign, fixing iOS keyboard issue completely
-- **Explicit era selection**: BC/AD toggle that's always visible and accessible
-- **Validation by era**: BC years (1-3000), AD years (1-current year)
-- **Real-time feedback**: Show formatted year (e.g., "776 BC") as user types
-- **Keyboard navigation**: Maintain arrow key increment/decrement within era bounds
-- **Backwards compatibility**: Convert to negative numbers internally for minimal backend changes
+#### 3. Clerk Production Setup
 
-### Non-Functional Requirements
+**Approach**: Clone dev settings to production, then change:
 
-- **Performance**: Input response < 16ms for 60fps interaction
-- **Accessibility**: WCAG 2.1 AA compliant with full keyboard navigation and screen reader support
-- **Mobile-first**: Optimized for touch with minimum 44x44px tap targets
-- **Visual consistency**: Match existing Chrondle design system and component patterns
+- Domain whitelist (add production domain)
+- Email sender address (noreply@yourdomain.com)
+- Remove development environment warnings
 
-## Architecture Decisions
+**Why clone**: Dev setup already works. Starting fresh means reconfiguring everything.
 
-### Technology Stack
+### Opinionated Clerk Configuration
 
-- **Frontend**: React 19 + TypeScript (existing)
-- **UI Components**: Radix UI Switch adapted for BC/AD toggle
-- **Styling**: Tailwind CSS with existing design tokens
-- **State Management**: React hooks maintaining current patterns
+#### Authentication Methods (Keep It Simple)
 
-### Design Pattern
+✅ **Google OAuth** - Everyone has Gmail  
+✅ **Magic Links** - Password-free, works everywhere  
+❌ **Email/Password** - Skip it. Magic links are better.  
+❌ **Other social logins** - Unnecessary complexity
 
-- **Architecture Pattern**: Presentational/Container component split
-- **Data Flow**: Unidirectional with controlled inputs
-- **Era Storage**: Positive numbers in UI, negative numbers in game state
-- **Validation**: Client-side with immediate feedback
+#### Mobile Strategy
 
-### Proposed ADR
+**Problem**: Modal closes when switching to email app  
+**Simple fix**: Use **redirect flow** on mobile instead of modal
 
-**Title**: Separate Era Selection for BC/AD Input
+```typescript
+// Detect mobile and use appropriate flow
+const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
 
-**Status**: Proposed
+<SignInButton mode={isMobile ? "redirect" : "modal"}>
+  <Button>Sign In</Button>
+</SignInButton>
+```
 
-**Context**: Mobile numeric keyboards don't display minus key, preventing BC year entry
+**Alternative**: Use **OTP codes** instead of magic links for mobile
 
-**Decision**: Implement separate positive year input + BC/AD toggle
+- 6-digit code instead of link
+- No app switching required
+- Auto-fills from SMS on most phones
 
-**Consequences**:
+#### Session Configuration
 
-- ✅ Fixes mobile keyboard issue completely
-- ✅ Clearer mental model for non-technical users
-- ✅ Better accessibility with explicit era selection
-- ⚠️ Requires UI restructuring of GuessInput component
-- ⚠️ Additional tap/click for era selection
+- **Session lifetime**: 30 days (for daily game habit)
+- **Idle timeout**: None (it's a casual game)
+- **Token rotation**: Default Clerk settings are fine
 
-**Alternatives Considered**:
+## Implementation Plan
 
-1. Keep negative numbers - Rejected: Doesn't fix iOS issue
-2. Text parsing ("776 BC") - Rejected: Complex, error-prone
-3. +/- button - Rejected: Less clear than explicit BC/AD
+### Priority 1: Fix Production Emails (10 minutes)
 
-## Implementation Strategy
+1. Clone dev → prod in Clerk dashboard
+2. Update domain and sender email
+3. Deploy with production keys
 
-### Development Approach
+### Priority 2: Add Anonymous Persistence (1 hour)
 
-1. **Phase 1**: Create BC/AD toggle component
-2. **Phase 2**: Modify GuessInput to separate year and era
-3. **Phase 3**: Update validation and conversion logic
-4. **Phase 4**: Enhance visual feedback and animations
-5. **Phase 5**: Update tests and documentation
+1. Create `useAnonymousGameState` hook
+2. Save game state to localStorage after each action
+3. Load from localStorage on mount if not authenticated
+4. Add migration logic when user authenticates
+5. Test the complete flow
 
-### MVP Definition
+### Priority 3: Fix Mobile Modal (30 minutes)
 
-1. Positive-only number input field
-2. BC/AD segmented toggle control
-3. Real-time formatted display ("776 BC")
-4. Proper validation per era
-5. Maintains all current keyboard shortcuts
+1. Detect mobile devices in AuthButtons component
+2. Switch to redirect flow on mobile
+3. Consider adding OTP option for better mobile UX
+4. Test on actual devices
 
-### Technical Risks
+## Technical Approach
 
-- **Risk 1**: State synchronization between year and era → Mitigation: Single source of truth in parent
-- **Risk 2**: Accessibility regression → Mitigation: Comprehensive testing with screen readers
-- **Risk 3**: Mobile layout issues → Mitigation: Responsive design with flexbox/grid
+### Files to Modify
 
-## Integration Requirements
+- `/src/hooks/useChrondle.ts` - Add localStorage persistence for anonymous users
+- `/src/components/AuthButtons.tsx` - Mobile detection for redirect flow
+- `/src/components/UserCreationProvider.tsx` - Migration logic for anonymous → authenticated
+- `.env.local` - Production Clerk keys
 
-### Existing System Impact
+### Anonymous Persistence Implementation
 
-- **GuessInput.tsx**: Primary component requiring modification
-- **Game state**: Continues using negative numbers (no backend changes)
-- **formatYear()**: Already handles conversion correctly
-- **Tests**: Update input simulation to use new components
+```typescript
+// hooks/useAnonymousGameState.ts
+export function useAnonymousGameState() {
+  const { isAuthenticated } = useAuthState();
 
-### API Design
+  const saveGameState = (state: GameState) => {
+    if (!isAuthenticated) {
+      localStorage.setItem("chrondle-game-state", JSON.stringify(state));
+    }
+  };
 
-- Internal API remains unchanged (negative numbers)
-- UI presents positive + era, converts on submit
-- Validation happens pre-conversion in UI layer
+  const loadGameState = (): GameState | null => {
+    if (!isAuthenticated) {
+      const saved = localStorage.getItem("chrondle-game-state");
+      return saved ? JSON.parse(saved) : null;
+    }
+    return null;
+  };
 
-### Data Migration
+  const clearAnonymousState = () => {
+    localStorage.removeItem("chrondle-game-state");
+  };
 
-- No data migration required
-- LocalStorage remains compatible
-- Game history unaffected
+  return { saveGameState, loadGameState, clearAnonymousState };
+}
+```
 
-## Testing Strategy
+### Migration Strategy
 
-### Unit Testing
+```typescript
+// In UserCreationProvider after successful authentication
+const migrateAnonymousData = async (userId: string) => {
+  const anonymousState = localStorage.getItem("chrondle-game-state");
+  if (anonymousState) {
+    const parsed = JSON.parse(anonymousState);
+    // Merge with existing user data (prefer authenticated)
+    await convex.mutation(api.users.mergeAnonymousState, {
+      userId,
+      anonymousState: parsed,
+    });
+    localStorage.removeItem("chrondle-game-state");
+  }
+};
+```
 
-- Era toggle state changes
-- Year validation per era
-- Conversion logic (positive + era → negative)
-- Keyboard navigation within era bounds
+## What We're NOT Doing
 
-### Integration Testing
-
-- Full guess flow with BC and AD years
-- Keyboard shortcuts and arrow key navigation
-- Mobile touch interactions
-- Screen reader announcements
-
-### End-to-End Testing
-
-- Complete game with BC puzzle year
-- Era switching during input
-- Edge cases (year 1 BC/AD, maximum years)
-
-## Deployment Considerations
-
-### Environment Requirements
-
-- No new dependencies required
-- Uses existing Radix UI and React 19
-
-### Rollout Strategy
-
-- Feature flag not needed (fixes critical bug)
-- Direct deployment after testing
-- Monitor error rates for input validation
-
-### Monitoring & Observability
-
-- Track era toggle usage frequency
-- Monitor validation error rates
-- Measure input completion time
+- No complex session management beyond Clerk defaults
+- No additional auth providers beyond Google + Magic Links
+- No password requirements or account creation forms
+- No enterprise features (SSO, SAML, etc.)
+- No complex merge strategies for conflicting data
 
 ## Success Criteria
 
-### Acceptance Criteria
+- [ ] Anonymous users can leave and return without losing progress
+- [ ] Production emails show correct domain/branding
+- [ ] Mobile users can complete authentication flow
+- [ ] Anonymous → authenticated migration preserves game state
+- [ ] Implementation remains simple and maintainable
 
-- ✅ iOS users can enter BC years without external keyboard
-- ✅ All mobile keyboards show appropriate numeric input
-- ✅ Screen readers announce era selection clearly
-- ✅ Existing keyboard navigation preserved
-- ✅ Visual feedback shows formatted year in real-time
+## Rationale
 
-### Performance Metrics
+This is a daily puzzle game, not a banking app. The auth should:
 
-- Input latency < 16ms
-- No additional re-renders vs current implementation
-- Bundle size increase < 2KB
+- Work reliably
+- Be simple for users
+- Not get in the way of playing
 
-### User Experience Goals
-
-- Reduced input errors by 50%
-- Improved mobile completion rate
-- Maintained or improved accessibility score
-
-## Future Enhancements
-
-### Post-MVP Features
-
-- Smart era detection from hint context
-- Keyboard shortcuts (B/A keys) for era selection
-- Era preference memory per session
-- Historical calendar system support (BCE/CE)
-
-### Scalability Roadmap
-
-- Internationalization for different era notations
-- Support for other calendar systems
-- Customizable date formats per locale
+The solution prioritizes simplicity over feature completeness, using battle-tested patterns (localStorage for anonymous state, redirect flow for mobile) rather than complex engineering.

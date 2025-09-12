@@ -11,7 +11,8 @@ import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useMutationWithRetry } from "@/hooks/useMutationWithRetry";
-import { Doc } from "../../convex/_generated/dataModel";
+import { Doc, Id } from "../../convex/_generated/dataModel";
+import { useAnonymousGameState } from "@/hooks/useAnonymousGameState";
 
 // Auth state machine states
 type AuthState =
@@ -47,10 +48,6 @@ function authStateReducer(
   action: StateMachineAction,
 ): StateMachineState {
   // Log state transitions in development
-  if (process.env.NODE_ENV === "development") {
-    // eslint-disable-next-line no-console
-    console.log(`[AuthStateMachine] ${state.state} → ${action.type}`);
-  }
 
   switch (action.type) {
     case "CLERK_LOADING":
@@ -151,11 +148,19 @@ const UserCreationContext = createContext<UserCreationContextType | undefined>(
 
 export function useUserCreation() {
   const context = useContext(UserCreationContext);
-  if (context === undefined) {
-    throw new Error(
-      "useUserCreation must be used within a UserCreationProvider",
-    );
+
+  // During SSR/prerendering or when context is not yet available,
+  // return a safe default state instead of throwing
+  if (typeof window === "undefined" || context === undefined) {
+    return {
+      userCreated: false,
+      userCreationLoading: false,
+      userCreationError: null,
+      currentUser: null,
+      isUserReady: false,
+    };
   }
+
   return context;
 }
 
@@ -172,6 +177,9 @@ export function UserCreationProvider({ children }: UserCreationProviderProps) {
   // Get current user for existence check
   const currentUserFromQuery = useQuery(api.users.getCurrentUser);
 
+  // Anonymous game state hook for migration
+  const anonymousGameState = useAnonymousGameState();
+
   // JIT user creation mutation with retry logic for transient errors
   const getOrCreateUser = useMutationWithRetry(
     api.users.getOrCreateCurrentUser,
@@ -181,6 +189,21 @@ export function UserCreationProvider({ children }: UserCreationProviderProps) {
       onRetry: (attempt, error) => {
         console.error(
           `[UserCreationProvider] Retrying user creation (attempt ${attempt}/3):`,
+          error.message,
+        );
+      },
+    },
+  );
+
+  // Anonymous state migration mutation
+  const mergeAnonymousState = useMutationWithRetry(
+    api.users.mergeAnonymousState,
+    {
+      maxRetries: 2,
+      baseDelayMs: 500,
+      onRetry: (attempt, error) => {
+        console.warn(
+          `[UserCreationProvider] Retrying anonymous state migration (attempt ${attempt}/2):`,
           error.message,
         );
       },
@@ -220,6 +243,39 @@ export function UserCreationProvider({ children }: UserCreationProviderProps) {
           const newUser = await getOrCreateUser({});
 
           if (newUser) {
+            // Migrate anonymous game state to the newly created user account
+            try {
+              const anonymousState = anonymousGameState.loadGameState();
+              if (
+                anonymousState &&
+                anonymousState.puzzleId &&
+                anonymousState.guesses.length > 0
+              ) {
+                await mergeAnonymousState({
+                  puzzleId: anonymousState.puzzleId as Id<"puzzles">,
+                  guesses: anonymousState.guesses,
+                  isComplete: anonymousState.isComplete,
+                  hasWon: anonymousState.hasWon,
+                });
+
+                // Clear anonymous state after successful migration
+                anonymousGameState.clearAnonymousState();
+              }
+            } catch (migrationError) {
+              // Log migration error but don't fail the auth flow
+              console.warn(
+                "[UserCreationProvider] Failed to migrate anonymous state:",
+                {
+                  error:
+                    migrationError instanceof Error
+                      ? migrationError.message
+                      : String(migrationError),
+                  timestamp: new Date().toISOString(),
+                },
+              );
+              // Migration failure is non-critical - user can still proceed
+            }
+
             dispatch({ type: "USER_CREATION_SUCCESS", user: newUser });
           } else {
             // This shouldn't happen but handle gracefully
@@ -243,7 +299,13 @@ export function UserCreationProvider({ children }: UserCreationProviderProps) {
     }
 
     createUserIfNeeded();
-  }, [machineState.state, currentUserFromQuery, getOrCreateUser]);
+  }, [
+    machineState.state,
+    currentUserFromQuery,
+    getOrCreateUser,
+    anonymousGameState,
+    mergeAnonymousState,
+  ]);
 
   // Derive loading state from state machine
   const userCreationLoading = machineState.state === "CREATING_USER";

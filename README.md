@@ -19,6 +19,30 @@ You can play Chrondle directly at [chrondle.app](https://chrondle.app).
 3.  **Unlock Hints:** Each incorrect guess reveals a new hint, guiding you closer to the correct year.
 4.  **Win or Learn:** Successfully guess the year to win, or learn from the revealed answer and hints.
 
+## User Accounts & Anonymous Play
+
+Chrondle supports both anonymous and authenticated gameplay:
+
+### Anonymous Play
+
+- **No account required:** Start playing immediately without signing up
+- **Local progress saving:** Your game progress is automatically saved to your browser's local storage
+- **24-hour persistence:** Anonymous sessions remain active for 24 hours
+- **Cross-session continuity:** Close your browser and return later - your puzzle progress is preserved
+
+### Authenticated Play
+
+- **Sign in with email:** Use magic links for passwordless authentication
+- **Google sign-in:** Quick authentication with your Google account
+- **Cross-device sync:** Your progress syncs across all your devices
+- **Permanent history:** All your past games are saved permanently
+- **Automatic migration:** When you create an account, your anonymous progress automatically transfers
+
+### Mobile Authentication
+
+- **Optimized for mobile:** Authentication uses redirect flow on mobile devices for better compatibility
+- **Email app friendly:** Magic link authentication works seamlessly when switching between browser and email apps
+
 ## Development
 
 This project is built with:

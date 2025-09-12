@@ -1,2 +1,37 @@
 #!/bin/sh
+
+# Secret detection - prevent accidental commits of API keys and secrets
+echo "🔍 Checking for secrets in staged files..."
+
+# Check for common secret patterns in staged files (pk_test_ excluded as they're safe publishable keys)
+SECRET_PATTERNS='(sk_live_[a-zA-Z0-9]{20,}|sk_test_[a-zA-Z0-9]{20,}|pk_live_[a-zA-Z0-9]{20,}|whsec_[a-zA-Z0-9]{20,}|secret_[a-zA-Z0-9]{20,}|api_key_[a-zA-Z0-9]{20,})'
+
+# Get staged files and check for secrets
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+if [ -n "$STAGED_FILES" ]; then
+  # Check for actual secrets (not placeholders or examples)
+  FOUND_SECRETS=$(echo "$STAGED_FILES" | xargs -I {} git diff --cached {} | \
+    grep -E "$SECRET_PATTERNS" | \
+    grep -v -E "(YOUR_|PLACEHOLDER|EXAMPLE|<.*>|\.example|example\.)" || true)
+  
+  if [ -n "$FOUND_SECRETS" ]; then
+    echo "❌ SECURITY ALERT: Potential secrets detected in commit!"
+    echo ""
+    echo "Found the following suspicious patterns:"
+    echo "$FOUND_SECRETS" | head -5
+    echo ""
+    echo "Please remove actual secrets and use placeholders like:"
+    echo "  - <WEBHOOK_SECRET> or whsec_YOUR_SECRET_HERE"
+    echo "  - pk_live_YOUR_KEY_HERE"
+    echo "  - sk_live_YOUR_SECRET_HERE"
+    echo ""
+    echo "If these are false positives (examples/placeholders), please review carefully."
+    exit 1
+  fi
+fi
+
+echo "✅ No secrets detected in staged files"
+
+# Run lint-staged as before
 npx lint-staged
