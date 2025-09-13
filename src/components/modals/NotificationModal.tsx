@@ -6,15 +6,22 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import { Card, CardContent } from "@/components/ui/Card";
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/components/SessionThemeProvider";
 import { TimePicker } from "@/components/ui/TimePicker";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 interface NotificationModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+type PermissionStep = "none" | "explanation" | "requesting" | "complete";
 
 export const NotificationModal: React.FC<NotificationModalProps> = ({
   isOpen,
@@ -24,8 +31,20 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
   const { notifications } = theme;
 
   const [isTogglingNotifications, setIsTogglingNotifications] = useState(false);
+  const [permissionStep, setPermissionStep] = useState<PermissionStep>("none");
+  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
 
   const handleNotificationToggle = async () => {
+    // If trying to enable and permission not granted, show explanation first
+    if (
+      !notifications.isEnabled &&
+      notifications.permissionStatus !== "granted"
+    ) {
+      setPermissionStep("explanation");
+      return;
+    }
+
+    // Otherwise toggle normally
     setIsTogglingNotifications(true);
     try {
       await notifications.toggleReminders();
@@ -36,6 +55,40 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
     }
   };
 
+  const handleRequestPermission = async () => {
+    setIsRequestingPermission(true);
+    setPermissionStep("requesting");
+
+    try {
+      const permission = await notifications.requestPermission();
+
+      if (permission === "granted") {
+        // Permission granted, now enable reminders
+        await notifications.toggleReminders();
+        setPermissionStep("complete");
+        // Reset after a short delay
+        setTimeout(() => {
+          setPermissionStep("none");
+        }, 2000);
+      } else if (permission === "denied") {
+        // Permission denied, show appropriate message
+        setPermissionStep("none");
+      } else {
+        // Default/dismissed, just close the flow
+        setPermissionStep("none");
+      }
+    } catch (error) {
+      console.error("Failed to request permission:", error);
+      setPermissionStep("none");
+    } finally {
+      setIsRequestingPermission(false);
+    }
+  };
+
+  const handleClosePermissionFlow = () => {
+    setPermissionStep("none");
+  };
+
   const handleTimeChange = async (time: string) => {
     try {
       await notifications.updateTime(time);
@@ -44,6 +97,132 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
     }
   };
 
+  // Show permission explanation step
+  if (permissionStep === "explanation") {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="w-11/12 sm:max-w-md md:max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Enable Daily Reminders</DialogTitle>
+            <DialogDescription>
+              Stay on top of your Chrondle streak with gentle daily reminders
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <Card className="border-primary/20">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">📅</span>
+                  <div>
+                    <p className="font-medium">Never miss a puzzle</p>
+                    <p className="text-sm text-muted-foreground">
+                      Get a friendly notification at your preferred time
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-primary/20">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🔥</span>
+                  <div>
+                    <p className="font-medium">Maintain your streak</p>
+                    <p className="text-sm text-muted-foreground">
+                      Build consistency with daily puzzle solving
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={handleClosePermissionFlow}>
+              Maybe Later
+            </Button>
+            <Button onClick={() => setPermissionStep("requesting")}>
+              Enable Notifications
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Show permission request step
+  if (permissionStep === "requesting") {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="w-11/12 sm:max-w-md md:max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Grant Permission</DialogTitle>
+          </DialogHeader>
+
+          <div className="text-center space-y-4 py-6">
+            <div className="text-4xl mb-4">🔔</div>
+            <p>Click &quot;Allow&quot; when your browser asks for permission</p>
+            {isRequestingPermission && (
+              <div className="flex items-center justify-center gap-2">
+                <LoadingSpinner size="sm" />
+                <span className="text-sm text-muted-foreground">
+                  Requesting permission...
+                </span>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={handleClosePermissionFlow}
+              disabled={isRequestingPermission}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleRequestPermission}
+              disabled={isRequestingPermission}
+            >
+              {isRequestingPermission ? "Requesting..." : "Request Permission"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Show success state briefly
+  if (permissionStep === "complete") {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="w-11/12 sm:max-w-md md:max-w-lg max-h-[85vh] overflow-y-auto">
+          <div
+            className="text-center space-y-4 py-8"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="text-5xl mb-4" aria-hidden="true">
+              ✅
+            </div>
+            <DialogTitle>Notifications Enabled!</DialogTitle>
+            <p className="text-muted-foreground">
+              You&apos;ll receive daily reminders at{" "}
+              {notifications.formatTime(notifications.reminderTime)}
+            </p>
+            <span className="sr-only">
+              Success! Daily reminders have been enabled for{" "}
+              {notifications.formatTime(notifications.reminderTime)}
+            </span>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Default notification settings view
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-11/12 sm:max-w-md md:max-w-lg max-h-[85vh] overflow-y-auto">
