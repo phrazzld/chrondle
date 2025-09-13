@@ -62,26 +62,26 @@ Generated from TASK.md on 2024-01-13
 
 ### Stream B: Critical Bug Fixes (Can start immediately)
 
-- [ ] Fix streak counter timezone handling
+- [x] Fix streak counter timezone handling
 
   - Success criteria: Streak increments correctly, handles timezone changes
   - Can start: Immediately
   - Complexity: MEDIUM
   - Critical: Uses local timezone instead of UTC
 
-- [ ] Create local date formatting utility
+- [x] Create local date formatting utility
 
   - Success criteria: Consistent date handling across streak logic
   - Dependencies: None
   - Complexity: SIMPLE
 
-- [ ] Update calculateCurrentStreak function
+- [x] Update calculateCurrentStreak function
 
   - Success criteria: Correctly calculates streak using local dates
   - Dependencies: Date utility created
   - Complexity: MEDIUM
 
-- [ ] Update recordGamePlayed function
+- [x] Update recordGamePlayed function
 
   - Success criteria: Records games with local timezone dates
   - Dependencies: Date utility created
