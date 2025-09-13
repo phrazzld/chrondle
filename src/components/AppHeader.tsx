@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { AuthButtons } from "@/components/AuthButtons";
-import { SyncIndicator } from "@/components/SyncIndicator";
 import { Settings, Flame, Archive } from "lucide-react";
 import { getStreakColorClasses, cn } from "@/lib/utils";
 import { formatPuzzleNumber } from "@/lib/puzzleUtils";
@@ -115,9 +114,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 <Settings className="h-5 w-5" />
               </Button>
             )}
-
-            {/* Sync Indicator - Only shows for authenticated users */}
-            <SyncIndicator />
 
             {/* Auth Buttons - Rightmost */}
             <AuthButtons />

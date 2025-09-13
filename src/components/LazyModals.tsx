@@ -10,12 +10,6 @@ export const SettingsModal = lazy(() =>
   })),
 );
 
-export const HintReviewModal = lazy(() =>
-  import("@/components/modals/HintReviewModal").then((m) => ({
-    default: m.HintReviewModal,
-  })),
-);
-
 export const AchievementModal = lazy(() =>
   import("@/components/modals/AchievementModal").then((m) => ({
     default: m.AchievementModal,

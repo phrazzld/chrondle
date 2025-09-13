@@ -6,14 +6,14 @@ Generated from TASK.md on 2024-01-13
 
 ### Phase 1: Clean UI Removals
 
-- [ ] Remove "Review Hints" feature - Delete unnecessary modal and button
+- [x] Remove "Review Hints" feature - Delete unnecessary modal and button
 
   - Success criteria: No review hints button visible, modal completely removed
   - Dependencies: None
   - Estimated complexity: SIMPLE
   - Files: `GameIsland.tsx`, `HintReviewModal.tsx`, `LazyModals.tsx`
 
-- [ ] Remove Sync Indicator - Delete green cloud/check icon from navbar
+- [x] Remove Sync Indicator - Delete green cloud/check icon from navbar
   - Success criteria: Header renders without sync indicator, no errors
   - Dependencies: None
   - Estimated complexity: SIMPLE
@@ -31,31 +31,31 @@ Generated from TASK.md on 2024-01-13
 
 ### Stream A: Simple UI Cleanup (Can start immediately)
 
-- [ ] Delete HintReviewModal component file
+- [x] Delete HintReviewModal component file
 
   - Success criteria: File removed, no import errors
   - Can start: Immediately
   - Complexity: SIMPLE
 
-- [ ] Remove HintReviewModal from LazyModals
+- [x] Remove HintReviewModal from LazyModals
 
   - Success criteria: Import and export removed, no compilation errors
   - Dependencies: None
   - Complexity: SIMPLE
 
-- [ ] Remove review hints button from GameIsland
+- [x] Remove review hints button from GameIsland
 
   - Success criteria: Button removed, state cleaned up, no UI remnants
   - Dependencies: None
   - Complexity: SIMPLE
 
-- [ ] Delete SyncIndicator component file
+- [x] Delete SyncIndicator component file
 
   - Success criteria: File removed, no import errors
   - Can start: Immediately
   - Complexity: SIMPLE
 
-- [ ] Remove SyncIndicator from AppHeader
+- [x] Remove SyncIndicator from AppHeader
   - Success criteria: Component usage removed, header displays correctly
   - Dependencies: None
   - Complexity: SIMPLE

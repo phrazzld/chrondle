@@ -24,7 +24,6 @@ import { useScreenReaderAnnouncements } from "@/hooks/useScreenReaderAnnouncemen
 import { logger } from "@/lib/logger";
 import {
   SettingsModal,
-  HintReviewModal,
   AchievementModal,
   LazyModalWrapper,
 } from "@/components/LazyModals";
@@ -168,9 +167,6 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
   const [, setValidationError] = useState("");
   const [, setLastGuessCount] = useState(0);
 
-  // Hint review modal state
-  const [showHintReview, setShowHintReview] = useState(false);
-
   // Handle game over with streak updates
   const handleGameOver = useCallback(
     (won: boolean, guessCount: number) => {
@@ -291,14 +287,6 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
               countdown={countdown}
               confettiRef={confettiRef}
               onValidationError={setValidationError}
-              footerContent={
-                <button
-                  onClick={() => setShowHintReview(true)}
-                  className="text-sm text-muted-foreground hover:text-foreground"
-                >
-                  Review Hints
-                </button>
-              }
             />
           )}
         </main>
@@ -312,29 +300,6 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
             onClose={() => setShowSettingsModal(false)}
           />
         </LazyModalWrapper>
-
-        {gameLogic.gameState.puzzle &&
-          gameLogic.gameState.guesses.length > 0 && (
-            <LazyModalWrapper>
-              <HintReviewModal
-                isOpen={showHintReview}
-                onClose={() => setShowHintReview(false)}
-                guessNumber={gameLogic.gameState.guesses.length}
-                guess={
-                  gameLogic.gameState.guesses[
-                    gameLogic.gameState.guesses.length - 1
-                  ]
-                }
-                targetYear={gameLogic.gameState.puzzle.year}
-                hint={
-                  gameLogic.gameState.puzzle.events[
-                    gameLogic.gameState.guesses.length - 1
-                  ] || ""
-                }
-                totalGuesses={gameLogic.gameState.guesses.length}
-              />
-            </LazyModalWrapper>
-          )}
 
         <LazyModalWrapper>
           <AchievementModal
