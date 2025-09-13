@@ -47,20 +47,16 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-focus on mount and after submission
+  // Consolidated focus management
   useEffect(() => {
-    if (!disabled) {
-      inputRef.current?.focus();
+    // Focus on mount and keep focus unless game is over
+    if (!disabled && inputRef.current) {
+      // Use requestAnimationFrame for reliable focus after DOM updates
+      requestAnimationFrame(() => {
+        inputRef.current?.focus();
+      });
     }
-  }, [disabled]); // On mount and when disabled state changes
-
-  // Auto-focus after successful submission (when year resets to empty)
-  useEffect(() => {
-    if (year === "" && !disabled && inputRef.current) {
-      // Small delay to ensure DOM updates complete
-      setTimeout(() => inputRef.current?.focus(), 0);
-    }
-  }, [year, disabled]);
+  }, [disabled, year]); // Re-focus when year changes (after submission) or disabled changes
 
   // Keyboard event handler - currently disabled to prevent game integrity issues
   // Arrow key navigation was removed as it could reveal puzzle information
@@ -114,6 +110,9 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
         onGuess(internalYear);
         setYear("");
         // Keep the era as-is for user convenience (don't reset to default)
+
+        // Explicitly refocus the input to keep keyboard open on mobile
+        inputRef.current?.focus();
 
         // Remove animation class after animation completes (150ms)
         setTimeout(() => {

@@ -87,19 +87,19 @@ Generated from TASK.md on 2024-01-13
   - Dependencies: Date utility created
   - Complexity: MEDIUM
 
-- [ ] Fix input focus management after guess
+- [x] Fix input focus management after guess
 
   - Success criteria: Input stays focused, mobile keyboard remains open
   - Can start: Immediately
   - Complexity: SIMPLE
 
-- [ ] Consolidate focus useEffect hooks
+- [x] Consolidate focus useEffect hooks
 
   - Success criteria: Single useEffect manages all focus scenarios
   - Dependencies: None
   - Complexity: SIMPLE
 
-- [ ] Add mobile keyboard optimization
+- [x] Add mobile keyboard optimization
   - Success criteria: `inputmode="numeric"`, keyboard stays open
   - Dependencies: None
   - Complexity: SIMPLE
