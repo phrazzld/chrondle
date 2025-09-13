@@ -23,7 +23,7 @@ import { useVictoryConfetti } from "@/hooks/useVictoryConfetti";
 import { useScreenReaderAnnouncements } from "@/hooks/useScreenReaderAnnouncements";
 import { logger } from "@/lib/logger";
 import {
-  SettingsModal,
+  NotificationModal,
   AchievementModal,
   LazyModalWrapper,
 } from "@/components/LazyModals";
@@ -163,7 +163,7 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
   const countdown = useCountdown();
 
   // UI state
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [, setValidationError] = useState("");
   const [, setLastGuessCount] = useState(0);
 
@@ -252,7 +252,7 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
         </Suspense>
 
         <AppHeader
-          onShowSettings={() => setShowSettingsModal(true)}
+          onShowSettings={() => setShowNotificationModal(true)}
           currentStreak={streakData.currentStreak}
           isDebugMode={debugMode}
           puzzleNumber={puzzleNumber}
@@ -295,9 +295,9 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
 
         {/* Modals with Suspense boundaries */}
         <LazyModalWrapper>
-          <SettingsModal
-            isOpen={showSettingsModal}
-            onClose={() => setShowSettingsModal(false)}
+          <NotificationModal
+            isOpen={showNotificationModal}
+            onClose={() => setShowNotificationModal(false)}
           />
         </LazyModalWrapper>
 

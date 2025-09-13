@@ -11,12 +11,12 @@ import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/components/SessionThemeProvider";
 import { TimePicker } from "@/components/ui/TimePicker";
 
-interface SettingsModalProps {
+interface NotificationModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({
+export const NotificationModal: React.FC<NotificationModalProps> = ({
   isOpen,
   onClose,
 }) => {
@@ -48,7 +48,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-11/12 sm:max-w-md md:max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Settings</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">
+            Notifications
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
           {/* Daily Reminders Section */}

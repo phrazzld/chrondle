@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { AuthButtons } from "@/components/AuthButtons";
-import { Settings, Flame, Archive } from "lucide-react";
+import { Bell, Flame, Archive } from "lucide-react";
 import { getStreakColorClasses, cn } from "@/lib/utils";
 import { formatPuzzleNumber } from "@/lib/puzzleUtils";
 
@@ -107,11 +107,11 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 onClick={onShowSettings}
                 variant="ghost"
                 size="icon"
-                title="Settings - Adjust theme and accessibility options"
-                aria-label="Show settings for theme and accessibility"
+                title="Notifications - Manage daily reminder settings"
+                aria-label="Show notification settings"
                 className="h-10 w-10 rounded-full"
               >
-                <Settings className="h-5 w-5" />
+                <Bell className="h-5 w-5" />
               </Button>
             )}
 
