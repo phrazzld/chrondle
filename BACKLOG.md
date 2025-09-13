@@ -2,13 +2,6 @@
 
 ## PR Review Feedback (GPT-5 Migration)
 
-- [ ] nix review hints thing
-- [ ] keep input focused after submitting a guess
-- [ ] fix streak counter
-- [ ] fix reminders to actually work
-- [ ] fix archive mobile styling (mostly padding)
-- [ ] change cronjob to run at 00:00 central
-
 ### Cost Monitoring & Management
 
 - [ ] [HIGH] [MONITORING] Implement GPT-5 cost monitoring with alerts when daily spend exceeds thresholds | Impact: ~4x higher costs than Gemini

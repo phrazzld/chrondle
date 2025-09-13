@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useUser } from "@clerk/nextjs";
 import { api } from "../../convex/_generated/api";
 import { useMutationWithRetry } from "@/hooks/useMutationWithRetry";
@@ -31,16 +31,19 @@ export function UserCreationHandler({
   const { isSignedIn } = useUser();
   const getOrCreateUser = useMutationWithRetry(
     api.users.getOrCreateCurrentUser,
-    {
-      maxRetries: 3,
-      baseDelayMs: 1000,
-      onRetry: (attempt, error) => {
-        console.error(
-          `[UserCreationHandler] Retrying user creation (attempt ${attempt}/3):`,
-          error.message,
-        );
-      },
-    },
+    useMemo(
+      () => ({
+        maxRetries: 3,
+        baseDelayMs: 1000,
+        onRetry: (attempt: number, error: Error) => {
+          console.error(
+            `[UserCreationHandler] Retrying user creation (attempt ${attempt}/3):`,
+            error.message,
+          );
+        },
+      }),
+      [],
+    ),
   );
 
   const [userCreationLoading, setUserCreationLoading] = useState(false);
@@ -48,49 +51,54 @@ export function UserCreationHandler({
   const [shouldRefresh, setShouldRefresh] = useState(false);
 
   // Detect if user creation is needed
-  const needsUserCreation =
-    isSignedIn &&
-    authState.hasClerkUser &&
-    !authState.hasConvexUser &&
-    !userCreationCompleted;
+  const needsUserCreation = useMemo(
+    () =>
+      isSignedIn &&
+      authState.hasClerkUser &&
+      !authState.hasConvexUser &&
+      !userCreationCompleted,
+    [
+      isSignedIn,
+      authState.hasClerkUser,
+      authState.hasConvexUser,
+      userCreationCompleted,
+    ],
+  );
 
-  useEffect(() => {
-    async function handleUserCreation() {
-      if (needsUserCreation && !userCreationLoading) {
-        // Debug: Triggering JIT user creation
+  const handleUserCreation = useCallback(async () => {
+    if (needsUserCreation && !userCreationLoading && !userCreationCompleted) {
+      // Debug: Triggering JIT user creation
 
-        try {
-          setUserCreationLoading(true);
-          await getOrCreateUser({});
+      try {
+        setUserCreationLoading(true);
+        await getOrCreateUser({});
 
-          setUserCreationCompleted(true);
+        setUserCreationCompleted(true);
 
-          // Trigger page refresh to get updated completion data
-          setShouldRefresh(true);
-        } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : String(error);
-          console.error("[UserCreationHandler] User creation failed:", {
-            error: errorMessage,
-            timestamp: new Date().toISOString(),
-          });
-          // Don't block the UI if user creation fails
-        } finally {
-          setUserCreationLoading(false);
-        }
+        // Trigger page refresh to get updated completion data
+        setShouldRefresh(true);
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        console.error("[UserCreationHandler] User creation failed:", {
+          error: errorMessage,
+          timestamp: new Date().toISOString(),
+        });
+        // Don't block the UI if user creation fails
+      } finally {
+        setUserCreationLoading(false);
       }
     }
-
-    handleUserCreation();
   }, [
     needsUserCreation,
     userCreationLoading,
     userCreationCompleted,
     getOrCreateUser,
-    authState.hasClerkUser,
-    authState.hasConvexUser,
-    isSignedIn,
   ]);
+
+  useEffect(() => {
+    handleUserCreation();
+  }, [handleUserCreation]);
 
   // Handle page refresh after successful user creation
   useEffect(() => {
