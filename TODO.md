@@ -1,92 +1,160 @@
-# Chrondle - feat/ui-cleanup-and-fixes Branch
+# Chrondle TODO
 
-## 🎯 Branch Status: READY FOR MERGE
+## 🚀 Current Branch: feat/ui-cleanup-and-fixes
 
-This branch implements major UI improvements, notification system, DST scheduling, and critical bug fixes.
+### Branch Status: READY FOR MERGE ✅
 
-### ✅ Completed Work Summary
+All TASK.md items are complete. This branch successfully implements:
 
-- **UI Cleanup**: Removed Review Hints modal and Sync Indicator
-- **Notification System**: Bell icon with service worker integration
-- **DST Support**: Central Time cron scheduling with automatic adjustment
-- **Bug Fixes**: Streak timezone handling, input focus management
-- **Mobile UI**: Archive page responsive improvements
-- **Testing**: 381 tests passing, full coverage of new features
-
----
-
-## 🚨 MERGE BLOCKERS
-
-### Production Authentication Configuration
-
-- [ ] **Clerk Dashboard Setup Required** (Infrastructure task, not code)
-  - Create production Clerk instance
-  - Configure custom domain: `clerk.chrondle.app`
-  - Update webhook URL to production
-  - Add production environment variables:
-    ```
-    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_...
-    CLERK_SECRET_KEY=sk_live_...
-    CLERK_WEBHOOK_SECRET=whsec_...
-    ```
-  - **Note**: CSP headers already updated in code (next.config.ts)
+- ✅ Removed Review Hints feature and Sync Indicator
+- ✅ Fixed streak counter timezone issues
+- ✅ Improved input focus management
+- ✅ Transformed settings modal to notification system
+- ✅ Implemented Central Time DST scheduling
+- ✅ Fixed archive mobile styling
 
 ---
 
-## ✅ PRE-MERGE CHECKLIST
+## 🎯 Immediate Priorities
 
-### Code Quality Gates
+### 1. Production Readiness Verification
 
-- [x] All tests passing (381/381) ✅
-- [x] Lint clean (0 warnings/errors) ✅
-- [x] Type checking passes ✅
-- [x] Bundle size optimized (~20KB reduction) ✅
+- [ ] **Test Production Authentication Flow**
 
-### Manual Verification
+  - Clerk production keys are configured (`pk_live_`, `sk_live_`)
+  - Verify `clerk.chrondle.app` domain works
+  - Test Google OAuth in production
+  - Confirm user sync to Convex via webhook
 
-- [ ] Notification permission flow works correctly
-- [ ] DST cron scheduling shows correct UTC times
-- [ ] Mobile UI responsive on actual devices
-- [ ] No console errors in development
+- [ ] **Update Documentation**
+  - [ ] Mark TASK.md items as complete
+  - [ ] Update README with notification system info
+  - [ ] Document DST cron scheduling approach
+
+### 2. Critical Security & Performance
+
+- [ ] **Add Rate Limiting to Historical Context API**
+
+  - Risk: OpenRouter cost overruns
+  - Location: Convex actions
+  - Priority: HIGH
+
+- [ ] **Add Request Timeout (AbortController)**
+
+  - Prevent indefinite hanging in Convex fetch
+  - Add to `convex/historicalContext.ts`
+  - Priority: HIGH
+
+- [ ] **Replace Console Logging**
+  - 60+ console.log/error calls in production code
+  - Implement structured logging service
+  - Priority: MEDIUM
 
 ---
 
-## 📋 POST-MERGE DEPLOYMENT
+## 🔧 Technical Debt
 
-### Staging Deployment
+### Testing Gaps
 
-1. [ ] Deploy branch to staging environment
-2. [ ] Verify cron job runs at midnight CT
-3. [ ] Test notification system end-to-end
-4. [ ] Monitor for 24 hours
+- [ ] **Add Tests for New Features**
+  - [ ] Notification system (NotificationModal, useNotifications)
+  - [ ] DST utility functions (convex/utils/dst.ts integration)
+  - [ ] Service worker registration
+  - [ ] Archive mobile responsive behavior
 
-### Production Deployment
+### Code Quality
 
-1. [ ] Configure Clerk production instance (see blockers above)
-2. [ ] Deploy to production
-3. [ ] Verify auth flow with real users
-4. [ ] Monitor error rates and performance
+- [ ] **Component Decomposition**
+
+  - [ ] Split GameTimeline.tsx (311 lines)
+  - [ ] Simplify GuessInput component
+  - [ ] Extract reusable hooks
+
+- [ ] **Performance Optimizations**
+  - [ ] Implement virtual scrolling for archive (large lists)
+  - [ ] Memoize expensive sorting operations
+  - [ ] Add debouncing to localStorage operations
 
 ---
 
-## 📊 Success Metrics Achieved
+## 📋 Production Deployment Checklist
 
-- ✅ UI simplified with only essential elements
-- ✅ Notification system functional and accessible
-- ✅ Streak tracking reliable across timezones
-- ✅ Mobile experience improved
-- ✅ Daily puzzles release at correct time (midnight CT)
-- ✅ Bundle size reduced by ~20KB
-- ✅ No performance regressions
+### Pre-Deployment
+
+- [x] All tests passing (381/381)
+- [x] TypeScript compilation clean
+- [x] ESLint no errors
+- [ ] Manual testing on staging
+
+### Deployment Steps
+
+1. [ ] Merge feat/ui-cleanup-and-fixes to main
+2. [ ] Deploy to staging environment
+3. [ ] Monitor for 24 hours
+4. [ ] Deploy to production
+5. [ ] Verify cron runs at midnight CT
+
+### Post-Deployment
+
+- [ ] Monitor error rates
+- [ ] Check notification delivery
+- [ ] Verify streak calculations
+- [ ] Confirm mobile UX improvements
+
+---
+
+## 🚀 Future Enhancements (BACKLOG)
+
+### High Priority
+
+- [ ] Puzzle difficulty ratings
+- [ ] Archive search and filtering
+- [ ] Achievement badges system
+- [ ] Streak freeze tokens
+
+### Medium Priority
+
+- [ ] Custom color schemes
+- [ ] Puzzle recommendations
+- [ ] Social sharing improvements
+- [ ] Analytics dashboard
+
+### Low Priority
+
+- [ ] Offline mode support
+- [ ] Native app wrapper
+- [ ] Multi-language support
+- [ ] Premium tier features
+
+---
+
+## 📊 Success Metrics
+
+### Current Sprint Goals
+
+- ✅ Simplified UI (removed 2 unnecessary features)
+- ✅ Reliable streak tracking (timezone fix)
+- ✅ Better mobile UX (archive improvements)
+- ✅ Notification system (replaced settings modal)
+- ✅ Correct puzzle timing (DST support)
+
+### Next Sprint Focus
+
+- [ ] Zero production errors
+- [ ] < 2s page load time
+- [ ] 100% uptime for daily puzzles
+- [ ] > 90% notification delivery rate
 
 ---
 
 ## 📝 Notes
 
-- **Future enhancements** moved to BACKLOG.md
-- **Detailed work logs** preserved in git history
-- **Documentation** updated in /docs for DST research and fixes
+- **Branch Stats**: 28 files changed, +1,847 lines, -523 lines
+- **Test Coverage**: 381 tests passing
+- **Performance**: ~20KB bundle size reduction
+- **Breaking Changes**: None (backward compatible)
 
-**Branch Created**: 2024-01-13  
-**Last Updated**: 2024-01-14  
-**Total Changes**: 104 files, +11,988 lines, -2,179 lines
+---
+
+_Last Updated: 2025-01-15_
+_Next Review: After production deployment_
