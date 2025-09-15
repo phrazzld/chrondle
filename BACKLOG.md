@@ -38,6 +38,23 @@
 - [ ] [FUTURE] Implement virtual timeline rendering for 10,000+ year ranges | Gain: Support for prehistoric dates
 - [ ] [LOW] Create GitHub issue for timeline zoom controls and era markers | Gain: Enhanced user interaction
 
+## Notification System Enhancements
+
+- [ ] [MED] [FEATURE] Add notification scheduling options (morning/evening) | Gain: User preference flexibility
+- [ ] [LOW] [FEATURE] Create notification preference profiles | Gain: Quick switching between notification settings
+- [ ] [LOW] [FEATURE] Add push notification support via service worker | Gain: Background notifications when app closed
+- [ ] [LOW] [UX] Create notification sound options | Gain: Audio feedback customization
+
+## Gamification & Engagement
+
+- [ ] [MED] [FEATURE] Implement streak freeze tokens for missed days | Gain: Retention during vacations/breaks
+- [ ] [LOW] [FEATURE] Add streak milestone celebrations | Gain: Reward long-term engagement
+
+## Archive Page Improvements
+
+- [ ] [MED] [FEATURE] Add archive page filtering and search | Gain: Better puzzle discovery
+- [ ] [LOW] [PERF] Implement virtual scrolling for archive performance | Gain: Handle large puzzle collections
+
 ## Critical Priority - Security & Production Readiness
 
 - [x] [HIGH] [SECURITY] Validate localStorage data to prevent JSON injection attacks | **COMPLETED**: Implemented secure storage utility with comprehensive validation
