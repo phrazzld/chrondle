@@ -26,6 +26,12 @@
 - quality agent for updating and tidying events, duplicates, etc
 - haiku generation flow, iterate on historical context generation prompt
 
+## Mobile Accessibility Improvements
+
+- [ ] [MED] [A11Y] Increase button touch target sizes to meet 44x44px minimum | Current: All buttons are 32-40px, below WCAG guidelines
+- [ ] [MED] [A11Y] Create mobile-specific button size variant (h-11) for critical actions | Gain: Better mobile usability, fewer mis-taps
+- [ ] [LOW] [A11Y] Update main game submit button to use size="lg" or new mobile size | Impact: Core game interaction improvement
+
 ## Timeline Component Enhancements (from PR #11 review)
 
 - [ ] [LOW] Add unit tests for BC/AD formatYear edge cases (year 0, large negative years) | Gain: Prevent formatting bugs

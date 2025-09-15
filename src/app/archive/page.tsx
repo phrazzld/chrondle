@@ -264,7 +264,7 @@ async function ArchivePageContent({
       <div className="min-h-screen flex flex-col bg-background">
         <AppHeader currentStreak={0} />
 
-        <main className="flex-grow max-w-2xl mx-auto w-full py-8">
+        <main className="flex-grow max-w-2xl mx-auto w-full py-8 px-4 sm:px-6">
           <div className="mb-8">
             <h1 className="text-3xl sm:text-4xl font-heading font-bold text-foreground mb-2">
               Puzzle Archive
@@ -291,7 +291,7 @@ async function ArchivePageContent({
                       %
                     </span>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                  <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
                     <div
                       className="bg-green-600 h-full transition-all duration-300 ease-out"
                       style={{
@@ -349,14 +349,14 @@ async function ArchivePageContent({
           ) : (
             <>
               {/* Actual archive grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 {paginatedData.map((puzzle) => (
                   <Link
                     key={puzzle.puzzleNumber}
                     href={`/archive/puzzle/${puzzle.puzzleNumber}`}
                   >
                     <Card
-                      className={`h-[10rem] p-4 flex flex-col gap-2 transition-all hover:shadow-md cursor-pointer ${
+                      className={`h-32 sm:h-[10rem] p-4 flex flex-col gap-2 transition-all hover:shadow-md cursor-pointer ${
                         puzzle.isCompleted
                           ? "border-green-600/30 hover:border-green-600/50 bg-green-600/5"
                           : "hover:border-primary"
