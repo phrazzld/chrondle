@@ -63,10 +63,22 @@ jobs:
         key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
         restore-keys: |
           ${{ runner.os }}-pnpm-store-
-          
+
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
-      
+
+    - name: 🔒 Security Audit
+      run: |
+        echo "🔍 Checking for known vulnerabilities in dependencies..."
+        pnpm audit --audit-level moderate || {
+          EXIT_CODE=$?
+          echo "⚠️ Vulnerabilities found in dependencies"
+          echo "Run 'pnpm audit' locally to see details"
+          echo "Consider running 'pnpm update' to fix automatically fixable issues"
+          exit $EXIT_CODE
+        }
+        echo "✅ No moderate or higher vulnerabilities found"
+
     - name: Verify Convex files are committed
       run: |
         echo "🔍 Checking required Convex files are present..."
