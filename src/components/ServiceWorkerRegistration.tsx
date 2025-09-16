@@ -17,20 +17,46 @@ export function ServiceWorkerRegistration() {
     }
 
     // Register service worker after page load to not block initial render
-    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      window.addEventListener("load", async () => {
-        const result = await registerServiceWorker();
-
-        if (result.success) {
-          logger.info("🎯 Service Worker ready for notifications");
-        } else {
-          logger.warn(
-            "Service Worker registration failed:",
-            result.error?.message,
-          );
-        }
-      });
+    if (
+      typeof window === "undefined" ||
+      typeof document === "undefined" ||
+      !("serviceWorker" in navigator)
+    ) {
+      return;
     }
+
+    let hasAttemptedRegistration = false;
+
+    const attemptRegistration = async () => {
+      if (hasAttemptedRegistration) return;
+      hasAttemptedRegistration = true;
+
+      const result = await registerServiceWorker();
+
+      if (result.success) {
+        logger.info("🎯 Service Worker ready for notifications");
+      } else {
+        logger.warn(
+          "Service Worker registration failed:",
+          result.error?.message,
+        );
+      }
+    };
+
+    const handleLoad = () => {
+      void attemptRegistration();
+    };
+
+    if (document.readyState === "complete") {
+      void attemptRegistration();
+      return () => undefined;
+    }
+
+    window.addEventListener("load", handleLoad);
+
+    return () => {
+      window.removeEventListener("load", handleLoad);
+    };
   }, []);
 
   // This component doesn't render anything

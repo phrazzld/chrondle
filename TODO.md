@@ -30,10 +30,10 @@ All TASK.md items are complete. This branch successfully implements:
   - ~~Update `ProgressBar` / gameplay affordances to surface the entry point again~~
   - Current UI already surfaces revealed hints in `HintsDisplay`; legacy modal intentionally removed as redundant
 
-- [ ] **Harden Service Worker Registration**
+- [x] **Harden Service Worker Registration**
 
-  - Ensure registration runs even when `window.load` has already fired by the time the component mounts
-  - Extend smoke tests to cover registration in both dev and prod toggles
+  - ~~Ensure registration runs even when `window.load` has already fired by the time the component mounts~~
+  - ~~Extend smoke tests to cover registration in both dev and prod toggles~~
 
 - [ ] **Stabilize Notification Permission Flow**
 
