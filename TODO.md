@@ -40,10 +40,11 @@ All TASK.md items are complete. This branch successfully implements:
   - ~~Clean up the `setTimeout` in `NotificationModal` so we don't set state after unmount or double-run the completion step~~
   - ~~Add regression tests for the permission success path (checks timer cleanup and toggleReminders sequencing)~~
 
-- [~] **Validate Archive Query Parameters**
+- [x] **Validate Archive Query Parameters**
 
-  - Clamp and sanitize `page` from `searchParams` before passing to Convex queries; reject negatives / huge values
-  - Add coverage for malformed/hostile query params so SSR never forwards invalid pagination data
+  - ~~Clamp and sanitize `page` from `searchParams` before passing to Convex queries; reject negatives / huge values~~
+  - ~~Add coverage for malformed/hostile query params so SSR never forwards invalid pagination data~~
+  - Implemented robust validation with comprehensive test coverage (11 tests)
 
 ### 1. Production Readiness Verification
 
