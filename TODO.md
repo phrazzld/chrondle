@@ -35,10 +35,10 @@ All TASK.md items are complete. This branch successfully implements:
   - ~~Ensure registration runs even when `window.load` has already fired by the time the component mounts~~
   - ~~Extend smoke tests to cover registration in both dev and prod toggles~~
 
-- [ ] **Stabilize Notification Permission Flow**
+- [x] **Stabilize Notification Permission Flow**
 
-  - Clean up the `setTimeout` in `NotificationModal` so we don't set state after unmount or double-run the completion step
-  - Add regression tests for the permission success path (checks timer cleanup and toggleReminders sequencing)
+  - ~~Clean up the `setTimeout` in `NotificationModal` so we don't set state after unmount or double-run the completion step~~
+  - ~~Add regression tests for the permission success path (checks timer cleanup and toggleReminders sequencing)~~
 
 - [ ] **Validate Archive Query Parameters**
 

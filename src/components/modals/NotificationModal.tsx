@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -33,6 +33,42 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
   const [isTogglingNotifications, setIsTogglingNotifications] = useState(false);
   const [permissionStep, setPermissionStep] = useState<PermissionStep>("none");
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
+  const completionTimeoutRef = useRef<number | null>(null);
+  const isMountedRef = useRef(true);
+
+  const clearCompletionTimeout = () => {
+    if (completionTimeoutRef.current !== null) {
+      window.clearTimeout(completionTimeoutRef.current);
+      completionTimeoutRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      clearCompletionTimeout();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (permissionStep !== "complete") {
+      clearCompletionTimeout();
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      if (isMountedRef.current) {
+        setPermissionStep("none");
+      }
+      completionTimeoutRef.current = null;
+    }, 2000);
+
+    completionTimeoutRef.current = timeoutId;
+
+    return () => {
+      clearCompletionTimeout();
+    };
+  }, [permissionStep]);
 
   const handleNotificationToggle = async () => {
     // If trying to enable and permission not granted, show explanation first
@@ -51,7 +87,9 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
     } catch (error) {
       console.error("Failed to toggle notifications:", error);
     } finally {
-      setIsTogglingNotifications(false);
+      if (isMountedRef.current) {
+        setIsTogglingNotifications(false);
+      }
     }
   };
 
@@ -62,14 +100,19 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
     try {
       const permission = await notifications.requestPermission();
 
+      if (!isMountedRef.current) {
+        return;
+      }
+
       if (permission === "granted") {
         // Permission granted, now enable reminders
         await notifications.toggleReminders();
+
+        if (!isMountedRef.current) {
+          return;
+        }
+
         setPermissionStep("complete");
-        // Reset after a short delay
-        setTimeout(() => {
-          setPermissionStep("none");
-        }, 2000);
       } else if (permission === "denied") {
         // Permission denied, show appropriate message
         setPermissionStep("none");
@@ -79,9 +122,13 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
       }
     } catch (error) {
       console.error("Failed to request permission:", error);
-      setPermissionStep("none");
+      if (isMountedRef.current) {
+        setPermissionStep("none");
+      }
     } finally {
-      setIsRequestingPermission(false);
+      if (isMountedRef.current) {
+        setIsRequestingPermission(false);
+      }
     }
   };
 
