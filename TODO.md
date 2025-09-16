@@ -24,10 +24,11 @@ All TASK.md items are complete. This branch successfully implements:
   - ~~Rework `getUTCHourForCentralMidnight` usage so the Convex cron recomputes daily or schedules both CST/CDT hours~~
   - ~~Add coverage ensuring the daily puzzle job fires at midnight CT across DST transitions~~
 
-- [ ] **Restore Hint Review Accessibility**
+- [x] **Restore Hint Review Accessibility**
 
-  - Reintroduce a user path to review past hints (modal or alternative UI)
-  - Update `ProgressBar` / gameplay affordances to surface the entry point again
+  - ~~Reintroduce a user path to review past hints (modal or alternative UI)~~
+  - ~~Update `ProgressBar` / gameplay affordances to surface the entry point again~~
+  - Current UI already surfaces revealed hints in `HintsDisplay`; legacy modal intentionally removed as redundant
 
 - [ ] **Harden Service Worker Registration**
 
