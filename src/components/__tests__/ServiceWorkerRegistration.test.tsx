@@ -1,3 +1,4 @@
+import React from "react";
 import {
   afterAll,
   afterEach,
@@ -27,7 +28,7 @@ import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistratio
 
 const mockedRegister = vi.mocked(registerServiceWorker);
 
-const originalEnv = { ...process.env } as Record<string, string | undefined>;
+const originalEnv = process.env.NODE_ENV;
 const originalReadyStateDescriptor = Object.getOwnPropertyDescriptor(
   document,
   "readyState",
@@ -72,24 +73,18 @@ beforeEach(() => {
   vi.clearAllMocks();
   mockedRegister.mockResolvedValue({ success: true });
   setReadyState("complete");
-  Object.assign(process.env, originalEnv);
-  process.env.NODE_ENV = originalEnv.NODE_ENV || "test";
-  delete process.env.NEXT_PUBLIC_ENABLE_SERVICE_WORKER;
+  vi.stubEnv("NODE_ENV", originalEnv || "test");
+  vi.stubEnv("NEXT_PUBLIC_ENABLE_SERVICE_WORKER", "");
 });
 
 afterEach(() => {
   cleanup();
-  for (const key of Object.keys(process.env)) {
-    if (!(key in originalEnv)) {
-      delete process.env[key];
-    }
-  }
-  Object.assign(process.env, originalEnv);
+  vi.unstubAllEnvs();
 });
 
 describe("ServiceWorkerRegistration", () => {
   it("skips registration when disabled", async () => {
-    process.env.NODE_ENV = "development";
+    vi.stubEnv("NODE_ENV", "development");
 
     render(<ServiceWorkerRegistration />);
 
@@ -97,7 +92,7 @@ describe("ServiceWorkerRegistration", () => {
   });
 
   it("registers immediately when document already loaded", async () => {
-    process.env.NODE_ENV = "production";
+    vi.stubEnv("NODE_ENV", "production");
 
     render(<ServiceWorkerRegistration />);
 
@@ -105,7 +100,7 @@ describe("ServiceWorkerRegistration", () => {
   });
 
   it("registers after load event when page is still loading", async () => {
-    process.env.NODE_ENV = "production";
+    vi.stubEnv("NODE_ENV", "production");
     setReadyState("loading");
 
     render(<ServiceWorkerRegistration />);
@@ -119,8 +114,8 @@ describe("ServiceWorkerRegistration", () => {
   });
 
   it("registers in development when override flag is set", async () => {
-    process.env.NODE_ENV = "development";
-    process.env.NEXT_PUBLIC_ENABLE_SERVICE_WORKER = "true";
+    vi.stubEnv("NODE_ENV", "development");
+    vi.stubEnv("NEXT_PUBLIC_ENABLE_SERVICE_WORKER", "true");
 
     render(<ServiceWorkerRegistration />);
 

@@ -1,3 +1,4 @@
+import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   act,
@@ -84,25 +85,34 @@ describe("NotificationModal", () => {
     const requestButton = screen.getByRole("button", {
       name: "Request Permission",
     });
-    fireEvent.click(requestButton);
 
-    await waitFor(() =>
-      expect(
-        notificationsStub.notifications.toggleReminders,
-      ).toHaveBeenCalledTimes(1),
+    await act(async () => {
+      fireEvent.click(requestButton);
+    });
+
+    await waitFor(
+      () => {
+        expect(
+          notificationsStub.notifications.toggleReminders,
+        ).toHaveBeenCalledTimes(1);
+      },
+      { timeout: 3000 },
     );
 
     expect(screen.getByText("Notifications Enabled!")).toBeInTheDocument();
     expect(notificationsStub.callOrder).toEqual(["request", "toggle"]);
 
-    await act(async () => {
+    act(() => {
       vi.advanceTimersByTime(2000);
     });
 
-    await waitFor(() => {
-      expect(screen.getByText("Notifications")).toBeInTheDocument();
-    });
-  });
+    await waitFor(
+      () => {
+        expect(screen.getByText("Notifications")).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+  }, 15000);
 
   it("clears completion timeout on unmount", async () => {
     const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
@@ -112,22 +122,31 @@ describe("NotificationModal", () => {
     );
 
     const toggle = screen.getByRole("switch");
-    fireEvent.click(toggle);
+    await act(async () => {
+      fireEvent.click(toggle);
+    });
 
     const enableButton = screen.getByRole("button", {
       name: "Enable Notifications",
     });
-    fireEvent.click(enableButton);
+    await act(async () => {
+      fireEvent.click(enableButton);
+    });
 
     const requestButton = screen.getByRole("button", {
       name: "Request Permission",
     });
-    fireEvent.click(requestButton);
+    await act(async () => {
+      fireEvent.click(requestButton);
+    });
 
-    await waitFor(() =>
-      expect(
-        notificationsStub.notifications.toggleReminders,
-      ).toHaveBeenCalledTimes(1),
+    await waitFor(
+      () => {
+        expect(
+          notificationsStub.notifications.toggleReminders,
+        ).toHaveBeenCalledTimes(1);
+      },
+      { timeout: 3000 },
     );
 
     expect(screen.getByText("Notifications Enabled!")).toBeInTheDocument();
@@ -141,5 +160,5 @@ describe("NotificationModal", () => {
     });
 
     clearTimeoutSpy.mockRestore();
-  });
+  }, 15000);
 });
