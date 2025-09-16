@@ -17,6 +17,33 @@ All TASK.md items are complete. This branch successfully implements:
 
 ## 🎯 Immediate Priorities
 
+### 0. Code Review Follow-ups
+
+- [x] **Fix DST Cron Scheduling Drift**
+
+  - ~~Rework `getUTCHourForCentralMidnight` usage so the Convex cron recomputes daily or schedules both CST/CDT hours~~
+  - ~~Add coverage ensuring the daily puzzle job fires at midnight CT across DST transitions~~
+
+- [ ] **Restore Hint Review Accessibility**
+
+  - Reintroduce a user path to review past hints (modal or alternative UI)
+  - Update `ProgressBar` / gameplay affordances to surface the entry point again
+
+- [ ] **Harden Service Worker Registration**
+
+  - Ensure registration runs even when `window.load` has already fired by the time the component mounts
+  - Extend smoke tests to cover registration in both dev and prod toggles
+
+- [ ] **Stabilize Notification Permission Flow**
+
+  - Clean up the `setTimeout` in `NotificationModal` so we don't set state after unmount or double-run the completion step
+  - Add regression tests for the permission success path (checks timer cleanup and toggleReminders sequencing)
+
+- [ ] **Validate Archive Query Parameters**
+
+  - Clamp and sanitize `page` from `searchParams` before passing to Convex queries; reject negatives / huge values
+  - Add coverage for malformed/hostile query params so SSR never forwards invalid pagination data
+
 ### 1. Production Readiness Verification
 
 - [ ] **Test Production Authentication Flow**

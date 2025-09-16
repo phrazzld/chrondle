@@ -177,3 +177,42 @@ export function getNextDSTTransition(fromDate: Date = new Date()): {
     };
   }
 }
+
+/**
+ * Determine whether the provided moment corresponds to midnight in Central Time
+ * Allows for slight scheduler drift (<= 5 seconds)
+ */
+const MIDNIGHT_SECOND_DRIFT = 5;
+
+function getCentralTimeParts(date: Date): {
+  hour: number;
+  minute: number;
+  second: number;
+} {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: false,
+  }).formatToParts(date);
+
+  const lookup = (type: "hour" | "minute" | "second"): number => {
+    const value = parts.find((part) => part.type === type)?.value ?? "0";
+    const parsed = Number.parseInt(value, 10);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  };
+
+  return {
+    hour: lookup("hour"),
+    minute: lookup("minute"),
+    second: lookup("second"),
+  };
+}
+
+export function shouldRunDailyPuzzleJob(date: Date = new Date()): boolean {
+  const { hour, minute, second } = getCentralTimeParts(date);
+  return (
+    hour === 0 && minute === 0 && second >= 0 && second <= MIDNIGHT_SECOND_DRIFT
+  );
+}

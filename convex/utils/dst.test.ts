@@ -16,6 +16,7 @@ import {
   getNextDSTTransition,
   centralTimeToUTC,
   utcToCentralTime,
+  shouldRunDailyPuzzleJob,
 } from "./dst";
 
 describe("isDaylightSavingTime", () => {
@@ -133,6 +134,38 @@ describe("isDaylightSavingTime", () => {
     test("November 1, 2026 at 2:00 AM is CST", () => {
       expect(isDaylightSavingTime(new Date("2026-11-01T02:00:00"))).toBe(false);
     });
+  });
+});
+
+describe("shouldRunDailyPuzzleJob", () => {
+  test("returns true for CST midnight (06:00 UTC)", () => {
+    expect(shouldRunDailyPuzzleJob(new Date("2024-02-20T06:00:00Z"))).toBe(
+      true,
+    );
+  });
+
+  test("returns true for CDT midnight (05:00 UTC)", () => {
+    expect(shouldRunDailyPuzzleJob(new Date("2024-07-15T05:00:01Z"))).toBe(
+      true,
+    );
+  });
+
+  test("returns false for non-midnight hours", () => {
+    expect(shouldRunDailyPuzzleJob(new Date("2024-02-20T05:00:00Z"))).toBe(
+      false,
+    );
+    expect(shouldRunDailyPuzzleJob(new Date("2024-07-15T06:00:00Z"))).toBe(
+      false,
+    );
+  });
+
+  test("tolerates small scheduler drift", () => {
+    expect(shouldRunDailyPuzzleJob(new Date("2024-02-20T06:00:05Z"))).toBe(
+      true,
+    );
+    expect(shouldRunDailyPuzzleJob(new Date("2024-02-20T06:00:06Z"))).toBe(
+      false,
+    );
   });
 });
 
