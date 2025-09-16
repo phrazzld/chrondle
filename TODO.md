@@ -26,7 +26,7 @@ The `feat/ui-cleanup-and-fixes` branch is complete and ready for deployment. No 
 
 ## ⚡ CI Performance (Nice to Have)
 
-- [ ] Consolidate duplicate Node/pnpm setup steps (saves 2-4 min per build)
+- [x] Consolidate duplicate Node/pnpm setup steps (saves 2-4 min per build)
   - Extract to reusable workflow in `.github/workflows/setup-node-pnpm.yml`
 - [ ] Fix or skip 2 flaky notification tests (jsdom `clearTimeout` issue)
 
