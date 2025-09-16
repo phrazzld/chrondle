@@ -1,38 +1,53 @@
 # Chrondle TODO
 
-## 🚀 SHIP IT
+## 🚀 Ready to Ship!
 
-### Branch: feat/ui-cleanup-and-fixes - READY FOR MERGE ✅
+The `feat/ui-cleanup-and-fixes` branch is complete and ready for deployment. No blockers.
 
-**Completed:**
+**Quality Status:**
 
-- ✅ Removed Review Hints feature and Sync Indicator
-- ✅ Fixed streak counter timezone issues
-- ✅ Fixed input focus management
-- ✅ Replaced settings modal with notification system
-- ✅ Central Time DST scheduling
-- ✅ Fixed archive mobile styling
-- ✅ Archive query parameter validation
-- ✅ Production auth verification
+- ✅ Tests: 400/402 passing (2 jsdom issues, not real failures)
+- ✅ TypeScript: Clean
+- ✅ Linting: Clean
+- ✅ Deployments: Working fine
 
-**Tests:** 400/402 passing (2 timeout issues that don't block)
-**TypeScript:** Clean
-**Linting:** Clean
-
----
-
-## 📋 Deployment
+**Next Steps:**
 
 1. [ ] Merge to main
 2. [ ] Deploy to production
 3. [ ] Verify daily puzzle works
-4. [ ] Done
 
 ---
 
-## 📝 If Users Report Actual Problems
+## 🛡️ Security Hardening (Recommended)
 
-Add them here. Until then, ship it.
+- [x] Add `pnpm audit --audit-level moderate` to CI (`.github/workflows/ci.yml:62`)
+- [ ] Create `.github/dependabot.yml` for weekly dependency updates
+
+## ⚡ CI Performance (Nice to Have)
+
+- [ ] Consolidate duplicate Node/pnpm setup steps (saves 2-4 min per build)
+  - Extract to reusable workflow in `.github/workflows/setup-node-pnpm.yml`
+- [ ] Fix or skip 2 flaky notification tests (jsdom `clearTimeout` issue)
+
+## 📊 Code Quality Tools (Already Installed, Not Enabled)
+
+- [ ] Add coverage reporting: `pnpm test:coverage` in CI
+- [ ] Enable ts-prune: Add script `"ts-prune": "ts-prune"`
+- [ ] Enable unimported: Add script `"unimported": "unimported"`
+- [ ] Enable jsx-a11y linting: Add to `eslint.config.mjs`
+
+## 🧹 Cleanup Tasks
+
+- [ ] Remove obsolete migration step from `.github/workflows/deploy.yml:67-71`
+- [ ] Remove unused `@lhci/cli` package (Lighthouse CI was removed)
+- [ ] Add bundle size trend tracking (GitHub Action for PR comments)
+
+---
+
+## 📝 Production Issues
+
+_Track user-reported bugs here_
 
 ---
 
