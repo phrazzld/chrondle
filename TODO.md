@@ -22,7 +22,7 @@ The `feat/ui-cleanup-and-fixes` branch is complete and ready for deployment. No 
 ## 🛡️ Security Hardening (Recommended)
 
 - [x] Add `pnpm audit --audit-level moderate` to CI (`.github/workflows/ci.yml:62`)
-- [ ] Create `.github/dependabot.yml` for weekly dependency updates
+- [x] Create `.github/dependabot.yml` for weekly dependency updates
 
 ## ⚡ CI Performance (Nice to Have)
 
