@@ -23,11 +23,36 @@ interface ArchivePageProps {
   searchParams: Promise<{ page?: string }>;
 }
 
+// Sanitize and validate page parameter
+function validatePageParam(pageParam: string | undefined): number {
+  const DEFAULT_PAGE = 1;
+  const MAX_PAGE = 10000; // Reasonable upper limit
+
+  if (!pageParam) return DEFAULT_PAGE;
+
+  // Trim whitespace
+  const trimmed = pageParam.trim();
+  if (!trimmed) return DEFAULT_PAGE;
+
+  // Reject if contains non-digit characters (except leading +)
+  // This prevents "12abc", "1e10", etc.
+  if (!/^\+?\d+$/.test(trimmed)) return DEFAULT_PAGE;
+
+  // Parse as integer
+  const parsed = parseInt(trimmed, 10);
+
+  // Check for NaN, negative, or unreasonably large values
+  if (isNaN(parsed) || parsed < 1) return DEFAULT_PAGE;
+  if (parsed > MAX_PAGE) return MAX_PAGE;
+
+  return parsed;
+}
+
 async function ArchivePageContent({
   searchParams,
 }: ArchivePageProps): Promise<React.ReactElement> {
   const params = await searchParams;
-  const currentPage = Number(params.page) || 1;
+  const currentPage = validatePageParam(params.page);
   const PUZZLES_PER_PAGE = 24 as const;
 
   // Runtime environment detection for debugging
