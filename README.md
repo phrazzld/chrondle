@@ -9,6 +9,40 @@
 - **Intuitive Interface:** Clean and responsive design built with Next.js and Tailwind CSS.
 - **Historical Range:** Puzzles cover a vast timeline, from ancient civilizations to recent events.
 - **Dynamic Puzzle Generation:** Puzzles are created on-demand each day from our events database using a deterministic algorithm - ensuring the same puzzle globally for all players.
+- **Daily Notifications:** Optional reminders to play each day's puzzle, with customizable notification times.
+- **Smart Timezone Handling:** Daily puzzle resets at midnight Central Time, automatically adjusting for daylight saving time transitions.
+
+## Daily Notifications
+
+Chrondle offers optional daily reminders to help you maintain your streak:
+
+### Features
+
+- **Customizable Time:** Set your preferred notification time (default: 9:00 AM)
+- **Browser Notifications:** Native browser push notifications on desktop and mobile
+- **Service Worker Support:** Notifications work even when the app isn't open
+- **Smart Permission Flow:** Two-step process that explains benefits before requesting permission
+- **Visual Feedback:** Bell icon shows notification status at a glance
+
+### Setting Up Notifications
+
+1. Click the **bell icon** in the top navigation bar
+2. Toggle notifications on and select your preferred time
+3. Click "Enable Notifications" to see the benefits
+4. Grant permission when prompted by your browser
+5. You'll receive a daily reminder at your chosen time!
+
+### Notification States
+
+- **🔔 Bell icon (filled):** Notifications enabled and active
+- **🔔 Bell icon (outline):** Notifications available but not enabled
+- **🔕 Bell with slash:** Notifications blocked by browser settings
+
+### Troubleshooting
+
+- **Not receiving notifications?** Check your browser's notification settings
+- **Mobile issues?** Ensure the site is added to your home screen for best results
+- **Changed your mind?** You can disable notifications anytime from the bell menu
 
 ## How to Play
 
@@ -42,6 +76,44 @@ Chrondle supports both anonymous and authenticated gameplay:
 
 - **Optimized for mobile:** Authentication uses redirect flow on mobile devices for better compatibility
 - **Email app friendly:** Magic link authentication works seamlessly when switching between browser and email apps
+
+## Technical Architecture
+
+### Daily Puzzle Scheduling
+
+Chrondle implements sophisticated scheduling to ensure puzzles reset at midnight Central Time:
+
+#### DST-Aware Cron System
+
+- **Automatic DST Handling:** The system detects whether Central Time is in CST (UTC-6) or CDT (UTC-5)
+- **Daily Recalculation:** UTC offset is computed daily to handle DST transitions seamlessly
+- **Spring Forward/Fall Back:** Correctly handles the twice-yearly time changes without manual intervention
+- **Global Consistency:** All players worldwide receive the same puzzle at Central Time midnight
+
+#### Implementation Details
+
+```typescript
+// Dynamic UTC hour calculation for Central Time midnight
+function getUTCHourForCentralMidnight(): number {
+  const now = new Date();
+  const chicagoTime = new Date(now.toLocaleString("en-US", {
+    timeZone: "America/Chicago"
+  }));
+  const isDST = /* DST detection logic */;
+  return isDST ? 5 : 6; // UTC 5 AM (CDT) or 6 AM (CST)
+}
+```
+
+- **Convex Cron Jobs:** Backend scheduled tasks run at the calculated UTC hour
+- **Timezone Library:** Uses standard IANA timezone database (America/Chicago)
+- **Edge Case Handling:** Properly manages the ambiguous hour during "fall back"
+
+### Notification System Architecture
+
+- **Service Worker:** Background script handles push notifications
+- **Permission Management:** Graceful handling of permission states
+- **Persistence:** User preferences saved to both localStorage and Convex
+- **Cross-Device Sync:** Authenticated users' settings sync across devices
 
 ## Development
 
@@ -200,6 +272,21 @@ Chrondle requires several environment variables for production deployment. Copy 
 - [ ] Archive page displays puzzles
 - [ ] User authentication works (if enabled)
 
+### Production Features Verification
+
+Run the verification scripts to ensure production readiness:
+
+```bash
+# Verify authentication configuration
+pnpm verify:auth:prod
+
+# Check deployment readiness
+pnpm deployment:check
+
+# Validate Convex configuration
+pnpm verify:convex
+```
+
 ### Troubleshooting
 
 **White screen or loading issues:**
@@ -210,7 +297,7 @@ Chrondle requires several environment variables for production deployment. Copy 
 
 **Authentication not working:**
 
-- Verify Clerk keys are correct
+- Verify Clerk keys are correct (use `pnpm verify:auth:prod`)
 - Check webhook configuration
 - Ensure `CLERK_WEBHOOK_SECRET` matches the webhook settings
 
@@ -219,6 +306,18 @@ Chrondle requires several environment variables for production deployment. Copy 
 - Check all required environment variables are set
 - Verify `vercel.json` is present in the repository
 - Review build logs for specific errors
+
+**Notification issues:**
+
+- Verify service worker is registered (check Application tab in DevTools)
+- Ensure HTTPS is enabled (required for service workers)
+- Check browser notification permissions
+
+**Daily puzzle timing:**
+
+- Confirm cron job is running (check Convex dashboard logs)
+- Verify DST calculations are correct for current date
+- Check that server timezone handling matches Central Time
 
 For more detailed setup instructions, see the [Convex Next.js Quickstart](https://docs.convex.dev/quickstart/nextjs) and [Clerk Next.js Documentation](https://clerk.com/docs/quickstarts/nextjs).
 

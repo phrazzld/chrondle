@@ -4,9 +4,9 @@
 
 ### 1. Remove "Review Hints" Feature
 
-- [ ] **Remove the link/button** at the bottom of the game page that says "review hints"
-- [ ] **Delete the modal** that opens when clicking the review hints button
-- [ ] **Clean up all related code** - both the trigger and the modal are unnecessary
+- [x] **Remove the link/button** at the bottom of the game page that says "review hints"
+- [x] **Delete the modal** that opens when clicking the review hints button
+- [x] **Clean up all related code** - both the trigger and the modal are unnecessary
 
 **Files to modify:**
 
@@ -16,8 +16,8 @@
 
 ### 2. Remove Sync Indicator Icon
 
-- [ ] **Remove the green cloud/check icon** to the left of the user auth icon in the navbar
-- [ ] This sync indicator is unnecessary
+- [x] **Remove the green cloud/check icon** to the left of the user auth icon in the navbar
+- [x] This sync indicator is unnecessary
 
 **Files to modify:**
 
@@ -28,9 +28,9 @@
 
 ### 3. Fix Streak Counter
 
-- [ ] **The streak counter is not working properly** - not incrementing or resetting unexpectedly
-- [ ] **Root cause**: UTC date strings (`toISOString().slice(0, 10)`) don't match user's local timezone
-- [ ] **Solution**: Use local timezone for all date calculations in streak logic
+- [x] **The streak counter is not working properly** - not incrementing or resetting unexpectedly
+- [x] **Root cause**: UTC date strings (`toISOString().slice(0, 10)`) don't match user's local timezone
+- [x] **Solution**: Use local timezone for all date calculations in streak logic
 
 **Files to modify:**
 
@@ -40,12 +40,12 @@
 
 ### 4. Fix Input Focus After Guess
 
-- [ ] **Keep input focused after submitting a guess** (when game is not over)
-- [ ] When you submit an incorrect guess and have remaining guesses:
+- [x] **Keep input focused after submitting a guess** (when game is not over)
+- [x] When you submit an incorrect guess and have remaining guesses:
   - The next hint should be displayed
   - The guess input should remain focused
   - **Keyboard should stay open on mobile**
-- [ ] Note: There is no feedback modal - game shows game over screen only when correct or last guess
+- [x] Note: There is no feedback modal - game shows game over screen only when correct or last guess
 
 **Files to modify:**
 
@@ -58,9 +58,9 @@
 
 ### 5. Replace Settings Modal with Notification Icon
 
-- [ ] **The reminders option is the only option in the settings modal**
-- [ ] **Kill the settings modal** and replace the settings icon with a notification icon
-- [ ] Make sure the notifications functionality works properly on both desktop and mobile
+- [x] **The reminders option is the only option in the settings modal**
+- [x] **Kill the settings modal** and replace the settings icon with a notification icon
+- [x] Make sure the notifications functionality works properly on both desktop and mobile
 
 **Files to modify:**
 
@@ -81,9 +81,9 @@
 
 ### 6. Update Cron Job Timing
 
-- [ ] **Change cronjob to run at 00:00 Central Time**
-- [ ] **Must handle daylight savings** (CST/CDT transitions)
-- [ ] Current runs at midnight UTC (6 PM Central summer, 7 PM winter)
+- [x] **Change cronjob to run at 00:00 Central Time**
+- [x] **Must handle daylight savings** (CST/CDT transitions)
+- [x] Current runs at midnight UTC (6 PM Central summer, 7 PM winter)
 
 **Files to modify:**
 
@@ -124,18 +124,18 @@
 
 ## Testing Checklist
 
-- [ ] Review hints completely removed - no button, no modal
-- [ ] Sync indicator removed from header
-- [ ] Settings icon replaced with notification bell
-- [ ] Notifications work on desktop and mobile browsers
-- [ ] Streak increments correctly for daily plays
-- [ ] Streak handles timezone changes properly
-- [ ] Input stays focused after incorrect guess
-- [ ] Mobile keyboard remains open between guesses
-- [ ] Daily puzzle resets at midnight Central Time
-- [ ] DST transitions handled correctly (spring forward/fall back)
-- [ ] Archive page looks good on mobile devices
-- [ ] All touch targets are appropriately sized
+- [x] Review hints completely removed - no button, no modal
+- [x] Sync indicator removed from header
+- [x] Settings icon replaced with notification bell
+- [x] Notifications work on desktop and mobile browsers
+- [x] Streak increments correctly for daily plays
+- [x] Streak handles timezone changes properly
+- [x] Input stays focused after incorrect guess
+- [x] Mobile keyboard remains open between guesses
+- [x] Daily puzzle resets at midnight Central Time
+- [x] DST transitions handled correctly (spring forward/fall back)
+- [x] Archive page looks good on mobile devices
+- [x] All touch targets are appropriately sized
 
 ## Success Criteria
 
