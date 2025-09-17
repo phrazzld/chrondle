@@ -13,7 +13,7 @@ The `feat/ui-cleanup-and-fixes` branch is complete and ready for deployment. No 
 
 **Next Steps:**
 
-1. [ ] Merge to main
+1. [~] Merge to main
 2. [ ] Deploy to production
 3. [ ] Verify daily puzzle works
 
