@@ -27,6 +27,7 @@
     "bundle-analysis": "ANALYZE=true pnpm build",
     "size": "size-limit",
     "ts-prune": "ts-prune --ignore '(used in module)|_generated|config.ts|layout.tsx|page.tsx'",
+    "unimported": "unimported",
     "prepare": "husky",
     "clean": "rm -rf .next node_modules/.cache tsconfig.tsbuildinfo",
     "clean:next": "rm -rf .next tsconfig.tsbuildinfo",
