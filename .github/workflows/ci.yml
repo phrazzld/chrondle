@@ -45,15 +45,44 @@ jobs:
 
     - name: 🔒 Security Audit
       run: |
-        echo "🔍 Checking for known vulnerabilities in dependencies..."
-        pnpm audit --audit-level moderate || {
+        echo "🔍 Checking for security vulnerabilities in dependencies..."
+
+        # Production dependencies - STRICT (fail on moderate or higher)
+        echo ""
+        echo "📦 Auditing production dependencies..."
+        pnpm audit --prod --audit-level moderate || {
           EXIT_CODE=$?
-          echo "⚠️ Vulnerabilities found in dependencies"
-          echo "Run 'pnpm audit' locally to see details"
-          echo "Consider running 'pnpm update' to fix automatically fixable issues"
+          echo "❌ CRITICAL: Production vulnerabilities found!"
+          echo "These vulnerabilities affect your users and must be fixed immediately."
+          echo "Run 'pnpm audit --prod' locally to see details"
           exit $EXIT_CODE
         }
-        echo "✅ No moderate or higher vulnerabilities found"
+        echo "✅ Production dependencies secure (no moderate+ vulnerabilities)"
+
+        # Development dependencies - LENIENT (fail only on high or critical)
+        echo ""
+        echo "🛠️ Auditing development dependencies..."
+        pnpm audit --dev --audit-level high || {
+          EXIT_CODE=$?
+          echo "❌ High/Critical vulnerabilities found in dev dependencies!"
+          echo "These should be addressed but don't affect production users."
+          echo "Run 'pnpm audit --dev' locally to see details"
+          exit $EXIT_CODE
+        }
+
+        # Check for moderate dev vulnerabilities (warning only, non-blocking)
+        echo ""
+        echo "📋 Checking for moderate dev dependency vulnerabilities..."
+        if ! pnpm audit --dev --audit-level moderate 2>/dev/null; then
+          echo "⚠️ Moderate vulnerabilities found in dev dependencies (non-blocking)"
+          echo "These don't block CI but should be reviewed in the next maintenance cycle."
+          echo "Run 'pnpm audit --dev' locally for details"
+        else
+          echo "✅ Dev dependencies secure (no moderate+ vulnerabilities)"
+        fi
+
+        echo ""
+        echo "✅ Security audit complete"
 
     - name: Verify Convex files are committed
       run: |

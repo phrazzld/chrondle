@@ -121,7 +121,18 @@
   - All quality gates passing, ready for CI
   - Test execution time: 3.61s (normal performance)
   ```
-- [ ] **[CI FIX]** Consider adjusting CI audit scope to treat dev vs prod dependencies differently
+- [x] **[CI FIX]** Consider adjusting CI audit scope to treat dev vs prod dependencies differently
+  ```
+  Work Log:
+  - Analyzed current audit results: prod=0 vulns, dev=5 low-severity only
+  - Created proposal document with recommendation to differentiate
+  - Implemented differentiated auditing in CI:
+    - Production: Strict (fail on moderate+)
+    - Dev High/Critical: Fail CI
+    - Dev Moderate: Warn only (non-blocking)
+  - Benefits: Better signal-to-noise, appropriate urgency levels
+  - Trade-off accepted: Slightly more complex CI for better DX
+  ```
 - [x] **[CI FIX]** Document any forced dependency overrides for future maintenance
   ```
   Work Log:
