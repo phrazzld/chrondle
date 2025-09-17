@@ -32,7 +32,7 @@ The `feat/ui-cleanup-and-fixes` branch is complete and ready for deployment. No 
 
 ## 📊 Code Quality Tools (Already Installed, Not Enabled)
 
-- [ ] Add coverage reporting: `pnpm test:coverage` in CI
+- [x] Add coverage reporting: `pnpm test:coverage` in CI
 - [ ] Enable ts-prune: Add script `"ts-prune": "ts-prune"`
 - [ ] Enable unimported: Add script `"unimported": "unimported"`
 - [ ] Enable jsx-a11y linting: Add to `eslint.config.mjs`
