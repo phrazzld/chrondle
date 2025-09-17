@@ -48,6 +48,16 @@ Chrondle offers optional daily reminders to help you maintain your streak:
 
 You can play Chrondle directly at [chrondle.app](https://chrondle.app).
 
+## Development
+
+### Dependency Management
+
+This project uses pnpm with specific dependency overrides to address security vulnerabilities in transitive dependencies. See [docs/dependency-overrides.md](docs/dependency-overrides.md) for details on:
+
+- Current overrides and their rationale
+- Maintenance guidelines
+- Removal criteria and testing procedures
+
 1.  **Guess the Year:** Enter your best guess for the year of the historical event.
 2.  **Receive Feedback:** Get immediate feedback on whether your guess was too high, too low, or just right.
 3.  **Unlock Hints:** Each incorrect guess reveals a new hint, guiding you closer to the correct year.
