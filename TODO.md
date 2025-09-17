@@ -34,7 +34,7 @@ The `feat/ui-cleanup-and-fixes` branch is complete and ready for deployment. No 
 
 - [x] Add coverage reporting: `pnpm test:coverage` in CI
 - [x] Enable ts-prune: Add script `"ts-prune": "ts-prune"`
-- [ ] Enable unimported: Add script `"unimported": "unimported"`
+- [x] Enable unimported: Add script `"unimported": "unimported"`
 - [ ] Enable jsx-a11y linting: Add to `eslint.config.mjs`
 
 ## 🧹 Cleanup Tasks
