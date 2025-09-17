@@ -72,7 +72,10 @@
   },
   "pnpm": {
     "overrides": {
-      "esbuild": "^0.25.0"
+      "esbuild": "^0.25.0",
+      "ws": "^8.17.1",
+      "tar-fs": "^3.0.9",
+      "nanoid": "^5.0.9"
     }
   },
   "devDependencies": {
