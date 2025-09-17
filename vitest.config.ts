@@ -7,7 +7,7 @@ const baseConfig = {
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
-    pool: "threads",
+    pool: "threads" as const,
     poolOptions: {
       threads: {
         singleThread: false,
@@ -26,7 +26,7 @@ const baseConfig = {
       "src/lib/__tests__/performance.integration.test.ts",
     ],
     coverage: {
-      provider: "v8",
+      provider: "v8" as const,
       reporter: ["text", "json", "html", "json-summary"],
       exclude: [
         "node_modules/**",
