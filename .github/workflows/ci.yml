@@ -89,9 +89,32 @@ jobs:
     - name: Run type checking
       run: pnpm type-check
       
-    - name: Run tests (parallel)
-      run: pnpm test:ci
-      
+    - name: Run tests with coverage
+      run: pnpm test:coverage --run
+
+    - name: Generate coverage summary
+      if: always()
+      run: |
+        echo "## 📊 Test Coverage Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        if [ -f coverage/coverage-summary.json ]; then
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          cat coverage/coverage-summary.json | jq '.total' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Coverage report generated successfully" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Coverage report not found" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Upload coverage reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-reports
+        path: coverage/
+        retention-days: 7
+
     - name: Run puzzle validation
       run: pnpm validate-puzzles
       

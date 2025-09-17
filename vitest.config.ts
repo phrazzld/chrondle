@@ -25,6 +25,28 @@ const baseConfig = {
       "**/.{idea,git,cache,output,temp}/**",
       "src/lib/__tests__/performance.integration.test.ts",
     ],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html", "json-summary"],
+      exclude: [
+        "node_modules/**",
+        "src/test/**",
+        "**/*.test.{ts,tsx}",
+        "**/*.spec.{ts,tsx}",
+        "**/test-*.{ts,tsx}",
+        "**/*.config.{ts,js}",
+        "**/*.d.ts",
+        ".next/**",
+        "convex/_generated/**",
+      ],
+      // Initial thresholds - can be increased over time
+      thresholds: {
+        lines: 19,
+        functions: 25,
+        branches: 60,
+        statements: 19,
+      },
+    },
   },
   resolve: {
     alias: {
