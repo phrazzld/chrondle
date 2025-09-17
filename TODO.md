@@ -1,8 +1,73 @@
 # Chrondle TODO
 
-## 🚀 Ready to Ship!
+## 🚨 URGENT: CI Security Vulnerabilities (BLOCKING MERGE)
 
-The `feat/ui-cleanup-and-fixes` branch is complete and ready for deployment. No blockers.
+**CI Status:** ❌ 1/5 checks failing - Security audit found 13 vulnerabilities
+**Root Cause:** Mixed issue - Production Next.js vulnerabilities + Dev dependency vulnerabilities
+**Priority:** CRITICAL - Production security vulnerabilities must be fixed immediately
+
+### Phase 1: Production Security Fixes (CRITICAL - Fix First) 🔴
+
+- [x] **[CODE FIX]** Update Next.js from 15.3.4 to 15.4.7+ to resolve 3 moderate vulnerabilities
+  - Image optimization cache key confusion (GHSA-g5qg-72qw-gw5v)
+  - Image optimization content injection (GHSA-xv57-4mr9-wg8v)
+  - Middleware SSRF vulnerability (GHSA-4342-x723-ch2f)
+  ```
+  Work Log:
+  - Updated Next.js 15.3.4 → 15.5.3 (latest stable)
+  - Updated related packages: @next/bundle-analyzer, eslint-config-next
+  - Verified build successful, no TypeScript errors
+  - Confirmed 3 moderate vulnerabilities resolved (13 → 10 total)
+  - Remaining vulnerabilities are dev dependencies only
+  ```
+- [x] **[CODE FIX]** Verify @clerk/nextjs compatibility with updated Next.js version
+  ```
+  Work Log:
+  - Current Clerk version: 6.32.0 (auto-updated) → 6.32.1 (latest stable)
+  - Verified dev server starts without Clerk-related errors
+  - Checked middleware.ts: uses modern clerkMiddleware API (compatible)
+  - Checked providers.tsx: standard ClerkProvider setup (compatible)
+  - TypeScript compilation: ✅ No errors
+  - Build process: ✅ Successful with no compatibility warnings
+  - No breaking changes detected in Clerk v6.32.x for Next.js 15.5.3
+  ```
+- [x] **[CODE FIX]** Run full test suite after Next.js update to ensure no breaking changes
+  ```
+  Work Log:
+  - Executed full test suite with vitest
+  - Results: ✅ 400/402 tests passing (2 skipped - known jsdom issues)
+  - No test failures introduced by Next.js 15.3.4 → 15.5.3 update
+  - All core functionality verified working correctly
+  - 2 skipped tests are same jsdom clearTimeout issues mentioned in TODO
+  - Test execution time: 3.99s (normal performance)
+  - Stderr shows expected security validation logs and motion library warnings
+  ```
+- [ ] **[CODE FIX]** Test authentication flow manually to verify Clerk integration works
+
+### Phase 2: Dev Environment Security Fixes (MODERATE - Fix After Phase 1) 🟡
+
+- [ ] **[CI FIX]** Update vitest dependencies to resolve esbuild vulnerability (0.21.5 → 0.25.0+)
+  - Vulnerability: Dev server accessible by any website (GHSA-67mh-4wv8-2f99)
+- [ ] **[CI FIX]** Update @size-limit/preset-app to resolve transitive vulnerabilities
+  - ws DoS vulnerability via puppeteer-core (8.16.0 → 8.17.1+)
+  - tar-fs path traversal vulnerabilities (3.0.5 → 3.0.9+)
+  - nanoid predictable generation (5.0.7 → 5.0.9+)
+- [ ] **[CI FIX]** Use pnpm overrides if automatic updates don't resolve all vulnerabilities
+
+### Phase 3: Validation & CI Hardening (INFRASTRUCTURE) 🔧
+
+- [ ] **[CI FIX]** Run `pnpm audit --audit-level moderate` locally to verify all fixes
+- [ ] **[CI FIX]** Ensure all quality gates pass: tests, type-check, lint
+- [ ] **[CI FIX]** Consider adjusting CI audit scope to treat dev vs prod dependencies differently
+- [ ] **[CI FIX]** Document any forced dependency overrides for future maintenance
+
+**Estimated Time:** 4-6 hours total (1-2h Phase 1, 2-3h Phase 2, 1h Phase 3)
+
+---
+
+## 🚀 Ready to Ship! (BLOCKED BY SECURITY FIXES)
+
+The `feat/ui-cleanup-and-fixes` branch is complete and ready for deployment. **BLOCKED:** Security vulnerabilities must be resolved first.
 
 **Quality Status:**
 
