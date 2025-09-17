@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EraToggle, EraToggleWithLabel } from "../EraToggle";
-import type { Era } from "@/lib/eraUtils";
+// Era type no longer needed after simplifying mock
 
 // Mock motion/react to avoid animation issues in tests
 vi.mock("motion/react", () => ({
@@ -25,10 +25,10 @@ vi.mock("motion/react", () => ({
 }));
 
 describe("EraToggle", () => {
-  let mockOnChange: ReturnType<typeof vi.fn<[Era], void>>;
+  let mockOnChange: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    mockOnChange = vi.fn<[Era], void>();
+    mockOnChange = vi.fn();
   });
 
   describe("Basic Rendering", () => {
