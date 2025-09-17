@@ -89,6 +89,7 @@
     "dotenv": "^17.2.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
     "husky": "9.1.7",
     "jsdom": "26.1.0",
     "lightningcss": "^1.30.1",
