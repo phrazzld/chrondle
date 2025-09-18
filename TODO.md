@@ -82,7 +82,7 @@
 - [x] Run `pnpm build` to verify no build errors
 - [x] Check bundle size didn't increase by more than 35KB
 - [x] Commit with message: "feat: add Bitcoin donation button to footer" (done atomically)
-- [~] Push to branch and create PR
+- [x] Push to branch and create PR
 
 ---
 
