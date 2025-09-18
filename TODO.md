@@ -186,7 +186,14 @@ The `feat/ui-cleanup-and-fixes` branch is complete and ready for deployment. **B
 
 ## 🧹 Cleanup Tasks
 
-- [ ] Remove obsolete migration step from `.github/workflows/deploy.yml:67-71`
+- [x] Remove obsolete migration step from `.github/workflows/deploy.yml:67-71`
+  ```
+  Work Log:
+  - Found obsolete migration step at lines 43-47 (not 67-71, file had changed)
+  - Step was calling `pnpm deploy:migrate` which doesn't exist in package.json
+  - Removed the migration step and renumbered following steps
+  - Cleaner deployment workflow without non-existent commands
+  ```
 - [ ] Remove unused `@lhci/cli` package (Lighthouse CI was removed)
 - [ ] Add bundle size trend tracking (GitHub Action for PR comments)
 

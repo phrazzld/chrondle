@@ -39,14 +39,8 @@ jobs:
         run: npx convex deploy --prod
         env:
           CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
-      
-      # Step 6: Run migration check and migrate if needed
-      - name: Check and run migrations
-        run: pnpm deploy:migrate
-        env:
-          NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
-      
-      # Step 7: Verify deployment
+
+      # Step 6: Verify deployment
       - name: Verify deployment
         run: pnpm deploy:verify
         env:
