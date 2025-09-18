@@ -5,10 +5,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { AuthButtons } from "@/components/AuthButtons";
-import { SyncIndicator } from "@/components/SyncIndicator";
-import { Settings, Flame, Archive } from "lucide-react";
+import { Bell, Flame, Archive } from "lucide-react";
 import { getStreakColorClasses, cn } from "@/lib/utils";
 import { formatPuzzleNumber } from "@/lib/puzzleUtils";
+import { useTheme } from "@/components/SessionThemeProvider";
+import type { UseNotificationsReturn } from "@/hooks/useNotifications";
 
 interface AppHeaderProps {
   onShowSettings?: () => void;
@@ -18,6 +19,75 @@ interface AppHeaderProps {
   isArchive?: boolean;
 }
 
+// Helper function to get notification status classes
+function getNotificationStatusClasses(
+  notifications: UseNotificationsReturn | undefined,
+) {
+  if (!notifications?.isSupported) {
+    return ""; // No indicator if not supported
+  }
+
+  if (notifications.permissionStatus === "denied") {
+    return "bg-status-error"; // Red - denied
+  }
+
+  if (notifications.permissionStatus === "default") {
+    return "bg-status-warning animate-pulse"; // Orange pulsing - pending
+  }
+
+  if (notifications.isEnabled) {
+    return "bg-feedback-correct"; // Green - enabled
+  }
+
+  return "bg-muted-foreground opacity-75"; // Gray - disabled
+}
+
+// Helper function to get notification status title
+function getNotificationStatusTitle(
+  notifications: UseNotificationsReturn | undefined,
+) {
+  if (!notifications?.isSupported) {
+    return "Notifications not supported in this browser";
+  }
+
+  if (notifications.permissionStatus === "denied") {
+    return "Notifications blocked - enable in browser settings";
+  }
+
+  if (notifications.permissionStatus === "default") {
+    return "Notification permission pending";
+  }
+
+  if (notifications.isEnabled) {
+    return "Notifications enabled";
+  }
+
+  return "Notifications disabled";
+}
+
+// Helper function to get comprehensive ARIA label
+function getNotificationAriaLabel(
+  notifications: UseNotificationsReturn | undefined,
+) {
+  if (!notifications?.isSupported) {
+    return "Open notification settings. Notifications are not supported in this browser";
+  }
+
+  if (notifications.permissionStatus === "denied") {
+    return "Open notification settings. Notifications are currently blocked. Enable them in your browser settings";
+  }
+
+  if (notifications.permissionStatus === "default") {
+    return "Open notification settings. Click to enable daily reminders. Permission not yet granted";
+  }
+
+  if (notifications.isEnabled) {
+    return "Open notification settings. Daily reminders are enabled";
+  }
+
+  return "Open notification settings. Daily reminders are disabled. Click to enable";
+}
+
 export const AppHeader: React.FC<AppHeaderProps> = ({
   onShowSettings,
   currentStreak,
@@ -25,6 +95,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   puzzleNumber,
   isArchive = false,
 }) => {
+  const theme = useTheme();
+  const { notifications } = theme;
   const streakColors = currentStreak
     ? getStreakColorClasses(currentStreak)
     : null;
@@ -108,16 +180,26 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 onClick={onShowSettings}
                 variant="ghost"
                 size="icon"
-                title="Settings - Adjust theme and accessibility options"
-                aria-label="Show settings for theme and accessibility"
-                className="h-10 w-10 rounded-full"
+                title={getNotificationStatusTitle(notifications)}
+                aria-label={getNotificationAriaLabel(notifications)}
+                aria-describedby="notification-status"
+                className="h-10 w-10 rounded-full relative"
               >
-                <Settings className="h-5 w-5" />
+                <Bell className="h-5 w-5" aria-hidden="true" />
+                {notifications?.isSupported && (
+                  <span
+                    className={cn(
+                      "absolute top-1 right-1 w-2 h-2 rounded-full",
+                      getNotificationStatusClasses(notifications),
+                    )}
+                    aria-hidden="true"
+                  />
+                )}
+                <span id="notification-status" className="sr-only">
+                  {getNotificationStatusTitle(notifications)}
+                </span>
               </Button>
             )}
-
-            {/* Sync Indicator - Only shows for authenticated users */}
-            <SyncIndicator />
 
             {/* Auth Buttons - Rightmost */}
             <AuthButtons />

@@ -7,13 +7,26 @@ import {
 } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
+import { shouldRunDailyPuzzleJob } from "./utils/dst";
 
 // Internal mutation for cron job to generate daily puzzle
 export const generateDailyPuzzle = internalMutation({
-  handler: async (ctx) => {
+  args: {
+    force: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const now = new Date();
+    const forceRun = args.force ?? false;
+
+    if (!forceRun && !shouldRunDailyPuzzleJob(now)) {
+      console.warn(
+        "[generateDailyPuzzle] Skipping run because it's not midnight CT",
+      );
+      return { status: "skipped" as const };
+    }
+
     // Get today's date in UTC
-    const today = new Date();
-    const dateStr = today.toISOString().slice(0, 10); // YYYY-MM-DD format
+    const dateStr = now.toISOString().slice(0, 10); // YYYY-MM-DD format
 
     // Check if today's puzzle already exists
     const existingPuzzle = await ctx.db

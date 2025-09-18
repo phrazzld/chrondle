@@ -23,8 +23,7 @@ import { useVictoryConfetti } from "@/hooks/useVictoryConfetti";
 import { useScreenReaderAnnouncements } from "@/hooks/useScreenReaderAnnouncements";
 import { logger } from "@/lib/logger";
 import {
-  SettingsModal,
-  HintReviewModal,
+  NotificationModal,
   AchievementModal,
   LazyModalWrapper,
 } from "@/components/LazyModals";
@@ -164,12 +163,9 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
   const countdown = useCountdown();
 
   // UI state
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [, setValidationError] = useState("");
   const [, setLastGuessCount] = useState(0);
-
-  // Hint review modal state
-  const [showHintReview, setShowHintReview] = useState(false);
 
   // Handle game over with streak updates
   const handleGameOver = useCallback(
@@ -256,7 +252,7 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
         </Suspense>
 
         <AppHeader
-          onShowSettings={() => setShowSettingsModal(true)}
+          onShowSettings={() => setShowNotificationModal(true)}
           currentStreak={streakData.currentStreak}
           isDebugMode={debugMode}
           puzzleNumber={puzzleNumber}
@@ -291,14 +287,6 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
               countdown={countdown}
               confettiRef={confettiRef}
               onValidationError={setValidationError}
-              footerContent={
-                <button
-                  onClick={() => setShowHintReview(true)}
-                  className="text-sm text-muted-foreground hover:text-foreground"
-                >
-                  Review Hints
-                </button>
-              }
             />
           )}
         </main>
@@ -307,34 +295,11 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
 
         {/* Modals with Suspense boundaries */}
         <LazyModalWrapper>
-          <SettingsModal
-            isOpen={showSettingsModal}
-            onClose={() => setShowSettingsModal(false)}
+          <NotificationModal
+            isOpen={showNotificationModal}
+            onClose={() => setShowNotificationModal(false)}
           />
         </LazyModalWrapper>
-
-        {gameLogic.gameState.puzzle &&
-          gameLogic.gameState.guesses.length > 0 && (
-            <LazyModalWrapper>
-              <HintReviewModal
-                isOpen={showHintReview}
-                onClose={() => setShowHintReview(false)}
-                guessNumber={gameLogic.gameState.guesses.length}
-                guess={
-                  gameLogic.gameState.guesses[
-                    gameLogic.gameState.guesses.length - 1
-                  ]
-                }
-                targetYear={gameLogic.gameState.puzzle.year}
-                hint={
-                  gameLogic.gameState.puzzle.events[
-                    gameLogic.gameState.guesses.length - 1
-                  ] || ""
-                }
-                totalGuesses={gameLogic.gameState.guesses.length}
-              />
-            </LazyModalWrapper>
-          )}
 
         <LazyModalWrapper>
           <AchievementModal

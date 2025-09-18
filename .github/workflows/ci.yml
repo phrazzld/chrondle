@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -43,19 +43,18 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
-        
+        node-version: 20
+
     - name: Setup pnpm
       uses: pnpm/action-setup@v2
       with:
         version: 9.1.0
-        
+
     - name: Get pnpm store directory
       id: pnpm-cache
-      shell: bash
       run: |
         echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-        
+
     - name: Cache pnpm store
       uses: actions/cache@v4
       with:
@@ -63,10 +62,51 @@ jobs:
         key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
         restore-keys: |
           ${{ runner.os }}-pnpm-store-
-          
+
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
-      
+
+    - name: 🔒 Security Audit
+      run: |
+        echo "🔍 Checking for security vulnerabilities in dependencies..."
+
+        # Production dependencies - STRICT (fail on moderate or higher)
+        echo ""
+        echo "📦 Auditing production dependencies..."
+        pnpm audit --prod --audit-level moderate || {
+          EXIT_CODE=$?
+          echo "❌ CRITICAL: Production vulnerabilities found!"
+          echo "These vulnerabilities affect your users and must be fixed immediately."
+          echo "Run 'pnpm audit --prod' locally to see details"
+          exit $EXIT_CODE
+        }
+        echo "✅ Production dependencies secure (no moderate+ vulnerabilities)"
+
+        # Development dependencies - LENIENT (fail only on high or critical)
+        echo ""
+        echo "🛠️ Auditing development dependencies..."
+        pnpm audit --dev --audit-level high || {
+          EXIT_CODE=$?
+          echo "❌ High/Critical vulnerabilities found in dev dependencies!"
+          echo "These should be addressed but don't affect production users."
+          echo "Run 'pnpm audit --dev' locally to see details"
+          exit $EXIT_CODE
+        }
+
+        # Check for moderate dev vulnerabilities (warning only, non-blocking)
+        echo ""
+        echo "📋 Checking for moderate dev dependency vulnerabilities..."
+        if ! pnpm audit --dev --audit-level moderate 2>/dev/null; then
+          echo "⚠️ Moderate vulnerabilities found in dev dependencies (non-blocking)"
+          echo "These don't block CI but should be reviewed in the next maintenance cycle."
+          echo "Run 'pnpm audit --dev' locally for details"
+        else
+          echo "✅ Dev dependencies secure (no moderate+ vulnerabilities)"
+        fi
+
+        echo ""
+        echo "✅ Security audit complete"
+
     - name: Verify Convex files are committed
       run: |
         echo "🔍 Checking required Convex files are present..."
@@ -101,9 +141,27 @@ jobs:
     - name: Run type checking
       run: pnpm type-check
       
-    - name: Run tests (parallel)
-      run: pnpm test:ci
-      
+    - name: Run tests
+      run: pnpm test
+
+    - name: Run tests with coverage
+      run: pnpm test:coverage
+
+    - name: Generate coverage summary
+      if: always()
+      run: |
+        echo "## 📊 Test Coverage Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        if [ -f coverage/coverage-summary.json ]; then
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          cat coverage/coverage-summary.json | jq '.total' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Coverage report generated successfully" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Coverage report not found" >> $GITHUB_STEP_SUMMARY
+        fi
+
     - name: Run puzzle validation
       run: pnpm validate-puzzles
       
@@ -126,14 +184,14 @@ jobs:
     # - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: Public key for Clerk auth (embedded in client bundle)
     #
     # Optional:
-    # - LHCI_GITHUB_APP_TOKEN: GitHub token for Lighthouse CI comments (stored as secret)
+    # - None currently
     #
     # IMPORTANT: Only NEXT_PUBLIC_* prefixed variables are embedded in the client bundle.
     # Server-side variables (without NEXT_PUBLIC_ prefix) remain secure on the server.
     #
     # These variables must be provided at:
     # 1. Build time - for Next.js to embed them in the client bundle
-    # 2. Runtime - for the production server to start without errors (Lighthouse CI)
+    # 2. Runtime - for the production server to start without errors
     
     steps:
     - name: Checkout code
@@ -142,19 +200,18 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
-        
+        node-version: 20
+
     - name: Setup pnpm
       uses: pnpm/action-setup@v2
       with:
         version: 9.1.0
-        
+
     - name: Get pnpm store directory
       id: pnpm-cache
-      shell: bash
       run: |
         echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-        
+
     - name: Cache pnpm store
       uses: actions/cache@v4
       with:
@@ -162,7 +219,10 @@ jobs:
         key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
         restore-keys: |
           ${{ runner.os }}-pnpm-store-
-          
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+
     - name: Cache Next.js build
       uses: actions/cache@v4
       with:
@@ -173,9 +233,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/pnpm-lock.yaml') }}-
           ${{ runner.os }}-nextjs-
-          
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
       
     - name: Verify Convex files are committed
       run: |

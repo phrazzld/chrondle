@@ -13,7 +13,7 @@ import { useVictoryConfetti } from "@/hooks/useVictoryConfetti";
 import { getGuessDirectionInfo } from "@/lib/utils";
 import { formatYear } from "@/lib/displayFormatting";
 import { getEnhancedProximityFeedback } from "@/lib/enhancedFeedback";
-import { SettingsModal } from "@/components/modals/SettingsModal";
+import { NotificationModal } from "@/components/modals/NotificationModal";
 import { BackgroundAnimation } from "@/components/BackgroundAnimation";
 import { ConfettiRef } from "@/components/magicui/confetti";
 import { useRouter } from "next/navigation";
@@ -293,7 +293,7 @@ function ArchivePuzzleContent({
       />
 
       {/* Modals */}
-      <SettingsModal
+      <NotificationModal
         isOpen={showSettings}
         onClose={(): void => setShowSettings(false)}
       />

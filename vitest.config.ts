@@ -7,7 +7,7 @@ const baseConfig = {
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
-    pool: "threads",
+    pool: "threads" as const,
     poolOptions: {
       threads: {
         singleThread: false,
@@ -25,6 +25,28 @@ const baseConfig = {
       "**/.{idea,git,cache,output,temp}/**",
       "src/lib/__tests__/performance.integration.test.ts",
     ],
+    coverage: {
+      provider: "v8" as const,
+      reporter: ["text", "json", "html", "json-summary"],
+      exclude: [
+        "node_modules/**",
+        "src/test/**",
+        "**/*.test.{ts,tsx}",
+        "**/*.spec.{ts,tsx}",
+        "**/test-*.{ts,tsx}",
+        "**/*.config.{ts,js}",
+        "**/*.d.ts",
+        ".next/**",
+        "convex/_generated/**",
+      ],
+      // Initial thresholds - can be increased over time
+      thresholds: {
+        lines: 14,
+        functions: 20,
+        branches: 50,
+        statements: 14,
+      },
+    },
   },
   resolve: {
     alias: {

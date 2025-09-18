@@ -26,11 +26,34 @@
 - quality agent for updating and tidying events, duplicates, etc
 - haiku generation flow, iterate on historical context generation prompt
 
+## Mobile Accessibility Improvements
+
+- [ ] [MED] [A11Y] Increase button touch target sizes to meet 44x44px minimum | Current: All buttons are 32-40px, below WCAG guidelines
+- [ ] [MED] [A11Y] Create mobile-specific button size variant (h-11) for critical actions | Gain: Better mobile usability, fewer mis-taps
+- [ ] [LOW] [A11Y] Update main game submit button to use size="lg" or new mobile size | Impact: Core game interaction improvement
+
 ## Timeline Component Enhancements (from PR #11 review)
 
 - [ ] [LOW] Add unit tests for BC/AD formatYear edge cases (year 0, large negative years) | Gain: Prevent formatting bugs
 - [ ] [FUTURE] Implement virtual timeline rendering for 10,000+ year ranges | Gain: Support for prehistoric dates
 - [ ] [LOW] Create GitHub issue for timeline zoom controls and era markers | Gain: Enhanced user interaction
+
+## Notification System Enhancements
+
+- [ ] [MED] [FEATURE] Add notification scheduling options (morning/evening) | Gain: User preference flexibility
+- [ ] [LOW] [FEATURE] Create notification preference profiles | Gain: Quick switching between notification settings
+- [ ] [LOW] [FEATURE] Add push notification support via service worker | Gain: Background notifications when app closed
+- [ ] [LOW] [UX] Create notification sound options | Gain: Audio feedback customization
+
+## Gamification & Engagement
+
+- [ ] [MED] [FEATURE] Implement streak freeze tokens for missed days | Gain: Retention during vacations/breaks
+- [ ] [LOW] [FEATURE] Add streak milestone celebrations | Gain: Reward long-term engagement
+
+## Archive Page Improvements
+
+- [ ] [MED] [FEATURE] Add archive page filtering and search | Gain: Better puzzle discovery
+- [ ] [LOW] [PERF] Implement virtual scrolling for archive performance | Gain: Handle large puzzle collections
 
 ## Critical Priority - Security & Production Readiness
 

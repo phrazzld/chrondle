@@ -120,3 +120,4 @@ logs_result.json
 # They MUST be committed for Vercel deployments to work  
 # See convex/_generated/README.md for full explanation
 # convex/_generated/  # ← DO NOT UNCOMMENT THIS LINE!
+backups/

@@ -4,15 +4,9 @@ import { lazy, Suspense } from "react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 // Lazy load heavy modal components
-export const SettingsModal = lazy(() =>
-  import("@/components/modals/SettingsModal").then((m) => ({
-    default: m.SettingsModal,
-  })),
-);
-
-export const HintReviewModal = lazy(() =>
-  import("@/components/modals/HintReviewModal").then((m) => ({
-    default: m.HintReviewModal,
+export const NotificationModal = lazy(() =>
+  import("@/components/modals/NotificationModal").then((m) => ({
+    default: m.NotificationModal,
   })),
 );
 

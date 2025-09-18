@@ -23,11 +23,36 @@ interface ArchivePageProps {
   searchParams: Promise<{ page?: string }>;
 }
 
+// Sanitize and validate page parameter
+function validatePageParam(pageParam: string | undefined): number {
+  const DEFAULT_PAGE = 1;
+  const MAX_PAGE = 10000; // Reasonable upper limit
+
+  if (!pageParam) return DEFAULT_PAGE;
+
+  // Trim whitespace
+  const trimmed = pageParam.trim();
+  if (!trimmed) return DEFAULT_PAGE;
+
+  // Reject if contains non-digit characters (except leading +)
+  // This prevents "12abc", "1e10", etc.
+  if (!/^\+?\d+$/.test(trimmed)) return DEFAULT_PAGE;
+
+  // Parse as integer
+  const parsed = parseInt(trimmed, 10);
+
+  // Check for NaN, negative, or unreasonably large values
+  if (isNaN(parsed) || parsed < 1) return DEFAULT_PAGE;
+  if (parsed > MAX_PAGE) return MAX_PAGE;
+
+  return parsed;
+}
+
 async function ArchivePageContent({
   searchParams,
 }: ArchivePageProps): Promise<React.ReactElement> {
   const params = await searchParams;
-  const currentPage = Number(params.page) || 1;
+  const currentPage = validatePageParam(params.page);
   const PUZZLES_PER_PAGE = 24 as const;
 
   // Runtime environment detection for debugging
@@ -264,7 +289,7 @@ async function ArchivePageContent({
       <div className="min-h-screen flex flex-col bg-background">
         <AppHeader currentStreak={0} />
 
-        <main className="flex-grow max-w-2xl mx-auto w-full py-8">
+        <main className="flex-grow max-w-2xl mx-auto w-full py-6 px-4 sm:py-8 sm:px-6">
           <div className="mb-8">
             <h1 className="text-3xl sm:text-4xl font-heading font-bold text-foreground mb-2">
               Puzzle Archive
@@ -291,7 +316,7 @@ async function ArchivePageContent({
                       %
                     </span>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                  <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
                     <div
                       className="bg-green-600 h-full transition-all duration-300 ease-out"
                       style={{
@@ -333,7 +358,7 @@ async function ArchivePageContent({
                 (_, i) => (
                   <Card
                     key={i}
-                    className="h-[10rem] p-4 animate-pulse flex flex-col gap-2"
+                    className="h-36 sm:h-[10rem] p-3 sm:p-4 animate-pulse flex flex-col gap-2"
                   >
                     <div className="h-5 bg-muted rounded w-12" />
                     <div className="flex-1 space-y-2">
@@ -349,14 +374,14 @@ async function ArchivePageContent({
           ) : (
             <>
               {/* Actual archive grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-4">
                 {paginatedData.map((puzzle) => (
                   <Link
                     key={puzzle.puzzleNumber}
                     href={`/archive/puzzle/${puzzle.puzzleNumber}`}
                   >
                     <Card
-                      className={`h-[10rem] p-4 flex flex-col gap-2 transition-all hover:shadow-md cursor-pointer ${
+                      className={`h-36 sm:h-[10rem] p-3 sm:p-4 flex flex-col gap-2 transition-all hover:shadow-md cursor-pointer ${
                         puzzle.isCompleted
                           ? "border-green-600/30 hover:border-green-600/50 bg-green-600/5"
                           : "hover:border-primary"
@@ -388,28 +413,46 @@ async function ArchivePageContent({
                 <div className="flex items-center justify-center gap-2 mt-8">
                   {currentPage > 1 ? (
                     <Link href={`/archive?page=${currentPage - 1}`}>
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="default"
+                        className="h-10 w-10 p-0 sm:h-8 sm:w-8"
+                      >
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
                     </Link>
                   ) : (
-                    <Button variant="outline" size="sm" disabled>
+                    <Button
+                      variant="outline"
+                      size="default"
+                      disabled
+                      className="h-10 w-10 p-0 sm:h-8 sm:w-8"
+                    >
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
                   )}
 
-                  <span className="text-sm text-muted-foreground px-4">
+                  <span className="text-sm text-muted-foreground px-2 sm:px-4">
                     Page {currentPage} of {totalPages}
                   </span>
 
                   {currentPage < totalPages ? (
                     <Link href={`/archive?page=${currentPage + 1}`}>
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="default"
+                        className="h-10 w-10 p-0 sm:h-8 sm:w-8"
+                      >
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </Link>
                   ) : (
-                    <Button variant="outline" size="sm" disabled>
+                    <Button
+                      variant="outline"
+                      size="default"
+                      disabled
+                      className="h-10 w-10 p-0 sm:h-8 sm:w-8"
+                    >
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   )}

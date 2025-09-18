@@ -181,7 +181,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
               tabIndex={segment.accessible ? 0 : -1}
               aria-label={
                 segment.accessible
-                  ? `Guess ${segment.id + 1}: ${formatYear(segment.guess!)}. ${segment.label}. Click to review hint.`
+                  ? `Guess ${segment.id + 1}: ${formatYear(segment.guess!)}. ${segment.label}.`
                   : `Guess ${segment.id + 1}: ${segment.label}`
               }
               aria-pressed={segment.accessible ? false : undefined}
@@ -209,7 +209,6 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
                     {formatYear(segment.guess!)}
                   </div>
                   <div className="text-sm opacity-75">{segment.label}</div>
-                  <div className="text-xs mt-1">Click to review hint</div>
                 </div>
               )}
             </div>

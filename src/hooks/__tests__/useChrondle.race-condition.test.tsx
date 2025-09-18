@@ -41,6 +41,7 @@ describe("useChrondle Race Condition Tests", () => {
     sessionGuesses: [],
     addGuess: vi.fn(),
     clearGuesses: vi.fn(),
+    markComplete: vi.fn(),
   };
 
   const mockActions = {
@@ -228,6 +229,7 @@ describe("useChrondle Race Condition Tests", () => {
         sessionGuesses: [1950, 1960],
         addGuess: vi.fn(),
         clearGuesses: vi.fn(),
+        markComplete: vi.fn(),
       };
       vi.mocked(useLocalSession).mockReturnValue(sessionWithGuesses);
 
@@ -331,6 +333,7 @@ describe("useChrondle Race Condition Tests", () => {
           sessionGuesses: [],
           addGuess: vi.fn(),
           clearGuesses: vi.fn(),
+          markComplete: vi.fn(),
         },
       };
 

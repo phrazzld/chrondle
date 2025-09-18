@@ -26,28 +26,25 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8
-          run_install: false
-      
+          version: 9.1.0
+
       - name: Get pnpm store directory
         id: pnpm-cache
-        shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-      
-      - name: Setup pnpm cache
-        uses: actions/cache@v3
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
-      
-      # Step 3: Install dependencies
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       
@@ -63,14 +60,8 @@ jobs:
         run: npx convex deploy --prod
         env:
           CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
-      
-      # Step 6: Run migration check and migrate if needed
-      - name: Check and run migrations
-        run: pnpm deploy:migrate
-        env:
-          NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
-      
-      # Step 7: Verify deployment
+
+      # Step 6: Verify deployment
       - name: Verify deployment
         run: pnpm deploy:verify
         env:
