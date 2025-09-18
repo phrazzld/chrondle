@@ -10,11 +10,10 @@ import {
   UseGameActionsReturn,
 } from "@/hooks/actions/useGameActions";
 import { deriveGameState, DataSources } from "@/lib/deriveGameState";
-import { GameState, isReady } from "@/types/gameState";
+import { GameState } from "@/types/gameState";
 import { useAnalytics, usePerformanceTracking } from "@/hooks/useAnalytics";
 import { isValidConvexId } from "@/lib/validation";
 import { useDebouncedValues } from "@/hooks/useDebouncedValue";
-import { useAnonymousGameState } from "@/hooks/useAnonymousGameState";
 
 /**
  * Return type for the useChrondle hook
@@ -110,31 +109,15 @@ export function useChrondle(
     debouncedProgressParams.userId,
     debouncedProgressParams.puzzleId,
   );
-  const session = useLocalSession(puzzle.puzzle?.id || null);
+  // Pass isAuthenticated and targetYear to useLocalSession
+  // This allows it to determine game completion for anonymous users
+  const session = useLocalSession(
+    puzzle.puzzle?.id || null,
+    auth.isAuthenticated,
+    puzzle.puzzle?.targetYear,
+  );
 
-  // Anonymous game state persistence
-  const anonymousGameState = useAnonymousGameState();
-
-  // Load anonymous state on mount if not authenticated
-  useEffect(() => {
-    // Only load if not authenticated and we have a puzzle
-    if (!auth.isAuthenticated && !auth.isLoading && puzzle.puzzle) {
-      const savedState = anonymousGameState.loadGameState();
-
-      // If we have saved state for this puzzle, restore the guesses
-      if (savedState && savedState.puzzleId === puzzle.puzzle.id) {
-        // Add each saved guess to the session
-        savedState.guesses.forEach((guess) => {
-          // Check if guess not already in session to avoid duplicates
-          if (!session.sessionGuesses.includes(guess)) {
-            session.addGuess(guess);
-          }
-        });
-      }
-    }
-    // Only run on mount and when auth/puzzle state stabilizes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auth.isAuthenticated, auth.isLoading, puzzle.puzzle?.id]);
+  // No need to load anonymous state anymore - useLocalSession handles it directly
 
   // Create data sources object for derivation and actions
   const dataSources: DataSources = useMemo(
@@ -157,19 +140,8 @@ export function useChrondle(
     [dataSources, measureDerivation],
   );
 
-  // Save anonymous game state after changes
-  useEffect(() => {
-    // Only save if not authenticated and game is ready
-    if (!auth.isAuthenticated && isReady(gameState)) {
-      anonymousGameState.saveGameState({
-        puzzleId: gameState.puzzle.id,
-        guesses: gameState.guesses,
-        isComplete: gameState.isComplete,
-        hasWon: gameState.hasWon,
-        timestamp: Date.now(),
-      });
-    }
-  }, [auth.isAuthenticated, gameState, anonymousGameState]);
+  // No need to save anonymous state anymore - useLocalSession handles it directly
+  // The localStorage is updated immediately when guesses are added
 
   // Get game actions (submitGuess, resetGame, isSubmitting)
   const actions = useGameActions(dataSources);
