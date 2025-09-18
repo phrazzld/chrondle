@@ -3,10 +3,10 @@
 ## 🚨 URGENT: CI Pipeline Failures (BLOCKING MERGE)
 
 **CI Status:** ❌ 2/5 checks failing
-**Root Causes:**
+**Root Cause:** Draft PR merge commit issues - NOT code problems
 
-- Size job: Missing environment variables in workflow (CI infrastructure issue)
-- Test job: DST calculation regression causing 3 test failures (Code issue)
+- DST tests pass locally but fail in CI (fix exists, commit 872d97a)
+- Size job can't find local action in merge commit context
 
 ### Immediate Fixes Required:
 
@@ -31,16 +31,24 @@
   - Simply need to push the existing fix to remote
   ```
 
-- [ ] **[CI FIX]** Verify size-limit action works after env var fix
+### Resolution Options (Choose One):
 
-  - Push fix and confirm workflow completes
-  - Check that bundle size comment appears on PR
-  - Ensure no sensitive data in logs
+- [ ] **[CI FIX]** Convert PR from Draft to Ready for Review (RECOMMENDED)
 
-- [ ] **[CODE FIX]** Verify DST tests pass locally before pushing
-  - Run `pnpm test convex/utils/dst.test.ts`
-  - Ensure all 46 tests pass
-  - Test with different date scenarios
+  - Simplest fix - resolves merge commit issues
+  - Should fix both DST tests and size job immediately
+  - Go to PR #20 and click "Ready for review" button
+
+- [ ] **[CI FIX]** Fix size-limit workflow to not use local action
+
+  - Replace `uses: ./.github/actions/setup-node-pnpm` with inline steps
+  - Copy steps from `.github/actions/setup-node-pnpm/action.yml`
+  - More work but guarantees workflow works
+
+- [ ] **[CI FIX]** Rebase branch and force push (LAST RESORT)
+  - Run `git fetch origin main && git rebase origin/main`
+  - Force push with `git push --force-with-lease`
+  - May need to close/reopen PR if issues persist
 
 ---
 
