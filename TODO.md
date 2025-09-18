@@ -1,5 +1,45 @@
 # Chrondle TODO
 
+## 🚨 URGENT: CI Pipeline Failures (BLOCKING MERGE)
+
+**CI Status:** ❌ 2/5 checks failing
+**Root Causes:**
+
+- Size job: Missing environment variables in workflow (CI infrastructure issue)
+- Test job: DST calculation regression causing 3 test failures (Code issue)
+
+### Immediate Fixes Required:
+
+- [x] **[CI FIX]** Add environment variables to size-limit workflow
+
+  ```
+  Work Log:
+  - Added NEXT_PUBLIC_CONVEX_URL and NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+  - Used same public values from ci.yml build job
+  - These are test/public keys, safe to expose in CI
+  - Should fix the build failure in size-limit action
+  ```
+
+- [ ] **[CODE FIX]** Fix shouldRunDailyPuzzleJob DST calculation
+
+  - Investigate convex/utils/dst.ts logic for hour checking
+  - Fix condition that determines if current time is Central Time midnight
+  - Should return true for UTC hours 5 (CDT) and 6 (CST)
+  - Failing tests: lines 142, 148, 163 in dst.test.ts
+
+- [ ] **[CI FIX]** Verify size-limit action works after env var fix
+
+  - Push fix and confirm workflow completes
+  - Check that bundle size comment appears on PR
+  - Ensure no sensitive data in logs
+
+- [ ] **[CODE FIX]** Verify DST tests pass locally before pushing
+  - Run `pnpm test convex/utils/dst.test.ts`
+  - Ensure all 46 tests pass
+  - Test with different date scenarios
+
+---
+
 ## 🚨 URGENT: CI Security Vulnerabilities (BLOCKING MERGE)
 
 **CI Status:** ❌ 1/5 checks failing - Security audit found 13 vulnerabilities
