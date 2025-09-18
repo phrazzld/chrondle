@@ -194,7 +194,14 @@ The `feat/ui-cleanup-and-fixes` branch is complete and ready for deployment. **B
   - Removed the migration step and renumbered following steps
   - Cleaner deployment workflow without non-existent commands
   ```
-- [ ] Remove unused `@lhci/cli` package (Lighthouse CI was removed)
+- [x] Remove unused `@lhci/cli` package (Lighthouse CI was removed)
+  ```
+  Work Log:
+  - Verified @lhci/cli was installed but not used anywhere
+  - Removed package with pnpm remove @lhci/cli (saved 164 packages)
+  - Cleaned up obsolete Lighthouse CI comments from CI workflow
+  - Reduces dependencies and node_modules size
+  ```
 - [ ] Add bundle size trend tracking (GitHub Action for PR comments)
 
 ---

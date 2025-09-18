@@ -166,14 +166,14 @@ jobs:
     # - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: Public key for Clerk auth (embedded in client bundle)
     #
     # Optional:
-    # - LHCI_GITHUB_APP_TOKEN: GitHub token for Lighthouse CI comments (stored as secret)
+    # - None currently
     #
     # IMPORTANT: Only NEXT_PUBLIC_* prefixed variables are embedded in the client bundle.
     # Server-side variables (without NEXT_PUBLIC_ prefix) remain secure on the server.
     #
     # These variables must be provided at:
     # 1. Build time - for Next.js to embed them in the client bundle
-    # 2. Runtime - for the production server to start without errors (Lighthouse CI)
+    # 2. Runtime - for the production server to start without errors
     
     steps:
     - name: Checkout code
