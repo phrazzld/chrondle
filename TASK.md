@@ -1,147 +1,258 @@
-# Chrondle Improvement Tasks
+# Bitcoin Donation Feature Specification
 
-## UI Cleanup Tasks
+## Task
 
-### 1. Remove "Review Hints" Feature
+Configure BTCPayServer or Bitcoin donations in footer | Impact: 4
 
-- [x] **Remove the link/button** at the bottom of the game page that says "review hints"
-- [x] **Delete the modal** that opens when clicking the review hints button
-- [x] **Clean up all related code** - both the trigger and the modal are unnecessary
+## Requirements
 
-**Files to modify:**
+### Functional (What it MUST do)
 
-- `src/components/GameIsland.tsx` - Remove button and modal logic (lines 172, 295-300, 316-337)
-- `src/components/modals/HintReviewModal.tsx` - Delete entire file
-- `src/components/LazyModals.tsx` - Remove lazy import (lines 13-16)
+- [ ] Display Bitcoin donation option in footer next to GitHub link
+- [ ] Generate unique Bitcoin address for each donation session
+- [ ] Support both on-chain Bitcoin and Lightning Network payments
+- [ ] Show QR code with BIP21 URI for mobile wallet scanning
+- [ ] Provide one-click address copy functionality
+- [ ] Display donation confirmation after payment received
 
-### 2. Remove Sync Indicator Icon
+### Non-Functional (How well it must do it)
 
-- [x] **Remove the green cloud/check icon** to the left of the user auth icon in the navbar
-- [x] This sync indicator is unnecessary
+- **Performance**: < 50KB additional bundle size, lazy-loaded
+- **Security**: No private keys in client code, address validation
+- **Reliability**: Fallback to static address if BTCPay unavailable
+- **Accessibility**: WCAG 2.1 AA compliant, keyboard navigable
 
-**Files to modify:**
+## Constraints
 
-- `src/components/AppHeader.tsx` - Remove SyncIndicator component (line 8 import, line 120 usage)
-- `src/components/SyncIndicator.tsx` - Delete entire file
+### Technical
 
-## Functional Fixes
+- Next.js 15 App Router architecture
+- TypeScript strict mode compliance
+- Existing button component system (shadcn/ui)
+- Mobile-first responsive design requirement
+- CSP headers must allow BTCPay Server domain
 
-### 3. Fix Streak Counter
+### Resource
 
-- [x] **The streak counter is not working properly** - not incrementing or resetting unexpectedly
-- [x] **Root cause**: UTC date strings (`toISOString().slice(0, 10)`) don't match user's local timezone
-- [x] **Solution**: Use local timezone for all date calculations in streak logic
+- Bundle size impact < 50KB
+- No additional runtime dependencies in critical path
+- Must work offline (show static address)
 
-**Files to modify:**
+### Business
 
-- `src/hooks/useStreak.ts` - Fix timezone handling in `calculateCurrentStreak()` and `recordGamePlayed()`
-  - Replace UTC date strings with local date formatting
-  - Ensure consistent timezone handling throughout
+- No KYC/AML requirements (donations only, no rewards)
+- Anonymous donations allowed
+- No transaction fees to donor
+- USD equivalent display optional
 
-### 4. Fix Input Focus After Guess
+## Implementation Strategy
 
-- [x] **Keep input focused after submitting a guess** (when game is not over)
-- [x] When you submit an incorrect guess and have remaining guesses:
-  - The next hint should be displayed
-  - The guess input should remain focused
-  - **Keyboard should stay open on mobile**
-- [x] Note: There is no feedback modal - game shows game over screen only when correct or last guess
+### Phase 1: Static Bitcoin Address (Minimal Viable Solution)
 
-**Files to modify:**
+```typescript
+// Simple, secure, works offline
+interface BitcoinDonationConfig {
+  address: string; // From env variable
+  lightning?: string; // BOLT11 invoice or LNURL
+}
 
-- `src/components/GuessInput.tsx` - Consolidate and fix focus management logic
-  - Merge the two useEffect hooks that manage focus
-  - Ensure focus persists after form submission
-  - Add `inputmode="numeric"` for better mobile experience
+// Components needed:
+// 1. BitcoinButton in Footer.tsx
+// 2. BitcoinModal with QR + copy
+// 3. No external dependencies initially
+```
 
-## Settings & Notifications Redesign
+**Invariants:**
 
-### 5. Replace Settings Modal with Notification Icon
+- Bitcoin address MUST be valid mainnet format
+- Address MUST come from environment variable
+- Modal MUST be keyboard accessible
+- QR code MUST include BIP21 URI
 
-- [x] **The reminders option is the only option in the settings modal**
-- [x] **Kill the settings modal** and replace the settings icon with a notification icon
-- [x] Make sure the notifications functionality works properly on both desktop and mobile
+### Phase 2: BTCPay Server Integration (Production Hardening)
 
-**Files to modify:**
+```typescript
+interface BTCPayInvoice {
+  id: string;
+  checkoutLink: string;
+  btcAddress: string;
+  lightningInvoice?: string;
+  amount?: number;
+  status: "New" | "Processing" | "Paid" | "Expired";
+}
 
-- `src/components/AppHeader.tsx` - Change Settings icon to Bell icon
-- `src/components/modals/SettingsModal.tsx` - Simplify to focus only on notification controls
-  - Remove modal wrapper, make it notification-specific
-  - Keep TimePicker integration
-  - Update all labels and aria attributes
+// Server-side API route for invoice creation
+// Client-side monitoring for payment status
+// Webhook handler for confirmations
+```
 
-**Notification Requirements:**
+**Additional Invariants:**
 
-- Two-step permission pattern (explain value before system prompt)
-- Icon states: enabled, disabled, pending
-- Fallback when notifications are blocked
-- Service worker integration for background notifications
+- API key MUST never reach client
+- Invoice creation MUST be rate-limited
+- Payment monitoring MUST timeout after 1 hour
+- Failed BTCPay requests MUST fallback to static address
 
-## Infrastructure
+## File Structure
 
-### 6. Update Cron Job Timing
-
-- [x] **Change cronjob to run at 00:00 Central Time**
-- [x] **Must handle daylight savings** (CST/CDT transitions)
-- [x] Current runs at midnight UTC (6 PM Central summer, 7 PM winter)
-
-**Files to modify:**
-
-- `convex/crons.ts` - Adjust UTC hour for Central Time
-  - Set to UTC hour 6 (midnight CST) or hour 5 (midnight CDT)
-  - Implement DST detection logic or use timezone library
-
-### 7. Fix Archive Mobile Styling
-
-- [x] **Fix archive mobile styling** (mostly padding issues)
-- [x] Current responsive classes may have incorrect spacing on mobile devices
-  ```
-  Work Log:
-  - Increased mobile card height from h-32 to h-36 (144px) for better content readability
-  - Optimized card padding: p-3 on mobile, p-4 on desktop for better space utilization
-  - Increased grid gap on mobile from gap-3 to gap-4 for improved visual separation
-  - Made pagination buttons 44x44px on mobile (h-10 w-10) to meet WCAG touch target guidelines
-  - Adjusted main container padding: py-6 on mobile, py-8 on desktop
-  - Updated skeleton cards to match new responsive sizing
-  ```
-
-**Files to modify:**
-
-- `src/app/archive/page.tsx` - Adjust padding and spacing for mobile breakpoints
-  - Review grid gaps and card padding
-  - Ensure proper touch targets (44x44px minimum)
-  - Test on various mobile screen sizes
-
----
-
-## Implementation Order
-
-1. **Simple Removals** (Tasks 1-2): Delete unnecessary UI components
-2. **UI Transformation** (Task 5): Convert settings to notifications
-3. **Critical Fixes** (Tasks 3-4): Fix streak and focus bugs
-4. **Backend** (Task 6): Update cron timing
-5. **Polish** (Task 7): Mobile styling improvements
-
-## Testing Checklist
-
-- [x] Review hints completely removed - no button, no modal
-- [x] Sync indicator removed from header
-- [x] Settings icon replaced with notification bell
-- [x] Notifications work on desktop and mobile browsers
-- [x] Streak increments correctly for daily plays
-- [x] Streak handles timezone changes properly
-- [x] Input stays focused after incorrect guess
-- [x] Mobile keyboard remains open between guesses
-- [x] Daily puzzle resets at midnight Central Time
-- [x] DST transitions handled correctly (spring forward/fall back)
-- [x] Archive page looks good on mobile devices
-- [x] All touch targets are appropriately sized
+```
+src/
+├── components/
+│   ├── Footer.tsx (modified - add BitcoinButton)
+│   └── BitcoinDonation/
+│       ├── BitcoinButton.tsx
+│       ├── BitcoinModal.tsx
+│       ├── QRCode.tsx
+│       └── index.ts
+├── lib/
+│   └── bitcoin/
+│       ├── validation.ts (address format validation)
+│       ├── constants.ts (addresses, URIs)
+│       └── btcpay.ts (Phase 2 - API integration)
+└── app/
+    └── api/
+        └── bitcoin/
+            └── invoice/
+                └── route.ts (Phase 2)
+```
 
 ## Success Criteria
 
-- Cleaner UI with only essential elements
-- Reliable streak tracking across all timezones
-- Smooth input experience on mobile devices
-- Proper notification system without unnecessary modal
-- Consistent daily reset time for all users
-- Professional mobile experience in archive view
+### Phase 1 (Static Address)
+
+- [ ] Bitcoin button appears in footer
+- [ ] Modal opens with QR code on click
+- [ ] Address copies successfully on button click
+- [ ] QR code scannable by major wallets (Sparrow, Blue, Phoenix)
+- [ ] Works offline without errors
+- [ ] Passes accessibility audit
+- [ ] Bundle size increase < 25KB
+
+### Phase 2 (BTCPay Integration)
+
+- [ ] Dynamic invoice generation works
+- [ ] Lightning payments supported
+- [ ] Payment confirmation displayed
+- [ ] Graceful fallback on BTCPay failure
+- [ ] No security vulnerabilities in API
+- [ ] Bundle size increase < 50KB total
+- [ ] Response time < 500ms for invoice creation
+
+## Security Checklist
+
+- [ ] Bitcoin address validated before display
+- [ ] No private keys or seeds in codebase
+- [ ] Environment variables for all addresses
+- [ ] Content Security Policy allows QR library
+- [ ] No user input in Bitcoin URIs
+- [ ] API routes protected against abuse
+- [ ] Webhook signatures verified (Phase 2)
+
+## Testing Requirements
+
+### Unit Tests
+
+```typescript
+describe("BitcoinDonation", () => {
+  test("validates Bitcoin address format");
+  test("generates correct BIP21 URI");
+  test("handles copy failure gracefully");
+  test("renders accessible modal");
+});
+```
+
+### Integration Tests
+
+```typescript
+describe("Donation Flow", () => {
+  test("opens modal from footer button");
+  test("copies address to clipboard");
+  test("closes modal on escape key");
+  test("fallback to static on API failure");
+});
+```
+
+### Manual Testing
+
+- [ ] Test with Testnet addresses first
+- [ ] Verify QR scanning with 3+ wallet apps
+- [ ] Test on mobile devices (iOS/Android)
+- [ ] Verify keyboard navigation
+- [ ] Test with screen readers
+
+## Configuration
+
+### Environment Variables
+
+```bash
+# Phase 1 - Static
+NEXT_PUBLIC_BITCOIN_ADDRESS=bc1q... # Native SegWit preferred
+NEXT_PUBLIC_LIGHTNING_ADDRESS=lnbc... # Optional static invoice
+
+# Phase 2 - BTCPay
+BTCPAY_URL=https://btcpay.chrondle.app
+BTCPAY_STORE_ID=...
+BTCPAY_API_KEY=... # Server-side only
+```
+
+## Risk Mitigation
+
+| Risk                      | Impact | Mitigation                    |
+| ------------------------- | ------ | ----------------------------- |
+| Invalid address displayed | High   | Client & server validation    |
+| BTCPay server downtime    | Medium | Static address fallback       |
+| Bundle size bloat         | Low    | Lazy load, minimal deps       |
+| Accessibility issues      | Medium | ARIA labels, focus management |
+| Security vulnerability    | High   | No private keys, CSP headers  |
+
+## Dependencies
+
+### Phase 1 (Minimal)
+
+- `qrcode` - 30KB, generates QR codes
+- No other external dependencies
+
+### Phase 2 (Full)
+
+- `qrcode` - QR generation
+- BTCPay Greenfield API (server-side only)
+
+## Validation Questions
+
+**The Dijkstra Test:**
+
+- Can this fail silently? No - all errors shown to user
+- What happens at boundaries? Fallback to static address
+- Is this the simplest solution? Yes - static first, enhance later
+- Would Dijkstra approve? Focus on correctness over features ✓
+
+## Decision Log
+
+1. **Why BTCPay over direct wallet?**
+
+   - Zero fees, self-sovereign, production-ready
+   - Handles complexity of payment monitoring
+   - Lightning Network support built-in
+
+2. **Why Native SegWit addresses?**
+
+   - Lower fees than legacy
+   - Wide wallet support in 2025
+   - Better error detection via Bech32
+
+3. **Why phase approach?**
+
+   - Phase 1 ships value immediately
+   - Phase 2 adds complexity only if needed
+   - Fallback ensures reliability
+
+4. **Why lazy loading?**
+   - Bitcoin features not critical path
+   - Reduces initial bundle size
+   - Better Core Web Vitals
+
+---
+
+_"Simplicity is prerequisite for reliability." - E.W. Dijkstra_
+
+This specification provides the minimal correct solution that can be enhanced incrementally without breaking existing functionality.
