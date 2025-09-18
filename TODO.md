@@ -202,7 +202,15 @@ The `feat/ui-cleanup-and-fixes` branch is complete and ready for deployment. **B
   - Cleaned up obsolete Lighthouse CI comments from CI workflow
   - Reduces dependencies and node_modules size
   ```
-- [ ] Add bundle size trend tracking (GitHub Action for PR comments)
+- [x] Add bundle size trend tracking (GitHub Action for PR comments)
+  ```
+  Work Log:
+  - size-limit already configured with limits in .size-limit.json
+  - CI already checks bundle sizes but doesn't post PR comments
+  - Added size-limit-action workflow to post size comparisons on PRs
+  - Uses andresz1/size-limit-action@v1 for automated PR comments
+  - Will show bundle size changes and alert if limits are exceeded
+  ```
 
 ---
 
