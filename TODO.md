@@ -20,12 +20,16 @@
   - Should fix the build failure in size-limit action
   ```
 
-- [ ] **[CODE FIX]** Fix shouldRunDailyPuzzleJob DST calculation
+- [x] **[CODE FIX]** Fix shouldRunDailyPuzzleJob DST calculation
 
-  - Investigate convex/utils/dst.ts logic for hour checking
-  - Fix condition that determines if current time is Central Time midnight
-  - Should return true for UTC hours 5 (CDT) and 6 (CST)
-  - Failing tests: lines 142, 148, 163 in dst.test.ts
+  ```
+  Work Log:
+  - Tests failing in CI but passing locally
+  - Found fix already exists in commit 872d97a (not pushed yet)
+  - Fix adds proper Intl.DateTimeFormat-based Central Time checking
+  - Tolerates up to 5 seconds of scheduler drift
+  - Simply need to push the existing fix to remote
+  ```
 
 - [ ] **[CI FIX]** Verify size-limit action works after env var fix
 
