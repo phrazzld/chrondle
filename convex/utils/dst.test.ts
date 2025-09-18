@@ -8,7 +8,7 @@
  * - Historical and future dates
  */
 
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi, beforeEach, afterEach } from "vitest";
 import {
   isDaylightSavingTime,
   getUTCHourForCentralMidnight,
@@ -138,16 +138,79 @@ describe("isDaylightSavingTime", () => {
 });
 
 describe("shouldRunDailyPuzzleJob", () => {
-  // Skip these tests in CI as Intl.DateTimeFormat may not have full timezone data
-  const skipInCI = process.env.CI ? test.skip : test;
+  // Mock Intl.DateTimeFormat for consistent behavior across environments
+  beforeEach(() => {
+    const mockFormatToParts = vi.fn((date: Date) => {
+      const dateStr = date.toISOString();
 
-  skipInCI("returns true for CST midnight (06:00 UTC)", () => {
+      // CST midnight: 2024-02-20T06:00:XX -> 00:00:XX Central
+      if (dateStr.startsWith("2024-02-20T06:00:")) {
+        const seconds = parseInt(dateStr.slice(17, 19));
+        return [
+          { type: "hour", value: "0" },
+          { type: "minute", value: "0" },
+          { type: "second", value: seconds.toString() },
+        ];
+      }
+
+      // CDT midnight: 2024-07-15T05:00:XX -> 00:00:XX Central
+      if (dateStr.startsWith("2024-07-15T05:00:")) {
+        const seconds = parseInt(dateStr.slice(17, 19));
+        return [
+          { type: "hour", value: "0" },
+          { type: "minute", value: "0" },
+          { type: "second", value: seconds.toString() },
+        ];
+      }
+
+      // CST 11 PM: 2024-02-20T05:00:00 -> 23:00:00 Central
+      if (dateStr === "2024-02-20T05:00:00.000Z") {
+        return [
+          { type: "hour", value: "23" },
+          { type: "minute", value: "0" },
+          { type: "second", value: "0" },
+        ];
+      }
+
+      // CDT 1 AM: 2024-07-15T06:00:00 -> 01:00:00 Central
+      if (dateStr === "2024-07-15T06:00:00.000Z") {
+        return [
+          { type: "hour", value: "1" },
+          { type: "minute", value: "0" },
+          { type: "second", value: "0" },
+        ];
+      }
+
+      // Default: not midnight
+      return [
+        { type: "hour", value: "12" },
+        { type: "minute", value: "0" },
+        { type: "second", value: "0" },
+      ];
+    });
+
+    vi.spyOn(Intl, "DateTimeFormat").mockImplementation(
+      () =>
+        ({
+          formatToParts: mockFormatToParts,
+          format: vi.fn(),
+          resolvedOptions: vi.fn(),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        }) as any,
+    );
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("returns true for CST midnight (06:00 UTC)", () => {
     expect(shouldRunDailyPuzzleJob(new Date("2024-02-20T06:00:00Z"))).toBe(
       true,
     );
   });
 
-  skipInCI("returns true for CDT midnight (05:00 UTC)", () => {
+  test("returns true for CDT midnight (05:00 UTC)", () => {
     expect(shouldRunDailyPuzzleJob(new Date("2024-07-15T05:00:01Z"))).toBe(
       true,
     );
@@ -162,7 +225,7 @@ describe("shouldRunDailyPuzzleJob", () => {
     );
   });
 
-  skipInCI("tolerates small scheduler drift", () => {
+  test("tolerates small scheduler drift", () => {
     expect(shouldRunDailyPuzzleJob(new Date("2024-02-20T06:00:05Z"))).toBe(
       true,
     );

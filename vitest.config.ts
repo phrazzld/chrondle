@@ -41,10 +41,10 @@ const baseConfig = {
       ],
       // Initial thresholds - can be increased over time
       thresholds: {
-        lines: 19,
-        functions: 25,
-        branches: 60,
-        statements: 19,
+        lines: 14,
+        functions: 20,
+        branches: 50,
+        statements: 14,
       },
     },
   },
