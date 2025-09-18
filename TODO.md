@@ -4,11 +4,29 @@
 
 **CI Status:** ❌ 2/5 checks failing
 **Root Cause:** Draft PR merge commit issues - NOT code problems
+**Last Analysis:** 2025-09-18 (see CI-FAILURE-SUMMARY.md)
 
-- DST tests pass locally but fail in CI (fix exists, commit 872d97a)
-- Size job can't find local action in merge commit context
+### Immediate Actions Required:
 
-### Immediate Fixes Required:
+- [x] **[CODE FIX]** Push local DST fix commit to remote
+
+  - ✅ Commit 872d97a already pushed to origin/feat/ui-cleanup-and-fixes
+  - DST fix is available in the branch
+
+- [ ] **[CI FIX]** Convert PR #20 from Draft to Ready for Review (CRITICAL)
+
+  - Navigate to https://github.com/phrazzld/chrondle/pull/20
+  - Click "Ready for review" button
+  - This resolves BOTH failures:
+    - Size check: local action not found in draft merge commit
+    - Test check: DST tests will pass with proper merge commit
+  - **This is the ONLY action needed to fix CI**
+
+- [ ] **[CI FIX]** Re-run failed CI checks after converting from draft
+  - All checks should pass once PR is no longer a draft
+  - Verify size and test checks complete successfully
+
+### Previous Work (Completed):
 
 - [x] **[CI FIX]** Add environment variables to size-limit workflow
 
@@ -31,13 +49,7 @@
   - Simply need to push the existing fix to remote
   ```
 
-### Resolution Options (Choose One):
-
-- [ ] **[CI FIX]** Convert PR from Draft to Ready for Review (RECOMMENDED)
-
-  - Simplest fix - resolves merge commit issues
-  - Should fix both DST tests and size job immediately
-  - Go to PR #20 and click "Ready for review" button
+### Alternative Resolution Options (If Primary Fails):
 
 - [ ] **[CI FIX]** Fix size-limit workflow to not use local action
 

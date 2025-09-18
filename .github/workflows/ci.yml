@@ -9,7 +9,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+    env:
+      TZ: America/Chicago  # Set timezone for DST tests
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -40,8 +42,31 @@ jobs:
         
         echo "✅ No secrets detected in repository"
       
-    - name: Setup Node.js and pnpm
-      uses: ./.github/actions/setup-node-pnpm
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 9.1.0
+
+    - name: Get pnpm store directory
+      id: pnpm-cache
+      run: |
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+    - name: Cache pnpm store
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
 
     - name: 🔒 Security Audit
       run: |
@@ -120,6 +145,8 @@ jobs:
       
     - name: Run tests with coverage
       run: pnpm test:coverage --run
+      env:
+        TZ: America/Chicago  # Ensure timezone is set for DST tests
 
     - name: Generate coverage summary
       if: always()
@@ -179,8 +206,31 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Setup Node.js and pnpm
-      uses: ./.github/actions/setup-node-pnpm
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 9.1.0
+
+    - name: Get pnpm store directory
+      id: pnpm-cache
+      run: |
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+    - name: Cache pnpm store
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
 
     - name: Cache Next.js build
       uses: actions/cache@v4
