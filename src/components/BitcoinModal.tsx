@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import QRCode from "qrcode";
+import { Network, validate } from "bitcoin-address-validation";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,22 @@ interface BitcoinModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const resolvedAddress = (() => {
+  const value = process.env.NEXT_PUBLIC_BITCOIN_ADDRESS;
+
+  if (!value) {
+    throw new Error("NEXT_PUBLIC_BITCOIN_ADDRESS must be defined");
+  }
+
+  if (!validate(value, Network.mainnet)) {
+    throw new Error(
+      "NEXT_PUBLIC_BITCOIN_ADDRESS must be a valid mainnet address",
+    );
+  }
+
+  return value;
+})();
+
 export default function BitcoinModal({
   open,
   onOpenChange,
@@ -23,9 +40,7 @@ export default function BitcoinModal({
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
   const [copied, setCopied] = useState(false);
 
-  const address =
-    process.env.NEXT_PUBLIC_BITCOIN_ADDRESS ||
-    "bc1qary6smwqm8at0vx5m4e6nxznpftrw8jzqe2u8x";
+  const address = resolvedAddress;
 
   useEffect(() => {
     if (open) {
