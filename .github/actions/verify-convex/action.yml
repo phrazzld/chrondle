@@ -1,0 +1,18 @@
+name: 'Verify Convex Files'
+description: 'Verifies that all required Convex generated files are present'
+runs:
+  using: 'composite'
+  steps:
+    - name: Verify Convex files are committed
+      shell: bash
+      run: |
+        echo "🔍 Checking required Convex files are present..."
+        for file in api.d.ts api.js dataModel.d.ts server.d.ts server.js; do
+          if [ ! -f "convex/_generated/$file" ]; then
+            echo "❌ Missing required file: convex/_generated/$file"
+            echo "These files MUST be committed to Git for deployments"
+            echo "Run 'npx convex codegen' and commit the files"
+            exit 1
+          fi
+        done
+        echo "✅ All required Convex files present"

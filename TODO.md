@@ -6,13 +6,13 @@ _"The best code is no code at all. The second best is code that's so simple it o
 
 ---
 
-## 1. Eliminate CI Waste [15 minutes]
+## 1. Eliminate CI Waste [15 minutes] ✅
 
-- [ ] Open `.github/workflows/ci.yml` at line 145
-- [ ] Delete the redundant `pnpm test` line (coverage already runs tests)
-- [ ] Save 30 seconds per CI run by removing duplicate test execution
+- [x] Open `.github/workflows/ci.yml` at line 145
+- [x] Delete the redundant `pnpm test` line (coverage already runs tests)
+- [x] Save 30 seconds per CI run by removing duplicate test execution
 
-- [ ] Extract Convex verification to `.github/actions/verify-convex/action.yml`
+- [x] Extract Convex verification to `.github/actions/verify-convex/action.yml`
   ```yaml
   name: "Verify Convex Files"
   runs:
@@ -23,8 +23,8 @@ _"The best code is no code at all. The second best is code that's so simple it o
             [ -f "convex/_generated/$file" ] || exit 1
           done
   ```
-- [ ] Replace duplicate code blocks at lines 113-122 and 237-248 with `uses: ./.github/actions/verify-convex`
-- [ ] Save 40 lines of YAML duplication
+- [x] Replace duplicate code blocks at lines 113-122 and 237-248 with `uses: ./.github/actions/verify-convex`
+- [x] Save 40 lines of YAML duplication
 
 ## 2. Fix Coverage Theater [10 minutes]
 
