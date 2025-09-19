@@ -84,12 +84,12 @@ export function GameLayout(props: GameLayoutProps) {
   const targetYear = gameState.puzzle?.year || 0;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="flex-1 flex flex-col bg-background">
       {/* Optional header content */}
       {headerContent && <div>{headerContent}</div>}
 
       {/* Main game content */}
-      <main className="flex-1 px-4 py-6">
+      <main className="flex-1 px-4 py-6 overflow-auto">
         <div className="max-w-2xl mx-auto w-full space-y-6">
           {/* Game Instructions - Always at top */}
           <GameInstructions
