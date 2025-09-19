@@ -3,20 +3,13 @@ import { internal } from "./_generated/api";
 
 const crons = cronJobs();
 
-// Schedule runs for both potential UTC offsets and let the mutation
-// self-select based on Central Time midnight detection
+// Simple UTC midnight schedule - puzzles generate at 00:00 UTC daily
+// With on-demand generation as fallback, this is just an optimization
 crons.daily(
-  "generate daily puzzle (05 UTC)",
-  { hourUTC: 5, minuteUTC: 0 },
+  "generate daily puzzle at UTC midnight",
+  { hourUTC: 0, minuteUTC: 0 },
   internal.puzzles.generateDailyPuzzle,
-  { force: false },
-);
-
-crons.daily(
-  "generate daily puzzle (06 UTC)",
-  { hourUTC: 6, minuteUTC: 0 },
-  internal.puzzles.generateDailyPuzzle,
-  { force: false },
+  {}, // No args needed - will use today's date
 );
 
 export default crons;

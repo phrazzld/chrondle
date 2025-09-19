@@ -7,35 +7,25 @@ import {
 } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
-import { shouldRunDailyPuzzleJob } from "./utils/dst";
 
 // Internal mutation for cron job to generate daily puzzle
 export const generateDailyPuzzle = internalMutation({
   args: {
     force: v.optional(v.boolean()),
+    date: v.optional(v.string()), // Allow specific date for on-demand generation
   },
   handler: async (ctx, args) => {
-    const now = new Date();
-    const forceRun = args.force ?? false;
+    // Get the target date - either specified or today in UTC
+    const targetDate = args.date || new Date().toISOString().slice(0, 10);
 
-    if (!forceRun && !shouldRunDailyPuzzleJob(now)) {
-      console.warn(
-        "[generateDailyPuzzle] Skipping run because it's not midnight CT",
-      );
-      return { status: "skipped" as const };
-    }
-
-    // Get today's date in UTC
-    const dateStr = now.toISOString().slice(0, 10); // YYYY-MM-DD format
-
-    // Check if today's puzzle already exists
+    // Check if puzzle already exists for this date
     const existingPuzzle = await ctx.db
       .query("puzzles")
-      .withIndex("by_date", (q) => q.eq("date", dateStr))
+      .withIndex("by_date", (q) => q.eq("date", targetDate))
       .first();
 
     if (existingPuzzle) {
-      console.warn(`Puzzle for ${dateStr} already exists`);
+      console.warn(`Puzzle for ${targetDate} already exists`);
       return { status: "already_exists", puzzle: existingPuzzle };
     }
 
@@ -90,7 +80,7 @@ export const generateDailyPuzzle = internalMutation({
     // Create the puzzle
     const puzzleId = await ctx.db.insert("puzzles", {
       puzzleNumber: nextPuzzleNumber,
-      date: dateStr,
+      date: targetDate,
       targetYear: randomYear.year,
       events: selectedEvents.map((e) => e.event),
       playCount: 0,
@@ -130,7 +120,7 @@ export const generateDailyPuzzle = internalMutation({
     }
 
     console.warn(
-      `Created puzzle #${nextPuzzleNumber} for ${dateStr} with year ${randomYear.year}`,
+      `Created puzzle #${nextPuzzleNumber} for ${targetDate} with year ${randomYear.year}`,
     );
 
     return {
@@ -138,14 +128,14 @@ export const generateDailyPuzzle = internalMutation({
       puzzle: {
         _id: puzzleId,
         puzzleNumber: nextPuzzleNumber,
-        date: dateStr,
+        date: targetDate,
         targetYear: randomYear.year,
       },
     };
   },
 });
 
-// Get today's puzzle
+// Get today's puzzle - just returns the puzzle or null
 export const getDailyPuzzle = query({
   handler: async (ctx) => {
     const today = new Date().toISOString().slice(0, 10);
@@ -156,6 +146,94 @@ export const getDailyPuzzle = query({
       .first();
 
     return puzzle;
+  },
+});
+
+// Public mutation to ensure today's puzzle exists
+export const ensureTodaysPuzzle = mutation({
+  handler: async (ctx) => {
+    const today = new Date().toISOString().slice(0, 10);
+
+    // Check if puzzle already exists
+    const existingPuzzle = await ctx.db
+      .query("puzzles")
+      .withIndex("by_date", (q) => q.eq("date", today))
+      .first();
+
+    if (existingPuzzle) {
+      return { status: "exists", puzzle: existingPuzzle };
+    }
+
+    // Trigger generation using our internal mutation logic
+    // We'll inline the generation logic here to avoid circular dependencies
+    console.warn(`[ensureTodaysPuzzle] Generating puzzle for ${today}`);
+
+    // Get the highest puzzle number
+    const latestPuzzle = await ctx.db.query("puzzles").order("desc").first();
+    const nextPuzzleNumber = (latestPuzzle?.puzzleNumber || 0) + 1;
+
+    // Get available years with 6+ unused events
+    const unusedEvents = await ctx.db
+      .query("events")
+      .filter((q) => q.eq(q.field("puzzleId"), undefined))
+      .collect();
+
+    const yearCounts = new Map<number, number>();
+    for (const event of unusedEvents) {
+      const count = yearCounts.get(event.year) || 0;
+      yearCounts.set(event.year, count + 1);
+    }
+
+    const availableYears = Array.from(yearCounts.entries())
+      .filter(([, count]) => count >= 6)
+      .map(([year, count]) => ({ year, availableEvents: count }))
+      .sort((a, b) => a.year - b.year);
+
+    if (availableYears.length === 0) {
+      throw new Error("No years available with enough unused events");
+    }
+
+    const randomYear =
+      availableYears[Math.floor(Math.random() * availableYears.length)];
+
+    const yearEvents = await ctx.db
+      .query("events")
+      .withIndex("by_year", (q) => q.eq("year", randomYear.year))
+      .filter((q) => q.eq(q.field("puzzleId"), undefined))
+      .collect();
+
+    const shuffled = [...yearEvents].sort(() => Math.random() - 0.5);
+    const selectedEvents = shuffled.slice(0, 6);
+
+    if (selectedEvents.length < 6) {
+      throw new Error(`Not enough events for year ${randomYear.year}`);
+    }
+
+    const puzzleId = await ctx.db.insert("puzzles", {
+      puzzleNumber: nextPuzzleNumber,
+      date: today,
+      targetYear: randomYear.year,
+      events: selectedEvents.map((e) => e.event),
+      playCount: 0,
+      avgGuesses: 0,
+      updatedAt: Date.now(),
+    });
+
+    // Update events with puzzleId
+    for (const event of selectedEvents) {
+      await ctx.db.patch(event._id, {
+        puzzleId,
+        updatedAt: Date.now(),
+      });
+    }
+
+    const newPuzzle = await ctx.db.get(puzzleId);
+
+    console.warn(
+      `Created puzzle #${nextPuzzleNumber} for ${today} with year ${randomYear.year}`,
+    );
+
+    return { status: "created", puzzle: newPuzzle };
   },
 });
 

@@ -5,6 +5,7 @@ import { usePuzzleData } from "../usePuzzleData";
 // Mock Convex
 vi.mock("convex/react", () => ({
   useQuery: vi.fn(),
+  useMutation: vi.fn(() => vi.fn(() => Promise.resolve())),
 }));
 
 import { useQuery } from "convex/react";
@@ -62,12 +63,13 @@ describe("usePuzzleData Integration Tests", () => {
       expect(result.current.error).toBe(null);
     });
 
-    it("should handle error state when puzzle is null", () => {
+    it("should handle error state when puzzle is null", async () => {
       // Convex returns null when puzzle not found
       vi.mocked(useQuery).mockReturnValue(null);
 
       const { result } = renderHook(() => usePuzzleData());
 
+      // The hook will trigger the mutation but we still get the error state
       expect(result.current.puzzle).toBe(null);
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toEqual(

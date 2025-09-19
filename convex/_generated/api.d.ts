@@ -21,7 +21,6 @@ import type * as migrations_migrateEvents from "../migrations/migrateEvents.js";
 import type * as migrations_regenerateHistoricalContextGPT5 from "../migrations/regenerateHistoricalContextGPT5.js";
 import type * as puzzles from "../puzzles.js";
 import type * as users from "../users.js";
-import type * as utils_dst from "../utils/dst.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -40,7 +39,6 @@ declare const fullApi: ApiFromModules<{
   "migrations/regenerateHistoricalContextGPT5": typeof migrations_regenerateHistoricalContextGPT5;
   puzzles: typeof puzzles;
   users: typeof users;
-  "utils/dst": typeof utils_dst;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
