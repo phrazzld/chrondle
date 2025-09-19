@@ -327,10 +327,8 @@
   ```typescript
   // Pattern from env.ts:45-50
   export const isCI = (): boolean => !!process.env.CI;
-  export const isProduction = (): boolean =>
-    process.env.NODE_ENV === "production";
-  export const isDevelopment = (): boolean =>
-    process.env.NODE_ENV === "development";
+  export const isProduction = (): boolean => process.env.NODE_ENV === "production";
+  export const isDevelopment = (): boolean => process.env.NODE_ENV === "development";
   ```
 - **Proper HTTP Status Codes**: Use 503 (Service Unavailable) for missing environment variables instead of 500 (Internal Server Error)
   ```typescript
@@ -639,9 +637,7 @@
     const clerkId = "user_2gFqK5X7B8hM9nL0P3rT6vY1dZ4w";
     const validPuzzleId = "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a";
 
-    const { result } = renderHook(() =>
-      useUserProgress(clerkId, validPuzzleId),
-    );
+    const { result } = renderHook(() => useUserProgress(clerkId, validPuzzleId));
 
     expect(mockUseQuery).toHaveBeenCalledWith(expect.any(Object), "skip");
     expect(result.current.progress).toBeNull();
@@ -685,15 +681,14 @@
   ```
 
 - **Cross-Hook ID Validation**: Test consistent ID validation behavior across multiple hooks
+
   ```typescript
   // Pattern from id-validation.integration.test.tsx:466-516
   it("should handle the same invalid ID consistently across hooks", () => {
     const invalidId = "user_2gFqK5X7B8hM9nL0P3rT6vY1dZ4w";
 
     // Test in useUserProgress
-    const { result: progressResult } = renderHook(() =>
-      useUserProgress(invalidId, validPuzzleId),
-    );
+    const { result: progressResult } = renderHook(() => useUserProgress(invalidId, validPuzzleId));
     expect(progressResult.current.progress).toBeNull();
 
     // Test same ID in useGameActions
@@ -732,9 +727,7 @@
   // Pattern from setup.ts:96-126
   afterEach(async () => {
     // Clean up notification service singleton
-    const { __resetNotificationServiceForTesting } = await import(
-      "@/lib/notifications"
-    );
+    const { __resetNotificationServiceForTesting } = await import("@/lib/notifications");
     if (typeof __resetNotificationServiceForTesting === "function") {
       __resetNotificationServiceForTesting();
     }

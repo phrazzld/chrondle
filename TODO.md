@@ -59,9 +59,9 @@ _"The best code is no code at all. The second best is code that's so simple it o
 - [x] Change build job to depend on `quality-checks` instead of `test`
 - [x] Save 2-3 minutes per CI run through parallelization
 
-## 4. Add Missing Prettier Config [5 minutes]
+## 4. Add Missing Prettier Config [5 minutes] ✅
 
-- [ ] Create `prettier.config.js`:
+- [x] Create `prettier.config.js`:
   ```javascript
   export default {
     semi: true,
@@ -72,9 +72,9 @@ _"The best code is no code at all. The second best is code that's so simple it o
     plugins: ["prettier-plugin-tailwindcss"],
   };
   ```
-- [ ] Run `pnpm add -D prettier-plugin-tailwindcss`
-- [ ] Run `pnpm format` to apply consistent formatting
-- [ ] End style debates forever with automated formatting
+- [x] Run `pnpm add -D prettier-plugin-tailwindcss`
+- [x] Run `pnpm format` to apply consistent formatting
+- [x] End style debates forever with automated formatting
 
 ## 5. Fix or Delete Skipped Test [10 minutes]
 
@@ -121,8 +121,7 @@ _"The best code is no code at all. The second best is code that's so simple it o
 
   const metrics = {
     testCount: execSync('find . -name "*.test.ts*" | wc -l').toString().trim(),
-    coverage: JSON.parse(fs.readFileSync("coverage/coverage-summary.json"))
-      .total,
+    coverage: JSON.parse(fs.readFileSync("coverage/coverage-summary.json")).total,
     buildTime: execSync("time pnpm build 2>&1 | grep real").toString(),
     bundleSize: execSync("du -sh .next").toString().trim(),
   };

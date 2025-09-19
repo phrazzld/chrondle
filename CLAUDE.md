@@ -365,9 +365,7 @@ const getDailyYear = (debugYear?: string, isDebugMode?: boolean): number => {
   if (isDebugMode && debugYear) return parseInt(debugYear);
   // Deterministic hash-based selection
   const today = new Date().toISOString().slice(0, 10);
-  const dateHash = Math.abs(
-    [...today].reduce((a, b) => (a << 5) + a + b.charCodeAt(0), 5381),
-  );
+  const dateHash = Math.abs([...today].reduce((a, b) => (a << 5) + a + b.charCodeAt(0), 5381));
   return SUPPORTED_YEARS[dateHash % SUPPORTED_YEARS.length];
 };
 ```
@@ -883,10 +881,7 @@ const logger = {
  * @param isDebugMode - Whether debug mode is active
  * @returns Selected year from supported years array
  */
-export function getDailyYear(
-  debugYear?: string,
-  isDebugMode?: boolean,
-): number {
+export function getDailyYear(debugYear?: string, isDebugMode?: boolean): number {
   // Implementation with clear comments
 }
 ```

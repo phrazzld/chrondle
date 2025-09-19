@@ -1,7 +1,7 @@
-name: 'Verify Convex Files'
-description: 'Verifies that all required Convex generated files are present'
+name: "Verify Convex Files"
+description: "Verifies that all required Convex generated files are present"
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Verify Convex files are committed
       shell: bash

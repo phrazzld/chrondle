@@ -57,9 +57,7 @@ export const generateHistoricalContext = internalAction({
   handler: async (ctx: ActionCtx, args): Promise<void> => {
     const { puzzleId, year } = args;
 
-    console.error(
-      `[HistoricalContext] Starting generation for puzzle ${puzzleId}, year ${year}`,
-    );
+    console.error(`[HistoricalContext] Starting generation for puzzle ${puzzleId}, year ${year}`);
 
     try {
       // Check if GPT-5 is enabled (allows quick rollback to Gemini if needed)
@@ -68,9 +66,7 @@ export const generateHistoricalContext = internalAction({
       // Get API key from environment
       const apiKey = process.env.OPENROUTER_API_KEY;
       if (!apiKey) {
-        throw new Error(
-          "OPENROUTER_API_KEY not found in environment variables",
-        );
+        throw new Error("OPENROUTER_API_KEY not found in environment variables");
       }
 
       // Prepare prompt using template from constants
@@ -139,29 +135,19 @@ Remember: you're not just listing events or teaching history—you're telling th
           message.includes("504") ||
           message.includes("failed to fetch") ||
           message.includes("request failed") ||
-          (errorWithStatus.status !== undefined &&
-            errorWithStatus.status >= 500)
+          (errorWithStatus.status !== undefined && errorWithStatus.status >= 500)
         );
       };
 
       // Retry loop with exponential backoff (max 3 attempts)
       const maxAttempts = 3;
-      let lastError: Error = new Error(
-        "Unknown error occurred during context generation",
-      );
+      let lastError: Error = new Error("Unknown error occurred during context generation");
       let generatedContext: string | undefined;
-      let currentModel = gpt5Enabled
-        ? "openai/gpt-5"
-        : "google/gemini-2.5-flash"; // Use GPT-5 if enabled
+      let currentModel = gpt5Enabled ? "openai/gpt-5" : "google/gemini-2.5-flash"; // Use GPT-5 if enabled
       let hasHitRateLimit = false;
 
       // Log model selection
-      console.error(
-        "[HistoricalContext] Using model:",
-        currentModel,
-        "for puzzle:",
-        puzzleId,
-      );
+      console.error("[HistoricalContext] Using model:", currentModel, "for puzzle:", puzzleId);
 
       for (let attempt = 0; attempt < maxAttempts; attempt++) {
         try {
@@ -170,37 +156,34 @@ Remember: you're not just listing events or teaching history—you're telling th
           );
 
           // Make fetch call to OpenRouter API
-          const response = await fetch(
-            "https://openrouter.ai/api/v1/chat/completions",
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${apiKey}`,
-                "Content-Type": "application/json",
-                "HTTP-Referer": "https://chrondle.com",
-                "X-Title": "Chrondle Historical Context GPT-5",
-              },
-              body: JSON.stringify({
-                model: currentModel,
-                messages: [
-                  {
-                    role: "system",
-                    content: `You are a master historian crafting a vivid narrative. Channel the storytelling power of Barbara Tuchman, the narrative confidence of Tom Holland, and the immersive drama of Dan Carlin.
+          const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              "Content-Type": "application/json",
+              "HTTP-Referer": "https://chrondle.com",
+              "X-Title": "Chrondle Historical Context GPT-5",
+            },
+            body: JSON.stringify({
+              model: currentModel,
+              messages: [
+                {
+                  role: "system",
+                  content: `You are a master historian crafting a vivid narrative. Channel the storytelling power of Barbara Tuchman, the narrative confidence of Tom Holland, and the immersive drama of Dan Carlin.
 
 Your readers need to understand not just what happened, but what it felt like to live through this year—its texture, its tensions, its transformations.
 
 Use BC/AD dating exclusively. Write 350-450 words that make readers feel they're witnessing history unfold.`,
-                  },
-                  {
-                    role: "user",
-                    content: prompt,
-                  },
-                ],
-                temperature: 1.0,
-                max_tokens: 8000,
-              }),
-            },
-          );
+                },
+                {
+                  role: "user",
+                  content: prompt,
+                },
+              ],
+              temperature: 1.0,
+              max_tokens: 8000,
+            }),
+          });
 
           // Check if request was successful
           if (!response.ok) {
@@ -271,27 +254,19 @@ Use BC/AD dating exclusively. Write 350-450 words that make readers feel they're
           // Check if we should retry this error
           if (!shouldRetry(error as Error) || attempt === maxAttempts - 1) {
             // Don't retry, or this was the last attempt
-            console.error(
-              `[HistoricalContext] Not retrying error for puzzle ${puzzleId}:`,
-              error,
-            );
+            console.error(`[HistoricalContext] Not retrying error for puzzle ${puzzleId}:`, error);
             throw error;
           }
 
           // Calculate delay and sleep before next attempt
           const delay = calculateBackoffDelay(attempt);
-          console.error(
-            `[HistoricalContext] Retrying in ${delay}ms for puzzle ${puzzleId}...`,
-          );
+          console.error(`[HistoricalContext] Retrying in ${delay}ms for puzzle ${puzzleId}...`);
           await sleep(delay);
         }
       }
 
       if (!generatedContext) {
-        throw (
-          lastError ||
-          new Error("Failed to generate historical context after all retries")
-        );
+        throw lastError || new Error("Failed to generate historical context after all retries");
       }
 
       console.error(
@@ -305,13 +280,10 @@ Use BC/AD dating exclusively. Write 350-450 words that make readers feel they're
       );
 
       // Call internal mutation to update puzzle with enhanced context
-      const updateResult = await ctx.runMutation(
-        internal.puzzles.updateHistoricalContext,
-        {
-          puzzleId,
-          context: enhancedContext,
-        },
-      );
+      const updateResult = await ctx.runMutation(internal.puzzles.updateHistoricalContext, {
+        puzzleId,
+        context: enhancedContext,
+      });
 
       // Verify the update was successful using the returned puzzle data
       if (
@@ -331,9 +303,7 @@ Use BC/AD dating exclusively. Write 350-450 words that make readers feel they're
         `[HistoricalContext] Successfully persisted and verified context to database for puzzle ${puzzleId}`,
       );
 
-      console.error(
-        `[HistoricalContext] Successfully generated context for puzzle ${puzzleId}`,
-      );
+      console.error(`[HistoricalContext] Successfully generated context for puzzle ${puzzleId}`);
     } catch (error) {
       console.error(
         `[HistoricalContext] Failed to generate context for puzzle ${puzzleId}:`,
