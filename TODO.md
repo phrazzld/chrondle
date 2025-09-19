@@ -26,20 +26,20 @@ _"The best code is no code at all. The second best is code that's so simple it o
 - [x] Replace duplicate code blocks at lines 113-122 and 237-248 with `uses: ./.github/actions/verify-convex`
 - [x] Save 40 lines of YAML duplication
 
-## 2. Fix Coverage Theater [10 minutes]
+## 2. Fix Coverage Theater [10 minutes] ✅
 
-- [ ] Open `vitest.config.ts` at line 43
-- [ ] Run `pnpm test:coverage` and note actual coverage percentages
-- [ ] Update thresholds to real values minus 5% buffer:
+- [x] Open `vitest.config.ts` at line 43
+- [x] Run `pnpm test:coverage` and note actual coverage percentages
+- [x] Update thresholds to real values minus 5% buffer:
   ```typescript
   thresholds: {
-    lines: 55,      // was 14 (meaningless)
-    functions: 55,  // was 20 (theater)
-    branches: 45,   // was 50 (keep similar)
-    statements: 55, // was 14 (joke)
+    lines: 14,      // Current: 14.28% - maintain baseline
+    functions: 25,  // Current: 28.01% - allow small variance
+    branches: 65,   // Current: 69.93% - was underestimated at 50%
+    statements: 14, // Current: 14.28% - maintain baseline
   },
   ```
-- [ ] Now coverage actually gates bad code instead of being decoration
+- [x] Now coverage actually gates meaningful regressions
 
 ## 3. Parallelize CI Jobs [20 minutes]
 
