@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { useQuery } from "convex/react";
+import { useMemo, useEffect } from "react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 
 /**
@@ -70,6 +70,30 @@ export function usePuzzleData(
     api.puzzles.getDailyPuzzle,
     puzzleNumber !== undefined || shouldSkipQuery ? "skip" : undefined,
   ) as ConvexPuzzle | null | undefined;
+
+  // Mutation for on-demand puzzle generation
+  const ensurePuzzle = useMutation(api.puzzles.ensureTodaysPuzzle);
+
+  // Trigger on-demand generation if daily puzzle is null (not loading)
+  useEffect(() => {
+    if (
+      puzzleNumber === undefined &&
+      !shouldSkipQuery &&
+      dailyPuzzle === null // null means query returned but no puzzle exists
+    ) {
+      // Trigger on-demand generation for today
+      console.warn(
+        `[usePuzzleData] No daily puzzle found, triggering on-demand generation`,
+      );
+
+      ensurePuzzle().catch((error) => {
+        console.error(
+          "[usePuzzleData] Failed to generate puzzle on-demand:",
+          error,
+        );
+      });
+    }
+  }, [dailyPuzzle, puzzleNumber, shouldSkipQuery, ensurePuzzle]);
 
   // Fetch archive puzzle if puzzle number provided and no initial data
   const archivePuzzle = useQuery(

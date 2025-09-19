@@ -1,149 +1,99 @@
 # BACKLOG
 
-## PR Review Feedback (GPT-5 Migration)
+## Critical [Fix This Week]
 
-### Cost Monitoring & Management
+### 🔒 Security & Production Readiness
 
-- [ ] [HIGH] [MONITORING] Implement GPT-5 cost monitoring with alerts when daily spend exceeds thresholds | Impact: ~4x higher costs than Gemini
-- [ ] [HIGH] [MONITORING] Track historical context generation latency and success rates | Data: Monitor API response times < 10s
-- [ ] [MED] [PERF] A/B test GPT-5 vs Gemini quality with user feedback | Gain: Data-driven decision on cost vs quality tradeoff
+- [S] [SECURITY] Update vulnerable dependencies (@eslint/plugin-kit, vite) | Impact: 3 | Risk: Low severity
+- [S] [SECURITY] Add runtime environment variable validation with Zod | Impact: 8 | Risk: Config errors
+- [M] [SECURITY] Add rate limiting to historicalContext API endpoint | Impact: 9 | Risk: Cost overruns
+- [S] [RELIABILITY] Add request timeout (AbortController) to Convex fetch | Impact: 8 | Risk: Hangs
 
-### Production Monitoring & Logging
+## High Priority [This Sprint]
 
-- [ ] [HIGH] [MAINTAIN] Replace console.error() calls with structured logging for production | Debt: Better error tracking and debugging
-- [ ] [MED] [MONITORING] Implement production telemetry for context generation (success/failure rates, latency, costs) | Gain: Operational visibility
+### 🧪 Testing & Quality
 
-### Code Quality Improvements
+- [L] [TEST] Add comprehensive tests for useChrondle hook | Impact: 9 | Coverage: Core game logic
+- [L] [TEST] Add tests for GameTimeline (330 lines) and HintsDisplay (407 lines) | Impact: 7
+- [M] [TEST] Add tests for useStreak, useNotifications, useClipboard hooks | Impact: 6
 
-- [x] [LOW] [CLEANUP] ~~Remove lingering BCE/CE references from comments in 2 files~~ | **COMPLETED**: Changed to avoid BCE/CE mentions
-- [ ] [LOW] [CLEANUP] Remove commented-out Gemini model configuration code | Debt: Dead code cleanup
+### ⚡ Performance & Monitoring
 
-## Miscellaneous
+- [M] [MONITORING] Implement GPT-5 cost monitoring with spend alerts | Impact: 8 | ~4x Gemini costs
+- [M] [MONITORING] Track historical context generation latency (<10s target) | Impact: 7
+- [M] [MONITORING] Implement production telemetry (errors, API metrics) | Impact: 7
 
-- paywall puzzle archive with stripe
-- accuracy agent for auditing events in the database
-- generation agent for creating events in the database
-- quality agent for updating and tidying events, duplicates, etc
-- haiku generation flow, iterate on historical context generation prompt
+### 🏗️ Code Quality
 
-## Mobile Accessibility Improvements
+- [L] [REFACTOR] Split GameTimeline.tsx (330 lines) into sub-components | Impact: 8 | Principle: Simplicity
+- [M] [CLEANUP] Replace 60+ console.log/error with structured logging | Impact: 6 | Security risk
 
-- [ ] [MED] [A11Y] Increase button touch target sizes to meet 44x44px minimum | Current: All buttons are 32-40px, below WCAG guidelines
-- [ ] [MED] [A11Y] Create mobile-specific button size variant (h-11) for critical actions | Gain: Better mobile usability, fewer mis-taps
-- [ ] [LOW] [A11Y] Update main game submit button to use size="lg" or new mobile size | Impact: Core game interaction improvement
+## Medium Priority [This Quarter]
 
-## Timeline Component Enhancements (from PR #11 review)
+### 📱 Mobile & Accessibility
 
-- [ ] [LOW] Add unit tests for BC/AD formatYear edge cases (year 0, large negative years) | Gain: Prevent formatting bugs
-- [ ] [FUTURE] Implement virtual timeline rendering for 10,000+ year ranges | Gain: Support for prehistoric dates
-- [ ] [LOW] Create GitHub issue for timeline zoom controls and era markers | Gain: Enhanced user interaction
+- [M] [A11Y] Increase button touch targets to 44x44px minimum | Impact: 6 | Current: 32-40px
+- [S] [A11Y] Create mobile-specific button size variant (h-11) | Impact: 5
+- [S] [A11Y] Update game submit button to size="lg" for mobile | Impact: 5
 
-## Notification System Enhancements
+### 🎮 Features & Engagement
 
-- [ ] [MED] [FEATURE] Add notification scheduling options (morning/evening) | Gain: User preference flexibility
-- [ ] [LOW] [FEATURE] Create notification preference profiles | Gain: Quick switching between notification settings
-- [ ] [LOW] [FEATURE] Add push notification support via service worker | Gain: Background notifications when app closed
-- [ ] [LOW] [UX] Create notification sound options | Gain: Audio feedback customization
+- [M] [FEATURE] Add notification scheduling (morning/evening) | Impact: 5 | Flexibility
+- [M] [FEATURE] Implement streak freeze tokens for vacations | Impact: 6 | Retention
+- [M] [FEATURE] Add archive page filtering and search | Impact: 6 | Discovery
 
-## Gamification & Engagement
+### 🔧 Developer Experience
 
-- [ ] [MED] [FEATURE] Implement streak freeze tokens for missed days | Gain: Retention during vacations/breaks
-- [ ] [LOW] [FEATURE] Add streak milestone celebrations | Gain: Reward long-term engagement
+- [M] [DX] Add test watch mode with intelligent filtering | Impact: 5 | Time: 2-3 hrs/week
+- [S] [DX] Create development environment validation script | Impact: 4 | Time: 0.5-1 hr/week
+- [S] [CI] Configure bundle size monitoring in CI pipeline | Impact: 5
 
-## Archive Page Improvements
+### 💰 Monetization
 
-- [ ] [MED] [FEATURE] Add archive page filtering and search | Gain: Better puzzle discovery
-- [ ] [LOW] [PERF] Implement virtual scrolling for archive performance | Gain: Handle large puzzle collections
+- [L] [FEATURE] Design paywall for puzzle archive (Stripe/BTCPay) | Impact: 5
 
-## Critical Priority - Security & Production Readiness
+## Low Priority [Someday]
 
-- [x] [HIGH] [SECURITY] Validate localStorage data to prevent JSON injection attacks | **COMPLETED**: Implemented secure storage utility with comprehensive validation
-- [x] [HIGH] [SECURITY] Remove debug utilities from production builds | **COMPLETED**: Debug utilities now only available in development with process.env checks
-- [ ] [HIGH] [SECURITY] Add rate limiting to historical context API endpoint | Risk: API abuse and OpenRouter cost overruns
-- [ ] [HIGH] [RELIABILITY] Add request timeout (AbortController) to Convex historicalContext action fetch to prevent indefinite hangs
-- [ ] [HIGH] [DOCS] Unify documentation: Convex generated files MUST be committed (update docs/guides/contributing.md to remove conflicting guidance about gitignoring)
-- [ ] [HIGH] [DOCS] Update docs and tooling to state OPENROUTER_API_KEY must be set in Convex environment (not Vercel) now that generation runs server-side in Convex
-- [ ] [HIGH] [MAINTAIN] Implement proper error boundaries and production telemetry | Debt: Invisible production errors with no monitoring
-- [ ] [HIGH] [SECURITY] Configure security headers in Next.js config | Risk: XSS, clickjacking, and client-side attacks
+### 🎨 UI/UX Enhancements
 
-## High Priority - Core Functionality & Architecture
+- [S] [FEATURE] Add push notifications via service worker | Impact: 4
+- [S] [FEATURE] Create notification sound options | Impact: 3
+- [S] [FEATURE] Add streak milestone celebrations | Impact: 4
+- [L] [PERF] Implement virtual timeline for 10,000+ year ranges | Impact: 3
 
-- [ ] [HIGH] [ALIGN] Add comprehensive tests for useStreak hook - manages user progress tracking without test verification
-- [ ] [HIGH] [ALIGN] Add component integration tests for GuessInput + game state interaction - verify user input flows
-- [ ] [HIGH] [PERF] Optimize localStorage operations with debouncing and caching | Gain: 50-70% reduction in I/O operations
-- [ ] [HIGH] [ALIGN] Split GameTimeline.tsx (311 lines) into focused sub-components | Principle: Simplicity & Modularity
-- [ ] [HIGH] [MAINTAIN] Add comprehensive test coverage for untested custom hooks | Debt: 10+ hooks without any tests
-- [ ] [HIGH] [RELIABILITY] Handle 429 rate limits in Convex context generation: either retry with backoff or reschedule later via ctx.scheduler; avoid dropping work during migrations
-- [ ] [HIGH] [RELIABILITY] Throttle migration scheduling to a steady drip rate to avoid upstream overload (batch spacing and per-item delay tuning)
+### 🚀 Performance Optimizations
 
-## Medium Priority - Developer Experience & Performance
+- [L] [PERF] Implement virtual scrolling for archive | Impact: 4 | Large collections
+- [M] [PERF] Optimize localStorage with debouncing/caching | Impact: 5 | 50-70% I/O reduction
+- [M] [PERF] Memoize event sorting with puzzle cache | Impact: 4 | ~90% string op reduction
 
-- [ ] [MED] [DX] Add comprehensive test watch mode with intelligent filtering | Time saved: 2-3 hours per week
-- [ ] [MED] [ALIGN] Replace 60+ console.log/error calls with structured logging | Principle: No-secret-suppression
-- [ ] [MED] [PERF] Memoize event sorting algorithm with puzzle-specific cache | Gain: ~90% reduction in string operations
-- [ ] [MED] [ALIGN] Extract storage operations from gameState.ts into separate module | Principle: Single Responsibility
-- [ ] [MED] [DX] Create development environment validation script | Time saved: 0.5-1 hour per week
-- [ ] [MED] [ALIGN] Add tests for remaining custom hooks (useNotifications, useClipboard, useDebugMode)
-- [ ] [MED] [UI/UX] Configure BTCPayServer or easy Bitcoin donation method in footer
-- [ ] [MED] [ARCH] Centralize AI prompt/model/params in a shared constants module; reduce max_tokens in action to a measured safe value; keep one source of truth
-- [ ] [MED] [OBS] Enrich puzzles with historical context metadata (e.g., model, temperature, promptVersion) for provenance and audits
-- [ ] [MED] [OBS] Track historicalContextStatus (pending/success/failed) on puzzles to enable retries and operational visibility
-- [ ] [MED] [LOGGING] Use info/log for normal progress in actions/migrations; reserve error for failures to keep logs meaningful
-- [ ] [MED] [CI] Revisit CI codegen step: since convex/\_generated is committed, consider removing or guarding it to avoid production deployment coupling and fork/PR failures
+### 📊 Analytics & Features
 
-## Low Priority - Optimization & Cleanup
+- [L] [FEATURE] Add puzzle difficulty ratings from completion data | Impact: 3
+- [L] [FEATURE] Create shareable links for past puzzles | Impact: 4
+- [L] [FEATURE] Build puzzle statistics page | Impact: 3
+- [L] [FEATURE] Add achievement badges for milestones | Impact: 3
+- [L] [FEATURE] Implement puzzle recommendation engine | Impact: 4
+- [M] [FEATURE] Add feature flag system for gradual rollouts | Impact: 5
 
-- [ ] [LOW] [ALIGN] Decompose GuessInput component - violates simplicity principle
-- [ ] [LOW] [PERF] Optimize component re-renders with memo and callbacks | Gain: 20-30% fewer re-renders
-- [ ] [LOW] [ALIGN] Extract reusable focus management hook from GuessInput
+### 🧹 Technical Debt
 
-## Radical Simplification Ideas (Gordian Knots)
+- [S] [CLEANUP] Remove commented Gemini model configuration | Impact: 2
+- [S] [CLEANUP] Remove unused OpenRouterTimeoutError class | Impact: 2
+- [S] [CLEANUP] Clarify retry semantics (maxRetries vs +1) | Impact: 3
+- [M] [ARCH] Centralize AI prompt/model config in shared module | Impact: 4
+- [M] [OBS] Enrich puzzles with context metadata (model, temperature) | Impact: 3
+- [L] [TEST] Add network error tests for localStorage in private mode | Impact: 3
+- [L] [TEST] Add rapid input stress tests for GuessInput | Impact: 3
 
-- [ ] [GORDIAN] Consider removing ALL fancy button animations - replace with single button component
-- [ ] [GORDIAN] Consider using only browser's prefers-color-scheme for theming
-- [ ] [GORDIAN] Consider collapsing modals into inline UI elements
+### 🔮 Future Considerations
 
-## Future Enhancements (From Convex Migration)
+- [L] [FEATURE] Implement offline fallback with localStorage | Impact: 4
+- [L] [FEATURE] Add custom color schemes for premium users | Impact: 3
+- [L] [FEATURE] Create puzzle of the week/month highlights | Impact: 3
 
-- [ ] [LOW] [FEATURE] Add puzzle difficulty ratings based on aggregate completion data
-- [ ] [LOW] [FEATURE] Implement puzzle search and filtering in archive
-- [ ] [LOW] [FEATURE] Create shareable links for specific past puzzles
-- [ ] [LOW] [FEATURE] Add achievement badges for milestones
-- [ ] [LOW] [FEATURE] Build puzzle statistics page (most/least guessed correctly)
-- [ ] [LOW] [FEATURE] Add custom color scheme options for premium users
-- [ ] [LOW] [FEATURE] Implement puzzle of the week/month highlights
-- [ ] [LOW] [FEATURE] Create puzzle recommendation engine based on play history
-- [ ] [MED] [FEATURE] Add feature flag system for gradual rollout of new features
-- [ ] [MED] [SECURITY] Implement rate limiting for API endpoints when needed
-- [ ] [LOW] [FEATURE] Offline fallback behavior (localStorage when Convex unavailable)
+## Radical Simplifications [Gordian Knots]
 
-## Code Quality & Cleanup (From Historical Context PR Review)
-
-- [ ] [LOW] [MAINTAIN] Remove unused OpenRouterTimeoutError class | Debt: Dead code after AbortError changes
-- [ ] [LOW] [MAINTAIN] Clarify retry semantics (maxRetries vs maxRetries+1) | Debt: Semantic confusion
-- [ ] [LOW] [SIMPLIFY] Simplify AbortError detection to rely on err.name only | Gain: Cleaner code
-
-## Feature Enhancements (From Historical Context PR Review)
-
-- [ ] [MED] [PERF] Implement client-side timeout in OpenRouterService | Gain: Prevent hanging requests
-- [ ] [LOW] [UI/UX] Surface rate limit retry information in HistoricalContextCard | Gain: Smart retry UI with countdown
-- [ ] [LOW] [MAINTAIN] Clean up unused config.timeout if client timeout not needed | Debt: Unused configuration
-
----
-
-## Post-merge follow-ups (BC/AD Input Fix PR #18)
-
-- [ ] [LOW] [TEST] Add network error handling tests for localStorage operations in private browsing mode
-- [ ] [LOW] [TEST] Add rapid user input stress testing scenarios for GuessInput component
-- [ ] [LOW] [PERF] Consider replacing Framer Motion with CSS transitions in EraToggle for bundle size reduction
-- [ ] [LOW] [REFACTOR] Add named constants for year rounding thresholds in displayFormatting.ts
-
-## Post-merge follow-ups (Current Hint relocation)
-
-- [x] [UI/UX] Show current hint above guess input — completed in feat/current-hint-above-input
-- [MED] [DEV] Update validateHintsDisplayProps to reflect new HintsDisplay API (remove currentHintIndex and isLoading checks; keep events, guesses, targetYear, isGameComplete, error, className)
-- [MED] [TEST] Add a negative/edge-case test for GameProgress after clamping (e.g., guessCount > totalHints)
-- [LOW] [A11Y] Consider announcing the “Unused Hints Revealed” section with an aria-live region on game completion
-- [LOW] [UX] Revisit HintsDisplay auto-scroll-to-top behavior or make the container explicitly scrollable if that behavior is desired
-- [LOW] [ALIGN] Decide whether events must always have length 6; align validator, docs, and tests accordingly
-- [LOW] [DOCS] Update architecture/docs to reflect that CurrentHintCard owns the current hint, and HintsDisplay only renders past/future hints
+- [GORDIAN] Replace ALL fancy animations with single button component
+- [GORDIAN] Use only browser prefers-color-scheme for theming
+- [GORDIAN] Collapse modals into inline UI elements
