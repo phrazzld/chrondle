@@ -71,12 +71,13 @@ export default function BitcoinModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Donate Bitcoin</DialogTitle>
+          <DialogTitle>Keep history alive ₿</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Support Chrondle development with Bitcoin
+            Your tips keep Chrondle free, ad-free, and full of fresh puzzles.
+            Thanks for playing!
           </p>
 
           {qrDataUrl && (

@@ -34,12 +34,12 @@ export const Footer: React.FC = () => {
             variant="ghost"
             size="sm"
             onClick={() => setShowBitcoin(true)}
-            className="text-muted-foreground hover:text-foreground gap-2 h-auto py-2"
-            aria-label="Donate Bitcoin to support Chrondle"
-            title="Donate Bitcoin"
+            className="text-muted-foreground hover:text-foreground gap-2 h-auto py-2 cursor-pointer hover:scale-105 transition-transform"
+            aria-label="Support Chrondle with Bitcoin tips"
+            title="Tip jar"
           >
             <Bitcoin className="h-4 w-4" />
-            <span className="hidden sm:inline text-sm">Donate</span>
+            <span className="hidden sm:inline text-sm">Tip jar</span>
           </Button>
         </div>
       </div>
