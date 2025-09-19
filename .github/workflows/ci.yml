@@ -7,8 +7,13 @@ on:
     branches: [ main, master ]
 
 jobs:
-  test:
+  quality-checks:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        check: [lint, type-check, test]
+      fail-fast: false
+    name: ${{ matrix.check }}
 
     steps:
     - name: Checkout code
@@ -126,16 +131,19 @@ jobs:
         CONVEX_DEPLOYMENT: fleet-goldfish-183
       
     - name: Run linting
+      if: matrix.check == 'lint'
       run: pnpm lint
-      
+
     - name: Run type checking
+      if: matrix.check == 'type-check'
       run: pnpm type-check
-      
+
     - name: Run tests with coverage
+      if: matrix.check == 'test'
       run: pnpm test:coverage
 
     - name: Generate coverage summary
-      if: always()
+      if: matrix.check == 'test' && always()
       run: |
         echo "## 📊 Test Coverage Summary" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
@@ -149,15 +157,49 @@ jobs:
           echo "⚠️ Coverage report not found" >> $GITHUB_STEP_SUMMARY
         fi
 
+  validation:
+    runs-on: ubuntu-latest
+    name: validation-checks
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 9.1.0
+
+    - name: Get pnpm store directory
+      id: pnpm-cache
+      run: |
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+    - name: Cache pnpm store
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+
     - name: Run puzzle validation
       run: pnpm validate-puzzles
-      
+
     - name: Test module system compatibility
       run: pnpm test-module-system
 
   build:
     runs-on: ubuntu-latest
-    needs: test
+    needs: [quality-checks, validation]
     
     # ENVIRONMENT VARIABLES DOCUMENTATION
     # ====================================

@@ -41,23 +41,23 @@ _"The best code is no code at all. The second best is code that's so simple it o
   ```
 - [x] Now coverage actually gates meaningful regressions
 
-## 3. Parallelize CI Jobs [20 minutes]
+## 3. Parallelize CI Jobs [20 minutes] ✅
 
-- [ ] Open `.github/workflows/ci.yml` at line 138
-- [ ] Replace sequential lint/type-check/test with parallel matrix:
+- [x] Open `.github/workflows/ci.yml` at line 138
+- [x] Replace sequential lint/type-check/test with parallel matrix:
   ```yaml
   quality-checks:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        check: [lint, type-check, test:unit]
+        check: [lint, type-check, test]
     steps:
       # ... existing setup steps ...
       - name: Run ${{ matrix.check }}
         run: pnpm ${{ matrix.check }}
   ```
-- [ ] Change build job to depend on `quality-checks` instead of `test`
-- [ ] Save 2-3 minutes per CI run through parallelization
+- [x] Change build job to depend on `quality-checks` instead of `test`
+- [x] Save 2-3 minutes per CI run through parallelization
 
 ## 4. Add Missing Prettier Config [5 minutes]
 
