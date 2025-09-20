@@ -86,10 +86,10 @@ _"The best code is no code at all. The second best is code that's so simple it o
   - [ ] ~~Update test for current implementation~~
 - [x] No skipped tests allowed - they're dead code
 
-## 6. Optimize Build Caching [15 minutes]
+## 6. Optimize Build Caching [15 minutes] ✅
 
-- [ ] Open `.github/workflows/ci.yml` at line 227
-- [ ] Add `.next/server` to Next.js cache paths:
+- [x] Open `.github/workflows/ci.yml` at line 227
+- [x] Add `.next/server` to Next.js cache paths:
   ```yaml
   path: |
     .next/cache
@@ -97,11 +97,11 @@ _"The best code is no code at all. The second best is code that's so simple it o
     .next/server              # Add server bundle cache
     node_modules/.cache       # Add bundler caches
   ```
-- [ ] Update cache key to include source hash:
+- [x] Update cache key to include source hash:
   ```yaml
   key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**/*.[jt]sx?') }}
   ```
-- [ ] Save 5-10 seconds per build through better caching
+- [x] Save 5-10 seconds per build through better caching
 
 ## 7. Remove Zombie Workflows [5 minutes]
 
