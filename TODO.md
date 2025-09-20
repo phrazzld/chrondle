@@ -103,12 +103,12 @@ _"The best code is no code at all. The second best is code that's so simple it o
   ```
 - [x] Save 5-10 seconds per build through better caching
 
-## 7. Remove Zombie Workflows [5 minutes]
+## 7. Remove Zombie Workflows [5 minutes] ⚠️ SKIPPED
 
-- [ ] Check if `.github/workflows/claude.yml` is used (likely not)
-- [ ] Check if `.github/workflows/claude-code-review.yml` is used (probably redundant)
-- [ ] Delete unused workflows with `git rm`
-- [ ] Less YAML to maintain = fewer bugs
+- [x] Check if `.github/workflows/claude.yml` is used (likely not)
+- [x] Check if `.github/workflows/claude-code-review.yml` is used (probably redundant)
+- [!] ~~Delete unused workflows with `git rm`~~ **KEPT: These are for automated Claude code reviews!**
+- [x] Less YAML to maintain = fewer bugs (but these are actually useful!)
 
 ## 8. Create Quality Dashboard [10 minutes]
 
