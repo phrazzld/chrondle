@@ -2,176 +2,205 @@ name: CI/CD Pipeline with Regression Detection
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
-  test:
+  quality-checks:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        check: [lint, type-check, test]
+      fail-fast: false
+    name: ${{ matrix.check }}
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: 🔒 Secret Scanning
-      run: |
-        echo "🔍 Scanning for accidentally committed secrets..."
-        
-        # Define secret patterns to check (pk_test_ excluded as they're safe publishable keys)
-        SECRET_PATTERNS='(sk_live_[a-zA-Z0-9]{20,}|sk_test_[a-zA-Z0-9]{20,}|pk_live_[a-zA-Z0-9]{20,}|whsec_[a-zA-Z0-9]{20,})'
-        
-        # Check for secrets in all tracked files (excluding .env.example and similar)
-        FOUND_SECRETS=$(git ls-files | \
-          grep -v -E "(\.env\.example|\.env\.sample|example\.|sample\.)" | \
-          xargs grep -E "$SECRET_PATTERNS" 2>/dev/null | \
-          grep -v -E "(YOUR_|PLACEHOLDER|EXAMPLE|<.*>|docs/SECURITY\.md)" || true)
-        
-        if [ -n "$FOUND_SECRETS" ]; then
-          echo "❌ SECURITY ALERT: Potential secrets found in repository!"
-          echo ""
-          echo "Found in files:"
-          echo "$FOUND_SECRETS" | head -10
-          echo ""
-          echo "Please remove secrets and use placeholders instead."
-          echo "See docs/SECURITY.md for proper secret handling."
-          exit 1
-        fi
-        
-        echo "✅ No secrets detected in repository"
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 9.1.0
+      - name: 🔒 Secret Scanning
+        run: |
+          echo "🔍 Scanning for accidentally committed secrets..."
 
-    - name: Get pnpm store directory
-      id: pnpm-cache
-      run: |
-        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+          # Define secret patterns to check (pk_test_ excluded as they're safe publishable keys)
+          SECRET_PATTERNS='(sk_live_[a-zA-Z0-9]{20,}|sk_test_[a-zA-Z0-9]{20,}|pk_live_[a-zA-Z0-9]{20,}|whsec_[a-zA-Z0-9]{20,})'
 
-    - name: Cache pnpm store
-      uses: actions/cache@v4
-      with:
-        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-pnpm-store-
+          # Check for secrets in all tracked files (excluding .env.example and similar)
+          FOUND_SECRETS=$(git ls-files | \
+            grep -v -E "(\.env\.example|\.env\.sample|example\.|sample\.)" | \
+            xargs grep -E "$SECRET_PATTERNS" 2>/dev/null | \
+            grep -v -E "(YOUR_|PLACEHOLDER|EXAMPLE|<.*>|docs/SECURITY\.md)" || true)
 
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-
-    - name: 🔒 Security Audit
-      run: |
-        echo "🔍 Checking for security vulnerabilities in dependencies..."
-
-        # Production dependencies - STRICT (fail on moderate or higher)
-        echo ""
-        echo "📦 Auditing production dependencies..."
-        pnpm audit --prod --audit-level moderate || {
-          EXIT_CODE=$?
-          echo "❌ CRITICAL: Production vulnerabilities found!"
-          echo "These vulnerabilities affect your users and must be fixed immediately."
-          echo "Run 'pnpm audit --prod' locally to see details"
-          exit $EXIT_CODE
-        }
-        echo "✅ Production dependencies secure (no moderate+ vulnerabilities)"
-
-        # Development dependencies - LENIENT (fail only on high or critical)
-        echo ""
-        echo "🛠️ Auditing development dependencies..."
-        pnpm audit --dev --audit-level high || {
-          EXIT_CODE=$?
-          echo "❌ High/Critical vulnerabilities found in dev dependencies!"
-          echo "These should be addressed but don't affect production users."
-          echo "Run 'pnpm audit --dev' locally to see details"
-          exit $EXIT_CODE
-        }
-
-        # Check for moderate dev vulnerabilities (warning only, non-blocking)
-        echo ""
-        echo "📋 Checking for moderate dev dependency vulnerabilities..."
-        if ! pnpm audit --dev --audit-level moderate 2>/dev/null; then
-          echo "⚠️ Moderate vulnerabilities found in dev dependencies (non-blocking)"
-          echo "These don't block CI but should be reviewed in the next maintenance cycle."
-          echo "Run 'pnpm audit --dev' locally for details"
-        else
-          echo "✅ Dev dependencies secure (no moderate+ vulnerabilities)"
-        fi
-
-        echo ""
-        echo "✅ Security audit complete"
-
-    - name: Verify Convex files are committed
-      run: |
-        echo "🔍 Checking required Convex files are present..."
-        for file in api.d.ts api.js dataModel.d.ts server.d.ts server.js; do
-          if [ ! -f "convex/_generated/$file" ]; then
-            echo "❌ Missing required file: convex/_generated/$file"
-            echo "These files MUST be committed to Git for deployments"
-            echo "Run 'npx convex codegen' and commit the files"
+          if [ -n "$FOUND_SECRETS" ]; then
+            echo "❌ SECURITY ALERT: Potential secrets found in repository!"
+            echo ""
+            echo "Found in files:"
+            echo "$FOUND_SECRETS" | head -10
+            echo ""
+            echo "Please remove secrets and use placeholders instead."
+            echo "See docs/SECURITY.md for proper secret handling."
             exit 1
           fi
-        done
-        echo "✅ All required Convex files present"
-      
-    - name: Cache Convex generated files
-      id: convex-cache
-      uses: actions/cache@v4
-      with:
-        path: convex/_generated
-        key: ${{ runner.os }}-convex-${{ hashFiles('convex/schema.ts', 'convex/**/*.ts') }}
-        restore-keys: |
-          ${{ runner.os }}-convex-
-      
-    - name: Generate Convex files
-      if: steps.convex-cache.outputs.cache-hit != 'true'
-      run: npx convex codegen
-      env:
-        CONVEX_DEPLOYMENT: fleet-goldfish-183
-      
-    - name: Run linting
-      run: pnpm lint
-      
-    - name: Run type checking
-      run: pnpm type-check
-      
-    - name: Run tests
-      run: pnpm test
 
-    - name: Run tests with coverage
-      run: pnpm test:coverage
+          echo "✅ No secrets detected in repository"
 
-    - name: Generate coverage summary
-      if: always()
-      run: |
-        echo "## 📊 Test Coverage Summary" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        if [ -f coverage/coverage-summary.json ]; then
-          echo '```json' >> $GITHUB_STEP_SUMMARY
-          cat coverage/coverage-summary.json | jq '.total' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.1.0
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔒 Security Audit
+        run: |
+          echo "🔍 Checking for security vulnerabilities in dependencies..."
+
+          # Production dependencies - STRICT (fail on moderate or higher)
+          echo ""
+          echo "📦 Auditing production dependencies..."
+          pnpm audit --prod --audit-level moderate || {
+            EXIT_CODE=$?
+            echo "❌ CRITICAL: Production vulnerabilities found!"
+            echo "These vulnerabilities affect your users and must be fixed immediately."
+            echo "Run 'pnpm audit --prod' locally to see details"
+            exit $EXIT_CODE
+          }
+          echo "✅ Production dependencies secure (no moderate+ vulnerabilities)"
+
+          # Development dependencies - LENIENT (fail only on high or critical)
+          echo ""
+          echo "🛠️ Auditing development dependencies..."
+          pnpm audit --dev --audit-level high || {
+            EXIT_CODE=$?
+            echo "❌ High/Critical vulnerabilities found in dev dependencies!"
+            echo "These should be addressed but don't affect production users."
+            echo "Run 'pnpm audit --dev' locally to see details"
+            exit $EXIT_CODE
+          }
+
+          # Check for moderate dev vulnerabilities (warning only, non-blocking)
+          echo ""
+          echo "📋 Checking for moderate dev dependency vulnerabilities..."
+          if ! pnpm audit --dev --audit-level moderate 2>/dev/null; then
+            echo "⚠️ Moderate vulnerabilities found in dev dependencies (non-blocking)"
+            echo "These don't block CI but should be reviewed in the next maintenance cycle."
+            echo "Run 'pnpm audit --dev' locally for details"
+          else
+            echo "✅ Dev dependencies secure (no moderate+ vulnerabilities)"
+          fi
+
+          echo ""
+          echo "✅ Security audit complete"
+
+      - name: Verify Convex files
+        uses: ./.github/actions/verify-convex
+
+      - name: Cache Convex generated files
+        id: convex-cache
+        uses: actions/cache@v4
+        with:
+          path: convex/_generated
+          key: ${{ runner.os }}-convex-${{ hashFiles('convex/schema.ts', 'convex/**/*.ts') }}
+          restore-keys: |
+            ${{ runner.os }}-convex-
+
+      - name: Generate Convex files
+        if: steps.convex-cache.outputs.cache-hit != 'true'
+        run: npx convex codegen
+        env:
+          CONVEX_DEPLOYMENT: fleet-goldfish-183
+
+      - name: Run linting
+        if: matrix.check == 'lint'
+        run: pnpm lint
+
+      - name: Run type checking
+        if: matrix.check == 'type-check'
+        run: pnpm type-check
+
+      - name: Run tests with coverage
+        if: matrix.check == 'test'
+        run: pnpm test:coverage
+
+      - name: Generate coverage summary
+        if: matrix.check == 'test' && always()
+        run: |
+          echo "## 📊 Test Coverage Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Coverage report generated successfully" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "⚠️ Coverage report not found" >> $GITHUB_STEP_SUMMARY
-        fi
+          if [ -f coverage/coverage-summary.json ]; then
+            echo '```json' >> $GITHUB_STEP_SUMMARY
+            cat coverage/coverage-summary.json | jq '.total' >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Coverage report generated successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Coverage report not found" >> $GITHUB_STEP_SUMMARY
+          fi
 
-    - name: Run puzzle validation
-      run: pnpm validate-puzzles
-      
-    - name: Test module system compatibility
-      run: pnpm test-module-system
+  validation:
+    runs-on: ubuntu-latest
+    name: validation-checks
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.1.0
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run puzzle validation
+        run: pnpm validate-puzzles
+
+      - name: Test module system compatibility
+        run: pnpm test-module-system
 
   build:
     runs-on: ubuntu-latest
-    needs: test
-    
+    needs: [quality-checks, validation]
+
     # ENVIRONMENT VARIABLES DOCUMENTATION
     # ====================================
     # This job requires the following environment variables:
@@ -192,134 +221,126 @@ jobs:
     # These variables must be provided at:
     # 1. Build time - for Next.js to embed them in the client bundle
     # 2. Runtime - for the production server to start without errors
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 9.1.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-    - name: Get pnpm store directory
-      id: pnpm-cache
-      run: |
-        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.1.0
 
-    - name: Cache pnpm store
-      uses: actions/cache@v4
-      with:
-        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-pnpm-store-
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
-    - name: Cache Next.js build
-      uses: actions/cache@v4
-      with:
-        path: |
-          .next/cache
-          .next/.next-build-cache
-        key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/pnpm-lock.yaml') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
-        restore-keys: |
-          ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/pnpm-lock.yaml') }}-
-          ${{ runner.os }}-nextjs-
-      
-    - name: Verify Convex files are committed
-      run: |
-        echo "🔍 Checking required Convex files are present..."
-        for file in api.d.ts api.js dataModel.d.ts server.d.ts server.js; do
-          if [ ! -f "convex/_generated/$file" ]; then
-            echo "❌ Missing required file: convex/_generated/$file"
-            echo "These files MUST be committed to Git for deployments"
-            echo "Run 'npx convex codegen' and commit the files"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: |
+            .next/cache
+            .next/.next-build-cache
+            .next/server
+            node_modules/.cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**/*.[jt]sx?') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
+            ${{ runner.os }}-nextjs-
+
+      - name: Verify Convex files
+        uses: ./.github/actions/verify-convex
+
+      - name: Cache Convex generated files
+        id: convex-cache
+        uses: actions/cache@v4
+        with:
+          path: convex/_generated
+          key: ${{ runner.os }}-convex-${{ hashFiles('convex/schema.ts', 'convex/**/*.ts') }}
+          restore-keys: |
+            ${{ runner.os }}-convex-
+
+      - name: Generate Convex files
+        if: steps.convex-cache.outputs.cache-hit != 'true'
+        run: npx convex codegen
+        env:
+          # Server-side only: Used to identify which Convex deployment to generate types for
+          CONVEX_DEPLOYMENT: fleet-goldfish-183
+
+      - name: Build application
+        run: pnpm build
+        env:
+          # Client-side: Embedded in the JavaScript bundle for browser access
+          NEXT_PUBLIC_CONVEX_URL: https://fleet-goldfish-183.convex.cloud
+          # Client-side: Public key for Clerk authentication (safe to expose)
+          # This is a TEST publishable key - NOT a secret. Publishable keys are meant to be public.
+          # pk_test_ keys are specifically for test environments and safe in CI configurations
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_aGVhbHRoeS1kb2UtMjMuY2xlcmsuYWNjb3VudHMuZGV2JA
+
+      - name: Verify environment variable handling
+        run: |
+          echo "🔍 Verifying environment variable handling..."
+
+          # Check that NEXT_PUBLIC_ variables are included in the build output
+          if grep -q "NEXT_PUBLIC_CONVEX_URL" .next/static/chunks/*.js 2>/dev/null || \
+             grep -q "fleet-goldfish-183" .next/static/chunks/*.js 2>/dev/null; then
+            echo "✅ NEXT_PUBLIC_CONVEX_URL properly embedded in client bundle"
+          else
+            echo "⚠️ Warning: NEXT_PUBLIC_CONVEX_URL might not be properly embedded"
+          fi
+
+          # Ensure no actual sensitive values are exposed (not just variable names)
+          # Check for actual Clerk secret keys (start with sk_test_ or sk_live_ followed by 48+ chars)
+          if grep -E "sk_(test|live)_[A-Za-z0-9]{40,}" .next/static/chunks/*.js 2>/dev/null; then
+            echo "❌ ERROR: Actual Clerk secret key found in client bundle!"
+            echo "Secret keys must never be exposed in client-side code"
             exit 1
           fi
-        done
-        echo "✅ All required Convex files present"
-      
-    - name: Cache Convex generated files
-      id: convex-cache
-      uses: actions/cache@v4
-      with:
-        path: convex/_generated
-        key: ${{ runner.os }}-convex-${{ hashFiles('convex/schema.ts', 'convex/**/*.ts') }}
-        restore-keys: |
-          ${{ runner.os }}-convex-
-      
-    - name: Generate Convex files
-      if: steps.convex-cache.outputs.cache-hit != 'true'
-      run: npx convex codegen
-      env:
-        # Server-side only: Used to identify which Convex deployment to generate types for
-        CONVEX_DEPLOYMENT: fleet-goldfish-183
-      
-    - name: Build application
-      run: pnpm build
-      env:
-        # Client-side: Embedded in the JavaScript bundle for browser access
-        NEXT_PUBLIC_CONVEX_URL: https://fleet-goldfish-183.convex.cloud
-        # Client-side: Public key for Clerk authentication (safe to expose)
-        # This is a TEST publishable key - NOT a secret. Publishable keys are meant to be public.
-        # pk_test_ keys are specifically for test environments and safe in CI configurations
-        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_aGVhbHRoeS1kb2UtMjMuY2xlcmsuYWNjb3VudHMuZGV2JA
-      
-    - name: Verify environment variable handling
-      run: |
-        echo "🔍 Verifying environment variable handling..."
-        
-        # Check that NEXT_PUBLIC_ variables are included in the build output
-        if grep -q "NEXT_PUBLIC_CONVEX_URL" .next/static/chunks/*.js 2>/dev/null || \
-           grep -q "fleet-goldfish-183" .next/static/chunks/*.js 2>/dev/null; then
-          echo "✅ NEXT_PUBLIC_CONVEX_URL properly embedded in client bundle"
-        else
-          echo "⚠️ Warning: NEXT_PUBLIC_CONVEX_URL might not be properly embedded"
-        fi
-        
-        # Ensure no actual sensitive values are exposed (not just variable names)
-        # Check for actual Clerk secret keys (start with sk_test_ or sk_live_ followed by 48+ chars)
-        if grep -E "sk_(test|live)_[A-Za-z0-9]{40,}" .next/static/chunks/*.js 2>/dev/null; then
-          echo "❌ ERROR: Actual Clerk secret key found in client bundle!"
-          echo "Secret keys must never be exposed in client-side code"
-          exit 1
-        fi
-        
-        # Check for actual Convex deployment keys (format: prod:project-name|base64key)
-        if grep -E "(dev|prod):[a-z-]+\|[A-Za-z0-9+/=]{20,}" .next/static/chunks/*.js 2>/dev/null; then
-          echo "❌ ERROR: Convex deployment key found in client bundle!"
-          echo "Deployment keys must never be exposed in client-side code"
-          exit 1
-        fi
-        
-        echo "✅ No sensitive secrets exposed in client bundle"
-        
-        echo "✅ Environment variable verification passed"
-      
-    - name: Check bundle size
-      run: |
-        echo "📊 Checking bundle sizes against configured limits..."
-        pnpm size
-        if [ $? -ne 0 ]; then
-          echo "❌ Bundle size limits exceeded! Please optimize your code."
-          echo "💡 Tips:"
-          echo "   - Check for unnecessary dependencies"
-          echo "   - Use dynamic imports for large components"
-          echo "   - Analyze bundle with 'pnpm bundle-analysis'"
-          exit 1
-        fi
-        echo "✅ Bundle sizes within limits"
-      
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-output
-        path: .next/
+
+          # Check for actual Convex deployment keys (format: prod:project-name|base64key)
+          if grep -E "(dev|prod):[a-z-]+\|[A-Za-z0-9+/=]{20,}" .next/static/chunks/*.js 2>/dev/null; then
+            echo "❌ ERROR: Convex deployment key found in client bundle!"
+            echo "Deployment keys must never be exposed in client-side code"
+            exit 1
+          fi
+
+          echo "✅ No sensitive secrets exposed in client bundle"
+
+          echo "✅ Environment variable verification passed"
+
+      - name: Check bundle size
+        run: |
+          echo "📊 Checking bundle sizes against configured limits..."
+          pnpm size
+          if [ $? -ne 0 ]; then
+            echo "❌ Bundle size limits exceeded! Please optimize your code."
+            echo "💡 Tips:"
+            echo "   - Check for unnecessary dependencies"
+            echo "   - Use dynamic imports for large components"
+            echo "   - Analyze bundle with 'pnpm bundle-analysis'"
+            exit 1
+          fi
+          echo "✅ Bundle sizes within limits"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: .next/

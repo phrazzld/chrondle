@@ -275,9 +275,7 @@ export const updateEvent = mutation({
       .first();
 
     if (existing && existing._id !== eventId) {
-      throw new Error(
-        `An event with this text already exists for the year ${event.year}.`,
-      );
+      throw new Error(`An event with this text already exists for the year ${event.year}.`);
     }
 
     await ctx.db.patch(eventId, {

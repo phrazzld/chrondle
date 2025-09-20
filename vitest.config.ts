@@ -39,12 +39,12 @@ const baseConfig = {
         ".next/**",
         "convex/_generated/**",
       ],
-      // Initial thresholds - can be increased over time
+      // Coverage thresholds that actually catch regressions
       thresholds: {
-        lines: 14,
-        functions: 20,
-        branches: 50,
-        statements: 14,
+        lines: 14, // Current: 14.28% - maintain baseline
+        functions: 25, // Current: 28.01% - allow small variance
+        branches: 65, // Current: 69.93% - was underestimated at 50%
+        statements: 14, // Current: 14.28% - maintain baseline
       },
     },
   },
