@@ -59,17 +59,13 @@ program
 
     // Validate year range
     if (year < -2000 || year > 2025) {
-      console.error(
-        `❌ Error: Year must be between -2000 and 2025. Got: ${year}`,
-      );
+      console.error(`❌ Error: Year must be between -2000 and 2025. Got: ${year}`);
       process.exit(1);
     }
 
     // Validate event count
     if (events.length !== 6) {
-      console.error(
-        `❌ Error: Exactly 6 events required. Got: ${events.length}`,
-      );
+      console.error(`❌ Error: Exactly 6 events required. Got: ${events.length}`);
       process.exit(1);
     }
 
@@ -86,9 +82,7 @@ program
           `❌ Error: Year ${year} already exists with ${existingEvents.length} events.`,
         );
         console.error(`\n💡 Options:`);
-        console.error(
-          `   1. Use 'pnpm events show ${year}' to review existing events`,
-        );
+        console.error(`   1. Use 'pnpm events show ${year}' to review existing events`);
         console.error(
           `   2. Use 'pnpm events add-one -y ${year} -e "..."' to add individual events`,
         );
@@ -131,9 +125,7 @@ program
 // Update command: Update events for a year (with protection)
 program
   .command("update")
-  .description(
-    "Update events for a specific year (only if not used in puzzles)",
-  )
+  .description("Update events for a specific year (only if not used in puzzles)")
   .requiredOption("-y, --year <year>", "Year to update events for", parseInt)
   .requiredOption("-e, --events <events...>", "List of 6 historical events")
   .action(async (options) => {
@@ -141,17 +133,13 @@ program
 
     // Validate year range
     if (year < -2000 || year > 2025) {
-      console.error(
-        `❌ Error: Year must be between -2000 and 2025. Got: ${year}`,
-      );
+      console.error(`❌ Error: Year must be between -2000 and 2025. Got: ${year}`);
       process.exit(1);
     }
 
     // Validate event count
     if (events.length !== 6) {
-      console.error(
-        `❌ Error: Exactly 6 events required. Got: ${events.length}`,
-      );
+      console.error(`❌ Error: Exactly 6 events required. Got: ${events.length}`);
       process.exit(1);
     }
 
@@ -162,14 +150,10 @@ program
       const existingEvents = await client.query(api.events.getYearEvents, {
         year,
       });
-      const usedEvents = existingEvents.filter(
-        (e: any) => e.puzzleId !== undefined,
-      );
+      const usedEvents = existingEvents.filter((e: any) => e.puzzleId !== undefined);
 
       if (usedEvents.length > 0) {
-        console.error(
-          `❌ Cannot update year ${year}: some events already published in puzzles`,
-        );
+        console.error(`❌ Cannot update year ${year}: some events already published in puzzles`);
         console.error(`   ${usedEvents.length} event(s) are currently in use`);
         process.exit(1);
       }
@@ -180,19 +164,14 @@ program
       // Delete existing events
       if (existingEvents.length > 0) {
         try {
-          const deleteResult = await client.mutation(
-            api.events.deleteYearEvents,
-            { year },
-          );
+          const deleteResult = await client.mutation(api.events.deleteYearEvents, { year });
           console.log(`🗑️  Deleted ${deleteResult.deletedCount} old events`);
         } catch {
           // Fallback: show what would happen
           console.log(
             `⚠️  Delete mutation not available. Would delete ${existingEvents.length} events`,
           );
-          console.log(
-            `⚠️  Note: Run 'convex dev' or 'convex deploy' to enable deletion`,
-          );
+          console.log(`⚠️  Note: Run 'convex dev' or 'convex deploy' to enable deletion`);
         }
       }
 
@@ -202,17 +181,13 @@ program
         events,
       });
 
-      console.log(
-        `✅ Year ${year}: Successfully updated with ${addResult.created} new events`,
-      );
+      console.log(`✅ Year ${year}: Successfully updated with ${addResult.created} new events`);
     } catch (error: any) {
       console.error(`❌ Error updating events:`, error.message);
 
       // If it's a deletion protection error, show a cleaner message
       if (error.message.includes("Cannot delete events")) {
-        console.error(
-          `   Some events for year ${year} are already used in puzzles`,
-        );
+        console.error(`   Some events for year ${year} are already used in puzzles`);
       }
 
       process.exit(1);
@@ -259,9 +234,7 @@ program
       const client = await getConvexClient();
       const events = await client.query(api.events.getYearEvents, { year });
       if (number <= 0 || number > events.length) {
-        console.error(
-          `❌ Invalid event number. Use 'show ${year}' to see available events.`,
-        );
+        console.error(`❌ Invalid event number. Use 'show ${year}' to see available events.`);
         process.exit(1);
       }
       const eventToUpdate = events[number - 1];
@@ -275,16 +248,10 @@ program
 
       // Provide more helpful error messages
       if (error.message.includes("Could not find function")) {
-        console.error(
-          "\n💡 Hint: The updateEvent function may not be deployed to production.",
-        );
-        console.error(
-          "   Run 'npx convex deploy' to deploy the latest functions.",
-        );
+        console.error("\n💡 Hint: The updateEvent function may not be deployed to production.");
+        console.error("   Run 'npx convex deploy' to deploy the latest functions.");
       } else if (error.message.includes("already exists")) {
-        console.error(
-          "\n💡 Hint: An event with this exact text already exists for this year.",
-        );
+        console.error("\n💡 Hint: An event with this exact text already exists for this year.");
       } else if (error.message.includes("used in a puzzle")) {
         console.error(
           "\n💡 Hint: This event is already used in a published puzzle and cannot be modified.",
@@ -310,9 +277,7 @@ program
       const client = await getConvexClient();
       const events = await client.query(api.events.getYearEvents, { year });
       if (number <= 0 || number > events.length) {
-        console.error(
-          `❌ Invalid event number. Use 'show ${year}' to see available events.`,
-        );
+        console.error(`❌ Invalid event number. Use 'show ${year}' to see available events.`);
         process.exit(1);
       }
       const eventToDelete = events[number - 1];
@@ -325,12 +290,8 @@ program
 
       // Provide more helpful error messages
       if (error.message.includes("Could not find function")) {
-        console.error(
-          "\n💡 Hint: The deleteEvent function may not be deployed to production.",
-        );
-        console.error(
-          "   Run 'npx convex deploy' to deploy the latest functions.",
-        );
+        console.error("\n💡 Hint: The deleteEvent function may not be deployed to production.");
+        console.error("   Run 'npx convex deploy' to deploy the latest functions.");
       } else if (error.message.includes("used in a puzzle")) {
         console.error(
           "\n💡 Hint: This event is already used in a published puzzle and cannot be deleted.",
@@ -391,11 +352,9 @@ program
       // Summary
       console.log("\n📈 Summary:");
       const totalYears = yearStats.length;
-      const yearsWithEnoughEvents = yearStats.filter(
-        (s) => s.available >= 6,
-      ).length;
-      const totalEvents = yearStats.reduce((sum, s) => sum + s.total, 0);
-      const usedEvents = yearStats.reduce((sum, s) => sum + s.used, 0);
+      const yearsWithEnoughEvents = yearStats.filter((s: any) => s.available >= 6).length;
+      const totalEvents = yearStats.reduce((sum: any, s: any) => sum + s.total, 0);
+      const usedEvents = yearStats.reduce((sum: any, s: any) => sum + s.used, 0);
 
       console.log(`   Total years: ${totalYears}`);
       console.log(`   Years ready for puzzles: ${yearsWithEnoughEvents}`);
@@ -462,7 +421,7 @@ program
       }
 
       // Summary
-      const usedCount = events.filter((e) => e.puzzleId).length;
+      const usedCount = events.filter((e: any) => e.puzzleId).length;
       const availableCount = events.length - usedCount;
 
       console.log(
@@ -509,9 +468,7 @@ program
             console.log(`❌ ${func.name} (${func.type}) - NOT DEPLOYED`);
             allDeployed = false;
           } else {
-            console.log(
-              `⚠️  ${func.name} (${func.type}) - Error checking: ${error.message}`,
-            );
+            console.log(`⚠️  ${func.name} (${func.type}) - Error checking: ${error.message}`);
           }
         }
       }
@@ -521,9 +478,7 @@ program
         console.log("✅ All required functions are deployed and ready!");
       } else {
         console.log("❌ Some functions are missing.");
-        console.log(
-          "\n💡 Run 'npx convex deploy' to deploy the latest functions.",
-        );
+        console.log("\n💡 Run 'npx convex deploy' to deploy the latest functions.");
         process.exit(1);
       }
     } catch (error: any) {
@@ -555,25 +510,19 @@ program
       for (const stats of yearStats) {
         if (stats.total < 6) {
           eventCountIssues++;
-          issues.push(
-            `   Year ${stats.year}: Has only ${stats.total} events (minimum 6 required)`,
-          );
+          issues.push(`   Year ${stats.year}: Has only ${stats.total} events (minimum 6 required)`);
         } else if (stats.total > 6) {
           yearsWithExtraEvents++;
         }
       }
       if (eventCountIssues > 0) {
-        console.log(
-          `⚠️  ${eventCountIssues} years have insufficient events (< 6)`,
-        );
+        console.log(`⚠️  ${eventCountIssues} years have insufficient events (< 6)`);
         totalIssues += eventCountIssues;
       } else {
         console.log("✅ All years have minimum required events");
       }
       if (yearsWithExtraEvents > 0) {
-        console.log(
-          `🎉 ${yearsWithExtraEvents} years have extra events for variety!`,
-        );
+        console.log(`🎉 ${yearsWithExtraEvents} years have extra events for variety!`);
       }
 
       // Check 2: No duplicate events within a year
@@ -590,9 +539,7 @@ program
         if (eventTexts.length !== uniqueEventTexts.size) {
           const duplicateCount = eventTexts.length - uniqueEventTexts.size;
           duplicateIssues++;
-          issues.push(
-            `   Year ${stats.year}: Has ${duplicateCount} duplicate event(s)`,
-          );
+          issues.push(`   Year ${stats.year}: Has ${duplicateCount} duplicate event(s)`);
 
           // Find which events are duplicated
           const seen = new Set<string>();
@@ -645,9 +592,7 @@ program
           }
         } catch {
           puzzleRefIssues++;
-          issues.push(
-            `   Invalid puzzle reference: ${puzzleId} (error querying)`,
-          );
+          issues.push(`   Invalid puzzle reference: ${puzzleId} (error querying)`);
         }
       }
 
@@ -664,9 +609,7 @@ program
       for (const stats of yearStats) {
         if (stats.year < -2000 || stats.year > 2025) {
           yearRangeIssues++;
-          issues.push(
-            `   Year ${stats.year}: Outside valid range (-2000 to 2025)`,
-          );
+          issues.push(`   Year ${stats.year}: Outside valid range (-2000 to 2025)`);
         }
       }
       if (yearRangeIssues > 0) {
@@ -681,9 +624,7 @@ program
       if (totalIssues === 0) {
         console.log(`✅ ${yearStats.length} years validated, 0 issues found`);
       } else {
-        console.log(
-          `⚠️  ${yearStats.length} years validated, ${totalIssues} issues found:\n`,
-        );
+        console.log(`⚠️  ${yearStats.length} years validated, ${totalIssues} issues found:\n`);
         for (const issue of issues) {
           console.log(issue);
         }
@@ -750,9 +691,7 @@ program
       }
 
       if (results.existing.length > 0) {
-        console.log(
-          `\n✅ Existing years to review: ${results.existing.join(", ")}`,
-        );
+        console.log(`\n✅ Existing years to review: ${results.existing.join(", ")}`);
       }
     } catch (error: any) {
       console.error("❌ Error checking years:", error.message);
@@ -776,7 +715,7 @@ program
 
       // Get all existing years
       const yearStats = await client.query(api.events.getAllYearsWithStats);
-      const existingYears = new Set(yearStats.map((s) => s.year));
+      const existingYears = new Set(yearStats.map((s: any) => s.year));
 
       const missingYears: number[] = [];
 
@@ -861,14 +800,10 @@ program
           const words = event.event.split(" ");
           const hasProperNoun = words
             .slice(1)
-            .some(
-              (word) => word.length > 0 && word[0] === word[0].toUpperCase(),
-            );
+            .some((word: any) => word.length > 0 && word[0] === word[0].toUpperCase());
 
           if (!hasProperNoun && !event.puzzleId) {
-            yearIssues.push(
-              `Possibly vague: "${event.event.substring(0, 50)}..."`,
-            );
+            yearIssues.push(`Possibly vague: "${event.event.substring(0, 50)}..."`);
           }
         }
 
@@ -903,9 +838,7 @@ program
 
       console.log("\n🟢 PRIORITY 3: Unused Years (quality review needed)");
       if (categories.unused.length > 0) {
-        console.log(
-          `   ${categories.unused.length} years with 0 puzzles created`,
-        );
+        console.log(`   ${categories.unused.length} years with 0 puzzles created`);
         console.log(
           `   Years: ${categories.unused
             .map((y) => y.year)
@@ -926,14 +859,10 @@ program
           }
         }
         if (qualityIssues.length > 5) {
-          console.log(
-            `\n   ... and ${qualityIssues.length - 5} more years with issues`,
-          );
+          console.log(`\n   ... and ${qualityIssues.length - 5} more years with issues`);
         }
       } else {
-        console.log(
-          "   None detected - all events appear to use proper nouns!",
-        );
+        console.log("   None detected - all events appear to use proper nouns!");
       }
 
       // Summary
