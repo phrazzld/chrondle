@@ -110,9 +110,9 @@ _"The best code is no code at all. The second best is code that's so simple it o
 - [!] ~~Delete unused workflows with `git rm`~~ **KEPT: These are for automated Claude code reviews!**
 - [x] Less YAML to maintain = fewer bugs (but these are actually useful!)
 
-## 8. Create Quality Dashboard [10 minutes]
+## 8. Create Quality Dashboard [10 minutes] ✅
 
-- [ ] Create `scripts/quality-report.mjs`:
+- [x] Create `scripts/quality-report.mjs`:
 
   ```javascript
   #!/usr/bin/env node
@@ -129,8 +129,8 @@ _"The best code is no code at all. The second best is code that's so simple it o
   console.table(metrics);
   ```
 
-- [ ] Add to package.json: `"quality": "node scripts/quality-report.mjs"`
-- [ ] Run after each sprint to track quality trends
+- [x] Add to package.json: `"quality": "node scripts/quality-report.mjs"`
+- [x] Run after each sprint to track quality trends
 
 ---
 
