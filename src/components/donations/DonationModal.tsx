@@ -70,6 +70,8 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 3;
 
   const createDonation = useMutation(api.donations.createDonation);
 
@@ -207,44 +209,78 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [step, open, handleAmountSelect]);
 
-  // Create donation and advance to payment step
+  // Create donation and advance to payment step with retry logic
   const handleCreateDonation = useCallback(async () => {
     if (!canProceed) return;
 
-    try {
-      const result = await createDonation({
-        amount: finalAmount,
-        currency: "USD",
-        railPreference: paymentMethod,
-        note: note.trim() || undefined,
-      });
+    setErrorMessage(null);
 
-      setPaymentDetails({
-        donationId: result.donationId,
-        lnInvoice: result.lnInvoice,
-        btcAddress: result.btcAddress,
-        expiresAt: result.expiresAt,
-        correlationId: result.correlationId,
-      });
+    // Exponential backoff for retries
+    const attemptDonation = async (attemptNumber = 0): Promise<void> => {
+      try {
+        const result = await createDonation({
+          amount: finalAmount,
+          currency: "USD",
+          railPreference: paymentMethod,
+          note: note.trim() || undefined,
+        });
 
-      setStep("payment");
-      setErrorMessage(null);
-    } catch (error) {
-      console.error("Failed to create donation:", error);
+        setPaymentDetails({
+          donationId: result.donationId,
+          lnInvoice: result.lnInvoice,
+          btcAddress: result.btcAddress,
+          expiresAt: result.expiresAt,
+          correlationId: result.correlationId,
+        });
 
-      // Show user-friendly error message
-      if (error instanceof Error) {
-        if (error.message.includes("rate limit")) {
-          setErrorMessage("Too many requests. Please wait a moment and try again.");
-        } else if (error.message.includes("unavailable")) {
-          setErrorMessage("Payment service temporarily unavailable. Please try again later.");
-        } else {
-          setErrorMessage("Failed to create donation. Please try again.");
+        setStep("payment");
+        setErrorMessage(null);
+        setRetryCount(0); // Reset retry count on success
+      } catch (error) {
+        console.error(`Failed to create donation (attempt ${attemptNumber + 1}):`, error);
+
+        // Check if we should retry
+        if (attemptNumber < MAX_RETRIES - 1) {
+          // Check if error is retryable
+          if (
+            error instanceof Error &&
+            (error.message.includes("rate limit") ||
+              error.message.includes("unavailable") ||
+              error.message.includes("network"))
+          ) {
+            // Wait with exponential backoff
+            const delay = Math.min(1000 * Math.pow(2, attemptNumber), 5000);
+            await new Promise((resolve) => setTimeout(resolve, delay));
+            setRetryCount(attemptNumber + 1);
+            return attemptDonation(attemptNumber + 1);
+          }
         }
-      } else {
-        setErrorMessage("An unexpected error occurred. Please try again.");
+
+        // Show user-friendly error message after all retries
+        if (error instanceof Error) {
+          if (error.message.includes("rate limit")) {
+            setErrorMessage("Too many requests. Please wait a moment and try again.");
+          } else if (error.message.includes("unavailable")) {
+            setErrorMessage("Payment service temporarily unavailable. Please try again later.");
+          } else {
+            setErrorMessage("Failed to create donation. Please try again.");
+          }
+        } else {
+          setErrorMessage("An unexpected error occurred. Please try again.");
+        }
+
+        // Re-throw for error boundary to catch if it's a critical error
+        if (
+          attemptNumber >= MAX_RETRIES - 1 &&
+          error instanceof Error &&
+          !error.message.includes("rate limit")
+        ) {
+          throw error;
+        }
       }
-    }
+    };
+
+    await attemptDonation();
   }, [canProceed, finalAmount, paymentMethod, note, createDonation]);
 
   // Handle payment expiration or refresh
@@ -439,14 +475,25 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
               </div>
             )}
 
+            {/* Retry indicator */}
+            {retryCount > 0 && (
+              <div className="text-muted-foreground text-center text-xs">
+                Retrying... (Attempt {retryCount + 1}/{MAX_RETRIES})
+              </div>
+            )}
+
             {/* Proceed button */}
             <Button
               onClick={handleCreateDonation}
-              disabled={!canProceed}
+              disabled={!canProceed || retryCount > 0}
               className="w-full"
               size="lg"
             >
-              {finalAmount ? `Donate ${formatAmount(finalAmount)}` : "Choose an amount"}
+              {retryCount > 0
+                ? "Processing..."
+                : finalAmount
+                  ? `Donate ${formatAmount(finalAmount)}`
+                  : "Choose an amount"}
             </Button>
           </div>
         )}

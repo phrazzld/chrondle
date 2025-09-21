@@ -25,7 +25,7 @@
 - [x] **Expiration handling** - Countdown timer, regenerate on expire
 - [x] **Payment confirmation** - Real-time status updates via Convex
 - [x] **Amount selection UI** - Fixed amounts + custom input
-- [ ] **Error boundaries** - Handle Strike API failures gracefully
+- [x] **Error boundaries** - Handle Strike API failures gracefully
 
 ### Testing & Validation
 
