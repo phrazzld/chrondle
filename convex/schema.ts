@@ -51,4 +51,55 @@ export default defineSchema({
     perfectGames: v.number(), // Guessed in 1 try
     updatedAt: v.number(), // For streak updates
   }).index("by_clerk", ["clerkId"]),
+
+  // Bitcoin Lightning donations via Strike API
+  donations: defineTable({
+    // Identity
+    kind: v.union(v.literal("receive_request"), v.literal("invoice")),
+    strikeEntityId: v.string(), // receiveRequestId or invoiceId from Strike
+
+    // Payment Details
+    lnInvoice: v.optional(v.string()), // Bolt11 string
+    btcAddress: v.optional(v.string()), // On-chain fallback address
+    requestedAmount: v.optional(v.number()), // Can be null for open-amount
+    requestedCurrency: v.union(v.literal("BTC"), v.literal("USD")),
+    settlementCurrency: v.literal("BTC"), // Always settle in BTC
+
+    // State Machine
+    state: v.union(
+      v.literal("CREATED"),
+      v.literal("PENDING"),
+      v.literal("PAID"),
+      v.literal("EXPIRED"),
+      v.literal("FAILED"),
+    ),
+
+    // Metadata
+    correlationId: v.string(), // For idempotency and tracking
+    payerNote: v.optional(v.string()), // Optional message from donor
+    expiresAt: v.number(), // Unix timestamp when payment expires
+    createdAt: v.number(), // When donation request was created
+    updatedAt: v.number(), // Last state change
+  })
+    .index("by_strike_id", ["strikeEntityId"])
+    .index("by_correlation", ["correlationId"])
+    .index("by_state", ["state"])
+    .index("by_expiry", ["expiresAt"]),
+
+  // Strike webhook events for audit and replay
+  webhooks: defineTable({
+    eventId: v.string(), // Strike's unique event ID
+    eventType: v.string(), // e.g., "invoice.updated", "receive_request.completed"
+    entityId: v.string(), // Related Strike entity (invoice/receive_request ID)
+    payload: v.string(), // Raw JSON payload for debugging/replay
+    signature: v.string(), // Webhook signature for audit trail
+    processedAt: v.optional(v.number()), // When we finished processing (null = pending)
+    attempts: v.number(), // Number of processing attempts (for retry logic)
+    status: v.union(v.literal("pending"), v.literal("processed"), v.literal("failed")),
+    createdAt: v.number(), // When webhook was received
+  })
+    .index("by_event", ["eventId"]) // For idempotency checks
+    .index("by_entity", ["entityId"]) // Find webhooks for specific donations
+    .index("by_status", ["status"]) // Query failed/pending webhooks
+    .index("by_type", ["eventType"]), // Query by event type
 });

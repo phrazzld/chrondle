@@ -1,4 +1,50 @@
-# BACKLOG
+# BACKLOG: Future Considerations
+
+_\"If it's not needed for THIS pull request, it's not a TODO.\" - Linus Torvalds_
+
+## Strike Donation Enhancements [Maybe Someday]
+
+### Advanced Payment Features
+
+- [ ] Multiple payment PSPs (OpenNode, BTCPay Server) | Impact: 4
+- [ ] Recurring subscriptions via Lightning | Impact: 3
+- [ ] Fiat settlement options for some regions | Impact: 2
+- [ ] Card payment rails integration | Impact: 2
+- [ ] Multi-currency invoice generation | Impact: 3
+- [ ] Lightning Address as primary UX | Impact: 4
+- [ ] LNURL-pay support | Impact: 3
+- [ ] Nostr zaps integration | Impact: 2
+
+### Analytics & Reporting
+
+- [ ] Donation analytics dashboard | Impact: 4
+- [ ] Export reports for accounting | Impact: 3
+- [ ] Real-time donation feed | Impact: 3
+- [ ] Donor wall with optional names | Impact: 2
+- [ ] Goal thermometer widget | Impact: 2
+- [ ] Monthly email summaries | Impact: 2
+
+### UX Polish
+
+- [ ] Animated success confirmations | Impact: 2
+- [ ] Sound effects on payment | Impact: 1
+- [ ] Custom thank you messages | Impact: 3
+- [ ] Donation history for users | Impact: 3
+- [ ] Social sharing of donations | Impact: 2
+- [ ] Leaderboard of top donors | Impact: 2
+
+### Technical Optimizations
+
+- [ ] WebSocket for instant updates | Impact: 3
+- [ ] Redis cache for rate limits | Impact: 3
+- [ ] CDN for QR code generation | Impact: 2
+- [ ] Webhook replay dashboard | Impact: 3
+- [ ] Monitoring integration (Datadog/Sentry) | Impact: 4
+- [ ] A/B test different amounts | Impact: 3
+
+## Existing Chrondle Backlog
+
+- fix notifications -- or remove them
 
 ## Critical [Fix This Week]
 
