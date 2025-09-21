@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useMutation } from "convex/react";
-import { Heart, Coffee, Pizza, Beer, DollarSign, CheckCircle } from "lucide-react";
+import { Heart, Coffee, Pizza, Beer, DollarSign, CheckCircle, AlertCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,11 +12,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/ui/Label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 import { api } from "convex/_generated/api";
 import { PaymentQRCode } from "./PaymentQRCode";
 import { useDonationStatus } from "@/hooks/useDonationStatus";
@@ -51,21 +51,25 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
   const [note, setNote] = useState("");
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const createDonation = useMutation(api.donations.createDonation);
 
   // Real-time donation status tracking
-  const {} = useDonationStatus({
+  const { isExpired } = useDonationStatus({
     donationId: paymentDetails?.donationId || null,
-    onPaymentConfirmed: () => setStep("success"),
+    onPaymentConfirmed: () => {
+      setStep("success");
+      setErrorMessage(null);
+    },
     onPaymentFailed: () => {
+      setErrorMessage("Payment failed. Please try again.");
       setStep("amount");
       setPaymentDetails(null);
-      // TODO: Show error toast
     },
     onPaymentExpired: () => {
-      setStep("amount");
-      setPaymentDetails(null);
+      // Don't reset to amount step automatically, let user refresh
+      setErrorMessage("Payment request expired. Click refresh to generate a new one.");
     },
   });
 
@@ -129,23 +133,38 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
       });
 
       setStep("payment");
+      setErrorMessage(null);
     } catch (error) {
       console.error("Failed to create donation:", error);
-      // TODO: Show error toast
+
+      // Show user-friendly error message
+      if (error instanceof Error) {
+        if (error.message.includes("rate limit")) {
+          setErrorMessage("Too many requests. Please wait a moment and try again.");
+        } else if (error.message.includes("unavailable")) {
+          setErrorMessage("Payment service temporarily unavailable. Please try again later.");
+        } else {
+          setErrorMessage("Failed to create donation. Please try again.");
+        }
+      } else {
+        setErrorMessage("An unexpected error occurred. Please try again.");
+      }
     }
   }, [canProceed, finalAmount, paymentMethod, note, createDonation]);
 
   // Handle payment expiration or refresh
   const handlePaymentExpired = useCallback(() => {
-    setStep("amount");
-    setPaymentDetails(null);
+    // Show error message but stay on payment screen
+    // Let user click refresh to generate new payment
+    setErrorMessage("Payment request expired. Click refresh to generate a new one.");
   }, []);
 
   // Refresh payment details
   const handleRefreshPayment = useCallback(async () => {
-    if (!paymentDetails) return;
+    if (!finalAmount) return;
 
     setIsRefreshing(true);
+    setErrorMessage(null);
     try {
       const result = await createDonation({
         amount: finalAmount,
@@ -161,13 +180,28 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
         expiresAt: result.expiresAt,
         correlationId: result.correlationId,
       });
+
+      // Clear any previous errors
+      setErrorMessage(null);
     } catch (error) {
       console.error("Failed to refresh payment:", error);
-      // TODO: Show error toast
+
+      // Show user-friendly error message
+      if (error instanceof Error) {
+        if (error.message.includes("rate limit")) {
+          setErrorMessage("Too many requests. Please wait a moment and try again.");
+        } else if (error.message.includes("unavailable")) {
+          setErrorMessage("Payment service temporarily unavailable. Please try again later.");
+        } else {
+          setErrorMessage("Failed to generate payment request. Please try again.");
+        }
+      } else {
+        setErrorMessage("An unexpected error occurred. Please try again.");
+      }
     } finally {
       setIsRefreshing(false);
     }
-  }, [paymentDetails, finalAmount, paymentMethod, note, createDonation]);
+  }, [finalAmount, paymentMethod, note, createDonation]);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -272,6 +306,14 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
               <div className="text-muted-foreground text-right text-xs">{note.length}/200</div>
             </div>
 
+            {/* Error message */}
+            {errorMessage && (
+              <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <p>{errorMessage}</p>
+              </div>
+            )}
+
             {/* Proceed button */}
             <Button
               onClick={handleCreateDonation}
@@ -286,6 +328,14 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
 
         {step === "payment" && paymentDetails && (
           <div className="space-y-4">
+            {/* Error message */}
+            {errorMessage && !isExpired && (
+              <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <p>{errorMessage}</p>
+              </div>
+            )}
+
             <Card>
               <CardContent className="pt-6">
                 <div className="space-y-2 text-center">

@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { Copy, Clock, RefreshCw, Wallet, Bitcoin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/lib/utils";
 
 interface PaymentQRCodeProps {
@@ -32,12 +32,18 @@ export function PaymentQRCode({
     lnInvoice ? "lightning" : "onchain",
   );
   const [copied, setCopied] = useState(false);
+  const [isWarning, setIsWarning] = useState(false);
+  const [isUrgent, setIsUrgent] = useState(false);
 
-  // Countdown timer
+  // Countdown timer with warning states
   useEffect(() => {
     const updateTimer = () => {
       const remaining = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
       setTimeLeft(remaining);
+
+      // Set warning states for visual feedback
+      setIsWarning(remaining <= 300 && remaining > 60); // 5 minutes to 1 minute
+      setIsUrgent(remaining <= 60 && remaining > 0); // Last minute
 
       if (remaining === 0) {
         onExpired();
@@ -87,7 +93,9 @@ export function PaymentQRCode({
           <Clock className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
           <h3 className="mb-2 text-lg font-semibold">Payment Expired</h3>
           <p className="text-muted-foreground mb-4">
-            This payment request has expired. Generate a new one to continue.
+            {isRefreshing
+              ? "Generating a new payment request..."
+              : "This payment request has expired. Generate a new one to continue."}
           </p>
           <Button onClick={onRefresh} disabled={isRefreshing} className="w-full">
             {isRefreshing ? (
@@ -121,7 +129,10 @@ export function PaymentQRCode({
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>Scan to Pay</span>
-          <Badge variant={timeLeft < 300 ? "destructive" : "secondary"}>
+          <Badge
+            variant={isUrgent ? "destructive" : isWarning ? "warning" : "secondary"}
+            className={cn("transition-colors", isUrgent && "animate-pulse")}
+          >
             <Clock className="mr-1 h-3 w-3" />
             {formatTime(timeLeft)}
           </Badge>
@@ -226,6 +237,27 @@ export function PaymentQRCode({
             <Badge variant="secondary" className="text-green-600">
               Copied to clipboard!
             </Badge>
+          </div>
+        )}
+
+        {/* Expiration warning message */}
+        {(isWarning || isUrgent) && (
+          <div
+            className={cn(
+              "rounded-lg p-3 text-sm",
+              isUrgent
+                ? "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
+                : "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400",
+            )}
+          >
+            <p className="font-medium">
+              {isUrgent
+                ? "⚠️ Payment request expires soon!"
+                : "⏰ Payment request expiring in less than 5 minutes"}
+            </p>
+            <p className="mt-1 text-xs opacity-90">
+              Complete payment now or refresh to generate a new request.
+            </p>
           </div>
         )}
 

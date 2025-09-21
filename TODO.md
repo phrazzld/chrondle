@@ -1,26 +1,28 @@
 # TODO: Strike Bitcoin Lightning Donations
 
-## Phase 1: Make it Work [Today]
+## Phase 1: Make it Work [✅ COMPLETED]
 
-### Core Infrastructure (Ship in 4 hours)
+### Core Infrastructure
 
-- [ ] **Convex HTTP router setup** - `/webhooks/strike` endpoint
-- [ ] **Strike webhook signature verification** - HMAC-SHA256 with constant-time comparison
-- [ ] **Convex schema updates** - Add `donations` and `webhooks` tables
-- [ ] **Environment configuration** - `STRIKE_API_KEY`, `STRIKE_WEBHOOK_SECRET`
+- [x] **Convex HTTP router setup** - `/webhooks/strike` endpoint
+- [x] **Strike webhook signature verification** - HMAC-SHA256 with constant-time comparison
+- [x] **Convex schema updates** - Add `donations` and `webhooks` tables
+- [x] **Environment configuration** - `STRIKE_API_KEY`, `STRIKE_WEBHOOK_SECRET`
 
-### Basic Payment Flow (Ship in 4 hours)
+### Basic Payment Flow
 
-- [ ] **Strike API client** - `createReceiveRequest()` with error handling
-- [ ] **Donation creation mutation** - Server-side Strike call, return invoice
-- [ ] **Webhook processing** - Store raw event, check idempotency
-- [ ] **Basic QR component** - Display invoice as QR code
+- [x] **Strike API client** - `createReceiveRequest()` with error handling
+- [x] **Donation creation mutation** - Server-side Strike call, return invoice
+- [x] **Webhook processing** - Store raw event, check idempotency
+- [x] **Payment QR component** - Display invoice as QR code with expiration
+- [x] **Donation modal** - Amount selection and payment flow UI
+- [x] **Real-time status** - Payment confirmation via Convex reactive queries
 
 ## Phase 2: Make it Right [Tomorrow]
 
 ### Resilience & UX
 
-- [ ] **Expiration handling** - Countdown timer, regenerate on expire
+- [x] **Expiration handling** - Countdown timer, regenerate on expire
 - [ ] **Payment confirmation** - Real-time status updates via Convex
 - [ ] **Amount selection UI** - Fixed amounts + custom input
 - [ ] **Error boundaries** - Handle Strike API failures gracefully
@@ -43,12 +45,13 @@
 
 ## Success Criteria
 
-**Phase 1 Complete When:**
+**Phase 1 Complete When:** ✅ **DONE**
 
-- Can generate Lightning invoice via UI
-- Invoice displays as QR code
-- Webhook endpoint receives Strike events
-- Payment state updates in database
+- ✅ Can generate Lightning invoice via UI
+- ✅ Invoice displays as QR code with expiration timer
+- ✅ Webhook endpoint receives Strike events with signature verification
+- ✅ Payment state updates in database with real-time UI updates
+- ✅ Complete donation flow: amount selection → payment → success confirmation
 
 **Phase 2 Complete When:**
 
