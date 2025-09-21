@@ -23,7 +23,7 @@
 ### Resilience & UX
 
 - [x] **Expiration handling** - Countdown timer, regenerate on expire
-- [ ] **Payment confirmation** - Real-time status updates via Convex
+- [x] **Payment confirmation** - Real-time status updates via Convex
 - [ ] **Amount selection UI** - Fixed amounts + custom input
 - [ ] **Error boundaries** - Handle Strike API failures gracefully
 

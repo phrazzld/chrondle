@@ -1,8 +1,17 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useMutation } from "convex/react";
-import { Heart, Coffee, Pizza, Beer, DollarSign, CheckCircle, AlertCircle } from "lucide-react";
+import {
+  Heart,
+  Coffee,
+  Pizza,
+  Beer,
+  DollarSign,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +28,9 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { api } from "convex/_generated/api";
 import { PaymentQRCode } from "./PaymentQRCode";
+import { PaymentProgress } from "./PaymentProgress";
 import { useDonationStatus } from "@/hooks/useDonationStatus";
+import confetti from "canvas-confetti";
 import { cn } from "@/lib/utils";
 import type { Id } from "convex/_generated/dataModel";
 
@@ -52,15 +63,47 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
   const createDonation = useMutation(api.donations.createDonation);
 
   // Real-time donation status tracking
-  const { isExpired } = useDonationStatus({
+  const { isExpired, isPending, isPaid, timeRemaining } = useDonationStatus({
     donationId: paymentDetails?.donationId || null,
     onPaymentConfirmed: () => {
-      setStep("success");
-      setErrorMessage(null);
+      setShowSuccessAnimation(true);
+
+      // Trigger confetti animation
+      const end = Date.now() + 3000;
+      const colors = ["#FFD700", "#FFA500", "#FF8C00"];
+
+      const frame = () => {
+        confetti({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: colors,
+        });
+        confetti({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: colors,
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      };
+      frame();
+
+      // Delay the step change to show animation
+      setTimeout(() => {
+        setStep("success");
+        setErrorMessage(null);
+      }, 1000);
     },
     onPaymentFailed: () => {
       setErrorMessage("Payment failed. Please try again.");
@@ -94,6 +137,7 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
         setNote("");
         setPaymentDetails(null);
         setIsRefreshing(false);
+        setShowSuccessAnimation(false);
       }
       onOpenChange(newOpen);
     },
@@ -218,6 +262,9 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
           </DialogDescription>
         </DialogHeader>
 
+        {/* Payment progress indicator */}
+        <PaymentProgress currentStep={step} isPending={isPending} className="mb-4 px-2" />
+
         {step === "amount" && (
           <div className="space-y-6">
             {/* Preset amounts */}
@@ -336,6 +383,21 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
               </div>
             )}
 
+            {/* Payment status indicator */}
+            {isPending && (
+              <div className="flex items-center justify-center gap-2 rounded-lg bg-yellow-50 p-3 text-sm text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Processing payment...</span>
+              </div>
+            )}
+
+            {showSuccessAnimation && (
+              <div className="flex items-center justify-center gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                <CheckCircle className="h-4 w-4" />
+                <span className="font-medium">Payment confirmed! Redirecting...</span>
+              </div>
+            )}
+
             <Card>
               <CardContent className="pt-6">
                 <div className="space-y-2 text-center">
@@ -352,14 +414,17 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
               </CardContent>
             </Card>
 
-            <PaymentQRCode
-              lnInvoice={paymentDetails.lnInvoice}
-              btcAddress={paymentDetails.btcAddress}
-              expiresAt={paymentDetails.expiresAt}
-              onExpired={handlePaymentExpired}
-              onRefresh={handleRefreshPayment}
-              isRefreshing={isRefreshing}
-            />
+            {/* Only show QR code if not processing/confirmed */}
+            {!isPending && !showSuccessAnimation && (
+              <PaymentQRCode
+                lnInvoice={paymentDetails.lnInvoice}
+                btcAddress={paymentDetails.btcAddress}
+                expiresAt={paymentDetails.expiresAt}
+                onExpired={handlePaymentExpired}
+                onRefresh={handleRefreshPayment}
+                isRefreshing={isRefreshing}
+              />
+            )}
 
             <Button variant="outline" onClick={() => setStep("amount")} className="w-full">
               Change Amount
@@ -370,8 +435,18 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
         {step === "success" && (
           <div className="space-y-6 py-4 text-center">
             <div className="flex justify-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-                <CheckCircle className="h-8 w-8 text-green-600" />
+              <div
+                className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100"
+                style={{
+                  animation: "scale-in 0.5s ease-out",
+                }}
+              >
+                <CheckCircle
+                  className="h-8 w-8 text-green-600"
+                  style={{
+                    animation: "pulse 2s ease-in-out infinite",
+                  }}
+                />
               </div>
             </div>
 
