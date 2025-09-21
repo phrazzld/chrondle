@@ -29,6 +29,7 @@ import { Badge } from "@/components/ui/Badge";
 import { api } from "convex/_generated/api";
 import { PaymentQRCode } from "./PaymentQRCode";
 import { PaymentProgress } from "./PaymentProgress";
+import { AmountSelector } from "./AmountSelector";
 import { useDonationStatus } from "@/hooks/useDonationStatus";
 import confetti from "canvas-confetti";
 import { cn } from "@/lib/utils";
@@ -48,11 +49,16 @@ interface PaymentDetails {
 }
 
 const PRESET_AMOUNTS = [
-  { value: 5, label: "$5", icon: Coffee, description: "Buy me a coffee" },
-  { value: 10, label: "$10", icon: Pizza, description: "Buy me lunch" },
-  { value: 25, label: "$25", icon: Beer, description: "Buy me dinner" },
-  { value: 50, label: "$50", icon: Heart, description: "Show extra love" },
+  { value: 1, label: "$1", icon: Coffee, description: "Tiny tip", shortcut: "1" },
+  { value: 5, label: "$5", icon: Coffee, description: "Buy me a coffee", shortcut: "2" },
+  { value: 10, label: "$10", icon: Pizza, description: "Buy me lunch", shortcut: "3" },
+  { value: 25, label: "$25", icon: Beer, description: "Buy me dinner", shortcut: "4" },
+  { value: 50, label: "$50", icon: Heart, description: "Show extra love", shortcut: "5" },
+  { value: 100, label: "$100", icon: Heart, description: "Super generous!", shortcut: "6" },
 ] as const;
+
+const MIN_AMOUNT = 0.5;
+const MAX_AMOUNT = 10000;
 
 export function DonationModal({ open, onOpenChange }: DonationModalProps) {
   const [step, setStep] = useState<"amount" | "payment" | "success">("amount");
@@ -120,11 +126,16 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
   const finalAmount = selectedAmount || (customAmount ? parseFloat(customAmount) : null);
 
   // Validate custom amount input
+  const parsedCustomAmount = parseFloat(customAmount);
   const isValidCustomAmount =
-    customAmount === "" || (!isNaN(parseFloat(customAmount)) && parseFloat(customAmount) > 0);
+    customAmount === "" ||
+    (!isNaN(parsedCustomAmount) &&
+      parsedCustomAmount >= MIN_AMOUNT &&
+      parsedCustomAmount <= MAX_AMOUNT);
 
   // Check if we can proceed to payment
-  const canProceed = finalAmount && finalAmount > 0 && isValidCustomAmount;
+  const canProceed =
+    finalAmount && finalAmount >= MIN_AMOUNT && finalAmount <= MAX_AMOUNT && isValidCustomAmount;
 
   // Reset modal state when closed
   const handleOpenChange = useCallback(
@@ -150,11 +161,51 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
     setCustomAmount(""); // Clear custom amount when preset is selected
   }, []);
 
-  // Handle custom amount input
+  // Handle custom amount input with formatting
   const handleCustomAmountChange = useCallback((value: string) => {
-    setCustomAmount(value);
+    // Allow decimal point and numbers only
+    const sanitized = value.replace(/[^0-9.]/g, "");
+
+    // Prevent multiple decimal points
+    const parts = sanitized.split(".");
+    if (parts.length > 2) return;
+
+    // Limit to 2 decimal places
+    if (parts[1] && parts[1].length > 2) {
+      setCustomAmount(`${parts[0]}.${parts[1].slice(0, 2)}`);
+    } else {
+      setCustomAmount(sanitized);
+    }
+
     setSelectedAmount(null); // Clear preset when custom is entered
   }, []);
+
+  // Format amount for display
+  const formatAmount = useCallback((amount: number): string => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  }, []);
+
+  // Handle keyboard shortcuts for quick selection
+  useEffect(() => {
+    if (step !== "amount" || !open) return;
+
+    const handleKeyPress = (e: KeyboardEvent) => {
+      const key = e.key;
+      const preset = PRESET_AMOUNTS.find((p) => p.shortcut === key);
+      if (preset) {
+        e.preventDefault();
+        handleAmountSelect(preset.value);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [step, open, handleAmountSelect]);
 
   // Create donation and advance to payment step
   const handleCreateDonation = useCallback(async () => {
@@ -269,8 +320,11 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
           <div className="space-y-6">
             {/* Preset amounts */}
             <div className="space-y-3">
-              <Label>Quick amounts</Label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="flex items-center justify-between">
+                <Label>Quick amounts</Label>
+                <span className="text-muted-foreground text-xs">Press 1-6 for quick selection</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
                 {PRESET_AMOUNTS.map((preset) => {
                   const Icon = preset.icon;
                   return (
@@ -278,11 +332,15 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
                       key={preset.value}
                       variant={selectedAmount === preset.value ? "default" : "outline"}
                       onClick={() => handleAmountSelect(preset.value)}
-                      className="flex h-auto flex-col items-center gap-2 p-3"
+                      className="group relative flex h-auto flex-col items-center gap-1 p-3 transition-all hover:scale-105"
                     >
+                      {/* Keyboard shortcut badge */}
+                      <span className="bg-muted absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded text-[10px] font-semibold opacity-50 group-hover:opacity-100">
+                        {preset.shortcut}
+                      </span>
                       <div className="flex items-center gap-2">
                         <Icon className="h-4 w-4" />
-                        <span className="font-semibold">{preset.label}</span>
+                        <span className="font-bold">{preset.label}</span>
                       </div>
                       <span className="text-muted-foreground text-xs">{preset.description}</span>
                     </Button>
@@ -293,22 +351,39 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
 
             {/* Custom amount */}
             <div className="space-y-2">
-              <Label htmlFor="custom-amount">Custom amount</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="custom-amount">Custom amount</Label>
+                <span className="text-muted-foreground text-xs">
+                  Min: ${MIN_AMOUNT} • Max: {formatAmount(MAX_AMOUNT)}
+                </span>
+              </div>
               <div className="relative">
                 <DollarSign className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                 <Input
                   id="custom-amount"
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   placeholder="0.00"
                   value={customAmount}
                   onChange={(e) => handleCustomAmountChange(e.target.value)}
-                  className={cn("pl-10", !isValidCustomAmount && "border-red-500")}
-                  min="0"
-                  step="0.01"
+                  onFocus={(e) => e.target.select()}
+                  className={cn(
+                    "pl-10 font-mono",
+                    !isValidCustomAmount && customAmount !== "" && "border-red-500",
+                    selectedAmount === null && customAmount !== "" && "ring-primary ring-2",
+                  )}
+                  aria-invalid={!isValidCustomAmount && customAmount !== ""}
+                  aria-describedby="amount-error"
                 />
               </div>
-              {!isValidCustomAmount && (
-                <p className="text-sm text-red-500">Please enter a valid amount</p>
+              {!isValidCustomAmount && customAmount !== "" && (
+                <p id="amount-error" className="text-sm text-red-500">
+                  {parsedCustomAmount < MIN_AMOUNT
+                    ? `Minimum amount is $${MIN_AMOUNT}`
+                    : parsedCustomAmount > MAX_AMOUNT
+                      ? `Maximum amount is ${formatAmount(MAX_AMOUNT)}`
+                      : "Please enter a valid amount"}
+                </p>
               )}
             </div>
 
@@ -339,6 +414,9 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
               </RadioGroup>
             </div>
 
+            {/* Popular amounts section */}
+            <AmountSelector onSelectAmount={handleAmountSelect} selectedAmount={selectedAmount} />
+
             {/* Optional note */}
             <div className="space-y-2">
               <Label htmlFor="note">Message (optional)</Label>
@@ -368,7 +446,7 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
               className="w-full"
               size="lg"
             >
-              {finalAmount ? `Donate $${finalAmount}` : "Choose an amount"}
+              {finalAmount ? `Donate ${formatAmount(finalAmount)}` : "Choose an amount"}
             </Button>
           </div>
         )}
@@ -401,7 +479,7 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
             <Card>
               <CardContent className="pt-6">
                 <div className="space-y-2 text-center">
-                  <div className="text-2xl font-bold">${finalAmount}</div>
+                  <div className="text-3xl font-bold">{formatAmount(finalAmount || 0)}</div>
                   <div className="text-muted-foreground text-sm">
                     Via {paymentMethod === "LN" ? "Lightning Network" : "Lightning + On-chain"}
                   </div>
@@ -453,7 +531,7 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
             <div className="space-y-2">
               <h3 className="text-xl font-semibold">Payment Received!</h3>
               <p className="text-muted-foreground">
-                Thank you for supporting Chrondle with ${finalAmount}
+                Thank you for supporting Chrondle with {formatAmount(finalAmount || 0)}
               </p>
               {note && (
                 <div className="text-muted-foreground mt-3 border-l-2 border-green-200 pl-3 text-sm italic">
