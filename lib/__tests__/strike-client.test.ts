@@ -10,7 +10,7 @@ describe("StrikeClient Webhook Signature Verification", () => {
   const testApiKey = "test_api_key";
 
   beforeAll(() => {
-    // @ts-expect-error - We're testing webhook verification which doesn't use baseUrl
+    // We're testing webhook verification which doesn't use baseUrl
     strikeClient = new StrikeClient(testApiKey, testSecret, undefined);
   });
 
