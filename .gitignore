@@ -105,8 +105,8 @@ regression-report.json
 # Code review temporary files
 thinktank_*/
 investigation.md
-# CI/CD test output logs
-test/
+# CI/CD test output logs (only root level test directory)
+/test/
 
 # Vercel logs and deployment logs
 logs_result.json

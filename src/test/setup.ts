@@ -1,6 +1,7 @@
 // Test setup for Vitest
 import { beforeEach, afterEach, beforeAll, afterAll, vi } from "vitest";
 import "@testing-library/jest-dom/vitest";
+import { webcrypto } from "node:crypto";
 
 // Mock localStorage for testing
 const localStorageMock = (() => {
@@ -52,9 +53,12 @@ Object.defineProperty(global, "Notification", {
 
 // Keep original timer functions for proper test execution
 
-// Mock crypto.randomUUID for consistent testing
+// Mock crypto with WebCrypto API support for testing
 const mockCrypto = {
   randomUUID: () => "test-uuid-1234-5678-9abc-def123456789",
+  // Provide Web Crypto API from Node.js for tests
+  subtle: webcrypto.subtle,
+  getRandomValues: webcrypto.getRandomValues.bind(webcrypto),
 };
 
 // Mock matchMedia for consistent testing and to prevent hanging
@@ -84,6 +88,12 @@ beforeEach(() => {
     writable: true,
   });
 
+  // Also set on globalThis for code that uses globalThis.crypto
+  Object.defineProperty(globalThis, "crypto", {
+    value: mockCrypto,
+    writable: true,
+  });
+
   // Mock matchMedia to prevent hanging in tests
   Object.defineProperty(window, "matchMedia", {
     value: mockMatchMedia,
@@ -98,9 +108,7 @@ beforeEach(() => {
 afterEach(async () => {
   // CRITICAL FIX: Clean up notification service singleton and long-running timers
   try {
-    const { __resetNotificationServiceForTesting } = await import(
-      "@/lib/notifications"
-    );
+    const { __resetNotificationServiceForTesting } = await import("@/lib/notifications");
     if (typeof __resetNotificationServiceForTesting === "function") {
       __resetNotificationServiceForTesting();
     }
@@ -130,9 +138,7 @@ afterEach(async () => {
 afterAll(async () => {
   // CRITICAL: Final cleanup of notification service singleton
   try {
-    const { __resetNotificationServiceForTesting } = await import(
-      "@/lib/notifications"
-    );
+    const { __resetNotificationServiceForTesting } = await import("@/lib/notifications");
     if (typeof __resetNotificationServiceForTesting === "function") {
       __resetNotificationServiceForTesting();
     }
