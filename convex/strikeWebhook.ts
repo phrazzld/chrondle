@@ -1,6 +1,7 @@
 import { httpAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { z } from "zod";
+import { StrikeClient } from "../lib/strike-client";
 
 // Strike webhook event schema
 const StrikeWebhookEventSchema = z.object({
@@ -14,53 +15,6 @@ const StrikeWebhookEventSchema = z.object({
 });
 
 /**
- * Verifies Strike webhook signature using HMAC-SHA256
- * Uses constant-time comparison to prevent timing attacks
- */
-async function verifyStrikeSignature(
-  payload: string,
-  signature: string | null,
-  secret: string,
-): Promise<boolean> {
-  if (!signature || !secret) {
-    return false;
-  }
-
-  try {
-    // Remove 'sha256=' prefix if present
-    const cleanSignature = signature.replace(/^sha256=/, "");
-
-    // Import webhook secret as HMAC key
-    const key = await crypto.subtle.importKey(
-      "raw",
-      new TextEncoder().encode(secret),
-      { name: "HMAC", hash: "SHA-256" },
-      false,
-      ["sign"],
-    );
-
-    // Compute HMAC signature
-    const signatureBuffer = await crypto.subtle.sign(
-      "HMAC",
-      key,
-      new TextEncoder().encode(payload),
-    );
-
-    // Convert to hex string
-    const expectedSignature = Array.from(new Uint8Array(signatureBuffer))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-
-    // Constant-time comparison
-    // Note: In production, consider using crypto.timingSafeEqual if available
-    return expectedSignature === cleanSignature;
-  } catch (error) {
-    console.error("Error verifying Strike webhook signature:", error);
-    return false;
-  }
-}
-
-/**
  * Strike webhook handler
  * Verifies signature, checks idempotency, and queues for processing
  */
@@ -72,15 +26,18 @@ export const strikeWebhook = httpAction(async (ctx, request) => {
     // 2. Get signature from headers
     const signature = request.headers.get("X-Webhook-Signature");
 
-    // 3. Get webhook secret from environment
+    // 3. Get Strike API key and webhook secret from environment
+    const apiKey = process.env.STRIKE_API_KEY;
     const webhookSecret = process.env.STRIKE_WEBHOOK_SECRET;
-    if (!webhookSecret) {
-      console.error("STRIKE_WEBHOOK_SECRET not configured");
+
+    if (!apiKey || !webhookSecret) {
+      console.error("Strike API credentials not configured");
       return new Response("Internal server error", { status: 500 });
     }
 
-    // 4. Verify signature
-    const isValidSignature = await verifyStrikeSignature(rawBody, signature, webhookSecret);
+    // 4. Verify signature using StrikeClient
+    const strikeClient = new StrikeClient(apiKey, webhookSecret);
+    const isValidSignature = await strikeClient.verifyWebhookSignature(rawBody, signature || "");
 
     if (!isValidSignature) {
       console.error("Invalid Strike webhook signature");

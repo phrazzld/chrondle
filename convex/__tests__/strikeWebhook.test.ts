@@ -1,4 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { StrikeClient } from "../../lib/strike-client";
 
 // Use global crypto in Node.js environment
 const crypto = globalThis.crypto;
@@ -17,54 +18,17 @@ vi.mock("../_generated/api", () => ({
   },
 }));
 
-// Since the verifyStrikeSignature function is private in the module,
-// we'll test it as a unit by extracting the logic
-async function verifyStrikeSignature(
-  payload: string,
-  signature: string | null,
-  secret: string,
-): Promise<boolean> {
-  if (!signature || !secret) {
-    return false;
-  }
-
-  try {
-    // Remove 'sha256=' prefix if present
-    const cleanSignature = signature.replace(/^sha256=/, "");
-
-    // Import webhook secret as HMAC key
-    const key = await crypto.subtle.importKey(
-      "raw",
-      new TextEncoder().encode(secret),
-      { name: "HMAC", hash: "SHA-256" },
-      false,
-      ["sign"],
-    );
-
-    // Compute HMAC signature
-    const signatureBuffer = await crypto.subtle.sign(
-      "HMAC",
-      key,
-      new TextEncoder().encode(payload),
-    );
-
-    // Convert to hex string
-    const expectedSignature = Array.from(new Uint8Array(signatureBuffer))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-
-    // Constant-time comparison
-    return expectedSignature === cleanSignature;
-  } catch (error) {
-    console.error("Error verifying Strike webhook signature:", error);
-    return false;
-  }
-}
-
 describe("Strike Webhook Signature Verification", () => {
+  const testApiKey = "test_api_key";
   const testSecret = "whsec_test_secret_key";
 
-  describe("verifyStrikeSignature", () => {
+  describe("StrikeClient.verifyWebhookSignature", () => {
+    let strikeClient: StrikeClient;
+
+    beforeEach(() => {
+      strikeClient = new StrikeClient(testApiKey, testSecret);
+    });
+
     it("should verify a valid webhook signature", async () => {
       const payload = JSON.stringify({
         id: "webhook_123",
@@ -93,7 +57,7 @@ describe("Strike Webhook Signature Verification", () => {
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("");
 
-      const result = await verifyStrikeSignature(payload, validSignature, testSecret);
+      const result = await strikeClient.verifyWebhookSignature(payload, validSignature);
       expect(result).toBe(true);
     });
 
@@ -118,11 +82,11 @@ describe("Strike Webhook Signature Verification", () => {
 
       // Test with prefix
       const signatureWithPrefix = `sha256=${signature}`;
-      const result = await verifyStrikeSignature(payload, signatureWithPrefix, testSecret);
+      const result = await strikeClient.verifyWebhookSignature(payload, signatureWithPrefix);
       expect(result).toBe(true);
 
       // Test without prefix
-      const resultWithoutPrefix = await verifyStrikeSignature(payload, signature, testSecret);
+      const resultWithoutPrefix = await strikeClient.verifyWebhookSignature(payload, signature);
       expect(resultWithoutPrefix).toBe(true);
     });
 
@@ -130,17 +94,18 @@ describe("Strike Webhook Signature Verification", () => {
       const payload = '{"event":"test"}';
       const invalidSignature = "invalid_signature_abc123";
 
-      const result = await verifyStrikeSignature(payload, invalidSignature, testSecret);
+      const result = await strikeClient.verifyWebhookSignature(payload, invalidSignature);
       expect(result).toBe(false);
     });
 
     it("should reject null or empty signatures", async () => {
       const payload = '{"event":"test"}';
 
-      const resultNull = await verifyStrikeSignature(payload, null, testSecret);
+      // @ts-expect-error - Testing null signature
+      const resultNull = await strikeClient.verifyWebhookSignature(payload, null);
       expect(resultNull).toBe(false);
 
-      const resultEmpty = await verifyStrikeSignature(payload, "", testSecret);
+      const resultEmpty = await strikeClient.verifyWebhookSignature(payload, "");
       expect(resultEmpty).toBe(false);
     });
 
@@ -148,7 +113,8 @@ describe("Strike Webhook Signature Verification", () => {
       const payload = '{"event":"test"}';
       const signature = "some_signature";
 
-      const result = await verifyStrikeSignature(payload, signature, "");
+      const emptySecretClient = new StrikeClient(testApiKey, "");
+      const result = await emptySecretClient.verifyWebhookSignature(payload, signature);
       expect(result).toBe(false);
     });
 
@@ -174,7 +140,7 @@ describe("Strike Webhook Signature Verification", () => {
         .join("");
 
       // Try to verify tampered payload with original signature
-      const result = await verifyStrikeSignature(tamperedPayload, signature, testSecret);
+      const result = await strikeClient.verifyWebhookSignature(tamperedPayload, signature);
       expect(result).toBe(false);
     });
 
@@ -204,7 +170,7 @@ describe("Strike Webhook Signature Verification", () => {
           .map((b) => b.toString(16).padStart(2, "0"))
           .join("");
 
-        const result = await verifyStrikeSignature(payload, signature, testSecret);
+        const result = await strikeClient.verifyWebhookSignature(payload, signature);
         expect(result).toBe(true);
       }
     });
@@ -232,7 +198,7 @@ describe("Strike Webhook Signature Verification", () => {
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("");
 
-      const result = await verifyStrikeSignature(payload, signature, testSecret);
+      const result = await strikeClient.verifyWebhookSignature(payload, signature);
       expect(result).toBe(true);
     });
 
@@ -240,7 +206,8 @@ describe("Strike Webhook Signature Verification", () => {
       const payload = '{"test":"data"}';
 
       // Test with invalid inputs that might cause crypto errors
-      const result = await verifyStrikeSignature(payload, "not_hex", "");
+      const invalidClient = new StrikeClient(testApiKey, "");
+      const result = await invalidClient.verifyWebhookSignature(payload, "not_hex");
       expect(result).toBe(false); // Should return false, not throw
     });
   });
@@ -288,6 +255,12 @@ describe("Strike Webhook Signature Verification", () => {
   });
 
   describe("Security Best Practices", () => {
+    let strikeClient: StrikeClient;
+
+    beforeEach(() => {
+      strikeClient = new StrikeClient(testApiKey, testSecret);
+    });
+
     it("should use constant-time comparison", async () => {
       // This test verifies the implementation uses constant-time comparison
       // by checking that the comparison doesn't short-circuit
@@ -319,7 +292,8 @@ describe("Strike Webhook Signature Verification", () => {
 
       // All should return false
       for (const badSignature of signaturesWithDifferentErrors) {
-        const result = await verifyStrikeSignature(payload, badSignature, secret);
+        const secretClient = new StrikeClient(testApiKey, secret);
+        const result = await secretClient.verifyWebhookSignature(payload, badSignature);
         expect(result).toBe(false);
       }
     });
@@ -347,11 +321,12 @@ describe("Strike Webhook Signature Verification", () => {
         .join("");
 
       // Verify correct signature
-      const resultCorrect = await verifyStrikeSignature(payload, correctSignature, secret);
+      const secretClient = new StrikeClient(testApiKey, secret);
+      const resultCorrect = await secretClient.verifyWebhookSignature(payload, correctSignature);
       expect(resultCorrect).toBe(true);
 
       // Verify completely wrong signature
-      const resultWrong = await verifyStrikeSignature(payload, "0".repeat(64), secret);
+      const resultWrong = await secretClient.verifyWebhookSignature(payload, "0".repeat(64));
       expect(resultWrong).toBe(false);
     });
   });
