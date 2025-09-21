@@ -29,7 +29,7 @@
 
 ### Testing & Validation
 
-- [ ] **Webhook signature tests** - Verify HMAC implementation
+- [x] **Webhook signature tests** - Verify HMAC implementation
 - [ ] **Idempotency tests** - Duplicate webhook handling
 - [ ] **Integration test** - Full payment flow in sandbox
 - [ ] **Load test** - Concurrent webhook processing
