@@ -12,4 +12,12 @@ crons.daily(
   {}, // No args needed - will use today's date
 );
 
+// Mark expired Lightning invoices hourly (24h expiration)
+crons.hourly(
+  "mark expired donations",
+  { minuteUTC: 0 },
+  internal.donations.markExpiredDonations,
+  {}, // No args needed - checks expiresAt field
+);
+
 export default crons;
