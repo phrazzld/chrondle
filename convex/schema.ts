@@ -80,6 +80,15 @@ export default defineSchema({
     expiresAt: v.number(), // Unix timestamp when payment expires
     createdAt: v.number(), // When donation request was created
     updatedAt: v.number(), // Last state change
+
+    // Payment completion metadata (populated from webhook)
+    metadata: v.optional(
+      v.object({
+        paidAmount: v.optional(v.number()), // Actual amount paid in satoshis or currency units
+        paidCurrency: v.optional(v.string()), // Currency of payment (e.g., "BTC", "USD")
+        transactionId: v.optional(v.string()), // Lightning/Bitcoin transaction ID for reference
+      }),
+    ),
   })
     .index("by_strike_id", ["strikeEntityId"])
     .index("by_correlation", ["correlationId"])
