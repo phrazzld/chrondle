@@ -1,4 +1,5 @@
 import { z } from "zod";
+import * as crypto from "crypto";
 
 // Strike API response schemas
 const ReceiveRequestResponseSchema = z.object({
@@ -184,8 +185,16 @@ export class StrikeClient {
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("");
 
-      // Simple comparison (timing-safe comparison would be better for production)
-      return expectedSignature === cleanSignature;
+      // Use timing-safe comparison to prevent timing attacks
+      const expectedBuffer = Buffer.from(expectedSignature, "hex");
+      const receivedBuffer = Buffer.from(cleanSignature, "hex");
+
+      // Both buffers must be the same length for timing-safe comparison
+      if (expectedBuffer.length !== receivedBuffer.length) {
+        return false;
+      }
+
+      return crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
     } catch (error) {
       console.error("Error verifying Strike webhook signature:", error);
       return false;
