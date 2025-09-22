@@ -27,10 +27,10 @@
 
 ### 🟡 Missing Core Functionality [1 hr]
 
-- [ ] **Add metadata field to donations table in `convex/schema.ts:56-87`** - Add `metadata: v.optional(v.object({ paidAmount: v.optional(v.number()), paidCurrency: v.optional(v.string()), transactionId: v.optional(v.string()) }))` after line 82 to persist webhook payment details
-- [ ] **Fix webhook metadata persistence in `convex/webhooks.ts:159-169`** - Ensure metadata object from `updateDonationState` is properly stored in donations table (currently being passed but not saved)
-- [ ] **Add expiration cron job to `convex/crons.ts:15`** - Add `crons.hourly("mark expired donations", { minuteUTC: 0 }, internal.donations.markExpiredDonations, {})` to auto-expire stale Lightning invoices after 24h
-- [ ] **Implement timing-safe comparison in `lib/strike-client.ts:188`** - Replace `expectedSignature === cleanSignature` with Node.js crypto.timingSafeEqual() to prevent timing attacks: `crypto.timingSafeEqual(Buffer.from(expectedSignature, 'hex'), Buffer.from(cleanSignature, 'hex'))`
+- [x] **Add metadata field to donations table in `convex/schema.ts:56-87`** - Add `metadata: v.optional(v.object({ paidAmount: v.optional(v.number()), paidCurrency: v.optional(v.string()), transactionId: v.optional(v.string()) }))` after line 82 to persist webhook payment details
+- [x] **Fix webhook metadata persistence in `convex/webhooks.ts:159-169`** - Ensure metadata object from `updateDonationState` is properly stored in donations table (currently being passed but not saved)
+- [x] **Add expiration cron job to `convex/crons.ts:15`** - Add `crons.hourly("mark expired donations", { minuteUTC: 0 }, internal.donations.markExpiredDonations, {})` to auto-expire stale Lightning invoices after 24h
+- [x] **Implement timing-safe comparison in `lib/strike-client.ts:188`** - Replace `expectedSignature === cleanSignature` with Node.js crypto.timingSafeEqual() to prevent timing attacks: `crypto.timingSafeEqual(Buffer.from(expectedSignature, 'hex'), Buffer.from(cleanSignature, 'hex'))`
 
 ### 🛑 External Setup Required [HUMAN ACTION NEEDED]
 
