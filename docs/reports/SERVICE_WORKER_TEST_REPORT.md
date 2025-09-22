@@ -18,6 +18,8 @@
 - ✅ Message passing to service worker
 - ✅ Test notification functionality
 
+> **Update (2025-09-20):** The service worker registration component and related notification infrastructure have since been removed. This report remains for historical context.
+
 ### 2. Auto-Registration Component (`/src/components/ServiceWorkerRegistration.tsx`)
 
 - ✅ Client-side component for automatic SW registration

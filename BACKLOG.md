@@ -42,10 +42,6 @@ _\"If it's not needed for THIS pull request, it's not a TODO.\" - Linus Torvalds
 - [ ] Monitoring integration (Datadog/Sentry) | Impact: 4
 - [ ] A/B test different amounts | Impact: 3
 
-## Existing Chrondle Backlog
-
-- fix notifications -- or remove them
-
 ## Critical [Fix This Week]
 
 ### 🔒 Security & Production Readiness
@@ -61,7 +57,7 @@ _\"If it's not needed for THIS pull request, it's not a TODO.\" - Linus Torvalds
 
 - [L] [TEST] Add comprehensive tests for useChrondle hook | Impact: 9 | Coverage: Core game logic
 - [L] [TEST] Add tests for GameTimeline (330 lines) and HintsDisplay (407 lines) | Impact: 7
-- [M] [TEST] Add tests for useStreak, useNotifications, useClipboard hooks | Impact: 6
+- [M] [TEST] Add tests for useStreak and useClipboard hooks | Impact: 6
 
 ### ⚡ Performance & Monitoring
 
@@ -84,7 +80,6 @@ _\"If it's not needed for THIS pull request, it's not a TODO.\" - Linus Torvalds
 
 ### 🎮 Features & Engagement
 
-- [M] [FEATURE] Add notification scheduling (morning/evening) | Impact: 5 | Flexibility
 - [M] [FEATURE] Implement streak freeze tokens for vacations | Impact: 6 | Retention
 - [M] [FEATURE] Add archive page filtering and search | Impact: 6 | Discovery
 
@@ -102,8 +97,6 @@ _\"If it's not needed for THIS pull request, it's not a TODO.\" - Linus Torvalds
 
 ### 🎨 UI/UX Enhancements
 
-- [S] [FEATURE] Add push notifications via service worker | Impact: 4
-- [S] [FEATURE] Create notification sound options | Impact: 3
 - [S] [FEATURE] Add streak milestone celebrations | Impact: 4
 - [L] [PERF] Implement virtual timeline for 10,000+ year ranges | Impact: 3
 

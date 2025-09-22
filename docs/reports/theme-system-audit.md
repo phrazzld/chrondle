@@ -18,7 +18,7 @@ Chrondle currently has **two theme providers** that need to be consolidated. The
 - Manual theme toggle only
 - localStorage persistence via `saveSettings/loadSettings`
 - Flash prevention with mounted state
-- Includes notifications integration
+- No notification integration (feature removed)
 
 **Implementation Details**:
 
@@ -26,7 +26,6 @@ Chrondle currently has **two theme providers** that need to be consolidated. The
 interface ThemeContextType {
   darkMode: boolean;
   toggleDarkMode: () => void;
-  notifications: UseNotificationsReturn;
 }
 ```
 
@@ -59,7 +58,6 @@ interface ThemeContextType {
 
 ```typescript
 interface EnhancedThemeContextType extends UseEnhancedThemeReturn {
-  notifications: UseNotificationsReturn;
   // Legacy compatibility
   darkMode: boolean;
   toggleDarkMode: () => void;

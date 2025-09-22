@@ -13,7 +13,6 @@ import { useVictoryConfetti } from "@/hooks/useVictoryConfetti";
 import { getGuessDirectionInfo } from "@/lib/utils";
 import { formatYear } from "@/lib/displayFormatting";
 import { getEnhancedProximityFeedback } from "@/lib/enhancedFeedback";
-import { NotificationModal } from "@/components/modals/NotificationModal";
 import { BackgroundAnimation } from "@/components/BackgroundAnimation";
 import { ConfettiRef } from "@/components/magicui/confetti";
 import { useRouter } from "next/navigation";
@@ -48,15 +47,12 @@ interface ArchivePuzzleContentProps {
   id: string;
 }
 
-function ArchivePuzzleContent({
-  id,
-}: ArchivePuzzleContentProps): React.ReactElement {
+function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps): React.ReactElement {
   const router = useRouter();
   const validation = isValidPuzzleId(id);
   const confettiRef = useRef<ConfettiRef>(null);
 
   // States
-  const [showSettings, setShowSettings] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const [isValidated, setIsValidated] = useState(false);
@@ -88,12 +84,8 @@ function ArchivePuzzleContent({
     chrondle.gameState.status === "loading-puzzle" ||
     chrondle.gameState.status === "loading-auth" ||
     chrondle.gameState.status === "loading-progress";
-  const isGameComplete = isReady(chrondle.gameState)
-    ? chrondle.gameState.isComplete
-    : false;
-  const hasWon = isReady(chrondle.gameState)
-    ? chrondle.gameState.hasWon
-    : false;
+  const isGameComplete = isReady(chrondle.gameState) ? chrondle.gameState.isComplete : false;
+  const hasWon = isReady(chrondle.gameState) ? chrondle.gameState.hasWon : false;
   const makeGuess = chrondle.submitGuess;
 
   // Get target year from game state puzzle
@@ -115,9 +107,7 @@ function ArchivePuzzleContent({
 
         // Check if puzzle number is valid
         if (validation.id > totalCount) {
-          setFetchError(
-            `Puzzle #${validation.id} does not exist. We have ${totalCount} puzzles.`,
-          );
+          setFetchError(`Puzzle #${validation.id} does not exist. We have ${totalCount} puzzles.`);
           setAnnouncement(
             `Puzzle #${validation.id} does not exist. We have ${totalCount} puzzles.`,
           );
@@ -194,21 +184,15 @@ function ArchivePuzzleContent({
   // Error state
   if (isValidated && (!validation.valid || fetchError || !gameState.puzzle)) {
     return (
-      <div className="min-h-screen flex flex-col bg-background">
-        <AppHeader
-          onShowSettings={(): void => setShowSettings(true)}
-          currentStreak={0}
-        />
+      <div className="bg-background flex min-h-screen flex-col">
+        <AppHeader currentStreak={0} />
 
-        <main className="flex-grow max-w-2xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8">
-          <div className="text-center py-12">
-            <h1 className="text-2xl font-bold text-foreground mb-4">
+        <main className="mx-auto w-full max-w-2xl flex-grow px-4 py-8 sm:px-6 lg:px-8">
+          <div className="py-12 text-center">
+            <h1 className="text-foreground mb-4 text-2xl font-bold">
               {validation.error || fetchError || "Puzzle not found"}
             </h1>
-            <Link
-              href="/archive"
-              className="text-primary hover:text-primary/80 underline"
-            >
+            <Link href="/archive" className="text-primary hover:text-primary/80 underline">
               Return to Archive
             </Link>
           </div>
@@ -222,16 +206,14 @@ function ArchivePuzzleContent({
   // Loading state
   if (!isValidated || isLoading || !gameState.puzzle) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">
-          Loading puzzle...
-        </div>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-muted-foreground animate-pulse">Loading puzzle...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="bg-background flex min-h-screen flex-col">
       <BackgroundAnimation
         guesses={gameState.guesses}
         targetYear={targetYear}
@@ -250,16 +232,13 @@ function ArchivePuzzleContent({
         isArchive={true}
         headerContent={
           <>
-            <AppHeader
-              onShowSettings={(): void => setShowSettings(true)}
-              currentStreak={0}
-            />
+            <AppHeader currentStreak={0} />
             {/* Archive Navigation */}
-            <div className="max-w-2xl mx-auto px-0 py-4">
+            <div className="mx-auto max-w-2xl px-0 py-4">
               <div className="flex items-center justify-between">
                 <Link
                   href="/archive"
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground text-sm"
                 >
                   ← Back to Archive
                 </Link>
@@ -268,19 +247,19 @@ function ArchivePuzzleContent({
                   <button
                     onClick={(): void => handleNavigate("prev")}
                     disabled={validation.id === 1}
-                    className="px-3 py-1 text-sm rounded-md border border-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted"
+                    className="border-border hover:bg-muted rounded-md border px-3 py-1 text-sm disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Previous
                   </button>
 
-                  <span className="text-sm text-muted-foreground px-2">
+                  <span className="text-muted-foreground px-2 text-sm">
                     Puzzle #{validation.id}
                   </span>
 
                   <button
                     onClick={(): void => handleNavigate("next")}
                     disabled={validation.id === totalPuzzles}
-                    className="px-3 py-1 text-sm rounded-md border border-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted"
+                    className="border-border hover:bg-muted rounded-md border px-3 py-1 text-sm disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Next
                   </button>
@@ -293,11 +272,6 @@ function ArchivePuzzleContent({
       />
 
       {/* Modals */}
-      <NotificationModal
-        isOpen={showSettings}
-        onClose={(): void => setShowSettings(false)}
-      />
-
       {/* Hint review modal temporarily disabled - needs proper implementation */}
 
       {/* Live Announcer for Screen Readers */}
@@ -312,9 +286,7 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default function ArchivePuzzlePage({
-  params,
-}: PageProps): React.ReactElement {
+export default function ArchivePuzzlePage({ params }: PageProps): React.ReactElement {
   const { id } = use(params);
 
   return (

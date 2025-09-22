@@ -106,16 +106,6 @@ beforeEach(() => {
 
 // COMPREHENSIVE CLEANUP: Force cleanup all resources after each test
 afterEach(async () => {
-  // CRITICAL FIX: Clean up notification service singleton and long-running timers
-  try {
-    const { __resetNotificationServiceForTesting } = await import("@/lib/notifications");
-    if (typeof __resetNotificationServiceForTesting === "function") {
-      __resetNotificationServiceForTesting();
-    }
-  } catch {
-    // Notification service might not be initialized, ignore
-  }
-
   // Clear all Vitest timers
   vi.clearAllTimers();
 
@@ -136,16 +126,6 @@ afterEach(async () => {
 
 // GLOBAL CLEANUP: Force exit after all tests complete
 afterAll(async () => {
-  // CRITICAL: Final cleanup of notification service singleton
-  try {
-    const { __resetNotificationServiceForTesting } = await import("@/lib/notifications");
-    if (typeof __resetNotificationServiceForTesting === "function") {
-      __resetNotificationServiceForTesting();
-    }
-  } catch {
-    // Ignore if service not available
-  }
-
   // Final cleanup to ensure process exits
   vi.clearAllTimers();
   vi.clearAllMocks();

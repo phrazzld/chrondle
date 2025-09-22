@@ -2,14 +2,13 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Github, Heart } from "lucide-react";
-import { DonationModalWithErrorBoundary } from "@/components/donations/DonationModalWithErrorBoundary";
+import { Github } from "lucide-react";
 
 export const Footer: React.FC = () => {
   return (
     <footer className="bg-background border-border w-full border-t py-4">
       <div className="mx-auto max-w-2xl px-6 sm:px-0">
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center">
           <Button
             variant="ghost"
             size="sm"
@@ -27,21 +26,6 @@ export const Footer: React.FC = () => {
               <span className="hidden text-sm sm:inline">View on GitHub</span>
             </a>
           </Button>
-
-          <DonationModalWithErrorBoundary
-            trigger={
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-foreground h-auto cursor-pointer gap-2 py-2 transition-transform hover:scale-105"
-                aria-label="Support Chrondle with Lightning donations"
-                title="Support Chrondle"
-              >
-                <Heart className="h-4 w-4 text-red-500" />
-                <span className="hidden text-sm sm:inline">Support</span>
-              </Button>
-            }
-          />
         </div>
       </div>
     </footer>
