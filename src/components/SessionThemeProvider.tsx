@@ -2,10 +2,6 @@
 
 import { createContext, useContext, useEffect } from "react";
 import { useSessionTheme } from "@/hooks/useSessionTheme";
-import {
-  useNotifications,
-  UseNotificationsReturn,
-} from "@/hooks/useNotifications";
 
 /**
  * Session Theme Provider - The Carmack Approach
@@ -23,23 +19,18 @@ interface SessionThemeContextType {
   currentTheme: "light" | "dark";
   toggle: () => void;
   isMounted: boolean;
-  notifications: UseNotificationsReturn;
 
   // Legacy compatibility for existing components
   darkMode: boolean;
   toggleDarkMode: () => void;
 }
 
-const SessionThemeContext = createContext<SessionThemeContextType | undefined>(
-  undefined,
-);
+const SessionThemeContext = createContext<SessionThemeContextType | undefined>(undefined);
 
 export function useSessionThemeContext() {
   const context = useContext(SessionThemeContext);
   if (context === undefined) {
-    throw new Error(
-      "useSessionThemeContext must be used within a SessionThemeProvider",
-    );
+    throw new Error("useSessionThemeContext must be used within a SessionThemeProvider");
   }
   return context;
 }
@@ -50,7 +41,6 @@ interface SessionThemeProviderProps {
 
 export function SessionThemeProvider({ children }: SessionThemeProviderProps) {
   const sessionTheme = useSessionTheme();
-  const notifications = useNotifications();
 
   // Apply theme classes immediately to prevent flash
   useEffect(() => {
@@ -76,11 +66,7 @@ export function SessionThemeProvider({ children }: SessionThemeProviderProps) {
     } else {
       // Apply system theme class to prevent flash during SSR hydration
       const systemTheme = sessionTheme.systemTheme;
-      if (
-        systemTheme &&
-        !html.classList.contains("light") &&
-        !html.classList.contains("dark")
-      ) {
+      if (systemTheme && !html.classList.contains("light") && !html.classList.contains("dark")) {
         html.classList.add(systemTheme);
       }
     }
@@ -93,7 +79,6 @@ export function SessionThemeProvider({ children }: SessionThemeProviderProps) {
 
   const value: SessionThemeContextType = {
     ...sessionTheme,
-    notifications,
 
     // Legacy compatibility - many components expect these
     darkMode: sessionTheme.currentTheme === "dark",
@@ -101,11 +86,7 @@ export function SessionThemeProvider({ children }: SessionThemeProviderProps) {
   };
 
   // Always render content - no more visibility hiding
-  return (
-    <SessionThemeContext.Provider value={value}>
-      {children}
-    </SessionThemeContext.Provider>
-  );
+  return <SessionThemeContext.Provider value={value}>{children}</SessionThemeContext.Provider>;
 }
 
 // Legacy compatibility export - existing components can keep using useTheme
