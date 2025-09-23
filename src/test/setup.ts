@@ -27,28 +27,7 @@ const localStorageMock = (() => {
   };
 })();
 
-// CARMACK FIX: Mock Notification API to prevent real timer creation
-const mockNotification = vi.fn(() => ({
-  close: vi.fn(),
-  onclick: null,
-}));
-
-// Mock the Notification constructor and permission
-Object.defineProperty(mockNotification, "permission", {
-  value: "default",
-  writable: true,
-});
-
-Object.defineProperty(mockNotification, "requestPermission", {
-  value: vi.fn().mockResolvedValue("granted"),
-  writable: true,
-});
-
-// Mock Web Notification API completely
-Object.defineProperty(global, "Notification", {
-  value: mockNotification,
-  writable: true,
-});
+// Notification API mocks removed - feature deleted
 
 // Keep original timer functions for proper test execution
 
@@ -96,17 +75,6 @@ beforeEach(() => {
 
 // COMPREHENSIVE CLEANUP: Force cleanup all resources after each test
 afterEach(async () => {
-  // CRITICAL FIX: Clean up notification service singleton and long-running timers
-  try {
-    const { __resetNotificationServiceForTesting } = await import(
-      "@/lib/notifications"
-    );
-    if (typeof __resetNotificationServiceForTesting === "function") {
-      __resetNotificationServiceForTesting();
-    }
-  } catch {
-    // Notification service might not be initialized, ignore
-  }
 
   // Clear all Vitest timers
   vi.clearAllTimers();
@@ -128,17 +96,6 @@ afterEach(async () => {
 
 // GLOBAL CLEANUP: Force exit after all tests complete
 afterAll(async () => {
-  // CRITICAL: Final cleanup of notification service singleton
-  try {
-    const { __resetNotificationServiceForTesting } = await import(
-      "@/lib/notifications"
-    );
-    if (typeof __resetNotificationServiceForTesting === "function") {
-      __resetNotificationServiceForTesting();
-    }
-  } catch {
-    // Ignore if service not available
-  }
 
   // Final cleanup to ensure process exits
   vi.clearAllTimers();

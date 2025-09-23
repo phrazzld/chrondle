@@ -10,7 +10,7 @@
 
 ## Phase 1: Commit Current Decoupling Work [5 minutes] ✅ IN PROGRESS
 
-- [~] Stage and commit current dependency removals
+- [x] Stage and commit current dependency removals
 
   ```
   Files already modified:
@@ -36,7 +36,7 @@
 
 ## Phase 2: Remove Core Notification Files [15 minutes]
 
-- [ ] Remove Service Worker registration from app layout
+- [x] Remove Service Worker registration from app layout
 
   ```
   File to modify:
@@ -50,7 +50,7 @@
   Time estimate: 2 minutes
   ```
 
-- [ ] Delete core notification system files
+- [x] Delete core notification system files
 
   ```
   Files to delete:
@@ -80,7 +80,7 @@
   Time estimate: 3 minutes
   ```
 
-- [ ] Remove test-sw directory
+- [x] Remove test-sw directory
 
   ```
   Directory to remove:
@@ -92,7 +92,7 @@
   Time estimate: 1 minute
   ```
 
-- [ ] Verify no broken imports
+- [x] Verify no broken imports
 
   ```
   Commands:
@@ -105,7 +105,7 @@
   Time estimate: 2 minutes
   ```
 
-- [ ] Commit core removal
+- [~] Commit core removal
 
   ```
   Commands:
