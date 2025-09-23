@@ -105,7 +105,7 @@
   Time estimate: 2 minutes
   ```
 
-- [~] Commit core removal
+- [x] Commit core removal
 
   ```
   Commands:
@@ -127,7 +127,7 @@
 
 ## Phase 3: Configuration and Constants Cleanup [10 minutes]
 
-- [ ] Remove NOTIFICATION_CONFIG from constants
+- [x] Remove NOTIFICATION_CONFIG from constants
 
   ```
   File to modify:
@@ -149,7 +149,7 @@
   Time estimate: 3 minutes
   ```
 
-- [ ] Search for any remaining notification references
+- [x] Search for any remaining notification references
 
   ```
   Commands:
@@ -166,7 +166,7 @@
   Time estimate: 3 minutes
   ```
 
-- [ ] Final build validation
+- [x] Final build validation
 
   ```
   Commands:
@@ -183,7 +183,7 @@
   Time estimate: 3 minutes
   ```
 
-- [ ] Commit configuration cleanup
+- [~] Commit configuration cleanup
 
   ```
   Commands:
