@@ -22,11 +22,7 @@ import { useCountdown } from "@/hooks/useCountdown";
 import { useVictoryConfetti } from "@/hooks/useVictoryConfetti";
 import { useScreenReaderAnnouncements } from "@/hooks/useScreenReaderAnnouncements";
 import { logger } from "@/lib/logger";
-import {
-  NotificationModal,
-  AchievementModal,
-  LazyModalWrapper,
-} from "@/components/LazyModals";
+import { AchievementModal, LazyModalWrapper } from "@/components/LazyModals";
 import {
   GameLayout,
   AppHeader,
@@ -85,12 +81,8 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
         : null;
 
     // Extract guesses and completion status when ready
-    const guesses = isReady(chrondle.gameState)
-      ? chrondle.gameState.guesses
-      : [];
-    const isGameOver = isReady(chrondle.gameState)
-      ? chrondle.gameState.isComplete
-      : false;
+    const guesses = isReady(chrondle.gameState) ? chrondle.gameState.guesses : [];
+    const isGameOver = isReady(chrondle.gameState) ? chrondle.gameState.isComplete : false;
 
     // More granular loading states
     const isPuzzleLoading = chrondle.gameState.status === "loading-puzzle";
@@ -111,31 +103,18 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
       isPuzzleLoading,
       isAuthLoading,
       isProgressLoading,
-      error:
-        chrondle.gameState.status === "error" ? chrondle.gameState.error : null,
+      error: chrondle.gameState.status === "error" ? chrondle.gameState.error : null,
       // Use deferred values for non-critical display properties
-      isGameComplete: isReady(deferredGameState)
-        ? deferredGameState.isComplete
-        : false,
+      isGameComplete: isReady(deferredGameState) ? deferredGameState.isComplete : false,
       hasWon: isReady(deferredGameState) ? deferredGameState.hasWon : false,
-      remainingGuesses: isReady(deferredGameState)
-        ? deferredGameState.remainingGuesses
-        : 6,
+      remainingGuesses: isReady(deferredGameState) ? deferredGameState.remainingGuesses : 6,
       makeGuess: chrondle.submitGuess,
       resetGame: chrondle.resetGame,
     };
-  }, [
-    puzzle,
-    chrondle.gameState,
-    deferredGameState,
-    chrondle.submitGuess,
-    chrondle.resetGame,
-  ]);
+  }, [puzzle, chrondle.gameState, deferredGameState, chrondle.submitGuess, chrondle.resetGame]);
 
   // Store puzzle number once loaded to prevent flashing during state transitions
-  const [stablePuzzleNumber, setStablePuzzleNumber] = useState<
-    number | undefined
-  >(undefined);
+  const [stablePuzzleNumber, setStablePuzzleNumber] = useState<number | undefined>(undefined);
 
   // Update stable puzzle number when we get a valid puzzle
   useEffect(() => {
@@ -146,24 +125,16 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
 
   // Only show puzzle number if we're past the initial puzzle loading
   const puzzleNumber =
-    chrondle.gameState.status !== "loading-puzzle"
-      ? stablePuzzleNumber
-      : undefined;
+    chrondle.gameState.status !== "loading-puzzle" ? stablePuzzleNumber : undefined;
 
   // Streak system
-  const {
-    streakData,
-    updateStreak,
-    hasNewAchievement,
-    newAchievement,
-    clearNewAchievement,
-  } = useStreak();
+  const { streakData, updateStreak, hasNewAchievement, newAchievement, clearNewAchievement } =
+    useStreak();
 
   // Countdown for next puzzle
   const countdown = useCountdown();
 
   // UI state
-  const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [, setValidationError] = useState("");
   const [, setLastGuessCount] = useState(0);
 
@@ -171,9 +142,7 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
   const handleGameOver = useCallback(
     (won: boolean, guessCount: number) => {
       // logger.gameComplete is not available, use logger.info instead
-      logger.info(
-        `Game complete: ${won ? "Won" : "Lost"} in ${guessCount} guesses`,
-      );
+      logger.info(`Game complete: ${won ? "Won" : "Lost"} in ${guessCount} guesses`);
       setLastGuessCount(guessCount);
       updateStreak(won);
     },
@@ -203,8 +172,7 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
   });
 
   // Track last guess count for screen reader announcements
-  const [screenReaderLastGuessCount, setScreenReaderLastGuessCount] =
-    useState(0);
+  const [screenReaderLastGuessCount, setScreenReaderLastGuessCount] = useState(0);
 
   // Screen reader announcements
   const announcement = useScreenReaderAnnouncements({
@@ -239,36 +207,31 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
   return (
     <GameErrorBoundary>
       <div
-        className={`min-h-screen flex flex-col bg-background text-foreground ${hydrated ? "hydrated" : "ssr"}`}
+        className={`bg-background text-foreground flex min-h-screen flex-col ${hydrated ? "hydrated" : "ssr"}`}
       >
         <Suspense fallback={null}>
           <BackgroundAnimation
             guesses={gameLogic.gameState.guesses}
-            targetYear={
-              gameLogic.gameState.puzzle?.year || new Date().getFullYear()
-            }
+            targetYear={gameLogic.gameState.puzzle?.year || new Date().getFullYear()}
             isGameOver={gameLogic.isGameComplete}
           />
         </Suspense>
 
         <AppHeader
-          onShowSettings={() => setShowNotificationModal(true)}
           currentStreak={streakData.currentStreak}
           isDebugMode={debugMode}
           puzzleNumber={puzzleNumber}
         />
 
-        <main className="flex-1 flex flex-col">
+        <main className="flex flex-1 flex-col">
           {!gameLogic.isLoading && gameLogic.error && (
-            <div className="flex-1 flex items-center justify-center p-4">
-              <div className="bg-destructive/10 text-destructive p-6 rounded-lg max-w-md text-center">
-                <h2 className="text-xl font-bold mb-2">
-                  Unable to Load Puzzle
-                </h2>
+            <div className="flex flex-1 items-center justify-center p-4">
+              <div className="bg-destructive/10 text-destructive max-w-md rounded-lg p-6 text-center">
+                <h2 className="mb-2 text-xl font-bold">Unable to Load Puzzle</h2>
                 <p className="mb-4">{gameLogic.error}</p>
                 <button
                   onClick={() => window.location.reload()}
-                  className="px-4 py-2 bg-destructive text-destructive-foreground rounded hover:bg-destructive/90 transition-colors"
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded px-4 py-2 transition-colors"
                 >
                   Reload Page
                 </button>
@@ -294,13 +257,6 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
         <Footer />
 
         {/* Modals with Suspense boundaries */}
-        <LazyModalWrapper>
-          <NotificationModal
-            isOpen={showNotificationModal}
-            onClose={() => setShowNotificationModal(false)}
-          />
-        </LazyModalWrapper>
-
         <LazyModalWrapper>
           <AchievementModal
             isOpen={hasNewAchievement}

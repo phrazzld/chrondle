@@ -1,176 +1,279 @@
-# TODO: Quality Infrastructure Optimization
+# TODO: Remove Notifications Feature
 
-_"The best code is no code at all. The second best is code that's so simple it obviously has no bugs."_ - John Carmack
+## Context
 
-## Goal: Eliminate 3+ minutes of CI waste and make quality gates actually meaningful
+- **Approach**: Complete feature removal with clean architecture restoration
+- **Scope**: 14 files, ~1,500 lines of notification code
+- **Current Branch**: `feature/remove-notifications`
+- **Current State**: Phase 1 (dependency decoupling) already completed in working directory
+- **Strategy**: Three-commit approach for clean git history
 
----
+## Phase 1: Commit Current Decoupling Work [5 minutes] ✅ IN PROGRESS
 
-## 1. Eliminate CI Waste [15 minutes] ✅
+- [~] Stage and commit current dependency removals
 
-- [x] Open `.github/workflows/ci.yml` at line 145
-- [x] Delete the redundant `pnpm test` line (coverage already runs tests)
-- [x] Save 30 seconds per CI run by removing duplicate test execution
-
-- [x] Extract Convex verification to `.github/actions/verify-convex/action.yml`
-  ```yaml
-  name: "Verify Convex Files"
-  runs:
-    using: "composite"
-    steps:
-      - run: |
-          for file in api.d.ts api.js dataModel.d.ts server.d.ts server.js; do
-            [ -f "convex/_generated/$file" ] || exit 1
-          done
   ```
-- [x] Replace duplicate code blocks at lines 113-122 and 237-248 with `uses: ./.github/actions/verify-convex`
-- [x] Save 40 lines of YAML duplication
+  Files already modified:
+  - src/components/AppHeader.tsx (removed Bell import, notification functions)
+  - src/components/GameIsland.tsx (removed NotificationModal)
+  - src/components/LazyModals.tsx (removed NotificationModal lazy load)
+  - src/components/SessionThemeProvider.tsx (removed useNotifications)
+  - TASK.md (specification document)
 
-## 2. Fix Coverage Theater [10 minutes] ✅
+  Commit command:
+  git add -A
+  git commit -m "refactor: decouple notification dependencies from UI components
 
-- [x] Open `vitest.config.ts` at line 43
-- [x] Run `pnpm test:coverage` and note actual coverage percentages
-- [x] Update thresholds to real values minus 5% buffer:
-  ```typescript
-  thresholds: {
-    lines: 14,      // Current: 14.28% - maintain baseline
-    functions: 25,  // Current: 28.01% - allow small variance
-    branches: 65,   // Current: 69.93% - was underestimated at 50%
-    statements: 14, // Current: 14.28% - maintain baseline
-  },
-  ```
-- [x] Now coverage actually gates meaningful regressions
+  - Remove notification UI elements from AppHeader
+  - Remove notification modal from GameIsland
+  - Remove notification hook from SessionThemeProvider
+  - Clean up lazy loading for removed modal
 
-## 3. Parallelize CI Jobs [20 minutes] ✅
+  Prepares for complete notification system removal."
 
-- [x] Open `.github/workflows/ci.yml` at line 138
-- [x] Replace sequential lint/type-check/test with parallel matrix:
-  ```yaml
-  quality-checks:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        check: [lint, type-check, test]
-    steps:
-      # ... existing setup steps ...
-      - name: Run ${{ matrix.check }}
-        run: pnpm ${{ matrix.check }}
-  ```
-- [x] Change build job to depend on `quality-checks` instead of `test`
-- [x] Save 2-3 minutes per CI run through parallelization
-
-## 4. Add Missing Prettier Config [5 minutes] ✅
-
-- [x] Create `prettier.config.js`:
-  ```javascript
-  export default {
-    semi: true,
-    singleQuote: false,
-    tabWidth: 2,
-    trailingComma: "all",
-    printWidth: 100,
-    plugins: ["prettier-plugin-tailwindcss"],
-  };
-  ```
-- [x] Run `pnpm add -D prettier-plugin-tailwindcss`
-- [x] Run `pnpm format` to apply consistent formatting
-- [x] End style debates forever with automated formatting
-
-## 5. Fix or Delete Skipped Test [10 minutes] ✅
-
-- [x] Open `src/components/__tests__/NotificationModal.test.tsx`
-- [x] Determine why tests are skipped (check git blame)
-- [x] Either:
-  - [ ] ~~Fix the test if component still exists~~
-  - [x] Delete the file (jsdom/Radix UI incompatibility, can't be fixed)
-  - [ ] ~~Update test for current implementation~~
-- [x] No skipped tests allowed - they're dead code
-
-## 6. Optimize Build Caching [15 minutes] ✅
-
-- [x] Open `.github/workflows/ci.yml` at line 227
-- [x] Add `.next/server` to Next.js cache paths:
-  ```yaml
-  path: |
-    .next/cache
-    .next/.next-build-cache
-    .next/server              # Add server bundle cache
-    node_modules/.cache       # Add bundler caches
-  ```
-- [x] Update cache key to include source hash:
-  ```yaml
-  key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**/*.[jt]sx?') }}
-  ```
-- [x] Save 5-10 seconds per build through better caching
-
-## 7. Remove Zombie Workflows [5 minutes] ⚠️ SKIPPED
-
-- [x] Check if `.github/workflows/claude.yml` is used (likely not)
-- [x] Check if `.github/workflows/claude-code-review.yml` is used (probably redundant)
-- [!] ~~Delete unused workflows with `git rm`~~ **KEPT: These are for automated Claude code reviews!**
-- [x] Less YAML to maintain = fewer bugs (but these are actually useful!)
-
-## 8. Create Quality Dashboard [10 minutes] ✅
-
-- [x] Create `scripts/quality-report.mjs`:
-
-  ```javascript
-  #!/usr/bin/env node
-  import { execSync } from "child_process";
-  import fs from "fs";
-
-  const metrics = {
-    testCount: execSync('find . -name "*.test.ts*" | wc -l').toString().trim(),
-    coverage: JSON.parse(fs.readFileSync("coverage/coverage-summary.json")).total,
-    buildTime: execSync("time pnpm build 2>&1 | grep real").toString(),
-    bundleSize: execSync("du -sh .next").toString().trim(),
-  };
-
-  console.table(metrics);
+  Time estimate: 5 minutes
   ```
 
-- [x] Add to package.json: `"quality": "node scripts/quality-report.mjs"`
-- [x] Run after each sprint to track quality trends
+## Phase 2: Remove Core Notification Files [15 minutes]
 
----
+- [ ] Remove Service Worker registration from app layout
 
-## Validation Checklist
+  ```
+  File to modify:
+  - src/app/layout.tsx:4 - Remove ServiceWorkerRegistration import
+  - src/app/layout.tsx:60 - Remove <ServiceWorkerRegistration /> component
 
-After implementing all tasks:
+  Success criteria:
+  - [ ] No ServiceWorker registration in layout
+  - [ ] Build still succeeds
 
-- [x] CI runs 2+ minutes faster (parallelized checks, removed duplicate test)
-- [x] Coverage thresholds catch actual regressions (updated to meaningful values)
-- [x] No duplicate code in workflows (extracted reusable Convex action)
-- [x] All tests run (none skipped) (removed skipped NotificationModal tests)
-- [x] Formatting is consistent project-wide (added Prettier, ran format)
-- [x] Build cache hit rate > 80% (optimized cache paths and keys)
+  Time estimate: 2 minutes
+  ```
 
----
+- [ ] Delete core notification system files
 
-## Impact Metrics
+  ```
+  Files to delete:
+  - src/lib/notifications.ts
+  - src/hooks/useNotifications.ts
+  - src/components/modals/NotificationModal.tsx
+  - src/components/ui/TimePicker.tsx
+  - src/lib/serviceWorker.ts
+  - src/components/ServiceWorkerRegistration.tsx
+  - src/components/__tests__/ServiceWorkerRegistration.test.tsx
+  - public/sw.js
 
-| Metric          | Before   | After   | Improvement    |
-| --------------- | -------- | ------- | -------------- |
-| CI Runtime      | ~5 min   | ~2 min  | -60%           |
-| Coverage Gate   | Theater  | Real    | Actually works |
-| Duplicate Code  | 40 lines | 0 lines | -100%          |
-| Build Cache Hit | ~50%     | >80%    | +30%           |
-| Skipped Tests   | 2        | 0       | -100%          |
+  Commands:
+  rm src/lib/notifications.ts
+  rm src/hooks/useNotifications.ts
+  rm src/components/modals/NotificationModal.tsx
+  rm src/components/ui/TimePicker.tsx
+  rm src/lib/serviceWorker.ts
+  rm src/components/ServiceWorkerRegistration.tsx
+  rm src/components/__tests__/ServiceWorkerRegistration.test.tsx
+  rm public/sw.js
 
----
+  Success criteria:
+  - [ ] All 8 files deleted
+  - [ ] No broken imports reported
 
-## NOT Doing (Process Theater)
+  Time estimate: 3 minutes
+  ```
 
-- ❌ Adding more linting rules that don't catch bugs
-- ❌ 100% coverage target (diminishing returns after 70%)
-- ❌ Complex CI/CD orchestration (KISS)
-- ❌ Custom GitHub Actions when bash works fine
-- ❌ Security scanning that only finds false positives
-- ❌ Performance monitoring we won't look at
-- ❌ Dependency update bots that create noise
+- [ ] Remove test-sw directory
 
----
+  ```
+  Directory to remove:
+  - src/app/test-sw/
 
-**Total Time: 90 minutes**
+  Command:
+  rm -rf src/app/test-sw
 
-**Result: CI runs 3 minutes faster and coverage actually means something**
+  Time estimate: 1 minute
+  ```
+
+- [ ] Verify no broken imports
+
+  ```
+  Commands:
+  pnpm type-check
+
+  Success criteria:
+  - [ ] TypeScript compilation succeeds
+  - [ ] No import errors
+
+  Time estimate: 2 minutes
+  ```
+
+- [ ] Commit core removal
+
+  ```
+  Commands:
+  git add -A
+  git commit -m "feat!: remove notification system core files
+
+  - Remove 8 notification-related files (1500+ lines)
+  - Remove Service Worker and registration components
+  - Remove notification hooks and utilities
+  - Remove test-sw development page
+  - Remove public/sw.js service worker
+
+  BREAKING CHANGE: Notification feature completely removed
+  All notification functionality has been removed to simplify
+  the codebase and eliminate Service Worker complexity."
+
+  Time estimate: 2 minutes
+  ```
+
+## Phase 3: Configuration and Constants Cleanup [10 minutes]
+
+- [ ] Remove NOTIFICATION_CONFIG from constants
+
+  ```
+  File to modify:
+  - src/lib/constants.ts:258-293 - Remove entire NOTIFICATION_CONFIG object
+
+  Implementation:
+  1. Delete lines 256-293 (includes comments and full config)
+  2. This removes:
+     - DEFAULT_TIME constant
+     - TIME_OPTIONS array (24 entries)
+     - MESSAGES array (7 notification messages)
+     - RETRY_INTERVAL
+     - PERMISSION_REMINDER_DELAY
+
+  Success criteria:
+  - [ ] No NOTIFICATION_CONFIG in file
+  - [ ] File still compiles
+
+  Time estimate: 3 minutes
+  ```
+
+- [ ] Search for any remaining notification references
+
+  ```
+  Commands:
+  rg -i "notification" --type ts --type tsx
+  rg -i "serviceWorker|service.?worker" --type ts --type tsx
+  rg "TimePicker" --type ts --type tsx
+  rg "useNotifications" --type ts --type tsx
+
+  Success criteria:
+  - [ ] No notification imports found
+  - [ ] No notification types found
+  - [ ] No notification function calls found
+
+  Time estimate: 3 minutes
+  ```
+
+- [ ] Final build validation
+
+  ```
+  Commands:
+  pnpm build
+  pnpm lint
+  pnpm type-check
+
+  Success criteria:
+  - [ ] Build completes successfully
+  - [ ] No TypeScript errors
+  - [ ] No linting errors
+  - [ ] Bundle size reduced (check build output)
+
+  Time estimate: 3 minutes
+  ```
+
+- [ ] Commit configuration cleanup
+
+  ```
+  Commands:
+  git add -A
+  git commit -m "refactor: clean up notification configuration and constants
+
+  - Remove NOTIFICATION_CONFIG from constants.ts (35 lines)
+  - Remove notification message templates
+  - Remove time picker options
+  - Verify no remaining notification references
+
+  Completes notification system removal with ~50KB bundle reduction."
+
+  Time estimate: 1 minute
+  ```
+
+## Phase 4: Manual Testing & Validation [5 minutes]
+
+- [ ] Start development server
+
+  ```
+  Command:
+  pnpm dev
+
+  Test areas:
+  - [ ] Game loads without errors
+  - [ ] No console errors in browser
+  - [ ] Navbar displays correctly with even spacing
+  - [ ] Theme toggle works
+  - [ ] Auth buttons work
+  - [ ] Archive button works
+  - [ ] Streak counter displays
+
+  Time estimate: 3 minutes
+  ```
+
+- [ ] Check bundle size reduction
+
+  ```
+  Compare build output before/after:
+  - Expected reduction: ~40-50KB
+  - Service Worker removed
+  - Notification libraries removed
+
+  Time estimate: 2 minutes
+  ```
+
+## Final Validation Checklist
+
+### Build & Code Quality
+
+- [ ] `pnpm build` succeeds without errors
+- [ ] `pnpm type-check` passes
+- [ ] `pnpm lint` shows no issues
+- [ ] No TypeScript compilation errors
+- [ ] No orphaned imports
+
+### Runtime Validation
+
+- [ ] Development server starts without errors
+- [ ] No console errors in browser (Chrome DevTools)
+- [ ] Game plays normally
+- [ ] All UI interactions work
+
+### Visual Validation
+
+- [ ] Navbar buttons evenly spaced
+- [ ] No visual gaps where bell icon was
+- [ ] Mobile responsive layout intact
+- [ ] Theme switching works correctly
+
+### Performance Validation
+
+- [ ] Bundle size reduced by 40KB+
+- [ ] No Service Worker registration attempts
+- [ ] No notification permission prompts
+
+## Summary
+
+**Total Estimated Time**: 35 minutes
+
+**Commit Structure**:
+
+1. ✅ Decouple dependencies (already done, needs commit)
+2. Remove core notification files
+3. Clean up configuration and constants
+
+**Files Affected**: 14 files removed/modified
+**Lines Removed**: ~1,500 lines
+**Bundle Impact**: ~50KB reduction
+
+**Risk Level**: Low - feature is well-isolated
+**Rollback Strategy**: `git reset --hard` to previous commit if issues arise
