@@ -37,19 +37,19 @@
 
 ### Footer Enhancement
 
-- [~] Restructure Footer component (`src/components/Footer.tsx`) with new content:
+- [x] Restructure Footer component (`src/components/Footer.tsx`) with new content:
   - Add copyright: "© 2025 Chrondle"
   - Add author link: "Built by" linking to https://phaedrus.io
   - Add feedback email: "Feedback:" linking to mailto:phaedrus.raznikov@pm.me
-- [ ] Implement responsive layout: single line on desktop, stacked on mobile
-- [ ] Style links with subtle underline on hover (text-decoration-color transition)
-- [ ] Maintain GitHub link but integrate into new layout
+- [x] Implement responsive layout: single line on desktop, stacked on mobile
+- [x] Style links with subtle underline on hover (text-decoration-color transition)
+- [x] Maintain GitHub link but integrate into new layout
 
 ## Phase 2: Micro-Animations & Polish
 
 ### Guess Submission Animations
 
-- [ ] Add button scale animation on submit (scale 1.0 -> 0.98 -> 1.0, 150ms)
+- [~] Add button scale animation on submit (scale 1.0 -> 0.98 -> 1.0, 150ms)
 - [ ] Implement input field "pulse" effect on submit (subtle border glow)
 - [ ] Add stagger animation for hint text appearance (each word fades in with 30ms delay)
 - [ ] Create dot fill animation with micro "pop" effect (scale 0 -> 1.1 -> 1.0)

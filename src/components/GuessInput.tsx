@@ -179,7 +179,7 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
           size="lg"
           aria-label={`Submit guess (${remainingGuesses} remaining)`}
           className={`font-accent h-12 w-full px-8 text-lg font-semibold tracking-wide transition-all duration-200 ${
-            isSubmitting ? "bg-primary/90 scale-105 animate-pulse shadow-lg" : "hover:bg-primary/90"
+            isSubmitting ? "animate-button-press bg-primary/90 shadow-lg" : "hover:bg-primary/90"
           }`}
         >
           {buttonText}

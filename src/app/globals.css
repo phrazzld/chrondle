@@ -19,6 +19,23 @@
   animation: heartbeat 1.5s ease-in-out infinite;
 }
 
+/* Submit button press animation */
+@keyframes button-press {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.98);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-button-press {
+  animation: button-press 150ms ease-out;
+}
+
 :root {
   /* Core brand colors inspired by engineering/professional design */
   --surface: #ffffff;
