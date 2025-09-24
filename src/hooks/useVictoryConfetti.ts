@@ -75,26 +75,59 @@ export function useVictoryConfetti(
           drift: 0,
         });
       } else {
+        // Calculate particle count based on guess count
+        // 1 guess = 200 particles total, 6 guesses = 60 particles total
+        // Formula: 260 - (guessCount * 40) ensures linear scaling
+        const actualGuessCount = Math.max(1, Math.min(6, guessCount || 1));
+        const baseParticleCount = 260 - actualGuessCount * 40;
+
+        // Split particles between bursts (70% first, 30% second)
+        const firstBurstCount = Math.round(baseParticleCount * 0.7);
+        const secondBurstCount = Math.round(baseParticleCount * 0.3);
+
+        // Adjust spread based on guess count (tighter spread for better performance)
+        const spreadMultiplier = 1 + (6 - actualGuessCount) * 0.1; // 1.5x for 1 guess, 1.0x for 6
+
         // Full confetti celebration for users who enjoy motion
         // First burst from center
         await confettiRef.current.fire({
-          particleCount: 100,
-          spread: 70,
+          particleCount: firstBurstCount,
+          spread: 70 * spreadMultiplier,
           origin: { x: 0.5, y: 0.6 },
           colors,
+          // Add velocity boost for fewer guesses
+          startVelocity: 30 + (6 - actualGuessCount) * 4, // 50 for 1 guess, 30 for 6
         });
 
         // Second burst with different spread after a delay
         setTimeout(async () => {
           if (confettiRef.current) {
             await confettiRef.current.fire({
-              particleCount: 50,
-              spread: 120,
+              particleCount: secondBurstCount,
+              spread: 120 * spreadMultiplier,
               origin: { x: 0.5, y: 0.7 },
               colors,
+              // Slightly less velocity for second burst
+              startVelocity: 25 + (6 - actualGuessCount) * 3,
             });
           }
         }, 250);
+
+        // Add third burst for perfect guesses (1 guess only)
+        if (actualGuessCount === 1) {
+          setTimeout(async () => {
+            if (confettiRef.current) {
+              await confettiRef.current.fire({
+                particleCount: 30,
+                spread: 360, // Full circle spread
+                origin: { x: 0.5, y: 0.5 },
+                colors,
+                startVelocity: 45,
+                ticks: 100, // Longer duration for dramatic effect
+              });
+            }
+          }, 500);
+        }
       }
 
       setHasFiredConfetti(true);
