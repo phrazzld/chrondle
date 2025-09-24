@@ -91,7 +91,7 @@ export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
         }}
         className="w-full"
       >
-        <div className="border-border/70 bg-muted/30 shadow-primary/5 hover:shadow-primary/10 rounded-lg border px-4 py-3 shadow-md transition-shadow duration-200 hover:shadow-lg">
+        <div className="border-border/70 bg-muted/30 shadow-primary/5 hover:shadow-primary/10 rounded-lg border px-4 py-3 shadow-md transition-shadow duration-150 hover:shadow-lg">
           <div className="mb-2 flex items-center justify-between">
             <h3 className="text-muted-foreground font-accent text-xs tracking-wide uppercase">
               <span className="font-mono">

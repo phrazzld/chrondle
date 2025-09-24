@@ -70,8 +70,8 @@
 ### Interactive Feedback
 
 - [x] Add ripple effect on button clicks (CSS only, from click point)
-- [~] Implement focus-visible styles for keyboard navigation
-- [ ] Add hover transitions for all interactive elements (150ms standard)
+- [x] Implement focus-visible styles for keyboard navigation
+- [~] Add hover transitions for all interactive elements (150ms standard)
 - [ ] Create subtle shadow growth on card hover states
 
 ## Phase 3: Advanced Polish

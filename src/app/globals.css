@@ -17,6 +17,12 @@
 
 .animate-heartbeat {
   animation: heartbeat 1.5s ease-in-out infinite;
+  transition: transform 150ms ease-out;
+}
+
+.animate-heartbeat:hover {
+  animation-play-state: paused;
+  transform: scale(1.15);
 }
 
 /* Submit button press animation */
@@ -170,6 +176,122 @@ svg:focus-visible {
   box-shadow: none;
 }
 /* ========== END KEYBOARD NAVIGATION FOCUS STYLES ========== */
+
+/* ========== HOVER TRANSITIONS FOR INTERACTIVE ELEMENTS ========== */
+/* Standard 150ms transition for all interactive elements */
+button,
+a,
+[role="button"],
+[tabindex]:not([tabindex="-1"]),
+input,
+textarea,
+select,
+.card,
+.badge,
+.chip,
+[role="menuitem"],
+[role="tab"],
+[role="radio"],
+[role="checkbox"],
+[role="switch"],
+.interactive {
+  transition:
+    background-color 150ms ease-out,
+    color 150ms ease-out,
+    border-color 150ms ease-out,
+    box-shadow 150ms ease-out,
+    transform 150ms ease-out,
+    opacity 150ms ease-out;
+}
+
+/* Button specific hover transitions */
+button:hover,
+[role="button"]:hover {
+  transition-timing-function: ease-in;
+}
+
+/* Link hover transitions */
+a:hover {
+  transition:
+    color 150ms ease-out,
+    text-decoration-color 150ms ease-out,
+    text-underline-offset 150ms ease-out;
+}
+
+/* Input/form control hover transitions */
+input:hover,
+textarea:hover,
+select:hover {
+  transition:
+    border-color 150ms ease-out,
+    background-color 150ms ease-out;
+}
+
+/* Card hover transitions */
+.card:hover,
+[role="article"]:hover {
+  transition:
+    box-shadow 150ms ease-out,
+    transform 150ms ease-out;
+}
+
+/* Icon hover transitions */
+svg:hover,
+.icon:hover {
+  transition:
+    color 150ms ease-out,
+    transform 150ms ease-out;
+}
+
+/* Disable transitions for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  button,
+  a,
+  [role="button"],
+  input,
+  textarea,
+  select,
+  .card,
+  svg,
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Smooth hover states for specific components */
+.hover-lift {
+  transition: transform 150ms ease-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.hover-glow {
+  transition: box-shadow 150ms ease-out;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px oklch(from var(--primary) l c h / 0.3);
+}
+
+.hover-brighten {
+  transition: filter 150ms ease-out;
+}
+
+.hover-brighten:hover {
+  filter: brightness(1.1);
+}
+
+.hover-scale {
+  transition: transform 150ms ease-out;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+/* ========== END HOVER TRANSITIONS ========== */
 
 :root {
   /* Core brand colors inspired by engineering/professional design */

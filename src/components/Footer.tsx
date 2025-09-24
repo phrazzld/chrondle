@@ -18,7 +18,7 @@ export const Footer: React.FC = () => {
             href="https://github.com/phrazzld/chrondle"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-foreground underline-offset-4 transition-colors duration-200 hover:underline"
+            className="hover:text-foreground underline-offset-4 transition-colors duration-150 hover:underline"
             aria-label="View Chrondle source code on GitHub"
           >
             GitHub
@@ -30,7 +30,7 @@ export const Footer: React.FC = () => {
           {/* Feedback */}
           <a
             href="mailto:phaedrus.raznikov@pm.me"
-            className="hover:text-foreground underline-offset-4 transition-colors duration-200 hover:underline"
+            className="hover:text-foreground underline-offset-4 transition-colors duration-150 hover:underline"
           >
             Feedback
           </a>

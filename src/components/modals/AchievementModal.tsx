@@ -1,14 +1,9 @@
-'use client';
+"use client";
 
-import React, { useEffect } from 'react';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle 
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Celebration } from '@/components/ui/Celebration';
+import React, { useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Celebration } from "@/components/ui/Celebration";
 
 interface AchievementModalProps {
   isOpen: boolean;
@@ -19,7 +14,7 @@ interface AchievementModalProps {
 export const AchievementModal: React.FC<AchievementModalProps> = ({
   isOpen,
   onClose,
-  achievement
+  achievement,
 }) => {
   // Auto-close after 4 seconds
   useEffect(() => {
@@ -32,7 +27,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
   // Trigger celebration when modal opens
   useEffect(() => {
     if (isOpen) {
-      window.dispatchEvent(new CustomEvent('chrondle:celebrate'));
+      window.dispatchEvent(new CustomEvent("chrondle:celebrate"));
     }
   }, [isOpen]);
 
@@ -40,23 +35,17 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
     <>
       <Celebration />
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="w-11/12 sm:max-w-md md:max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-h-[85vh] w-11/12 overflow-y-auto sm:max-w-md md:max-w-lg">
           <DialogHeader>
             <DialogTitle className="sr-only">Achievement Unlocked</DialogTitle>
           </DialogHeader>
-          <div className="text-center space-y-6 p-4">
-            <div className="text-6xl animate-bounce mb-4">
-              🏆
-            </div>
-            <h2 className="text-2xl font-bold mb-2 text-foreground">
-              Achievement Unlocked!
-            </h2>
-            <p className="text-lg font-medium mb-6 text-primary">
-              {achievement}
-            </p>
+          <div className="space-y-6 p-4 text-center">
+            <div className="mb-4 animate-bounce text-6xl">🏆</div>
+            <h2 className="text-foreground mb-2 text-2xl font-bold">Achievement Unlocked!</h2>
+            <p className="text-primary mb-6 text-lg font-medium">{achievement}</p>
             <Button
               onClick={onClose}
-              className="px-6 py-3 font-medium transition-all duration-200 hover:scale-105"
+              className="px-6 py-3 font-medium transition-all duration-150 hover:scale-105"
               autoFocus
             >
               Awesome!
