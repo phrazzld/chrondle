@@ -4,6 +4,7 @@ import React, { useMemo, useRef, useEffect } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { LoadingDots } from "@/components/ui/LoadingDots";
 import { HintText } from "@/components/ui/HintText";
+import { SkeletonHintCard } from "@/components/ui/Skeleton";
 
 interface CurrentHintCardProps {
   event: string | null;

@@ -510,6 +510,14 @@ body {
       transform: translate(calc(100cqw - 100%), 0);
     }
   }
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
   @keyframes spin-around {
     0% {
       transform: translateZ(0) rotate(0);
