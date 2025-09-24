@@ -10,8 +10,8 @@ vi.mock("@/components/magicui/text-animate", () => ({
   ),
 }));
 
-vi.mock("@/components/ui/LoadingSpinner", () => ({
-  LoadingSpinner: () => <div data-testid="loading-spinner">Loading...</div>,
+vi.mock("@/components/ui/LoadingDots", () => ({
+  LoadingDots: () => <div data-testid="loading-dots">Loading...</div>,
 }));
 
 vi.mock("@/components/ui/HintText", () => ({
@@ -66,7 +66,7 @@ describe("CurrentHintCard", () => {
   it("shows loading state when isLoading is true", () => {
     render(<CurrentHintCard {...baseProps} isLoading={true} />);
 
-    expect(screen.getByTestId("loading-spinner")).toBeTruthy();
+    expect(screen.getByTestId("loading-dots")).toBeTruthy();
     expect(screen.getByText(/Loading hint/i)).toBeTruthy();
   });
 

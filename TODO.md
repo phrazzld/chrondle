@@ -63,7 +63,7 @@
 
 ### Loading State Improvements
 
-- [ ] Replace spinner with three-dot "typing" animation in hint card
+- [x] Replace spinner with three-dot "typing" animation in hint card
 - [ ] Add skeleton shimmer for loading states (implement as reusable component)
 - [ ] Implement content fade-up on initial load (50ms stagger per element)
 

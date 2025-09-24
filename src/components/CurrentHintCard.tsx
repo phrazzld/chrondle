@@ -2,7 +2,7 @@
 
 import React, { useMemo, useRef, useEffect } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { LoadingDots } from "@/components/ui/LoadingDots";
 import { HintText } from "@/components/ui/HintText";
 
 interface CurrentHintCardProps {
@@ -138,9 +138,9 @@ export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
           </div>
 
           {isLoading ? (
-            <div className="flex items-center gap-3">
-              <LoadingSpinner size="sm" />
-              <span className="font-body text-muted-foreground text-base">Loading hint...</span>
+            <div className="flex items-center gap-2">
+              <span className="font-body text-muted-foreground text-base">Loading hint</span>
+              <LoadingDots />
             </div>
           ) : (
             <div role="status" aria-live="polite" aria-atomic="true">
