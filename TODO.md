@@ -84,7 +84,7 @@
 
 ### Streak Visualization
 
-- [~] Implement realistic flame flicker using CSS animation (transform + opacity)
+- [x] Implement realistic flame flicker using CSS animation (transform + opacity)
 - [ ] Add number roll animation when streak increments
 - [ ] Create milestone pulse effect at 7, 30, 100 day streaks
 
