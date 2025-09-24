@@ -58,8 +58,8 @@
 
 - [x] Add smooth transition for range updates (300ms ease-in-out)
 - [x] Implement marker placement animation (opacity 0->1, scale 0.8->1)
-- [~] Add subtle hover state for timeline (show year on hover with 100ms delay)
-- [ ] Polish eliminated range visualization with fade animation
+- [x] Add subtle hover state for timeline (show year on hover with 100ms delay)
+- [~] Polish eliminated range visualization with fade animation
 
 ### Loading State Improvements
 

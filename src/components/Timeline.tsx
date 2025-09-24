@@ -193,6 +193,34 @@ export const Timeline: React.FC<TimelineProps> = ({ minYear, maxYear, guesses, t
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
+          {/* Define patterns for eliminated ranges */}
+          <defs>
+            <pattern
+              id="eliminatedPattern"
+              patternUnits="userSpaceOnUse"
+              width="8"
+              height="8"
+              patternTransform="rotate(45)"
+            >
+              <line
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="8"
+                stroke="currentColor"
+                strokeWidth="0.5"
+                className="text-muted-foreground/10"
+              />
+            </pattern>
+            <linearGradient id="fadeLeft" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="currentColor" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="currentColor" stopOpacity="0.05" />
+            </linearGradient>
+            <linearGradient id="fadeRight" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="currentColor" stopOpacity="0.05" />
+              <stop offset="100%" stopColor="currentColor" stopOpacity="0.25" />
+            </linearGradient>
+          </defs>
           {/* Simple tick marks: start and end only */}
           {(() => {
             const startX = 50;
@@ -239,51 +267,143 @@ export const Timeline: React.FC<TimelineProps> = ({ minYear, maxYear, guesses, t
             className="text-muted-foreground/50 sm:stroke-3"
           />
 
-          {/* Eliminated ranges with smooth transitions */}
+          {/* Eliminated ranges with enhanced fade animations */}
           {(() => {
             const rangeStart = getPositionX(currentDisplayRange.min);
             const rangeEnd = getPositionX(currentDisplayRange.max);
+            const showLeftEliminated = validMin > currentDisplayRange.min;
+            const showRightEliminated = validMax < currentDisplayRange.max;
 
             return (
               <>
                 {/* Eliminated left range */}
-                {validMin > currentDisplayRange.min && (
-                  <motion.rect
-                    x={50}
-                    y="45"
-                    width={rangeStart - 50}
-                    height="10"
-                    fill="currentColor"
-                    className="text-muted-foreground/20"
-                    initial={false}
-                    animate={{ width: rangeStart - 50 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 100,
-                      damping: 25,
-                      duration: shouldReduceMotion ? 0 : 0.3,
-                    }}
-                  />
+                {showLeftEliminated && (
+                  <g>
+                    {/* Base gradient layer */}
+                    <motion.rect
+                      x={50}
+                      y="46"
+                      width={rangeStart - 50}
+                      height="8"
+                      fill="url(#fadeLeft)"
+                      className="text-muted-foreground"
+                      initial={shouldReduceMotion ? false : { opacity: 0 }}
+                      animate={{
+                        width: rangeStart - 50,
+                        opacity: 1,
+                      }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        width: {
+                          type: "spring",
+                          stiffness: 100,
+                          damping: 25,
+                          duration: shouldReduceMotion ? 0 : 0.3,
+                        },
+                        opacity: {
+                          duration: shouldReduceMotion ? 0 : 0.4,
+                          ease: "easeInOut",
+                        },
+                      }}
+                    />
+                    {/* Pattern overlay */}
+                    <motion.rect
+                      x={50}
+                      y="46"
+                      width={rangeStart - 50}
+                      height="8"
+                      fill="url(#eliminatedPattern)"
+                      initial={shouldReduceMotion ? false : { opacity: 0 }}
+                      animate={{
+                        width: rangeStart - 50,
+                        opacity: 0.5,
+                      }}
+                      transition={{
+                        width: {
+                          type: "spring",
+                          stiffness: 100,
+                          damping: 25,
+                          duration: shouldReduceMotion ? 0 : 0.3,
+                        },
+                        opacity: {
+                          duration: shouldReduceMotion ? 0 : 0.6,
+                          delay: 0.1,
+                          ease: "easeOut",
+                        },
+                      }}
+                    />
+                  </g>
                 )}
 
                 {/* Eliminated right range */}
-                {validMax < currentDisplayRange.max && (
-                  <motion.rect
-                    x={rangeEnd}
-                    y="45"
-                    width={750 - rangeEnd}
-                    height="10"
-                    fill="currentColor"
-                    className="text-muted-foreground/20"
-                    initial={false}
-                    animate={{ x: rangeEnd, width: 750 - rangeEnd }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 100,
-                      damping: 25,
-                      duration: shouldReduceMotion ? 0 : 0.3,
-                    }}
-                  />
+                {showRightEliminated && (
+                  <g>
+                    {/* Base gradient layer */}
+                    <motion.rect
+                      x={rangeEnd}
+                      y="46"
+                      width={750 - rangeEnd}
+                      height="8"
+                      fill="url(#fadeRight)"
+                      className="text-muted-foreground"
+                      initial={shouldReduceMotion ? false : { opacity: 0 }}
+                      animate={{
+                        x: rangeEnd,
+                        width: 750 - rangeEnd,
+                        opacity: 1,
+                      }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        x: {
+                          type: "spring",
+                          stiffness: 100,
+                          damping: 25,
+                        },
+                        width: {
+                          type: "spring",
+                          stiffness: 100,
+                          damping: 25,
+                          duration: shouldReduceMotion ? 0 : 0.3,
+                        },
+                        opacity: {
+                          duration: shouldReduceMotion ? 0 : 0.4,
+                          ease: "easeInOut",
+                        },
+                      }}
+                    />
+                    {/* Pattern overlay */}
+                    <motion.rect
+                      x={rangeEnd}
+                      y="46"
+                      width={750 - rangeEnd}
+                      height="8"
+                      fill="url(#eliminatedPattern)"
+                      initial={shouldReduceMotion ? false : { opacity: 0 }}
+                      animate={{
+                        x: rangeEnd,
+                        width: 750 - rangeEnd,
+                        opacity: 0.5,
+                      }}
+                      transition={{
+                        x: {
+                          type: "spring",
+                          stiffness: 100,
+                          damping: 25,
+                        },
+                        width: {
+                          type: "spring",
+                          stiffness: 100,
+                          damping: 25,
+                          duration: shouldReduceMotion ? 0 : 0.3,
+                        },
+                        opacity: {
+                          duration: shouldReduceMotion ? 0 : 0.6,
+                          delay: 0.1,
+                          ease: "easeOut",
+                        },
+                      }}
+                    />
+                  </g>
                 )}
               </>
             );
