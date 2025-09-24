@@ -69,7 +69,7 @@
 
 ### Interactive Feedback
 
-- [ ] Add ripple effect on button clicks (CSS only, from click point)
+- [x] Add ripple effect on button clicks (CSS only, from click point)
 - [ ] Implement focus-visible styles for keyboard navigation
 - [ ] Add hover transitions for all interactive elements (150ms standard)
 - [ ] Create subtle shadow growth on card hover states

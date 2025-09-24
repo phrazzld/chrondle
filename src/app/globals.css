@@ -534,6 +534,100 @@ body {
       transform: translateZ(0) rotate(360deg);
     }
   }
+
+  /* Button ripple effect */
+  @keyframes ripple {
+    0% {
+      transform: scale(0);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+
+  /* CSS-only ripple effect styles */
+  .button-ripple {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .button-ripple::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    transition:
+      width 0.6s,
+      height 0.6s;
+  }
+
+  .button-ripple:active::before {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
+    transition:
+      width 0.6s,
+      height 0.6s,
+      opacity 0.6s;
+  }
+
+  /* Alternative ripple using animation */
+  .button-ripple::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.4);
+    opacity: 0;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+  }
+
+  .button-ripple:active::after {
+    animation: ripple 0.6s ease-out;
+  }
+
+  /* Dark mode adjustments */
+  .dark .button-ripple::before,
+  .dark .button-ripple::after {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Variant-specific ripple colors */
+  .button-ripple[class*="destructive"]::before,
+  .button-ripple[class*="destructive"]::after {
+    background: rgba(255, 255, 255, 0.6);
+  }
+
+  .button-ripple[class*="outline"]::before,
+  .button-ripple[class*="outline"]::after,
+  .button-ripple[class*="ghost"]::before,
+  .button-ripple[class*="ghost"]::after {
+    background: currentColor;
+    opacity: 0.1;
+  }
+
+  .button-ripple[class*="outline"]:active::after,
+  .button-ripple[class*="ghost"]:active::after {
+    opacity: 0;
+  }
+
+  /* Reduce motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .button-ripple::before,
+    .button-ripple::after {
+      display: none;
+    }
+  }
 }
 
 .dark {
