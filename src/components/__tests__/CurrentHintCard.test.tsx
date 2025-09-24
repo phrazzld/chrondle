@@ -23,6 +23,9 @@ vi.mock("motion/react", () => ({
     div: ({ children, ...props }: React.HTMLProps<HTMLDivElement>) => (
       <div {...props}>{children}</div>
     ),
+    span: ({ children, ...props }: React.HTMLProps<HTMLSpanElement>) => (
+      <span {...props}>{children}</span>
+    ),
   },
   useReducedMotion: () => false,
 }));
@@ -53,7 +56,11 @@ describe("CurrentHintCard", () => {
 
     const status = screen.getByRole("status");
     expect(status.getAttribute("aria-live")).toBe("polite");
-    expect(screen.getByText("Sample current hint")).toBeTruthy();
+
+    // The text is split across multiple span elements due to animation
+    expect(screen.getByText("Sample")).toBeTruthy();
+    expect(screen.getByText("current")).toBeTruthy();
+    expect(screen.getByText("hint")).toBeTruthy();
   });
 
   it("shows loading state when isLoading is true", () => {
@@ -66,7 +73,10 @@ describe("CurrentHintCard", () => {
   it("renders hint content with proper formatting", () => {
     render(<CurrentHintCard {...baseProps} />);
 
-    expect(screen.getByText("Sample current hint")).toBeTruthy();
+    // The text is split across multiple span elements due to animation
+    expect(screen.getByText("Sample")).toBeTruthy();
+    expect(screen.getByText("current")).toBeTruthy();
+    expect(screen.getByText("hint")).toBeTruthy();
   });
 
   it("does not render when error is present", () => {
