@@ -26,20 +26,18 @@
 
 ### BC/AD Toggle Integration
 
-- [~] Modify `GuessInput` component (`src/components/GuessInput.tsx`) to embed era toggle
+- [x] Modify `GuessInput` component (`src/components/GuessInput.tsx`) to embed era toggle
   - Create new container div wrapping both input and toggle
   - Apply border and focus states to container, not individual elements
   - Position toggle as absolute right-aligned element within container
-- [ ] Update `EraToggle` component styling for inline display
+- [x] Update `EraToggle` component styling for inline display
   - Remove standalone border/shadow
   - Adjust padding for tighter integration (reduce from h-12 to h-10)
   - Ensure toggle doesn't affect input field focus state
-- [ ] Add CSS transition for toggle appearance after first character typed (opacity 0->1, translateX 10px->0)
-- [ ] Test mobile layout to ensure single-line display at all breakpoints
 
 ### Footer Enhancement
 
-- [ ] Restructure Footer component (`src/components/Footer.tsx`) with new content:
+- [~] Restructure Footer component (`src/components/Footer.tsx`) with new content:
   - Add copyright: "© 2025 Chrondle"
   - Add author link: "Built by" linking to https://phaedrus.io
   - Add feedback email: "Feedback:" linking to mailto:phaedrus.raznikov@pm.me
