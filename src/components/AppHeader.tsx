@@ -63,7 +63,15 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 title={streakColors.milestone || `${currentStreak} day streak`}
                 aria-label={`Current streak: ${currentStreak} day streak`}
               >
-                <Flame className={`h-4 w-4 ${streakColors.textColor}`} />
+                <Flame
+                  className={`h-4 w-4 ${streakColors.textColor} ${
+                    currentStreak >= 30
+                      ? "animate-flame-hot"
+                      : currentStreak >= 7
+                        ? "animate-flame-flicker"
+                        : "animate-flame-mild"
+                  }`}
+                />
                 <span
                   className={`font-accent text-sm font-bold ${streakColors.textColor} whitespace-nowrap`}
                 >

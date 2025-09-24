@@ -25,6 +25,67 @@
   transform: scale(1.15);
 }
 
+/* Flame flicker animation for streak indicator */
+@keyframes flame-flicker {
+  0% {
+    transform: scale(1) rotateZ(0deg);
+    opacity: 0.9;
+    filter: brightness(1);
+  }
+  20% {
+    transform: scale(1.05) rotateZ(-2deg) translateY(-1px);
+    opacity: 1;
+    filter: brightness(1.1);
+  }
+  40% {
+    transform: scale(0.98) rotateZ(1deg) translateY(0px);
+    opacity: 0.95;
+    filter: brightness(0.95);
+  }
+  60% {
+    transform: scale(1.02) rotateZ(-1deg) translateY(-0.5px);
+    opacity: 1;
+    filter: brightness(1.05);
+  }
+  80% {
+    transform: scale(0.97) rotateZ(2deg) translateY(0.5px);
+    opacity: 0.92;
+    filter: brightness(0.98);
+  }
+  100% {
+    transform: scale(1) rotateZ(0deg);
+    opacity: 0.9;
+    filter: brightness(1);
+  }
+}
+
+.animate-flame-flicker {
+  animation: flame-flicker 2s ease-in-out infinite;
+  transform-origin: 50% 80%; /* Anchor flame at bottom */
+}
+
+/* Alternate flame animation for variety */
+@keyframes flame-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.1);
+    filter: brightness(1.2) saturate(1.2);
+  }
+}
+
+/* Apply different animation based on streak level */
+.animate-flame-mild {
+  animation: flame-pulse 3s ease-in-out infinite;
+}
+
+.animate-flame-hot {
+  animation: flame-flicker 1.5s ease-in-out infinite;
+}
+
 /* Submit button press animation */
 @keyframes button-press {
   0% {
