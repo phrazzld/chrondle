@@ -32,6 +32,13 @@ export const Timeline: React.FC<TimelineProps> = ({ minYear, maxYear, guesses, t
   const prevMinRef = useRef<number>(minYear);
   const prevMaxRef = useRef<number>(maxYear);
 
+  // Hover state for showing year
+  const [hoverInfo, setHoverInfo] = useState<{ year: number; x: number; visible: boolean } | null>(
+    null,
+  );
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const svgRef = useRef<SVGSVGElement>(null);
+
   // Calculate valid range and valid guesses
   const { validMin, validMax, validGuesses } = useMemo(() => {
     let validRangeMin = minYear;
@@ -74,6 +81,56 @@ export const Timeline: React.FC<TimelineProps> = ({ minYear, maxYear, guesses, t
       (year - currentDisplayRange.min) / (currentDisplayRange.max - currentDisplayRange.min);
     return 50 + percentage * 700; // 50 to 750 on the SVG viewBox for full timeline width
   };
+
+  // Helper function to convert position to year
+  const getYearFromPosition = (x: number): number => {
+    const percentage = (x - 50) / 700;
+    const year =
+      currentDisplayRange.min + percentage * (currentDisplayRange.max - currentDisplayRange.min);
+    return Math.round(year);
+  };
+
+  // Handle mouse move on timeline
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (!svgRef.current) return;
+
+    const rect = svgRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const svgX = (x / rect.width) * 800; // Convert to SVG coordinate space
+
+    // Constrain to timeline bounds (50 to 750 in SVG space)
+    if (svgX >= 50 && svgX <= 750) {
+      const year = getYearFromPosition(svgX);
+
+      // Clear existing timeout
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+
+      // Set new timeout for 100ms delay
+      hoverTimeoutRef.current = setTimeout(() => {
+        setHoverInfo({ year, x: svgX, visible: true });
+      }, 100);
+    }
+  };
+
+  // Handle mouse leave
+  const handleMouseLeave = () => {
+    // Clear any pending timeout
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    setHoverInfo(null);
+  };
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
 
   /**
    * Initialize display range on first render
@@ -128,10 +185,13 @@ export const Timeline: React.FC<TimelineProps> = ({ minYear, maxYear, guesses, t
 
         {/* Timeline SVG */}
         <svg
+          ref={svgRef}
           viewBox="0 25 800 50"
-          className="h-16 flex-1 sm:h-16"
+          className="h-16 flex-1 cursor-crosshair sm:h-16"
           preserveAspectRatio="xMidYMid meet"
           style={{ overflow: "hidden" }}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
         >
           {/* Simple tick marks: start and end only */}
           {(() => {
@@ -277,6 +337,53 @@ export const Timeline: React.FC<TimelineProps> = ({ minYear, maxYear, guesses, t
                 </g>
               );
             })}
+
+          {/* Hover indicator */}
+          {hoverInfo?.visible && (
+            <g>
+              {/* Vertical line at hover position */}
+              <motion.line
+                x1={hoverInfo.x}
+                y1="40"
+                x2={hoverInfo.x}
+                y2="60"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeDasharray="4 2"
+                className="text-muted-foreground/40"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.15 }}
+              />
+
+              {/* Year label background */}
+              <motion.rect
+                x={Math.max(80, Math.min(hoverInfo.x - 30, 640))}
+                y="20"
+                width="60"
+                height="22"
+                rx="4"
+                fill="currentColor"
+                className="text-background"
+                initial={{ opacity: 0, y: 25 }}
+                animate={{ opacity: 0.95, y: 20 }}
+                transition={{ duration: 0.15 }}
+              />
+
+              {/* Year label text */}
+              <motion.text
+                x={Math.max(110, Math.min(hoverInfo.x, 670))}
+                y="35"
+                textAnchor="middle"
+                className="text-foreground fill-current text-xs font-medium"
+                initial={{ opacity: 0, y: 25 }}
+                animate={{ opacity: 1, y: 35 }}
+                transition={{ duration: 0.15 }}
+              >
+                {Math.abs(hoverInfo.year)} {hoverInfo.year < 0 ? "BC" : "AD"}
+              </motion.text>
+            </g>
+          )}
         </svg>
 
         {/* Right bookend label */}
