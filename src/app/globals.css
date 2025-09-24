@@ -53,6 +53,124 @@
   animation: input-pulse 300ms ease-out;
 }
 
+/* ========== KEYBOARD NAVIGATION FOCUS STYLES ========== */
+/* Universal focus-visible reset - removes browser defaults */
+:focus {
+  outline: none;
+}
+
+/* Universal focus-visible ring for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--ring, oklch(0.6231 0.188 259.8145));
+  outline-offset: 2px;
+  border-radius: var(--radius, 0.375rem);
+}
+
+/* Interactive element specific focus styles */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  transition: outline-color 150ms ease-out;
+}
+
+/* Input and form control focus styles */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px oklch(from var(--ring) l c h / 0.2);
+  transition:
+    box-shadow 150ms ease-out,
+    border-color 150ms ease-out;
+}
+
+/* Card and container focus styles */
+.card:focus-visible,
+[role="region"]:focus-visible,
+[role="dialog"]:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 4px oklch(from var(--ring) l c h / 0.1);
+}
+
+/* Timeline specific focus styles */
+svg:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 4px;
+  border-radius: var(--radius);
+}
+
+/* Disable focus styles for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :focus-visible {
+    outline-width: 3px;
+    outline-style: solid;
+  }
+
+  button:focus-visible,
+  a:focus-visible {
+    outline-offset: 3px;
+  }
+}
+
+/* Reduced motion support for focus transitions */
+@media (prefers-reduced-motion: reduce) {
+  :focus-visible,
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    transition: none;
+  }
+}
+
+/* Dark mode adjustments */
+.dark :focus-visible {
+  outline-color: var(--ring);
+}
+
+.dark input:focus-visible,
+.dark textarea:focus-visible,
+.dark select:focus-visible {
+  box-shadow: 0 0 0 3px oklch(from var(--ring) l c h / 0.3);
+}
+
+/* Destructive variant focus styles */
+.destructive:focus-visible,
+[aria-invalid="true"]:focus-visible {
+  outline-color: var(--destructive, oklch(0.6368 0.2078 25.3313));
+}
+
+.destructive:focus-visible,
+[aria-invalid="true"]:focus-visible {
+  box-shadow: 0 0 0 3px oklch(from var(--destructive) l c h / 0.2);
+}
+
+/* Success variant focus styles */
+.success:focus-visible,
+[aria-checked="true"]:focus-visible {
+  outline-color: var(--feedback-success, #d4a574);
+}
+
+/* Disabled state - no focus styles */
+:disabled:focus-visible,
+[aria-disabled="true"]:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+/* ========== END KEYBOARD NAVIGATION FOCUS STYLES ========== */
+
 :root {
   /* Core brand colors inspired by engineering/professional design */
   --surface: #ffffff;
@@ -693,7 +811,7 @@ body {
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
