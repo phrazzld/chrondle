@@ -258,13 +258,19 @@ export const Timeline: React.FC<TimelineProps> = ({ minYear, maxYear, guesses, t
                       r="10"
                       fill="currentColor"
                       className={colorClass}
-                      initial={false}
-                      animate={{ cx: x }}
+                      initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.8 }}
+                      animate={{
+                        cx: x,
+                        opacity: 1,
+                        scale: 1,
+                      }}
                       transition={{
                         type: "spring",
                         stiffness: 100,
                         damping: 25,
                         duration: shouldReduceMotion ? 0 : 0.3,
+                        opacity: { duration: shouldReduceMotion ? 0 : 0.2 },
+                        scale: { duration: shouldReduceMotion ? 0 : 0.2 },
                       }}
                     />
                   )}
