@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { HintText } from "@/components/ui/HintText";
@@ -13,6 +13,42 @@ interface CurrentHintCardProps {
   isLoading: boolean;
   error: string | null;
 }
+
+// Component for animated hint text with stagger effect
+const AnimatedHintText: React.FC<{ text: string; shouldReduceMotion: boolean | null }> = ({
+  text,
+  shouldReduceMotion,
+}) => {
+  const words = useMemo(() => text.split(" "), [text]);
+
+  if (shouldReduceMotion) {
+    return (
+      <HintText className="font-body text-foreground text-left text-base leading-relaxed sm:text-lg">
+        {text}
+      </HintText>
+    );
+  }
+
+  return (
+    <div className="font-body text-foreground text-left text-base leading-relaxed sm:text-lg">
+      {words.map((word, index) => (
+        <motion.span
+          key={`${word}-${index}`}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.3,
+            delay: index * 0.03, // 30ms delay per word
+            ease: "easeOut",
+          }}
+          className="mr-1 inline-block"
+        >
+          {word}
+        </motion.span>
+      ))}
+    </div>
+  );
+};
 
 export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
   ({ event, hintNumber, totalHints, guessCount, isLoading, error }) => {
@@ -75,9 +111,7 @@ export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
             </div>
           ) : (
             <div role="status" aria-live="polite" aria-atomic="true">
-              <HintText className="font-body text-foreground text-left text-base leading-relaxed sm:text-lg">
-                {hintText}
-              </HintText>
+              <AnimatedHintText text={hintText} shouldReduceMotion={shouldReduceMotion} />
             </div>
           )}
         </div>
