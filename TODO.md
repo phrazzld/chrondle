@@ -51,8 +51,8 @@
 
 - [x] Add button scale animation on submit (scale 1.0 -> 0.98 -> 1.0, 150ms)
 - [x] Implement input field "pulse" effect on submit (subtle border glow)
-- [~] Add stagger animation for hint text appearance (each word fades in with 30ms delay)
-- [ ] Create dot fill animation with micro "pop" effect (scale 0 -> 1.1 -> 1.0)
+- [x] Add stagger animation for hint text appearance (each word fades in with 30ms delay)
+- [x] Create dot fill animation with micro "pop" effect (scale 0 -> 1.1 -> 1.0)
 
 ### Timeline Enhancements
 

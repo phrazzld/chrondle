@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useRef, useEffect } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { HintText } from "@/components/ui/HintText";
@@ -53,6 +53,20 @@ const AnimatedHintText: React.FC<{ text: string; shouldReduceMotion: boolean | n
 export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
   ({ event, hintNumber, totalHints, guessCount, isLoading, error }) => {
     const shouldReduceMotion = useReducedMotion();
+    const prevGuessCountRef = useRef(guessCount);
+    const justFilledIndices = useRef<Set<number>>(new Set());
+
+    // Track which dots were just filled
+    useEffect(() => {
+      if (guessCount > prevGuessCountRef.current) {
+        // New guess was made, mark the newly filled dots
+        justFilledIndices.current = new Set();
+        for (let i = prevGuessCountRef.current; i < guessCount; i++) {
+          justFilledIndices.current.add(i);
+        }
+      }
+      prevGuessCountRef.current = guessCount;
+    }, [guessCount]);
 
     // Don't render if we have an error
     if (error) {
@@ -88,19 +102,38 @@ export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
               className="flex items-center gap-1"
               aria-label={`${totalHints - guessCount} guesses remaining`}
             >
-              {Array.from({ length: totalHints }, (_, i) => (
-                <div
-                  key={i}
-                  className={`h-2.5 w-2.5 rounded-full transition-all duration-200 ${
-                    i < guessCount
-                      ? "bg-muted-foreground/50 scale-90"
-                      : "bg-primary ring-primary/20 shadow-sm ring-1"
-                  }`}
-                  style={{
-                    transitionDelay: `${i * 30}ms`,
-                  }}
-                />
-              ))}
+              {Array.from({ length: totalHints }, (_, i) => {
+                const isFilled = i < guessCount;
+                const isJustFilled = justFilledIndices.current.has(i);
+
+                return (
+                  <motion.div
+                    key={i}
+                    className={`h-2.5 w-2.5 rounded-full ${
+                      isFilled
+                        ? "bg-muted-foreground/50"
+                        : "bg-primary ring-primary/20 shadow-sm ring-1"
+                    }`}
+                    initial={false}
+                    animate={{
+                      scale: isJustFilled && !shouldReduceMotion ? [0, 1.1, 1.0] : 1.0,
+                    }}
+                    transition={{
+                      scale: {
+                        duration: 0.3,
+                        delay: isJustFilled ? 0.05 : 0,
+                        ease: [0.175, 0.885, 0.32, 1.275], // Elastic easing for "pop" effect
+                      },
+                    }}
+                    onAnimationComplete={() => {
+                      // Clear the just-filled flag after animation
+                      if (isJustFilled) {
+                        justFilledIndices.current.delete(i);
+                      }
+                    }}
+                  />
+                );
+              })}
             </div>
           </div>
 
