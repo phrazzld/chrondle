@@ -13,6 +13,7 @@ interface CurrentHintCardProps {
   guessCount: number;
   isLoading: boolean;
   error: string | null;
+  hasWon?: boolean;
 }
 
 // Component for animated hint text with stagger effect
@@ -52,7 +53,7 @@ const AnimatedHintText: React.FC<{ text: string; shouldReduceMotion: boolean | n
 };
 
 export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
-  ({ event, hintNumber, totalHints, guessCount, isLoading, error }) => {
+  ({ event, hintNumber, totalHints, guessCount, isLoading, error, hasWon = false }) => {
     const shouldReduceMotion = useReducedMotion();
     const prevGuessCountRef = useRef(guessCount);
     const justFilledIndices = useRef<Set<number>>(new Set());
@@ -110,21 +111,51 @@ export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
                 return (
                   <motion.div
                     key={i}
-                    className={`h-2.5 w-2.5 rounded-full ${
-                      isFilled
-                        ? "bg-muted-foreground/50"
-                        : "bg-primary ring-primary/20 shadow-sm ring-1"
-                    }`}
+                    className="h-2.5 w-2.5 rounded-full"
                     initial={false}
                     animate={{
-                      scale: isJustFilled && !shouldReduceMotion ? [0, 1.1, 1.0] : 1.0,
+                      scale:
+                        hasWon && !shouldReduceMotion
+                          ? [1, 1.2, 1]
+                          : isJustFilled && !shouldReduceMotion
+                            ? [0, 1.1, 1.0]
+                            : 1.0,
+                      backgroundColor: hasWon
+                        ? "rgb(34 197 94)" // green-500
+                        : isFilled
+                          ? "rgb(113 113 122 / 0.5)"
+                          : "rgb(var(--primary))",
+                      borderColor: hasWon ? "rgb(34 197 94)" : "rgb(var(--primary) / 0.2)",
                     }}
                     transition={{
                       scale: {
-                        duration: 0.3,
-                        delay: isJustFilled ? 0.05 : 0,
-                        ease: [0.175, 0.885, 0.32, 1.275], // Elastic easing for "pop" effect
+                        duration: hasWon ? 0.4 : 0.3,
+                        delay: hasWon ? i * 0.1 : isJustFilled ? 0.05 : 0, // Sequential delay for cascade
+                        ease: hasWon
+                          ? [0.34, 1.56, 0.64, 1] // More dramatic bounce for victory
+                          : [0.175, 0.885, 0.32, 1.275], // Regular elastic easing
                       },
+                      backgroundColor: {
+                        duration: hasWon ? 0.3 : 0.2,
+                        delay: hasWon ? i * 0.1 : 0, // Sequential color change
+                        ease: "easeOut",
+                      },
+                      borderColor: {
+                        duration: hasWon ? 0.3 : 0.2,
+                        delay: hasWon ? i * 0.1 : 0,
+                      },
+                    }}
+                    style={{
+                      boxShadow: hasWon
+                        ? "0 0 8px rgb(34 197 94 / 0.4)"
+                        : isFilled
+                          ? "none"
+                          : "0 1px 3px rgb(0 0 0 / 0.1)",
+                      border: hasWon
+                        ? "1px solid rgb(34 197 94)"
+                        : isFilled
+                          ? "none"
+                          : "1px solid rgb(var(--primary) / 0.2)",
                     }}
                     onAnimationComplete={() => {
                       // Clear the just-filled flag after animation

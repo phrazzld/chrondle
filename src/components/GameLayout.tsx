@@ -109,7 +109,7 @@ export function GameLayout(props: GameLayoutProps) {
           />
 
           {/* Current Hint Card - Above input for mobile visibility */}
-          {!isGameComplete && gameState.puzzle && (
+          {gameState.puzzle && (
             <CurrentHintCard
               event={gameState.puzzle.events[currentHintIndex] || null}
               hintNumber={currentHintIndex + 1}
@@ -117,6 +117,7 @@ export function GameLayout(props: GameLayoutProps) {
               guessCount={gameState.guesses.length}
               isLoading={isLoading}
               error={error}
+              hasWon={hasWon}
             />
           )}
 

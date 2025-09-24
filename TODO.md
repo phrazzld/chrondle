@@ -72,13 +72,13 @@
 - [x] Add ripple effect on button clicks (CSS only, from click point)
 - [x] Implement focus-visible styles for keyboard navigation
 - [x] Add hover transitions for all interactive elements (150ms standard)
-- [~] Create subtle shadow growth on card hover states
+- [x] Create subtle shadow growth on card hover states
 
 ## Phase 3: Advanced Polish
 
 ### Celebration Enhancements
 
-- [ ] Add cascade animation for dots on correct answer (sequential green fill)
+- [~] Add cascade animation for dots on correct answer (sequential green fill)
 - [ ] Implement confetti variety based on guess count (more particles for fewer guesses)
 - [ ] Add subtle screen flash on win (background lightness pulse)
 
