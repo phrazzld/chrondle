@@ -1,13 +1,6 @@
 "use client";
 
-import React, {
-  useState,
-  useCallback,
-  FormEvent,
-  useRef,
-  useEffect,
-  KeyboardEvent,
-} from "react";
+import React, { useState, useCallback, FormEvent, useRef, useEffect, KeyboardEvent } from "react";
 import { isValidYear } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -139,50 +132,44 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
     return "Guess";
   };
 
-  const buttonText = getButtonText(
-    remainingGuesses,
-    disabled,
-    isLoading,
-    isSubmitting,
-  );
+  const buttonText = getButtonText(remainingGuesses, disabled, isLoading, isSubmitting);
   const isSubmitDisabled = disabled || remainingGuesses <= 0;
 
   return (
     <div className={`${className} mb-0`}>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3 mb-0">
-        {/* Input and Era Toggle Row */}
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-          {/* Positive Year Input Field */}
-          <div className="flex-1 w-full sm:w-auto">
-            <Input
-              ref={inputRef}
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              enterKeyHint="done"
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Enter year (e.g. 1969 or 776)"
-              className="text-lg sm:text-2xl text-left font-accent font-bold h-12 bg-background border-2 border-input focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all duration-200 shadow-sm w-full tracking-wide"
-              title="Use ↑↓ arrow keys (±1 year) or Shift+↑↓ (±10 years) to adjust the year"
-              required
+      <form onSubmit={handleSubmit} className="mb-0 flex flex-col gap-3">
+        {/* Combined Input and Era Toggle Container */}
+        <div className="bg-background border-input focus-within:border-primary focus-within:ring-primary/20 relative flex h-12 items-center overflow-hidden rounded-md border-2 shadow-sm transition-all duration-200 focus-within:ring-2">
+          {/* Year Input Field - No border, fills container */}
+          <input
+            ref={inputRef}
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            enterKeyHint="done"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Enter year (e.g. 1969 or 776)"
+            className="font-accent h-full flex-1 border-0 bg-transparent px-3 text-left text-lg font-bold tracking-wide focus:outline-none sm:text-2xl"
+            title="Use ↑↓ arrow keys (±1 year) or Shift+↑↓ (±10 years) to adjust the year"
+            required
+            disabled={disabled}
+            aria-label={`Enter your year guess. Current era: ${era}. Use arrow keys to increment or decrement.`}
+            aria-describedby={undefined}
+          />
+
+          {/* BC/AD Era Toggle - Embedded in container */}
+          <div className="pr-2">
+            <EraToggle
+              value={era}
+              onChange={setEra}
               disabled={disabled}
-              aria-label={`Enter your year guess. Current era: ${era}. Use arrow keys to increment or decrement.`}
-              aria-describedby={undefined}
+              size="default"
+              className="bg-muted/50 h-8 border-0 shadow-none"
+              aria-label="Select era: BC or AD"
             />
           </div>
-
-          {/* BC/AD Era Toggle */}
-          <EraToggle
-            value={era}
-            onChange={setEra}
-            disabled={disabled}
-            size="lg"
-            width="full"
-            className="h-12 sm:w-auto"
-            aria-label="Select era: BC or AD"
-          />
         </div>
 
         {/* Submit Button Row */}
@@ -191,10 +178,8 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
           disabled={isSubmitDisabled}
           size="lg"
           aria-label={`Submit guess (${remainingGuesses} remaining)`}
-          className={`h-12 px-8 text-lg font-accent font-semibold tracking-wide transition-all duration-200 w-full ${
-            isSubmitting
-              ? "scale-105 bg-primary/90 shadow-lg animate-pulse"
-              : "hover:bg-primary/90"
+          className={`font-accent h-12 w-full px-8 text-lg font-semibold tracking-wide transition-all duration-200 ${
+            isSubmitting ? "bg-primary/90 scale-105 animate-pulse shadow-lg" : "hover:bg-primary/90"
           }`}
         >
           {buttonText}

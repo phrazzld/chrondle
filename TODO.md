@@ -16,17 +16,17 @@
 
 ### Support Button Migration
 
-- [~] Add Heart icon to navbar (`src/components/AppHeader.tsx`)
+- [x] Add Heart icon to navbar (`src/components/AppHeader.tsx`)
   - Position between Archive and Theme toggle buttons
   - Import Heart icon from lucide-react
   - Label as "Support" with aria-label="Support Chrondle with donations"
-- [ ] Update `BitcoinModal` component title from "Keep history alive ₿" to "Support Chrondle"
-- [ ] Remove Bitcoin icon button from Footer component (`src/components/Footer.tsx:31-43`)
-- [ ] Add subtle CSS heartbeat animation on hover (transform: scale 1.0 -> 1.1 -> 1.0, 1.5s duration)
+- [x] Update `BitcoinModal` component title from "Keep history alive ₿" to "Support Chrondle"
+- [x] Remove Bitcoin icon button from Footer component (`src/components/Footer.tsx:31-43`)
+- [x] Add subtle CSS heartbeat animation on hover (transform: scale 1.0 -> 1.1 -> 1.0, 1.5s duration)
 
 ### BC/AD Toggle Integration
 
-- [ ] Modify `GuessInput` component (`src/components/GuessInput.tsx`) to embed era toggle
+- [~] Modify `GuessInput` component (`src/components/GuessInput.tsx`) to embed era toggle
   - Create new container div wrapping both input and toggle
   - Apply border and focus states to container, not individual elements
   - Position toggle as absolute right-aligned element within container
