@@ -79,7 +79,7 @@
 ### Celebration Enhancements
 
 - [x] Add cascade animation for dots on correct answer (sequential green fill)
-- [~] Implement confetti variety based on guess count (more particles for fewer guesses)
+- [x] Implement confetti variety based on guess count (more particles for fewer guesses)
 - [ ] Add subtle screen flash on win (background lightness pulse)
 
 ### Streak Visualization
