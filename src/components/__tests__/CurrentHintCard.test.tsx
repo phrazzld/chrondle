@@ -36,6 +36,7 @@ describe("CurrentHintCard", () => {
     event: "Sample current hint",
     hintNumber: 1,
     totalHints: 6,
+    guessCount: 0,
     isLoading: false,
     error: null as string | null,
   };
@@ -44,7 +45,7 @@ describe("CurrentHintCard", () => {
     render(<CurrentHintCard {...baseProps} />);
 
     const heading = screen.getByRole("heading", { level: 3 });
-    expect(heading.textContent).toMatch(/Hint 1 of 6/i);
+    expect(heading.textContent).toMatch(/HINT 1 OF 6/i);
   });
 
   it("announces hint text in a polite live region", () => {
@@ -72,5 +73,22 @@ describe("CurrentHintCard", () => {
     render(<CurrentHintCard {...baseProps} error="boom" />);
 
     expect(screen.queryByRole("heading", { level: 3 })).toBe(null);
+  });
+
+  it("displays progress dots correctly", () => {
+    const { container, rerender } = render(<CurrentHintCard {...baseProps} guessCount={2} />);
+
+    // Check that dots are rendered
+    const dotsContainer = container.querySelector('[aria-label="4 guesses remaining"]');
+    expect(dotsContainer).toBeTruthy();
+
+    // Check correct number of dots
+    const dots = dotsContainer?.querySelectorAll("div");
+    expect(dots?.length).toBe(6);
+
+    // Update guessCount and verify dots change
+    rerender(<CurrentHintCard {...baseProps} guessCount={4} />);
+    const updatedDotsContainer = container.querySelector('[aria-label="2 guesses remaining"]');
+    expect(updatedDotsContainer).toBeTruthy();
   });
 });
