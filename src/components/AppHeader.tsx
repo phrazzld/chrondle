@@ -25,28 +25,46 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 }) => {
   const [showBitcoin, setShowBitcoin] = useState(false);
   const [animateStreak, setAnimateStreak] = useState(false);
+  const [milestonePulse, setMilestonePulse] = useState(false);
   const previousStreakRef = useRef(currentStreak);
   const streakColors = currentStreak ? getStreakColorClasses(currentStreak) : null;
 
-  // Detect streak increment and trigger animation
+  // Define milestone thresholds
+  const milestones = [7, 30, 100];
+  const majorMilestones = [30, 100]; // Major milestones get gold pulse
+
+  // Detect streak increment and trigger animations
   useEffect(() => {
     if (currentStreak !== undefined && previousStreakRef.current !== undefined) {
       // Check if streak increased
       if (currentStreak > previousStreakRef.current) {
         setAnimateStreak(true);
-        // Remove animation class after animation completes
-        const timer = setTimeout(() => {
-          setAnimateStreak(false);
-        }, 600); // Match animation duration
 
-        // Clean up timer
-        return () => clearTimeout(timer);
+        // Check if we hit a milestone
+        if (milestones.includes(currentStreak)) {
+          setMilestonePulse(true);
+        }
+
+        // Remove animation classes after animations complete
+        const streakTimer = setTimeout(() => {
+          setAnimateStreak(false);
+        }, 600); // Match number roll duration
+
+        const milestoneTimer = setTimeout(() => {
+          setMilestonePulse(false);
+        }, 3600); // 3 pulses at 1.2s each
+
+        // Clean up timers
+        return () => {
+          clearTimeout(streakTimer);
+          clearTimeout(milestoneTimer);
+        };
       }
     }
 
     // Update previous streak for next comparison
     previousStreakRef.current = currentStreak;
-  }, [currentStreak]);
+  }, [currentStreak, milestones]);
   return (
     <header className="border-border bg-card w-full border-b py-4">
       <div className="mx-auto max-w-2xl px-6 sm:px-0">
@@ -81,7 +99,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             {/* Streak Counter - Horizontal Badge */}
             {currentStreak !== undefined && currentStreak > 0 && streakColors && (
               <div
-                className={`flex items-center gap-2 rounded-full border px-3 py-2 ${streakColors.borderColor} h-10 shadow-sm`}
+                className={`flex items-center gap-2 rounded-full border px-3 py-2 ${streakColors.borderColor} h-10 shadow-sm ${
+                  milestonePulse
+                    ? currentStreak && majorMilestones.includes(currentStreak)
+                      ? "animate-milestone-pulse-gold"
+                      : "animate-milestone-pulse"
+                    : ""
+                }`}
                 title={streakColors.milestone || `${currentStreak} day streak`}
                 aria-label={`Current streak: ${currentStreak} day streak`}
               >

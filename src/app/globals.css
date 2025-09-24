@@ -137,6 +137,46 @@
   }
 }
 
+/* Milestone pulse animation for streak achievements */
+@keyframes milestone-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); /* green-500 */
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px 10px rgba(34, 197, 94, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+/* Golden milestone pulse for major achievements */
+@keyframes milestone-pulse-gold {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.8); /* yellow-400 */
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 30px 15px rgba(250, 204, 21, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0);
+  }
+}
+
+.animate-milestone-pulse {
+  animation: milestone-pulse 1s ease-out 3; /* Pulse 3 times */
+}
+
+.animate-milestone-pulse-gold {
+  animation: milestone-pulse-gold 1.2s ease-out 3; /* Pulse 3 times, slightly slower */
+}
+
 /* Submit button press animation */
 @keyframes button-press {
   0% {
