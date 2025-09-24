@@ -82,6 +82,52 @@
   animation: input-pulse 300ms ease-out;
 }
 
+/* Victory screen flash animation */
+@keyframes victory-flash {
+  0% {
+    background-color: var(--background);
+  }
+  20% {
+    background-color: oklch(from var(--background) calc(l + 0.08) c h);
+  }
+  40% {
+    background-color: oklch(from var(--background) calc(l + 0.04) c h);
+  }
+  60% {
+    background-color: oklch(from var(--background) calc(l + 0.02) c h);
+  }
+  100% {
+    background-color: var(--background);
+  }
+}
+
+.animate-victory-flash {
+  animation: victory-flash 800ms ease-out;
+}
+
+/* Dark mode victory flash - reduced intensity */
+.dark .animate-victory-flash {
+  animation: victory-flash-dark 800ms ease-out;
+}
+
+@keyframes victory-flash-dark {
+  0% {
+    background-color: var(--background);
+  }
+  20% {
+    background-color: oklch(from var(--background) calc(l + 0.04) c h);
+  }
+  40% {
+    background-color: oklch(from var(--background) calc(l + 0.02) c h);
+  }
+  60% {
+    background-color: oklch(from var(--background) calc(l + 0.01) c h);
+  }
+  100% {
+    background-color: var(--background);
+  }
+}
+
 /* ========== KEYBOARD NAVIGATION FOCUS STYLES ========== */
 /* Universal focus-visible reset - removes browser defaults */
 :focus {

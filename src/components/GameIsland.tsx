@@ -164,6 +164,9 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
     handleGameOver,
   ]);
 
+  // Victory flash animation state
+  const [showVictoryFlash, setShowVictoryFlash] = useState(false);
+
   // Victory confetti effect
   useVictoryConfetti(confettiRef, {
     hasWon: gameLogic.hasWon,
@@ -171,6 +174,23 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
     isMounted: hydrated,
     guessCount: gameLogic.gameState.guesses.length,
   });
+
+  // Trigger victory flash when user wins
+  useEffect(() => {
+    if (
+      gameLogic.hasWon &&
+      gameLogic.isGameComplete &&
+      hydrated &&
+      gameLogic.gameState.guesses.length > 0
+    ) {
+      setShowVictoryFlash(true);
+      // Remove the class after animation completes
+      const timer = setTimeout(() => {
+        setShowVictoryFlash(false);
+      }, 800); // Match animation duration
+      return () => clearTimeout(timer);
+    }
+  }, [gameLogic.hasWon, gameLogic.isGameComplete, hydrated, gameLogic.gameState.guesses.length]);
 
   // Track last guess count for screen reader announcements
   const [screenReaderLastGuessCount, setScreenReaderLastGuessCount] = useState(0);
@@ -208,7 +228,7 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
   return (
     <GameErrorBoundary>
       <div
-        className={`bg-background text-foreground flex min-h-screen flex-col ${hydrated ? "hydrated" : "ssr"}`}
+        className={`bg-background text-foreground flex min-h-screen flex-col ${hydrated ? "hydrated" : "ssr"} ${showVictoryFlash ? "animate-victory-flash" : ""}`}
       >
         <Suspense fallback={null}>
           <BackgroundAnimation
