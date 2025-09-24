@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 
 interface LoadingDotsProps {
@@ -10,15 +10,17 @@ interface LoadingDotsProps {
 }
 
 export const LoadingDots: React.FC<LoadingDotsProps> = ({ className, dotClassName }) => {
+  const shouldReduceMotion = useReducedMotion();
+
   const dotAnimationVariants = {
-    initial: { opacity: 0.3, scale: 0.8 },
+    initial: { opacity: shouldReduceMotion ? 0.7 : 0.3, scale: shouldReduceMotion ? 1 : 0.8 },
     animate: { opacity: 1, scale: 1 },
   };
 
   const dotTransition = {
-    duration: 0.6,
+    duration: shouldReduceMotion ? 0.3 : 0.6,
     ease: "easeInOut" as const,
-    repeat: Infinity,
+    repeat: shouldReduceMotion ? 0 : Infinity,
     repeatType: "reverse" as const,
   };
 

@@ -119,14 +119,10 @@
   display: inline-block;
 }
 
-/* Alternative simpler roll for reduced motion */
+/* ========== REDUCED MOTION SUPPORT ========== */
+/* Respect user's motion preferences for better accessibility */
 @media (prefers-reduced-motion: reduce) {
-  .animate-number-roll {
-    animation: none;
-    opacity: 0;
-    animation: fade-in 300ms ease-out;
-  }
-
+  /* Simple fade-in for all animated elements */
   @keyframes fade-in {
     from {
       opacity: 0;
@@ -134,6 +130,48 @@
     to {
       opacity: 1;
     }
+  }
+
+  /* Replace all complex animations with simple fade */
+  .animate-heartbeat,
+  .animate-flame-flicker,
+  .animate-flame-mild,
+  .animate-flame-hot,
+  .animate-number-roll,
+  .animate-milestone-pulse,
+  .animate-milestone-pulse-gold,
+  .animate-button-press,
+  .dot-victory-cascade,
+  .animate-input-pulse,
+  .animate-victory-flash {
+    animation: fade-in 300ms ease-out !important;
+  }
+
+  /* Disable hover animations */
+  .animate-heartbeat:hover {
+    animation-play-state: running !important;
+    transform: scale(1.1) !important;
+  }
+
+  /* Disable dark mode victory flash variant */
+  .dark .animate-victory-flash {
+    animation: fade-in 300ms ease-out !important;
+  }
+
+  /* Disable all transform-based animations */
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Allow simple opacity transitions for essential feedback */
+  button,
+  a,
+  input,
+  .transition-opacity {
+    transition: opacity 150ms ease-out !important;
   }
 }
 

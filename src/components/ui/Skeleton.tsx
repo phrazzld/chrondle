@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface SkeletonProps extends React.ComponentProps<"div"> {
@@ -9,6 +9,19 @@ interface SkeletonProps extends React.ComponentProps<"div"> {
 }
 
 function Skeleton({ className, variant = "text", shimmer = true, ...props }: SkeletonProps) {
+  const [shouldReduceMotion, setShouldReduceMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setShouldReduceMotion(mediaQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setShouldReduceMotion(e.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
   const variantStyles = {
     text: "h-4 w-full rounded",
     card: "h-24 w-full rounded-lg",
@@ -21,8 +34,8 @@ function Skeleton({ className, variant = "text", shimmer = true, ...props }: Ske
     <div
       data-slot="skeleton"
       className={cn(
-        "animate-pulse",
-        shimmer
+        shouldReduceMotion ? "" : "animate-pulse",
+        shimmer && !shouldReduceMotion
           ? "from-muted/50 via-muted/60 to-muted/50 bg-gradient-to-r bg-[length:200%_100%]"
           : "bg-muted/50",
         variantStyles[variant],
@@ -30,7 +43,7 @@ function Skeleton({ className, variant = "text", shimmer = true, ...props }: Ske
       )}
       {...props}
       style={
-        shimmer
+        shimmer && !shouldReduceMotion
           ? {
               ...props.style,
               backgroundSize: "200% 100%",
