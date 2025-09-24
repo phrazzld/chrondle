@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
@@ -24,7 +24,29 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   isArchive = false,
 }) => {
   const [showBitcoin, setShowBitcoin] = useState(false);
+  const [animateStreak, setAnimateStreak] = useState(false);
+  const previousStreakRef = useRef(currentStreak);
   const streakColors = currentStreak ? getStreakColorClasses(currentStreak) : null;
+
+  // Detect streak increment and trigger animation
+  useEffect(() => {
+    if (currentStreak !== undefined && previousStreakRef.current !== undefined) {
+      // Check if streak increased
+      if (currentStreak > previousStreakRef.current) {
+        setAnimateStreak(true);
+        // Remove animation class after animation completes
+        const timer = setTimeout(() => {
+          setAnimateStreak(false);
+        }, 600); // Match animation duration
+
+        // Clean up timer
+        return () => clearTimeout(timer);
+      }
+    }
+
+    // Update previous streak for next comparison
+    previousStreakRef.current = currentStreak;
+  }, [currentStreak]);
   return (
     <header className="border-border bg-card w-full border-b py-4">
       <div className="mx-auto max-w-2xl px-6 sm:px-0">
@@ -75,8 +97,15 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 <span
                   className={`font-accent text-sm font-bold ${streakColors.textColor} whitespace-nowrap`}
                 >
-                  <span className="hidden sm:inline">{currentStreak} day streak</span>
-                  <span className="sm:hidden">{currentStreak}</span>
+                  <span className="hidden sm:inline">
+                    <span className={animateStreak ? "animate-number-roll" : ""}>
+                      {currentStreak}
+                    </span>{" "}
+                    day streak
+                  </span>
+                  <span className={`sm:hidden ${animateStreak ? "animate-number-roll" : ""}`}>
+                    {currentStreak}
+                  </span>
                 </span>
               </div>
             )}

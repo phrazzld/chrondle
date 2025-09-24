@@ -86,6 +86,57 @@
   animation: flame-flicker 1.5s ease-in-out infinite;
 }
 
+/* Number roll animation for streak increment */
+@keyframes number-roll {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(-50%);
+    opacity: 0;
+  }
+  40% {
+    transform: translateY(50%);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(25%);
+    opacity: 0.5;
+  }
+  80% {
+    transform: translateY(-10%);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-number-roll {
+  animation: number-roll 600ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  display: inline-block;
+}
+
+/* Alternative simpler roll for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-number-roll {
+    animation: none;
+    opacity: 0;
+    animation: fade-in 300ms ease-out;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
 /* Submit button press animation */
 @keyframes button-press {
   0% {
