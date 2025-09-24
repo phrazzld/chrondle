@@ -31,6 +31,7 @@ import {
   BackgroundAnimation,
 } from "@/components/LazyComponents";
 import { ConfettiRef } from "@/components/magicui/confetti";
+import { FadeUp } from "@/components/ui/FadeUp";
 import { GameErrorBoundary } from "@/components/GameErrorBoundary";
 
 // Lazy load AnalyticsDashboard for development/debug mode only
@@ -217,11 +218,13 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
           />
         </Suspense>
 
-        <AppHeader
-          currentStreak={streakData.currentStreak}
-          isDebugMode={debugMode}
-          puzzleNumber={puzzleNumber}
-        />
+        <FadeUp delay={0} duration={0.4}>
+          <AppHeader
+            currentStreak={streakData.currentStreak}
+            isDebugMode={debugMode}
+            puzzleNumber={puzzleNumber}
+          />
+        </FadeUp>
 
         <main className="flex flex-1 flex-col">
           {!gameLogic.isLoading && gameLogic.error && (
@@ -254,7 +257,9 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
           )}
         </main>
 
-        <Footer />
+        <FadeUp delay={0.6} duration={0.4}>
+          <Footer />
+        </FadeUp>
 
         {/* Modals with Suspense boundaries */}
         <LazyModalWrapper>

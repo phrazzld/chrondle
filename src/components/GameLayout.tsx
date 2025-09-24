@@ -8,6 +8,7 @@ import { Timeline } from "@/components/Timeline";
 import { ProximityDisplay } from "@/components/ui/ProximityDisplay";
 import { HintsDisplay } from "@/components/HintsDisplay";
 import { Confetti, ConfettiRef } from "@/components/magicui/confetti";
+import { FadeUpStagger } from "@/components/ui/FadeUp";
 import { validateGameLayoutProps } from "@/lib/propValidation";
 
 export interface GameLayoutProps {
@@ -89,7 +90,11 @@ export function GameLayout(props: GameLayoutProps) {
 
       {/* Main game content */}
       <main className="flex-1 overflow-auto px-4 py-6">
-        <div className="mx-auto w-full max-w-2xl space-y-6">
+        <FadeUpStagger
+          className="mx-auto w-full max-w-2xl space-y-6"
+          staggerDelay={0.05}
+          containerDelay={0.1}
+        >
           {/* Game Instructions - Always at top */}
           <GameInstructions
             isGameComplete={isGameComplete}
@@ -157,7 +162,7 @@ export function GameLayout(props: GameLayoutProps) {
             isGameComplete={isGameComplete}
             error={error}
           />
-        </div>
+        </FadeUpStagger>
       </main>
 
       {/* Optional footer content */}
