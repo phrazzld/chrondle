@@ -36,6 +36,23 @@
   animation: button-press 150ms ease-out;
 }
 
+/* Input field pulse animation */
+@keyframes input-pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--primary);
+  }
+  50% {
+    box-shadow: 0 0 0 4px oklch(from var(--primary) l c h / 0.3);
+  }
+  100% {
+    box-shadow: 0 0 0 0 var(--primary);
+  }
+}
+
+.animate-input-pulse {
+  animation: input-pulse 300ms ease-out;
+}
+
 :root {
   /* Core brand colors inspired by engineering/professional design */
   --surface: #ffffff;

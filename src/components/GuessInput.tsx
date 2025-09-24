@@ -139,7 +139,11 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
     <div className={`${className} mb-0`}>
       <form onSubmit={handleSubmit} className="mb-0 flex flex-col gap-3">
         {/* Combined Input and Era Toggle Container */}
-        <div className="bg-background border-input focus-within:border-primary focus-within:ring-primary/20 relative flex h-12 items-center overflow-hidden rounded-md border-2 shadow-sm transition-all duration-200 focus-within:ring-2">
+        <div
+          className={`bg-background border-input focus-within:border-primary focus-within:ring-primary/20 relative flex h-12 items-center overflow-hidden rounded-md border-2 shadow-sm transition-all duration-200 focus-within:ring-2 ${
+            isSubmitting ? "animate-input-pulse" : ""
+          }`}
+        >
           {/* Year Input Field - No border, fills container */}
           <input
             ref={inputRef}

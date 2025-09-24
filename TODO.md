@@ -49,8 +49,8 @@
 
 ### Guess Submission Animations
 
-- [~] Add button scale animation on submit (scale 1.0 -> 0.98 -> 1.0, 150ms)
-- [ ] Implement input field "pulse" effect on submit (subtle border glow)
+- [x] Add button scale animation on submit (scale 1.0 -> 0.98 -> 1.0, 150ms)
+- [~] Implement input field "pulse" effect on submit (subtle border glow)
 - [ ] Add stagger animation for hint text appearance (each word fades in with 30ms delay)
 - [ ] Create dot fill animation with micro "pop" effect (scale 0 -> 1.1 -> 1.0)
 
