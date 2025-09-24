@@ -293,6 +293,111 @@ svg:hover,
 }
 /* ========== END HOVER TRANSITIONS ========== */
 
+/* ========== CARD SHADOW HOVER EFFECTS ========== */
+/* Base card shadow growth on hover */
+.card,
+[data-slot="card"],
+.bg-card,
+.hint-card,
+.game-card {
+  transition:
+    box-shadow 150ms ease-out,
+    transform 150ms ease-out;
+}
+
+/* Subtle shadow growth for cards */
+.card:hover,
+[data-slot="card"]:hover,
+.hover-card:hover {
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1),
+    0 10px 15px -3px rgb(0 0 0 / 0.1);
+  transform: translateY(-2px);
+}
+
+/* Dark mode shadow adjustments */
+.dark .card:hover,
+.dark [data-slot="card"]:hover,
+.dark .hover-card:hover {
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.3),
+    0 2px 4px -2px rgb(0 0 0 / 0.2),
+    0 10px 15px -3px rgb(0 0 0 / 0.25),
+    0 0 0 1px rgb(255 255 255 / 0.05);
+}
+
+/* Hint card specific hover effect */
+.hint-card-hover {
+  transition:
+    box-shadow 150ms ease-out,
+    transform 150ms ease-out,
+    background-color 150ms ease-out;
+}
+
+.hint-card-hover:hover {
+  box-shadow:
+    0 0 0 1px var(--border),
+    0 4px 12px oklch(from var(--primary) l c h / 0.08),
+    0 8px 24px oklch(from var(--primary) l c h / 0.04);
+  transform: translateY(-1px);
+}
+
+/* Game island cards hover effect */
+.game-island-card {
+  transition:
+    box-shadow 150ms ease-out,
+    border-color 150ms ease-out;
+}
+
+.game-island-card:hover {
+  box-shadow:
+    0 1px 3px 0 rgb(0 0 0 / 0.1),
+    0 1px 2px -1px rgb(0 0 0 / 0.1),
+    0 4px 6px -1px rgb(0 0 0 / 0.05);
+  border-color: var(--border);
+}
+
+/* Modal/dialog card hover (if applicable) */
+.modal-card:hover,
+.dialog-card:hover {
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+/* Archive card hover effect */
+.archive-card {
+  cursor: pointer;
+  transition:
+    box-shadow 150ms ease-out,
+    transform 150ms ease-out,
+    background-color 150ms ease-out;
+}
+
+.archive-card:hover {
+  box-shadow:
+    0 2px 4px -1px rgb(0 0 0 / 0.06),
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 8px 10px -2px rgb(0 0 0 / 0.08);
+  transform: scale(1.02);
+  background-color: oklch(from var(--card) calc(l + 0.02) c h);
+}
+
+/* Disable shadow growth for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .card:hover,
+  [data-slot="card"]:hover,
+  .hover-card:hover,
+  .hint-card-hover:hover,
+  .game-island-card:hover,
+  .archive-card:hover {
+    transform: none;
+    box-shadow: var(--shadow-sm);
+  }
+}
+/* ========== END CARD SHADOW HOVER EFFECTS ========== */
+
 :root {
   /* Core brand colors inspired by engineering/professional design */
   --surface: #ffffff;
@@ -937,6 +1042,13 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+  }
+  /* Default card hover for all card elements */
+  [data-slot="card"] {
+    @apply transition-shadow duration-150;
+  }
+  [data-slot="card"]:hover {
+    @apply shadow-lg;
     letter-spacing: var(--tracking-normal);
   }
 }
