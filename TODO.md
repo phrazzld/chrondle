@@ -91,7 +91,7 @@
 ### Accessibility
 
 - [x] Audit and respect prefers-reduced-motion for all animations
-- [ ] Ensure all animations can be disabled via settings
+- [~] Ensure all animations can be disabled via settings
 - [ ] Add skip links for screen reader users
 - [ ] Verify 44x44px minimum touch targets on mobile
 

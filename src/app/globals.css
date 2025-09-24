@@ -119,6 +119,20 @@
   display: inline-block;
 }
 
+/* ========== ANIMATION SETTINGS SUPPORT ========== */
+/* When animations are disabled via settings */
+.no-animations * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Allow essential opacity transitions even when animations are disabled */
+.no-animations button,
+.no-animations a,
+.no-animations input {
+  transition: opacity 150ms ease-out !important;
+}
+
 /* ========== REDUCED MOTION SUPPORT ========== */
 /* Respect user's motion preferences for better accessibility */
 @media (prefers-reduced-motion: reduce) {

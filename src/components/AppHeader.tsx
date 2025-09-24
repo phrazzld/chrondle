@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { AnimationToggle } from "@/components/ui/AnimationToggle";
 import { AuthButtons } from "@/components/AuthButtons";
 import BitcoinModal from "@/components/BitcoinModal";
 import { Flame, Archive, Heart } from "lucide-react";
@@ -162,6 +163,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
             {/* Theme Toggle */}
             <ThemeToggle />
+
+            {/* Animation Toggle */}
+            <AnimationToggle />
 
             {/* Auth Buttons - Rightmost */}
             <AuthButtons />
