@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { AuthButtons } from "@/components/AuthButtons";
-import { Flame, Archive } from "lucide-react";
+import BitcoinModal from "@/components/BitcoinModal";
+import { Flame, Archive, Heart } from "lucide-react";
 import { getStreakColorClasses, cn } from "@/lib/utils";
 import { formatPuzzleNumber } from "@/lib/puzzleUtils";
 
@@ -22,6 +23,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   puzzleNumber,
   isArchive = false,
 }) => {
+  const [showBitcoin, setShowBitcoin] = useState(false);
   const streakColors = currentStreak ? getStreakColorClasses(currentStreak) : null;
   return (
     <header className="border-border bg-card w-full border-b py-4">
@@ -71,6 +73,18 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               </div>
             )}
 
+            {/* Support Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowBitcoin(true)}
+              title="Support Chrondle"
+              aria-label="Support Chrondle with donations"
+              className="group h-10 w-10 rounded-full transition-transform"
+            >
+              <Heart className="group-hover:animate-heartbeat h-5 w-5" />
+            </Button>
+
             {/* Archive Button */}
             <Button
               variant="ghost"
@@ -93,6 +107,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           </div>
         </div>
       </div>
+
+      <BitcoinModal open={showBitcoin} onOpenChange={setShowBitcoin} />
     </header>
   );
 };

@@ -8,18 +8,15 @@
 
 ### Hint Card & Progress Consolidation
 
-- [~] Merge progress dots into hint card header component (`src/components/CurrentHintCard.tsx`)
+- [x] Merge progress dots into hint card header component (`src/components/CurrentHintCard.tsx`)
   - Position dots right-aligned in header row with "HINT X OF 6" text
   - Implement dot states: filled (guess used), empty (available), with NO correlation to answer correctness
   - Add CSS transition for dot fill animation (200ms ease-out)
   - Ensure dots are purely decorative progress indicators, not interactive
-- [ ] Remove standalone `GameProgress` component from game layout (`src/components/GameLayout.tsx:153-156`)
-- [ ] Update hint card header typography to use mono font for numbers (`font-mono` for "1" and "6" in "HINT 1 OF 6")
-- [ ] Add subtle box-shadow enhancement on hint card (0 2px 8px rgba(0,0,0,0.08))
 
 ### Support Button Migration
 
-- [ ] Add Heart icon to navbar (`src/components/AppHeader.tsx`)
+- [~] Add Heart icon to navbar (`src/components/AppHeader.tsx`)
   - Position between Archive and Theme toggle buttons
   - Import Heart icon from lucide-react
   - Label as "Support" with aria-label="Support Chrondle with donations"
