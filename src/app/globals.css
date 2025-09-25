@@ -251,6 +251,32 @@ body {
   will-change: box-shadow;
 }
 
+/* Heartbeat animation for support button */
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(1.1);
+  }
+  40% {
+    transform: scale(1);
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  80% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.5s ease-in-out;
+}
+
 /* Game-specific components that need custom styling */
 .guess-row-compact {
   display: flex;
