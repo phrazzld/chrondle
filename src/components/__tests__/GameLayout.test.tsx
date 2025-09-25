@@ -8,9 +8,7 @@ const mockValidate = vi.mocked(validateGameLayoutProps);
 
 // Mock child components to isolate GameLayout testing
 vi.mock("@/components/GameInstructions", () => ({
-  GameInstructions: () => (
-    <div data-testid="game-instructions">Game Instructions</div>
-  ),
+  GameInstructions: () => <div data-testid="game-instructions">Game Instructions</div>,
 }));
 
 vi.mock("@/components/GuessInput", () => ({
@@ -26,13 +24,7 @@ vi.mock("@/components/Timeline", () => ({
 }));
 
 vi.mock("@/components/ui/ProximityDisplay", () => ({
-  ProximityDisplay: () => (
-    <div data-testid="proximity-display">Proximity Display</div>
-  ),
-}));
-
-vi.mock("@/components/GameProgress", () => ({
-  GameProgress: () => <div data-testid="game-progress">Game Progress</div>,
+  ProximityDisplay: () => <div data-testid="proximity-display">Proximity Display</div>,
 }));
 
 vi.mock("@/components/HintsDisplay", () => ({
@@ -56,14 +48,7 @@ describe("GameLayout Component Interface", () => {
     gameState: {
       puzzle: {
         year: 1969,
-        events: [
-          "Event 1",
-          "Event 2",
-          "Event 3",
-          "Event 4",
-          "Event 5",
-          "Event 6",
-        ],
+        events: ["Event 1", "Event 2", "Event 3", "Event 4", "Event 5", "Event 6"],
       },
       guesses: [],
       isGameOver: false,
@@ -86,7 +71,6 @@ describe("GameLayout Component Interface", () => {
 
       expect(screen.getByTestId("game-instructions")).toBeTruthy();
       expect(screen.getByTestId("guess-input")).toBeTruthy();
-      expect(screen.getByTestId("game-progress")).toBeTruthy();
       expect(screen.getByTestId("hints-display")).toBeTruthy();
     });
 

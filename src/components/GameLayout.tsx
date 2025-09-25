@@ -6,7 +6,6 @@ import { CurrentHintCard } from "@/components/CurrentHintCard";
 import { GuessInput } from "@/components/GuessInput";
 import { Timeline } from "@/components/Timeline";
 import { ProximityDisplay } from "@/components/ui/ProximityDisplay";
-import { GameProgress } from "@/components/GameProgress";
 import { HintsDisplay } from "@/components/HintsDisplay";
 import { Confetti, ConfettiRef } from "@/components/magicui/confetti";
 import { validateGameLayoutProps } from "@/lib/propValidation";
@@ -84,13 +83,13 @@ export function GameLayout(props: GameLayoutProps) {
   const targetYear = gameState.puzzle?.year || 0;
 
   return (
-    <div className="flex-1 flex flex-col bg-background">
+    <div className="bg-background flex flex-1 flex-col">
       {/* Optional header content */}
       {headerContent && <div>{headerContent}</div>}
 
       {/* Main game content */}
-      <main className="flex-1 px-4 py-6 overflow-auto">
-        <div className="max-w-2xl mx-auto w-full space-y-6">
+      <main className="flex-1 overflow-auto px-4 py-6">
+        <div className="mx-auto w-full max-w-2xl space-y-6">
           {/* Game Instructions - Always at top */}
           <GameInstructions
             isGameComplete={isGameComplete}
@@ -149,12 +148,6 @@ export function GameLayout(props: GameLayoutProps) {
             />
           )}
 
-          {/* Game Progress - Always visible */}
-          <GameProgress
-            guessCount={gameState.guesses.length}
-            totalHints={gameState.puzzle?.events.length || 6}
-          />
-
           {/* Hints Display - Always at bottom */}
           <HintsDisplay
             events={gameState.puzzle?.events || []}
@@ -173,7 +166,7 @@ export function GameLayout(props: GameLayoutProps) {
       {confettiRef && (
         <Confetti
           ref={confettiRef}
-          className="fixed inset-0 z-50 pointer-events-none"
+          className="pointer-events-none fixed inset-0 z-50"
           style={{
             width: "100%",
             height: "100%",

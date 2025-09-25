@@ -136,10 +136,13 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
 
   return (
     <div className={`${className} mb-0`}>
-      <form onSubmit={handleSubmit} className="mb-0 flex flex-col gap-3">
+      <form
+        onSubmit={handleSubmit}
+        className="mb-0 flex flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-2"
+      >
         {/* Combined Input and Era Toggle Container */}
         <div
-          className={`bg-background border-input focus-within:border-primary focus-within:ring-primary/20 relative flex h-12 items-center overflow-hidden rounded-md border-2 shadow-sm transition-all duration-200 focus-within:ring-2 ${
+          className={`bg-background border-input focus-within:border-primary focus-within:ring-primary/20 relative flex h-14 flex-1 items-center overflow-hidden rounded-md border-2 shadow-sm transition-all duration-200 focus-within:ring-2 sm:h-12 ${
             isSubmitting ? "animate-input-pulse" : ""
           }`}
         >
@@ -153,8 +156,8 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
             value={year}
             onChange={(e) => setYear(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Enter year (e.g. 1969 or 776)"
-            className="font-accent h-full flex-1 border-0 bg-transparent px-3 text-left text-lg font-bold tracking-wide focus:outline-none sm:text-2xl"
+            placeholder="Enter year"
+            className="font-accent flex-1 border-0 bg-transparent px-3 py-3 text-left text-lg font-bold tracking-wide placeholder:text-sm placeholder:leading-none placeholder:font-normal focus:outline-none sm:py-0 sm:text-2xl sm:placeholder:text-base"
             title="Use ↑↓ arrow keys (±1 year) or Shift+↑↓ (±10 years) to adjust the year"
             required
             disabled={disabled}
@@ -175,13 +178,13 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
           </div>
         </div>
 
-        {/* Submit Button Row */}
+        {/* Submit Button - Responsive width and height */}
         <Button
           type="submit"
           disabled={isSubmitDisabled}
           size="lg"
           aria-label={`Submit guess (${remainingGuesses} remaining)`}
-          className={`font-accent w-full px-8 text-lg font-semibold tracking-wide transition-all duration-200 ${
+          className={`font-accent h-14 w-full px-8 text-lg font-semibold tracking-wide transition-all duration-200 sm:h-12 sm:w-auto sm:min-w-[120px] ${
             isSubmitting ? "animate-button-press bg-primary/90 shadow-lg" : "hover:bg-primary/90"
           }`}
         >

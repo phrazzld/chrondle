@@ -76,15 +76,14 @@ export const NavbarButton: React.FC<NavbarButtonProps> = ({
   // If href is provided, render as Link
   if (href) {
     return (
-      <Link href={href} passHref legacyBehavior>
-        <motion.a
-          className={buttonClasses}
+      <Link href={href} className={buttonClasses}>
+        <motion.div
           whileTap={{ scale: 0.95 }}
           whileHover={{ scale: 1.05 }}
           transition={{ duration: 0.2, ease: "easeInOut" }}
         >
           {content}
-        </motion.a>
+        </motion.div>
       </Link>
     );
   }
