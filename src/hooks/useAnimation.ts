@@ -17,6 +17,10 @@ import {
   removeWillChange,
   shouldDisableComplexAnimations,
   getAdjustedParticleCount,
+  animationBatcher,
+  batchAnimations,
+  createStaggeredSequence,
+  animateParallel,
 } from "@/lib/animations";
 
 /**
@@ -74,6 +78,12 @@ interface UseAnimationReturn {
   // Performance utilities
   shouldDisableComplex: boolean;
   getParticleCount: (baseCount: number) => number;
+
+  // Batch animation utilities
+  batcher: typeof animationBatcher;
+  batchAnimations: typeof batchAnimations;
+  createStaggeredSequence: typeof createStaggeredSequence;
+  animateParallel: typeof animateParallel;
 }
 
 /**
@@ -264,6 +274,12 @@ export function useAnimation(): UseAnimationReturn {
     // Performance utilities
     shouldDisableComplex,
     getParticleCount,
+
+    // Batch animation utilities
+    batcher: animationBatcher,
+    batchAnimations,
+    createStaggeredSequence,
+    animateParallel,
   };
 }
 

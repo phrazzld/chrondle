@@ -18,6 +18,7 @@
 .animate-heartbeat {
   animation: heartbeat 1.5s var(--easing-ease-in-out) infinite;
   transition: transform var(--animation-quick) var(--easing-ease-out);
+  will-change: transform;
 }
 
 .animate-heartbeat:hover {
@@ -62,6 +63,7 @@
 .animate-flame-flicker {
   animation: flame-flicker 2s var(--easing-ease-in-out) infinite;
   transform-origin: 50% 80%; /* Anchor flame at bottom */
+  will-change: transform, opacity, filter;
 }
 
 /* Alternate flame animation for variety */
@@ -80,10 +82,12 @@
 /* Apply different animation based on streak level */
 .animate-flame-mild {
   animation: flame-pulse 3s var(--easing-ease-in-out) infinite;
+  will-change: transform, filter;
 }
 
 .animate-flame-hot {
   animation: flame-flicker 1.5s var(--easing-ease-in-out) infinite;
+  will-change: transform, opacity, filter;
 }
 
 /* Number roll animation for streak increment */
@@ -117,6 +121,7 @@
 .animate-number-roll {
   animation: number-roll var(--animation-streak-roll) var(--easing-spring);
   display: inline-block;
+  will-change: transform, opacity;
 }
 
 /* ========== ANIMATION SETTINGS SUPPORT ========== */
@@ -223,10 +228,12 @@
 
 .animate-milestone-pulse {
   animation: milestone-pulse 1s var(--easing-ease-out) 3; /* Pulse 3 times */
+  will-change: transform, box-shadow;
 }
 
 .animate-milestone-pulse-gold {
   animation: milestone-pulse-gold 1.2s var(--easing-ease-out) 3; /* Pulse 3 times, slightly slower */
+  will-change: transform, box-shadow;
 }
 
 /* Submit button press animation */
@@ -244,6 +251,7 @@
 
 .animate-button-press {
   animation: button-press var(--animation-quick) var(--easing-ease-out);
+  will-change: transform;
 }
 
 /* Victory cascade animation for progress dots */
@@ -267,6 +275,7 @@
 .dot-victory-cascade {
   animation: victory-cascade 0.6s ease-out forwards;
   animation-fill-mode: both;
+  will-change: transform, background-color, box-shadow;
 }
 
 /* Input field pulse animation */
@@ -284,6 +293,7 @@
 
 .animate-input-pulse {
   animation: input-pulse var(--animation-smooth) var(--easing-ease-out);
+  will-change: box-shadow;
 }
 
 /* Victory screen flash animation */
@@ -307,6 +317,7 @@
 
 .animate-victory-flash {
   animation: victory-flash var(--animation-long-celebrate) var(--easing-ease-out);
+  will-change: background-color;
 }
 
 /* Dark mode victory flash - reduced intensity */
@@ -931,6 +942,7 @@ body {
 
 .bounce-once {
   animation: bounce-once 0.3s ease-in-out;
+  will-change: transform;
 }
 
 /* Game-specific components that need custom styling */
@@ -1217,10 +1229,120 @@ body {
   }
 }
 
+/* ========== MOBILE PERFORMANCE OPTIMIZATIONS ========== */
+/* Reduce animation complexity on mobile devices for better performance */
+@media (max-width: 768px) {
+  /* Disable complex animations on mobile */
+  .animate-flame-flicker,
+  .animate-flame-hot {
+    animation: flame-pulse 2s var(--easing-ease-in-out) infinite;
+  }
+
+  /* Simplify box-shadow animations */
+  .animate-milestone-pulse,
+  .animate-milestone-pulse-gold,
+  .dot-victory-cascade {
+    will-change: transform;
+    /* Remove box-shadow from will-change on mobile */
+  }
+
+  /* Reduce animation durations for snappier feel */
+  .animate-button-press {
+    animation-duration: 100ms;
+  }
+
+  .animate-input-pulse {
+    animation-duration: 200ms;
+  }
+
+  /* Disable parallax effects */
+  .background-animation {
+    transform: translateZ(0); /* Force GPU acceleration */
+    backface-visibility: hidden;
+  }
+
+  /* Optimize touch responsiveness */
+  button,
+  input,
+  a,
+  [role="button"] {
+    touch-action: manipulation; /* Disable double-tap zoom delay */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Reduce particle counts for animations */
+  .stars-layer[data-phase="climax"] .star:nth-child(n + 15) {
+    display: none; /* Hide excess particles on mobile */
+  }
+
+  /* Use simpler transitions */
+  * {
+    transition-duration: 150ms !important;
+  }
+
+  /* Exceptions for essential animations */
+  .animate-victory-flash,
+  .animate-number-roll {
+    transition-duration: var(--animation-smooth) !important;
+  }
+}
+
+/* Touch device specific optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Disable hover effects on touch devices */
+  .animate-heartbeat:hover {
+    animation-play-state: running;
+    transform: scale(1);
+  }
+
+  /* Remove hover transitions */
+  button:hover,
+  a:hover {
+    transition: none;
+  }
+
+  /* Optimize for 60fps scrolling */
+  body {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  /* Prevent text selection on interactive elements */
+  button,
+  [role="button"],
+  .clickable {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+/* Low-end device detection via media query */
+@media (max-width: 640px) and (max-height: 640px) {
+  /* Extreme performance mode for very low-end devices */
+  .no-animations *,
+  * {
+    animation-duration: 0.001ms !important;
+    transition: opacity 150ms ease-out !important;
+  }
+
+  /* Hide decorative elements */
+  .background-animation,
+  .stars-layer,
+  .parchment-layer {
+    display: none;
+  }
+}
+
+/* Prevent layout shift during animations */
+.animating {
+  contain: layout style paint;
+}
+
 /* CSS-only ripple effect styles */
 .button-ripple {
   position: relative;
   overflow: hidden;
+  will-change: transform;
 }
 
 .button-ripple::before {

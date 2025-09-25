@@ -324,3 +324,239 @@ export function getAdjustedParticleCount(baseCount: number): number {
   }
   return baseCount;
 }
+
+// ===========================
+// Animation Frame Batching
+// ===========================
+
+/**
+ * Animation batch queue for optimized frame execution
+ */
+class AnimationBatcher {
+  private readQueue: (() => void)[] = [];
+  private writeQueue: (() => void)[] = [];
+  private rafId: number | null = null;
+  private isProcessing = false;
+
+  /**
+   * Schedule a DOM read operation
+   */
+  read(callback: () => void): void {
+    this.readQueue.push(callback);
+    this.schedule();
+  }
+
+  /**
+   * Schedule a DOM write operation
+   */
+  write(callback: () => void): void {
+    this.writeQueue.push(callback);
+    this.schedule();
+  }
+
+  /**
+   * Schedule batch execution on next frame
+   */
+  private schedule(): void {
+    if (this.rafId !== null || this.isProcessing) return;
+
+    this.rafId = requestAnimationFrame(() => {
+      this.flush();
+    });
+  }
+
+  /**
+   * Execute all queued operations in optimal order
+   */
+  private flush(): void {
+    this.isProcessing = true;
+    this.rafId = null;
+
+    // Execute all reads first (to avoid layout thrashing)
+    const reads = [...this.readQueue];
+    this.readQueue = [];
+    reads.forEach((callback) => callback());
+
+    // Then execute all writes
+    const writes = [...this.writeQueue];
+    this.writeQueue = [];
+    writes.forEach((callback) => callback());
+
+    this.isProcessing = false;
+
+    // If new operations were queued during execution, schedule again
+    if (this.readQueue.length > 0 || this.writeQueue.length > 0) {
+      this.schedule();
+    }
+  }
+
+  /**
+   * Cancel all pending operations
+   */
+  cancel(): void {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    this.readQueue = [];
+    this.writeQueue = [];
+    this.isProcessing = false;
+  }
+}
+
+// Global animation batcher instance
+export const animationBatcher = new AnimationBatcher();
+
+/**
+ * Batch multiple animations for optimal performance
+ */
+export function batchAnimations(
+  animations: Array<{
+    element: HTMLElement;
+    properties: Partial<CSSStyleDeclaration>;
+    options?: {
+      duration?: number;
+      delay?: number;
+      easing?: string;
+      onComplete?: () => void;
+    };
+  }>,
+): void {
+  // Read all current styles first
+  const initialStyles: Map<HTMLElement, CSSStyleDeclaration> = new Map();
+
+  animationBatcher.read(() => {
+    animations.forEach(({ element }) => {
+      initialStyles.set(element, window.getComputedStyle(element));
+    });
+  });
+
+  // Then write all changes in a single batch
+  animationBatcher.write(() => {
+    animations.forEach(({ element, properties, options = {} }) => {
+      const {
+        duration = ANIMATION_DURATION.NORMAL,
+        delay = 0,
+        easing = ANIMATION_EASING.SMOOTH,
+        onComplete,
+      } = options;
+
+      // Apply will-change for properties being animated
+      const animatedProps = Object.keys(properties)
+        .filter((prop) =>
+          ANIMATION_PERFORMANCE.GPU_ACCELERATED.includes(
+            prop as (typeof ANIMATION_PERFORMANCE.GPU_ACCELERATED)[number],
+          ),
+        )
+        .join(", ");
+
+      if (animatedProps) {
+        element.style.willChange = animatedProps;
+      }
+
+      // Set transition
+      element.style.transition = `all ${duration}ms ${easing} ${delay}ms`;
+
+      // Apply properties
+      Object.assign(element.style, properties);
+
+      // Clean up after animation
+      if (onComplete || animatedProps) {
+        setTimeout(() => {
+          if (animatedProps) {
+            element.style.willChange = "auto";
+          }
+          onComplete?.();
+        }, duration + delay);
+      }
+    });
+  });
+}
+
+/**
+ * Create a staggered animation sequence with batching
+ */
+export function createStaggeredSequence(
+  elements: HTMLElement[],
+  properties: Partial<CSSStyleDeclaration>,
+  options: {
+    staggerDelay?: number;
+    duration?: number;
+    easing?: string;
+    onComplete?: () => void;
+    onItemComplete?: (index: number) => void;
+  } = {},
+): () => void {
+  const {
+    staggerDelay = ANIMATION_DELAY.STAGGER_NORMAL,
+    duration = ANIMATION_DURATION.NORMAL,
+    easing = ANIMATION_EASING.SMOOTH,
+    onComplete,
+    onItemComplete,
+  } = options;
+
+  const animations = elements.map((element, index) => ({
+    element,
+    properties,
+    options: {
+      duration,
+      delay: index * staggerDelay,
+      easing,
+      onComplete: () => onItemComplete?.(index),
+    },
+  }));
+
+  batchAnimations(animations);
+
+  // Handle sequence completion
+  const totalDuration = duration + (elements.length - 1) * staggerDelay;
+  const timeoutId = setTimeout(() => {
+    onComplete?.();
+  }, totalDuration);
+
+  // Return cancel function
+  return () => {
+    clearTimeout(timeoutId);
+    animationBatcher.cancel();
+  };
+}
+
+/**
+ * Animate multiple elements in parallel with batching
+ */
+export function animateParallel(
+  animations: Array<{
+    element: HTMLElement;
+    from: Partial<CSSStyleDeclaration>;
+    to: Partial<CSSStyleDeclaration>;
+    duration?: number;
+    easing?: string;
+  }>,
+  onComplete?: () => void,
+): void {
+  // First frame: set initial states
+  animationBatcher.write(() => {
+    animations.forEach(({ element, from }) => {
+      Object.assign(element.style, from);
+    });
+  });
+
+  // Next frame: trigger animations
+  requestAnimationFrame(() => {
+    batchAnimations(
+      animations.map(({ element, to, duration, easing }) => ({
+        element,
+        properties: to,
+        options: { duration, easing },
+      })),
+    );
+
+    // Call onComplete after longest animation
+    if (onComplete) {
+      const maxDuration = Math.max(
+        ...animations.map(({ duration = ANIMATION_DURATION.NORMAL }) => duration),
+      );
+      setTimeout(onComplete, maxDuration);
+    }
+  });
+}
