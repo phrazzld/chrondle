@@ -246,7 +246,7 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
           />
         </FadeUp>
 
-        <main className="flex flex-1 flex-col">
+        <main id="main-content" className="flex flex-1 flex-col" tabIndex={-1}>
           {!gameLogic.isLoading && gameLogic.error && (
             <div className="flex flex-1 items-center justify-center p-4">
               <div className="bg-destructive/10 text-destructive max-w-md rounded-lg p-6 text-center">

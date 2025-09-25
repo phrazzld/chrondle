@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/toaster";
+import { SkipLinks } from "@/components/ui/SkipLinks";
 import "./globals.css";
 
 export const viewport = {
@@ -48,6 +49,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
+        <SkipLinks />
         <Providers>{children}</Providers>
         <Toaster />
       </body>

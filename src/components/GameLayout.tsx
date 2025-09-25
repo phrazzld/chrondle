@@ -123,13 +123,15 @@ export function GameLayout(props: GameLayoutProps) {
 
           {/* Guess Input - Below current hint */}
           {!isGameComplete && (
-            <GuessInput
-              onGuess={onGuess}
-              disabled={isGameComplete || isLoading}
-              isLoading={isLoading}
-              remainingGuesses={remainingGuesses}
-              onValidationError={onValidationError}
-            />
+            <div id="game-controls" tabIndex={-1}>
+              <GuessInput
+                onGuess={onGuess}
+                disabled={isGameComplete || isLoading}
+                isLoading={isLoading}
+                remainingGuesses={remainingGuesses}
+                onValidationError={onValidationError}
+              />
+            </div>
           )}
 
           {/* Timeline - Shows after first guess */}

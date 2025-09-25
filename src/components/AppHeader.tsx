@@ -67,7 +67,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     previousStreakRef.current = currentStreak;
   }, [currentStreak, milestones]);
   return (
-    <header className="border-border bg-card w-full border-b py-4">
+    <header id="navigation" className="border-border bg-card w-full border-b py-4" tabIndex={-1}>
       <div className="mx-auto max-w-2xl px-6 sm:px-0">
         <div className="flex min-h-[40px] items-center justify-between">
           {/* Logo/Brand - Clean and uncluttered */}
