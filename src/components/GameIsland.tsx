@@ -31,6 +31,7 @@ import {
   BackgroundAnimation,
 } from "@/components/LazyComponents";
 import { ConfettiRef } from "@/components/magicui/confetti";
+import { FadeUp } from "@/components/ui/FadeUp";
 import { GameErrorBoundary } from "@/components/GameErrorBoundary";
 
 // Lazy load AnalyticsDashboard for development/debug mode only
@@ -163,6 +164,9 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
     handleGameOver,
   ]);
 
+  // Victory flash animation state
+  const [showVictoryFlash, setShowVictoryFlash] = useState(false);
+
   // Victory confetti effect
   useVictoryConfetti(confettiRef, {
     hasWon: gameLogic.hasWon,
@@ -170,6 +174,23 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
     isMounted: hydrated,
     guessCount: gameLogic.gameState.guesses.length,
   });
+
+  // Trigger victory flash when user wins
+  useEffect(() => {
+    if (
+      gameLogic.hasWon &&
+      gameLogic.isGameComplete &&
+      hydrated &&
+      gameLogic.gameState.guesses.length > 0
+    ) {
+      setShowVictoryFlash(true);
+      // Remove the class after animation completes
+      const timer = setTimeout(() => {
+        setShowVictoryFlash(false);
+      }, 800); // Match animation duration
+      return () => clearTimeout(timer);
+    }
+  }, [gameLogic.hasWon, gameLogic.isGameComplete, hydrated, gameLogic.gameState.guesses.length]);
 
   // Track last guess count for screen reader announcements
   const [screenReaderLastGuessCount, setScreenReaderLastGuessCount] = useState(0);
@@ -207,7 +228,7 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
   return (
     <GameErrorBoundary>
       <div
-        className={`bg-background text-foreground flex min-h-screen flex-col ${hydrated ? "hydrated" : "ssr"}`}
+        className={`bg-background text-foreground flex min-h-screen flex-col ${hydrated ? "hydrated" : "ssr"} ${showVictoryFlash ? "animate-victory-flash" : ""}`}
       >
         <Suspense fallback={null}>
           <BackgroundAnimation
@@ -217,13 +238,15 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
           />
         </Suspense>
 
-        <AppHeader
-          currentStreak={streakData.currentStreak}
-          isDebugMode={debugMode}
-          puzzleNumber={puzzleNumber}
-        />
+        <FadeUp delay={0} duration={0.4}>
+          <AppHeader
+            currentStreak={streakData.currentStreak}
+            isDebugMode={debugMode}
+            puzzleNumber={puzzleNumber}
+          />
+        </FadeUp>
 
-        <main className="flex flex-1 flex-col">
+        <main id="main-content" className="flex flex-1 flex-col" tabIndex={-1}>
           {!gameLogic.isLoading && gameLogic.error && (
             <div className="flex flex-1 items-center justify-center p-4">
               <div className="bg-destructive/10 text-destructive max-w-md rounded-lg p-6 text-center">
@@ -254,7 +277,9 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
           )}
         </main>
 
-        <Footer />
+        <FadeUp delay={0.6} duration={0.4}>
+          <Footer />
+        </FadeUp>
 
         {/* Modals with Suspense boundaries */}
         <LazyModalWrapper>

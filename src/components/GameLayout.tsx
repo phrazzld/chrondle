@@ -6,9 +6,9 @@ import { CurrentHintCard } from "@/components/CurrentHintCard";
 import { GuessInput } from "@/components/GuessInput";
 import { Timeline } from "@/components/Timeline";
 import { ProximityDisplay } from "@/components/ui/ProximityDisplay";
-import { GameProgress } from "@/components/GameProgress";
 import { HintsDisplay } from "@/components/HintsDisplay";
 import { Confetti, ConfettiRef } from "@/components/magicui/confetti";
+import { FadeUpStagger } from "@/components/ui/FadeUp";
 import { validateGameLayoutProps } from "@/lib/propValidation";
 
 export interface GameLayoutProps {
@@ -84,13 +84,17 @@ export function GameLayout(props: GameLayoutProps) {
   const targetYear = gameState.puzzle?.year || 0;
 
   return (
-    <div className="flex-1 flex flex-col bg-background">
+    <div className="bg-background flex flex-1 flex-col">
       {/* Optional header content */}
       {headerContent && <div>{headerContent}</div>}
 
       {/* Main game content */}
-      <main className="flex-1 px-4 py-6 overflow-auto">
-        <div className="max-w-2xl mx-auto w-full space-y-6">
+      <main className="flex-1 overflow-auto px-4 py-6">
+        <FadeUpStagger
+          className="mx-auto w-full max-w-2xl space-y-6"
+          staggerDelay={0.05}
+          containerDelay={0.1}
+        >
           {/* Game Instructions - Always at top */}
           <GameInstructions
             isGameComplete={isGameComplete}
@@ -105,25 +109,29 @@ export function GameLayout(props: GameLayoutProps) {
           />
 
           {/* Current Hint Card - Above input for mobile visibility */}
-          {!isGameComplete && gameState.puzzle && (
+          {gameState.puzzle && (
             <CurrentHintCard
               event={gameState.puzzle.events[currentHintIndex] || null}
               hintNumber={currentHintIndex + 1}
               totalHints={gameState.puzzle.events.length}
+              guessCount={gameState.guesses.length}
               isLoading={isLoading}
               error={error}
+              hasWon={hasWon}
             />
           )}
 
           {/* Guess Input - Below current hint */}
           {!isGameComplete && (
-            <GuessInput
-              onGuess={onGuess}
-              disabled={isGameComplete || isLoading}
-              isLoading={isLoading}
-              remainingGuesses={remainingGuesses}
-              onValidationError={onValidationError}
-            />
+            <div id="game-controls" tabIndex={-1}>
+              <GuessInput
+                onGuess={onGuess}
+                disabled={isGameComplete || isLoading}
+                isLoading={isLoading}
+                remainingGuesses={remainingGuesses}
+                onValidationError={onValidationError}
+              />
+            </div>
           )}
 
           {/* Timeline - Shows after first guess */}
@@ -149,12 +157,6 @@ export function GameLayout(props: GameLayoutProps) {
             />
           )}
 
-          {/* Game Progress - Always visible */}
-          <GameProgress
-            guessCount={gameState.guesses.length}
-            totalHints={gameState.puzzle?.events.length || 6}
-          />
-
           {/* Hints Display - Always at bottom */}
           <HintsDisplay
             events={gameState.puzzle?.events || []}
@@ -163,7 +165,7 @@ export function GameLayout(props: GameLayoutProps) {
             isGameComplete={isGameComplete}
             error={error}
           />
-        </div>
+        </FadeUpStagger>
       </main>
 
       {/* Optional footer content */}
@@ -173,7 +175,7 @@ export function GameLayout(props: GameLayoutProps) {
       {confettiRef && (
         <Confetti
           ref={confettiRef}
-          className="fixed inset-0 z-50 pointer-events-none"
+          className="pointer-events-none fixed inset-0 z-50"
           style={{
             width: "100%",
             height: "100%",

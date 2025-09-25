@@ -1,21 +1,74 @@
 "use client";
 
-import React from "react";
+import React, { useMemo, useRef, useEffect } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { LoadingDots } from "@/components/ui/LoadingDots";
 import { HintText } from "@/components/ui/HintText";
+import { SkeletonHintCard } from "@/components/ui/Skeleton";
 
 interface CurrentHintCardProps {
   event: string | null;
   hintNumber: number;
   totalHints: number;
+  guessCount: number;
   isLoading: boolean;
   error: string | null;
+  hasWon?: boolean;
 }
 
+// Component for animated hint text with stagger effect
+const AnimatedHintText: React.FC<{ text: string; shouldReduceMotion: boolean | null }> = ({
+  text,
+  shouldReduceMotion,
+}) => {
+  const words = useMemo(() => text.split(" "), [text]);
+
+  if (shouldReduceMotion) {
+    return (
+      <HintText className="font-body text-foreground text-left text-base leading-relaxed sm:text-lg">
+        {text}
+      </HintText>
+    );
+  }
+
+  return (
+    <div className="font-body text-foreground text-left text-base leading-relaxed sm:text-lg">
+      {words.map((word, index) => (
+        <motion.span
+          key={`${word}-${index}`}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.3,
+            delay: index * 0.03, // 30ms delay per word
+            ease: "easeOut",
+          }}
+          className="mr-1 inline-block"
+        >
+          {word}
+        </motion.span>
+      ))}
+    </div>
+  );
+};
+
 export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
-  ({ event, hintNumber, totalHints, isLoading, error }) => {
+  ({ event, hintNumber, totalHints, guessCount, isLoading, error, hasWon = false }) => {
     const shouldReduceMotion = useReducedMotion();
+    const prevGuessCountRef = useRef(guessCount);
+    const justFilledIndices = useRef<Set<number>>(new Set());
+
+    // Track which dots were just filled
+    useEffect(() => {
+      if (guessCount > prevGuessCountRef.current) {
+        // New guess was made, mark the newly filled dots
+        justFilledIndices.current = new Set();
+        for (let i = prevGuessCountRef.current; i < guessCount; i++) {
+          justFilledIndices.current.add(i);
+        }
+      }
+      prevGuessCountRef.current = guessCount;
+    }, [guessCount]);
 
     // Don't render if we have an error
     if (error) {
@@ -39,28 +92,91 @@ export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
         }}
         className="w-full"
       >
-        <div className="py-3 px-4 rounded-lg border border-border/70 bg-muted/30 shadow-md shadow-primary/5 hover:shadow-lg hover:shadow-primary/10 transition-shadow duration-200">
-          <div className="mb-2">
-            <h3 className="text-xs text-muted-foreground uppercase font-accent tracking-wide flex items-center gap-2">
-              <span className="inline-flex w-5 h-5 rounded-full bg-primary/10 text-primary items-center justify-center text-[10px] font-bold">
-                {hintNumber}
+        <div className="border-border/70 bg-muted/30 shadow-primary/5 hover:shadow-primary/10 hint-card-hover rounded-lg border px-4 py-3 shadow-md">
+          <div className="mb-2 flex items-center justify-between">
+            <h3 className="text-muted-foreground font-accent text-xs tracking-wide uppercase">
+              <span className="font-mono">
+                HINT {hintNumber} OF {totalHints}
               </span>
-              Hint {hintNumber} of {totalHints}
             </h3>
+            {/* Progress dots */}
+            <div
+              className="flex items-center gap-1"
+              aria-label={`${totalHints - guessCount} guesses remaining`}
+            >
+              {Array.from({ length: totalHints }, (_, i) => {
+                const isFilled = i < guessCount;
+                const isJustFilled = justFilledIndices.current.has(i);
+
+                return (
+                  <motion.div
+                    key={i}
+                    className="h-2.5 w-2.5 rounded-full"
+                    initial={false}
+                    animate={{
+                      scale:
+                        hasWon && !shouldReduceMotion
+                          ? [1, 1.2, 1]
+                          : isJustFilled && !shouldReduceMotion
+                            ? [0, 1.1, 1.0]
+                            : 1.0,
+                      backgroundColor: hasWon
+                        ? "rgb(34 197 94)" // green-500
+                        : isFilled
+                          ? "rgb(113 113 122 / 0.5)"
+                          : "rgb(var(--primary))",
+                      borderColor: hasWon ? "rgb(34 197 94)" : "rgb(var(--primary) / 0.2)",
+                    }}
+                    transition={{
+                      scale: {
+                        duration: hasWon ? 0.4 : 0.3,
+                        delay: hasWon ? i * 0.1 : isJustFilled ? 0.05 : 0, // Sequential delay for cascade
+                        ease: hasWon
+                          ? [0.34, 1.56, 0.64, 1] // More dramatic bounce for victory
+                          : [0.175, 0.885, 0.32, 1.275], // Regular elastic easing
+                      },
+                      backgroundColor: {
+                        duration: hasWon ? 0.3 : 0.2,
+                        delay: hasWon ? i * 0.1 : 0, // Sequential color change
+                        ease: "easeOut",
+                      },
+                      borderColor: {
+                        duration: hasWon ? 0.3 : 0.2,
+                        delay: hasWon ? i * 0.1 : 0,
+                      },
+                    }}
+                    style={{
+                      boxShadow: hasWon
+                        ? "0 0 8px rgb(34 197 94 / 0.4)"
+                        : isFilled
+                          ? "none"
+                          : "0 1px 3px rgb(0 0 0 / 0.1)",
+                      border: hasWon
+                        ? "1px solid rgb(34 197 94)"
+                        : isFilled
+                          ? "none"
+                          : "1px solid rgb(var(--primary) / 0.2)",
+                    }}
+                    onAnimationComplete={() => {
+                      // Clear the just-filled flag after animation
+                      if (isJustFilled) {
+                        justFilledIndices.current.delete(i);
+                      }
+                    }}
+                  />
+                );
+              })}
+            </div>
           </div>
 
           {isLoading ? (
-            <div className="flex items-center gap-3">
-              <LoadingSpinner size="sm" />
-              <span className="text-base font-body text-muted-foreground">
-                Loading hint...
-              </span>
+            <div className="flex items-center gap-2">
+              <span className="font-body text-muted-foreground text-base">Loading hint</span>
+              <LoadingDots />
             </div>
           ) : (
             <div role="status" aria-live="polite" aria-atomic="true">
-              <HintText className="text-base sm:text-lg text-left font-body leading-relaxed text-foreground">
-                {hintText}
-              </HintText>
+              <AnimatedHintText text={hintText} shouldReduceMotion={shouldReduceMotion} />
             </div>
           )}
         </div>

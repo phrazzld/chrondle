@@ -10,8 +10,8 @@ vi.mock("@/components/magicui/text-animate", () => ({
   ),
 }));
 
-vi.mock("@/components/ui/LoadingSpinner", () => ({
-  LoadingSpinner: () => <div data-testid="loading-spinner">Loading...</div>,
+vi.mock("@/components/ui/LoadingDots", () => ({
+  LoadingDots: () => <div data-testid="loading-dots">Loading...</div>,
 }));
 
 vi.mock("@/components/ui/HintText", () => ({
@@ -22,6 +22,9 @@ vi.mock("motion/react", () => ({
   motion: {
     div: ({ children, ...props }: React.HTMLProps<HTMLDivElement>) => (
       <div {...props}>{children}</div>
+    ),
+    span: ({ children, ...props }: React.HTMLProps<HTMLSpanElement>) => (
+      <span {...props}>{children}</span>
     ),
   },
   useReducedMotion: () => false,
@@ -36,6 +39,7 @@ describe("CurrentHintCard", () => {
     event: "Sample current hint",
     hintNumber: 1,
     totalHints: 6,
+    guessCount: 0,
     isLoading: false,
     error: null as string | null,
   };
@@ -44,7 +48,7 @@ describe("CurrentHintCard", () => {
     render(<CurrentHintCard {...baseProps} />);
 
     const heading = screen.getByRole("heading", { level: 3 });
-    expect(heading.textContent).toMatch(/Hint 1 of 6/i);
+    expect(heading.textContent).toMatch(/HINT 1 OF 6/i);
   });
 
   it("announces hint text in a polite live region", () => {
@@ -52,25 +56,49 @@ describe("CurrentHintCard", () => {
 
     const status = screen.getByRole("status");
     expect(status.getAttribute("aria-live")).toBe("polite");
-    expect(screen.getByText("Sample current hint")).toBeTruthy();
+
+    // The text is split across multiple span elements due to animation
+    expect(screen.getByText("Sample")).toBeTruthy();
+    expect(screen.getByText("current")).toBeTruthy();
+    expect(screen.getByText("hint")).toBeTruthy();
   });
 
   it("shows loading state when isLoading is true", () => {
     render(<CurrentHintCard {...baseProps} isLoading={true} />);
 
-    expect(screen.getByTestId("loading-spinner")).toBeTruthy();
+    expect(screen.getByTestId("loading-dots")).toBeTruthy();
     expect(screen.getByText(/Loading hint/i)).toBeTruthy();
   });
 
   it("renders hint content with proper formatting", () => {
     render(<CurrentHintCard {...baseProps} />);
 
-    expect(screen.getByText("Sample current hint")).toBeTruthy();
+    // The text is split across multiple span elements due to animation
+    expect(screen.getByText("Sample")).toBeTruthy();
+    expect(screen.getByText("current")).toBeTruthy();
+    expect(screen.getByText("hint")).toBeTruthy();
   });
 
   it("does not render when error is present", () => {
     render(<CurrentHintCard {...baseProps} error="boom" />);
 
     expect(screen.queryByRole("heading", { level: 3 })).toBe(null);
+  });
+
+  it("displays progress dots correctly", () => {
+    const { container, rerender } = render(<CurrentHintCard {...baseProps} guessCount={2} />);
+
+    // Check that dots are rendered
+    const dotsContainer = container.querySelector('[aria-label="4 guesses remaining"]');
+    expect(dotsContainer).toBeTruthy();
+
+    // Check correct number of dots
+    const dots = dotsContainer?.querySelectorAll("div");
+    expect(dots?.length).toBe(6);
+
+    // Update guessCount and verify dots change
+    rerender(<CurrentHintCard {...baseProps} guessCount={4} />);
+    const updatedDotsContainer = container.querySelector('[aria-label="2 guesses remaining"]');
+    expect(updatedDotsContainer).toBeTruthy();
   });
 });

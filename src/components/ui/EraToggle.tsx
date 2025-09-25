@@ -11,9 +11,9 @@ const toggleContainerVariants = cva(
   {
     variants: {
       size: {
-        sm: "h-9 text-xs",
-        default: "h-10 text-sm",
-        lg: "h-12 text-base",
+        sm: "h-11 text-xs sm:h-7",
+        default: "h-11 text-sm sm:h-8",
+        lg: "h-12 text-base sm:h-10",
       },
       width: {
         auto: "w-auto",
@@ -49,9 +49,9 @@ const toggleButtonVariants = cva(
         ].join(" "),
       },
       size: {
-        sm: "h-7 min-w-[2.5rem] text-xs",
-        default: "h-8 min-w-[3rem] text-sm",
-        lg: "h-9 min-w-[3.5rem] text-base",
+        sm: "h-9 min-w-[2.5rem] text-xs sm:h-5",
+        default: "h-9 min-w-[3rem] text-sm sm:h-6",
+        lg: "h-10 min-w-[3.5rem] text-base sm:h-8",
       },
     },
     defaultVariants: {
@@ -219,7 +219,7 @@ export const EraToggleWithLabel: React.FC<{
         aria-describedby={descriptionId}
       />
       {description && (
-        <p id={descriptionId} className="text-xs text-muted-foreground">
+        <p id={descriptionId} className="text-muted-foreground text-xs">
           {description}
         </p>
       )}

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState, useEffect, useRef } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { getGuessDirectionInfo } from "@/lib/utils";
 import { NumberTicker } from "@/components/ui/NumberTicker";
 
@@ -18,12 +19,9 @@ interface GuessWithFeedback {
   direction: "earlier" | "later" | "correct";
 }
 
-export const Timeline: React.FC<TimelineProps> = ({
-  minYear,
-  maxYear,
-  guesses,
-  targetYear,
-}) => {
+export const Timeline: React.FC<TimelineProps> = ({ minYear, maxYear, guesses, targetYear }) => {
+  const shouldReduceMotion = useReducedMotion();
+
   // Display range state with simple transitions
   const [currentDisplayRange, setCurrentDisplayRange] = useState<{
     min: number;
@@ -33,6 +31,13 @@ export const Timeline: React.FC<TimelineProps> = ({
   // Track previous values for smooth animations
   const prevMinRef = useRef<number>(minYear);
   const prevMaxRef = useRef<number>(maxYear);
+
+  // Hover state for showing year
+  const [hoverInfo, setHoverInfo] = useState<{ year: number; x: number; visible: boolean } | null>(
+    null,
+  );
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const svgRef = useRef<SVGSVGElement>(null);
 
   // Calculate valid range and valid guesses
   const { validMin, validMax, validGuesses } = useMemo(() => {
@@ -73,10 +78,59 @@ export const Timeline: React.FC<TimelineProps> = ({
   // Helper function to convert year to position on timeline (using animated range)
   const getPositionX = (year: number): number => {
     const percentage =
-      (year - currentDisplayRange.min) /
-      (currentDisplayRange.max - currentDisplayRange.min);
+      (year - currentDisplayRange.min) / (currentDisplayRange.max - currentDisplayRange.min);
     return 50 + percentage * 700; // 50 to 750 on the SVG viewBox for full timeline width
   };
+
+  // Helper function to convert position to year
+  const getYearFromPosition = (x: number): number => {
+    const percentage = (x - 50) / 700;
+    const year =
+      currentDisplayRange.min + percentage * (currentDisplayRange.max - currentDisplayRange.min);
+    return Math.round(year);
+  };
+
+  // Handle mouse move on timeline
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (!svgRef.current) return;
+
+    const rect = svgRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const svgX = (x / rect.width) * 800; // Convert to SVG coordinate space
+
+    // Constrain to timeline bounds (50 to 750 in SVG space)
+    if (svgX >= 50 && svgX <= 750) {
+      const year = getYearFromPosition(svgX);
+
+      // Clear existing timeout
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+
+      // Set new timeout for 100ms delay
+      hoverTimeoutRef.current = setTimeout(() => {
+        setHoverInfo({ year, x: svgX, visible: true });
+      }, 100);
+    }
+  };
+
+  // Handle mouse leave
+  const handleMouseLeave = () => {
+    // Clear any pending timeout
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    setHoverInfo(null);
+  };
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
 
   /**
    * Initialize display range on first render
@@ -101,10 +155,7 @@ export const Timeline: React.FC<TimelineProps> = ({
     const newRange = { min: validMin, max: validMax };
 
     // Only update if values actually changed
-    if (
-      newRange.min !== currentDisplayRange.min ||
-      newRange.max !== currentDisplayRange.max
-    ) {
+    if (newRange.min !== currentDisplayRange.min || newRange.max !== currentDisplayRange.max) {
       // Capture current values as previous BEFORE updating
       prevMinRef.current = currentDisplayRange.min;
       prevMaxRef.current = currentDisplayRange.max;
@@ -114,8 +165,8 @@ export const Timeline: React.FC<TimelineProps> = ({
   }, [validMin, validMax, currentDisplayRange.min, currentDisplayRange.max]);
 
   return (
-    <div className="w-full mb-0">
-      <div className="flex items-center justify-between gap-1 sm:gap-2 px-1">
+    <div className="mb-0 w-full">
+      <div className="flex items-center justify-between gap-1 px-1 sm:gap-2">
         {/* Left bookend label */}
         <div className="min-w-0 flex-shrink-0 text-left">
           <span className="inline-flex items-baseline">
@@ -123,10 +174,10 @@ export const Timeline: React.FC<TimelineProps> = ({
               key={`min-${currentDisplayRange.min}`}
               value={Math.abs(Math.round(currentDisplayRange.min))}
               startValue={Math.abs(Math.round(prevMinRef.current))}
-              className="text-sm sm:text-sm font-bold text-blue-500/80 dark:text-blue-400/80 whitespace-nowrap"
+              className="text-sm font-bold whitespace-nowrap text-blue-500/80 sm:text-sm dark:text-blue-400/80"
               duration={800}
             />
-            <span className="text-sm sm:text-sm font-bold text-blue-500/80 dark:text-blue-400/80 ml-1">
+            <span className="ml-1 text-sm font-bold text-blue-500/80 sm:text-sm dark:text-blue-400/80">
               {currentDisplayRange.min < 0 ? "BC" : "AD"}
             </span>
           </span>
@@ -134,11 +185,42 @@ export const Timeline: React.FC<TimelineProps> = ({
 
         {/* Timeline SVG */}
         <svg
+          ref={svgRef}
           viewBox="0 25 800 50"
-          className="flex-1 h-16 sm:h-16"
+          className="h-16 flex-1 cursor-crosshair sm:h-16"
           preserveAspectRatio="xMidYMid meet"
           style={{ overflow: "hidden" }}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
         >
+          {/* Define patterns for eliminated ranges */}
+          <defs>
+            <pattern
+              id="eliminatedPattern"
+              patternUnits="userSpaceOnUse"
+              width="8"
+              height="8"
+              patternTransform="rotate(45)"
+            >
+              <line
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="8"
+                stroke="currentColor"
+                strokeWidth="0.5"
+                className="text-muted-foreground/10"
+              />
+            </pattern>
+            <linearGradient id="fadeLeft" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="currentColor" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="currentColor" stopOpacity="0.05" />
+            </linearGradient>
+            <linearGradient id="fadeRight" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="currentColor" stopOpacity="0.05" />
+              <stop offset="100%" stopColor="currentColor" stopOpacity="0.25" />
+            </linearGradient>
+          </defs>
           {/* Simple tick marks: start and end only */}
           {(() => {
             const startX = 50;
@@ -185,12 +267,153 @@ export const Timeline: React.FC<TimelineProps> = ({
             className="text-muted-foreground/50 sm:stroke-3"
           />
 
+          {/* Eliminated ranges with enhanced fade animations */}
+          {(() => {
+            const rangeStart = getPositionX(currentDisplayRange.min);
+            const rangeEnd = getPositionX(currentDisplayRange.max);
+            const showLeftEliminated = validMin > currentDisplayRange.min;
+            const showRightEliminated = validMax < currentDisplayRange.max;
+
+            return (
+              <>
+                {/* Eliminated left range */}
+                {showLeftEliminated && (
+                  <g>
+                    {/* Base gradient layer */}
+                    <motion.rect
+                      x={50}
+                      y="46"
+                      width={rangeStart - 50}
+                      height="8"
+                      fill="url(#fadeLeft)"
+                      className="text-muted-foreground"
+                      initial={shouldReduceMotion ? false : { opacity: 0 }}
+                      animate={{
+                        width: rangeStart - 50,
+                        opacity: 1,
+                      }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        width: {
+                          type: "spring",
+                          stiffness: 100,
+                          damping: 25,
+                          duration: shouldReduceMotion ? 0 : 0.3,
+                        },
+                        opacity: {
+                          duration: shouldReduceMotion ? 0 : 0.4,
+                          ease: "easeInOut",
+                        },
+                      }}
+                    />
+                    {/* Pattern overlay */}
+                    <motion.rect
+                      x={50}
+                      y="46"
+                      width={rangeStart - 50}
+                      height="8"
+                      fill="url(#eliminatedPattern)"
+                      initial={shouldReduceMotion ? false : { opacity: 0 }}
+                      animate={{
+                        width: rangeStart - 50,
+                        opacity: 0.5,
+                      }}
+                      transition={{
+                        width: {
+                          type: "spring",
+                          stiffness: 100,
+                          damping: 25,
+                          duration: shouldReduceMotion ? 0 : 0.3,
+                        },
+                        opacity: {
+                          duration: shouldReduceMotion ? 0 : 0.6,
+                          delay: 0.1,
+                          ease: "easeOut",
+                        },
+                      }}
+                    />
+                  </g>
+                )}
+
+                {/* Eliminated right range */}
+                {showRightEliminated && (
+                  <g>
+                    {/* Base gradient layer */}
+                    <motion.rect
+                      x={rangeEnd}
+                      y="46"
+                      width={750 - rangeEnd}
+                      height="8"
+                      fill="url(#fadeRight)"
+                      className="text-muted-foreground"
+                      initial={shouldReduceMotion ? false : { opacity: 0 }}
+                      animate={{
+                        x: rangeEnd,
+                        width: 750 - rangeEnd,
+                        opacity: 1,
+                      }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        x: {
+                          type: "spring",
+                          stiffness: 100,
+                          damping: 25,
+                        },
+                        width: {
+                          type: "spring",
+                          stiffness: 100,
+                          damping: 25,
+                          duration: shouldReduceMotion ? 0 : 0.3,
+                        },
+                        opacity: {
+                          duration: shouldReduceMotion ? 0 : 0.4,
+                          ease: "easeInOut",
+                        },
+                      }}
+                    />
+                    {/* Pattern overlay */}
+                    <motion.rect
+                      x={rangeEnd}
+                      y="46"
+                      width={750 - rangeEnd}
+                      height="8"
+                      fill="url(#eliminatedPattern)"
+                      initial={shouldReduceMotion ? false : { opacity: 0 }}
+                      animate={{
+                        x: rangeEnd,
+                        width: 750 - rangeEnd,
+                        opacity: 0.5,
+                      }}
+                      transition={{
+                        x: {
+                          type: "spring",
+                          stiffness: 100,
+                          damping: 25,
+                        },
+                        width: {
+                          type: "spring",
+                          stiffness: 100,
+                          damping: 25,
+                          duration: shouldReduceMotion ? 0 : 0.3,
+                        },
+                        opacity: {
+                          duration: shouldReduceMotion ? 0 : 0.6,
+                          delay: 0.1,
+                          ease: "easeOut",
+                        },
+                      }}
+                    />
+                  </g>
+                )}
+              </>
+            );
+          })()}
+
           {/* Valid guesses on timeline */}
           {validGuesses
             .filter(
               (guess) =>
-                guess.year >= currentDisplayRange.min &&
-                guess.year <= currentDisplayRange.max,
+                guess.year >= currentDisplayRange.min && guess.year <= currentDisplayRange.max,
             )
             .map((guess, index) => {
               const x = getPositionX(guess.year);
@@ -209,17 +432,78 @@ export const Timeline: React.FC<TimelineProps> = ({
               return (
                 <g key={`valid-${index}-${guess.year}`}>
                   {!isCorrect && (
-                    <circle
+                    <motion.circle
                       cx={x}
                       cy="50"
                       r="10"
                       fill="currentColor"
                       className={colorClass}
+                      initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.8 }}
+                      animate={{
+                        cx: x,
+                        opacity: 1,
+                        scale: 1,
+                      }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 100,
+                        damping: 25,
+                        duration: shouldReduceMotion ? 0 : 0.3,
+                        opacity: { duration: shouldReduceMotion ? 0 : 0.2 },
+                        scale: { duration: shouldReduceMotion ? 0 : 0.2 },
+                      }}
                     />
                   )}
                 </g>
               );
             })}
+
+          {/* Hover indicator */}
+          {hoverInfo?.visible && (
+            <g>
+              {/* Vertical line at hover position */}
+              <motion.line
+                x1={hoverInfo.x}
+                y1="40"
+                x2={hoverInfo.x}
+                y2="60"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeDasharray="4 2"
+                className="text-muted-foreground/40"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.15 }}
+              />
+
+              {/* Year label background */}
+              <motion.rect
+                x={Math.max(80, Math.min(hoverInfo.x - 30, 640))}
+                y="20"
+                width="60"
+                height="22"
+                rx="4"
+                fill="currentColor"
+                className="text-background"
+                initial={{ opacity: 0, y: 25 }}
+                animate={{ opacity: 0.95, y: 20 }}
+                transition={{ duration: 0.15 }}
+              />
+
+              {/* Year label text */}
+              <motion.text
+                x={Math.max(110, Math.min(hoverInfo.x, 670))}
+                y="35"
+                textAnchor="middle"
+                className="text-foreground fill-current text-xs font-medium"
+                initial={{ opacity: 0, y: 25 }}
+                animate={{ opacity: 1, y: 35 }}
+                transition={{ duration: 0.15 }}
+              >
+                {Math.abs(hoverInfo.year)} {hoverInfo.year < 0 ? "BC" : "AD"}
+              </motion.text>
+            </g>
+          )}
         </svg>
 
         {/* Right bookend label */}
@@ -229,10 +513,10 @@ export const Timeline: React.FC<TimelineProps> = ({
               key={`max-${currentDisplayRange.max}`}
               value={Math.abs(Math.round(currentDisplayRange.max))}
               startValue={Math.abs(Math.round(prevMaxRef.current))}
-              className="text-sm sm:text-sm font-bold text-red-500/80 dark:text-red-400/80 whitespace-nowrap"
+              className="text-sm font-bold whitespace-nowrap text-red-500/80 sm:text-sm dark:text-red-400/80"
               duration={800}
             />
-            <span className="text-sm sm:text-sm font-bold text-red-500/80 dark:text-red-400/80 ml-1">
+            <span className="ml-1 text-sm font-bold text-red-500/80 sm:text-sm dark:text-red-400/80">
               {currentDisplayRange.max < 0 ? "BC" : "AD"}
             </span>
           </span>
