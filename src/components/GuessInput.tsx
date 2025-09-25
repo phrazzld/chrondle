@@ -170,7 +170,7 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
               onChange={setEra}
               disabled={disabled}
               size="default"
-              className="bg-muted/50 h-8 border-0 shadow-none"
+              className="bg-muted/50 border-0 shadow-none"
               aria-label="Select era: BC or AD"
             />
           </div>
@@ -182,7 +182,7 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
           disabled={isSubmitDisabled}
           size="lg"
           aria-label={`Submit guess (${remainingGuesses} remaining)`}
-          className={`font-accent h-12 w-full px-8 text-lg font-semibold tracking-wide transition-all duration-200 ${
+          className={`font-accent w-full px-8 text-lg font-semibold tracking-wide transition-all duration-200 ${
             isSubmitting ? "animate-button-press bg-primary/90 shadow-lg" : "hover:bg-primary/90"
           }`}
         >

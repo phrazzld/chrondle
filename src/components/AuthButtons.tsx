@@ -24,15 +24,14 @@ export function AuthButtons() {
   // User is signed in - show user button
   if (isSignedIn) {
     return (
-      <div className="flex items-center justify-center w-10 h-10">
+      <div className="flex h-11 w-11 items-center justify-center sm:h-10 sm:w-10">
         <UserButton
           afterSignOutUrl="/"
           appearance={{
             elements: {
               avatarBox: "w-8 h-8",
               userButtonPopoverCard: "shadow-lg",
-              userButtonTrigger:
-                "focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-full",
+              userButtonTrigger: "focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-full",
             },
           }}
         />
@@ -46,7 +45,7 @@ export function AuthButtons() {
       <Button
         variant="ghost"
         size="icon"
-        className="h-10 w-10 rounded-full"
+        className="rounded-full"
         title="Sign in to save progress and access archive"
         aria-label="Sign in to your account"
       >

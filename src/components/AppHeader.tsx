@@ -142,7 +142,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               onClick={() => setShowBitcoin(true)}
               title="Support Chrondle"
               aria-label="Support Chrondle with donations"
-              className="group h-10 w-10 rounded-full transition-transform"
+              className="group rounded-full transition-transform"
             >
               <Heart className="group-hover:animate-heartbeat h-5 w-5" />
             </Button>
@@ -154,7 +154,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               asChild
               title="Browse puzzle archive"
               aria-label="Browse puzzle archive"
-              className="h-10 w-10 rounded-full"
+              className="rounded-full"
             >
               <Link href="/archive">
                 <Archive className="h-5 w-5" />

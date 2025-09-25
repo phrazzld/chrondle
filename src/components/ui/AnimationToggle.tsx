@@ -25,8 +25,13 @@ export const AnimationToggle: React.FC<AnimationToggleProps> = ({
   // Icon size based on the size prop
   const iconSize = size === "sm" ? "w-4 h-4" : size === "lg" ? "w-6 h-6" : "w-5 h-5";
 
-  // Button size based on the size prop
-  const buttonSize = size === "sm" ? "h-8 w-8" : size === "lg" ? "h-12 w-12" : "h-10 w-10";
+  // Button size based on the size prop - mobile-first with 44px minimum
+  const buttonSize =
+    size === "sm"
+      ? "h-11 w-11 sm:h-8 sm:w-8"
+      : size === "lg"
+        ? "h-12 w-12"
+        : "h-11 w-11 sm:h-10 sm:w-10";
 
   // Generate tooltip based on current state
   const getTooltip = () => {
