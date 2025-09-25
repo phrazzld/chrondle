@@ -16,8 +16,8 @@
 }
 
 .animate-heartbeat {
-  animation: heartbeat 1.5s ease-in-out infinite;
-  transition: transform 150ms ease-out;
+  animation: heartbeat 1.5s var(--easing-ease-in-out) infinite;
+  transition: transform var(--animation-quick) var(--easing-ease-out);
 }
 
 .animate-heartbeat:hover {
@@ -60,7 +60,7 @@
 }
 
 .animate-flame-flicker {
-  animation: flame-flicker 2s ease-in-out infinite;
+  animation: flame-flicker 2s var(--easing-ease-in-out) infinite;
   transform-origin: 50% 80%; /* Anchor flame at bottom */
 }
 
@@ -79,11 +79,11 @@
 
 /* Apply different animation based on streak level */
 .animate-flame-mild {
-  animation: flame-pulse 3s ease-in-out infinite;
+  animation: flame-pulse 3s var(--easing-ease-in-out) infinite;
 }
 
 .animate-flame-hot {
-  animation: flame-flicker 1.5s ease-in-out infinite;
+  animation: flame-flicker 1.5s var(--easing-ease-in-out) infinite;
 }
 
 /* Number roll animation for streak increment */
@@ -115,7 +115,7 @@
 }
 
 .animate-number-roll {
-  animation: number-roll 600ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: number-roll var(--animation-streak-roll) var(--easing-spring);
   display: inline-block;
 }
 
@@ -130,7 +130,7 @@
 .no-animations button,
 .no-animations a,
 .no-animations input {
-  transition: opacity 150ms ease-out !important;
+  transition: opacity var(--animation-quick) var(--easing-ease-out) !important;
 }
 
 /* ========== REDUCED MOTION SUPPORT ========== */
@@ -158,7 +158,7 @@
   .dot-victory-cascade,
   .animate-input-pulse,
   .animate-victory-flash {
-    animation: fade-in 300ms ease-out !important;
+    animation: fade-in var(--animation-smooth) var(--easing-ease-out) !important;
   }
 
   /* Disable hover animations */
@@ -185,7 +185,7 @@
   a,
   input,
   .transition-opacity {
-    transition: opacity 150ms ease-out !important;
+    transition: opacity var(--animation-quick) var(--easing-ease-out) !important;
   }
 }
 
@@ -222,11 +222,11 @@
 }
 
 .animate-milestone-pulse {
-  animation: milestone-pulse 1s ease-out 3; /* Pulse 3 times */
+  animation: milestone-pulse 1s var(--easing-ease-out) 3; /* Pulse 3 times */
 }
 
 .animate-milestone-pulse-gold {
-  animation: milestone-pulse-gold 1.2s ease-out 3; /* Pulse 3 times, slightly slower */
+  animation: milestone-pulse-gold 1.2s var(--easing-ease-out) 3; /* Pulse 3 times, slightly slower */
 }
 
 /* Submit button press animation */
@@ -243,7 +243,7 @@
 }
 
 .animate-button-press {
-  animation: button-press 150ms ease-out;
+  animation: button-press var(--animation-quick) var(--easing-ease-out);
 }
 
 /* Victory cascade animation for progress dots */
@@ -283,7 +283,7 @@
 }
 
 .animate-input-pulse {
-  animation: input-pulse 300ms ease-out;
+  animation: input-pulse var(--animation-smooth) var(--easing-ease-out);
 }
 
 /* Victory screen flash animation */
@@ -306,12 +306,12 @@
 }
 
 .animate-victory-flash {
-  animation: victory-flash 800ms ease-out;
+  animation: victory-flash var(--animation-long-celebrate) var(--easing-ease-out);
 }
 
 /* Dark mode victory flash - reduced intensity */
 .dark .animate-victory-flash {
-  animation: victory-flash-dark 800ms ease-out;
+  animation: victory-flash-dark var(--animation-long-celebrate) var(--easing-ease-out);
 }
 
 @keyframes victory-flash-dark {
@@ -352,7 +352,7 @@ a:focus-visible,
 [tabindex]:not([tabindex="-1"]):focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
-  transition: outline-color 150ms ease-out;
+  transition: outline-color var(--animation-quick) var(--easing-ease-out);
 }
 
 /* Input and form control focus styles */
@@ -363,8 +363,8 @@ select:focus-visible {
   border-color: var(--ring);
   box-shadow: 0 0 0 3px oklch(from var(--ring) l c h / 0.2);
   transition:
-    box-shadow 150ms ease-out,
-    border-color 150ms ease-out;
+    box-shadow var(--animation-quick) var(--easing-ease-out),
+    border-color var(--animation-quick) var(--easing-ease-out);
 }
 
 /* Card and container focus styles */
@@ -762,6 +762,57 @@ svg:hover,
   --color-3: oklch(69.6% 0.165 251);
   --color-4: oklch(80.2% 0.134 225);
   --color-5: oklch(90.7% 0.231 133);
+
+  /* ========== ANIMATION DURATIONS ========== */
+  /* Centralized timing values for consistent animations */
+
+  /* Micro interactions (100-200ms) */
+  --animation-instant: 100ms;
+  --animation-quick: 150ms;
+  --animation-fast: 200ms;
+
+  /* State transitions (200-300ms) */
+  --animation-normal: 250ms;
+  --animation-smooth: 300ms;
+
+  /* Page transitions (300-500ms) */
+  --animation-medium: 400ms;
+  --animation-slow: 500ms;
+
+  /* Celebrations (500-1000ms) */
+  --animation-celebrate: 600ms;
+  --animation-long-celebrate: 800ms;
+  --animation-epic: 1000ms;
+
+  /* Special animations */
+  --animation-confetti: 5000ms;
+  --animation-victory-flash: 600ms;
+  --animation-streak-roll: 600ms;
+  --animation-milestone-pulse: 3600ms; /* 3 pulses at 1.2s each */
+
+  /* ========== ANIMATION EASINGS ========== */
+  /* Standard easing functions for smooth motion */
+  --easing-linear: linear;
+  --easing-ease: ease;
+  --easing-ease-in: ease-in;
+  --easing-ease-out: ease-out;
+  --easing-ease-in-out: ease-in-out;
+
+  /* Custom cubic-bezier easings */
+  --easing-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --easing-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --easing-sharp: cubic-bezier(0.4, 0, 0.6, 1);
+
+  /* ========== ANIMATION DELAYS ========== */
+  /* Stagger and cascade timing */
+  --stagger-quick: 30ms;
+  --stagger-normal: 50ms;
+  --stagger-slow: 100ms;
+  --cascade-quick: 150ms;
+  --cascade-normal: 200ms;
+  --cascade-slow: 300ms;
+  --word-stagger: 30ms;
 }
 
 /* Dark mode activated by .dark class */

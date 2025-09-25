@@ -101,7 +101,7 @@
 
 - [x] Create `src/lib/animations.ts` for shared animation constants
 - [x] Implement animation hook `useAnimation()` for consistent timing
-- [ ] Add CSS custom properties for animation durations in globals.css
+- [x] Add CSS custom properties for animation durations in globals.css
 - [ ] Create Storybook stories for animated components
 
 ### Performance Optimization
