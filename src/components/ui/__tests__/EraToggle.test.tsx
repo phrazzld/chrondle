@@ -145,9 +145,7 @@ describe("EraToggle", () => {
     });
 
     it("does not change when pressing arrow keys at boundaries", () => {
-      const { rerender } = render(
-        <EraToggle value="BC" onChange={mockOnChange} />,
-      );
+      const { rerender } = render(<EraToggle value="BC" onChange={mockOnChange} />);
 
       const container = screen.getByRole("radiogroup");
 
@@ -237,9 +235,7 @@ describe("EraToggle", () => {
     });
 
     it("updates aria-checked attributes correctly", () => {
-      const { rerender } = render(
-        <EraToggle value="BC" onChange={mockOnChange} />,
-      );
+      const { rerender } = render(<EraToggle value="BC" onChange={mockOnChange} />);
 
       const bcButton = screen.getByRole("radio", { name: /BC/i });
       const adButton = screen.getByRole("radio", { name: /AD/i });
@@ -266,21 +262,13 @@ describe("EraToggle", () => {
     it("supports aria-describedby for additional context", () => {
       render(
         <>
-          <EraToggle
-            value="BC"
-            onChange={mockOnChange}
-            aria-describedby="era-description"
-          />
-          <p id="era-description">
-            Choose between BC (Before Christ) or AD (Anno Domini)
-          </p>
+          <EraToggle value="BC" onChange={mockOnChange} aria-describedby="era-description" />
+          <p id="era-description">Choose between BC (Before Christ) or AD (Anno Domini)</p>
         </>,
       );
 
       const container = screen.getByRole("radiogroup");
-      expect(container.getAttribute("aria-describedby")).toBe(
-        "era-description",
-      );
+      expect(container.getAttribute("aria-describedby")).toBe("era-description");
     });
   });
 
@@ -290,10 +278,10 @@ describe("EraToggle", () => {
         <EraToggle value="BC" onChange={mockOnChange} size="sm" />,
       );
 
-      expect(container.querySelector(".h-9")).toBeTruthy();
+      expect(container.querySelector(".h-7")).toBeTruthy();
 
       rerender(<EraToggle value="BC" onChange={mockOnChange} size="lg" />);
-      expect(container.querySelector(".h-12")).toBeTruthy();
+      expect(container.querySelector(".h-10")).toBeTruthy();
     });
 
     it("applies width variant classes", () => {
@@ -309,11 +297,7 @@ describe("EraToggle", () => {
 
     it("applies custom className", () => {
       const { container } = render(
-        <EraToggle
-          value="BC"
-          onChange={mockOnChange}
-          className="custom-class"
-        />,
+        <EraToggle value="BC" onChange={mockOnChange} className="custom-class" />,
       );
 
       expect(container.querySelector(".custom-class")).toBeTruthy();
@@ -333,9 +317,7 @@ describe("EraToggle", () => {
     });
 
     it("switches visual states when value changes", () => {
-      const { rerender } = render(
-        <EraToggle value="BC" onChange={mockOnChange} />,
-      );
+      const { rerender } = render(<EraToggle value="BC" onChange={mockOnChange} />);
 
       const bcButton = screen.getByRole("radio", { name: /BC/i });
       const adButton = screen.getByRole("radio", { name: /AD/i });
@@ -352,13 +334,7 @@ describe("EraToggle", () => {
 
   describe("EraToggleWithLabel", () => {
     it("renders with label", () => {
-      render(
-        <EraToggleWithLabel
-          value="BC"
-          onChange={mockOnChange}
-          label="Select Era"
-        />,
-      );
+      render(<EraToggleWithLabel value="BC" onChange={mockOnChange} label="Select Era" />);
 
       expect(screen.getByText("Select Era")).toBeTruthy();
     });
@@ -394,14 +370,7 @@ describe("EraToggle", () => {
     });
 
     it("passes through all props to EraToggle", () => {
-      render(
-        <EraToggleWithLabel
-          value="AD"
-          onChange={mockOnChange}
-          disabled
-          size="lg"
-        />,
-      );
+      render(<EraToggleWithLabel value="AD" onChange={mockOnChange} disabled size="lg" />);
 
       const bcButton = screen.getByRole("radio", {
         name: /BC/i,

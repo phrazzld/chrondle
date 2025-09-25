@@ -7,13 +7,7 @@ describe("GuessInput Button Width Consistency", () => {
   const mockOnGuess = vi.fn();
 
   it("maintains consistent button width when text changes from 'Guess' to 'Guessing...'", async () => {
-    render(
-      <GuessInput
-        onGuess={mockOnGuess}
-        disabled={false}
-        remainingGuesses={6}
-      />,
-    );
+    render(<GuessInput onGuess={mockOnGuess} disabled={false} remainingGuesses={6} />);
 
     const button = screen.getByRole("button");
     const input = screen.getByRole("textbox");
@@ -36,8 +30,7 @@ describe("GuessInput Button Width Consistency", () => {
     });
 
     // Button should have the animation classes during submission
-    expect(button.className).toContain("scale-105");
-    expect(button.className).toContain("animate-pulse");
+    expect(button.className).toContain("animate-button-press");
 
     // After submission completes (150ms), button should return to "Guess"
     await waitFor(
@@ -53,11 +46,7 @@ describe("GuessInput Button Width Consistency", () => {
 
   it("button text changes correctly for different states", () => {
     const { rerender } = render(
-      <GuessInput
-        onGuess={mockOnGuess}
-        disabled={false}
-        remainingGuesses={6}
-      />,
+      <GuessInput onGuess={mockOnGuess} disabled={false} remainingGuesses={6} />,
     );
 
     let button = screen.getByRole("button");
@@ -65,49 +54,28 @@ describe("GuessInput Button Width Consistency", () => {
 
     // Test loading state
     rerender(
-      <GuessInput
-        onGuess={mockOnGuess}
-        disabled={false}
-        remainingGuesses={6}
-        isLoading={true}
-      />,
+      <GuessInput onGuess={mockOnGuess} disabled={false} remainingGuesses={6} isLoading={true} />,
     );
     button = screen.getByRole("button");
     expect(button.textContent).toBe("Loading game...");
 
     // Test disabled state (game over)
     rerender(
-      <GuessInput
-        onGuess={mockOnGuess}
-        disabled={true}
-        remainingGuesses={0}
-        isLoading={false}
-      />,
+      <GuessInput onGuess={mockOnGuess} disabled={true} remainingGuesses={0} isLoading={false} />,
     );
     button = screen.getByRole("button");
     expect(button.textContent).toBe("Game Over");
 
     // Test no guesses remaining
     rerender(
-      <GuessInput
-        onGuess={mockOnGuess}
-        disabled={false}
-        remainingGuesses={0}
-        isLoading={false}
-      />,
+      <GuessInput onGuess={mockOnGuess} disabled={false} remainingGuesses={0} isLoading={false} />,
     );
     button = screen.getByRole("button");
     expect(button.textContent).toBe("No guesses remaining");
   });
 
   it("button maintains full width", () => {
-    render(
-      <GuessInput
-        onGuess={mockOnGuess}
-        disabled={false}
-        remainingGuesses={6}
-      />,
-    );
+    render(<GuessInput onGuess={mockOnGuess} disabled={false} remainingGuesses={6} />);
 
     const button = screen.getByRole("button");
 
