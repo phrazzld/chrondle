@@ -40,13 +40,13 @@ describe("CurrentHintCard", () => {
     error: null as string | null,
   };
 
-  it("renders guesses remaining indicator", () => {
+  it("renders hint counter", () => {
     render(<CurrentHintCard {...baseProps} />);
 
-    const guessesText = screen.getByText(/guesses remaining:/i);
-    expect(guessesText).toBeTruthy();
-    // With hint 1, there are 6 remaining guesses
-    const container = screen.getByLabelText("6 guesses remaining");
+    const hintText = screen.getByText("Hint 1 of 6");
+    expect(hintText).toBeTruthy();
+    // The aria-label includes both hint number and guesses remaining
+    const container = screen.getByLabelText("Hint 1 of 6. 6 guesses remaining");
     expect(container).toBeTruthy();
   });
 
@@ -74,6 +74,6 @@ describe("CurrentHintCard", () => {
   it("does not render when error is present", () => {
     render(<CurrentHintCard {...baseProps} error="boom" />);
 
-    expect(screen.queryByText(/guesses remaining:/i)).toBe(null);
+    expect(screen.queryByText(/Hint \d+ of \d+/)).toBe(null);
   });
 });
