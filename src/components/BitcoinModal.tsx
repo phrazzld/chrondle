@@ -3,14 +3,10 @@
 import { useState, useEffect } from "react";
 import QRCode from "qrcode";
 import { Network, validate } from "bitcoin-address-validation";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Copy, Check } from "lucide-react";
+import { ANIMATION_DURATIONS } from "@/lib/animationConstants";
 
 interface BitcoinModalProps {
   open: boolean;
@@ -25,18 +21,13 @@ const resolvedAddress = (() => {
   }
 
   if (!validate(value, Network.mainnet)) {
-    throw new Error(
-      "NEXT_PUBLIC_BITCOIN_ADDRESS must be a valid mainnet address",
-    );
+    throw new Error("NEXT_PUBLIC_BITCOIN_ADDRESS must be a valid mainnet address");
   }
 
   return value;
 })();
 
-export default function BitcoinModal({
-  open,
-  onOpenChange,
-}: BitcoinModalProps) {
+export default function BitcoinModal({ open, onOpenChange }: BitcoinModalProps) {
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
   const [copied, setCopied] = useState(false);
 
@@ -61,7 +52,7 @@ export default function BitcoinModal({
     try {
       await navigator.clipboard.writeText(address);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(false), ANIMATION_DURATIONS.COPY_FEEDBACK);
     } catch (error) {
       console.error("Failed to copy address:", error);
     }
@@ -75,44 +66,30 @@ export default function BitcoinModal({
         </DialogHeader>
 
         <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Your tips keep Chrondle free, ad-free, and full of fresh puzzles.
-            Thanks for playing!
+          <p className="text-muted-foreground text-sm">
+            Your tips keep Chrondle free, ad-free, and full of fresh puzzles. Thanks for playing!
           </p>
 
           {qrDataUrl && (
-            <div className="flex justify-center my-6">
-              <img
-                src={qrDataUrl}
-                alt="Bitcoin QR code"
-                className="w-48 h-48"
-              />
+            <div className="my-6 flex justify-center">
+              <img src={qrDataUrl} alt="Bitcoin QR code" className="h-48 w-48" />
             </div>
           )}
 
           <div>
-            <p className="text-sm text-muted-foreground mb-2">
-              Bitcoin Address
-            </p>
-            <code className="block text-xs break-all bg-muted p-3 rounded">
-              {address}
-            </code>
+            <p className="text-muted-foreground mb-2 text-sm">Bitcoin Address</p>
+            <code className="bg-muted block rounded p-3 text-xs break-all">{address}</code>
           </div>
 
-          <Button
-            onClick={handleCopy}
-            variant="outline"
-            size="sm"
-            className="w-full"
-          >
+          <Button onClick={handleCopy} variant="outline" size="sm" className="w-full">
             {copied ? (
               <>
-                <Check className="h-4 w-4 mr-2" />
+                <Check className="mr-2 h-4 w-4" />
                 Copied!
               </>
             ) : (
               <>
-                <Copy className="h-4 w-4 mr-2" />
+                <Copy className="mr-2 h-4 w-4" />
                 Copy Address
               </>
             )}

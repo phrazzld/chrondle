@@ -7,6 +7,7 @@ import { EraToggle } from "@/components/ui/EraToggle";
 import { validateGuessInputProps } from "@/lib/propValidation";
 import type { Era } from "@/lib/eraUtils";
 import { convertToInternalYear, isValidEraYear } from "@/lib/eraUtils";
+import { ANIMATION_DURATIONS } from "@/lib/animationConstants";
 
 interface GuessInputProps {
   onGuess: (guess: number) => void;
@@ -96,21 +97,18 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
       // Trigger animation immediately for instant feedback
       setIsSubmitting(true);
 
-      // Use requestAnimationFrame for optimal timing
-      requestAnimationFrame(() => {
-        // Make the guess with the internal year format
-        onGuess(internalYear);
-        setYear("");
-        // Keep the era as-is for user convenience (don't reset to default)
+      // Make the guess with the internal year format
+      onGuess(internalYear);
+      setYear("");
+      // Keep the era as-is for user convenience (don't reset to default)
 
-        // Explicitly refocus the input to keep keyboard open on mobile
-        inputRef.current?.focus();
+      // Explicitly refocus the input to keep keyboard open on mobile
+      inputRef.current?.focus();
 
-        // Remove animation class after animation completes (150ms)
-        setTimeout(() => {
-          setIsSubmitting(false);
-        }, 150);
-      });
+      // Remove animation class after animation completes
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, ANIMATION_DURATIONS.BUTTON_PRESS);
     },
     [year, era, onGuess, onValidationError, isSubmitting],
   );
