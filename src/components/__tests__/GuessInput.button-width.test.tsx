@@ -6,7 +6,7 @@ import { GuessInput } from "../GuessInput";
 describe("GuessInput Button Width Consistency", () => {
   const mockOnGuess = vi.fn();
 
-  it("maintains consistent button width when text changes from 'Guess' to 'Guessing...'", async () => {
+  it("maintains consistent button width and shows animation during submission", async () => {
     render(<GuessInput onGuess={mockOnGuess} disabled={false} remainingGuesses={6} />);
 
     const button = screen.getByRole("button");
@@ -24,18 +24,16 @@ describe("GuessInput Button Width Consistency", () => {
     // Submit the form
     fireEvent.submit(input.closest("form")!);
 
-    // During submission, button should show "Guessing..."
-    await waitFor(() => {
-      expect(button.textContent).toBe("Guessing...");
-    });
+    // Button text should stay as "Guess" (no intermediate state anymore)
+    expect(button.textContent).toBe("Guess");
 
     // Button should have the animation classes during submission
     expect(button.className).toContain("animate-button-press");
 
-    // After submission completes (150ms), button should return to "Guess"
+    // After submission animation completes (150ms), animation class should be removed
     await waitFor(
       () => {
-        expect(button.textContent).toBe("Guess");
+        expect(button.className).not.toContain("animate-button-press");
       },
       { timeout: 300 },
     );
