@@ -40,27 +40,13 @@ export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
         className="w-full"
       >
         <div className="border-border/70 bg-muted/30 shadow-primary/5 hover:shadow-primary/10 rounded-lg border px-4 py-3 shadow-md transition-shadow duration-200 hover:shadow-lg">
-          <div className="mb-2 flex items-center gap-2">
-            <span className="text-muted-foreground font-accent text-xs tracking-wide uppercase">
-              Guesses remaining:
-            </span>
-            <div
-              className="flex items-center gap-1.5"
-              aria-label={`${totalHints - hintNumber + 1} guesses remaining`}
+          <div className="mb-2">
+            <span
+              className="text-muted-foreground font-accent text-xs tracking-wide uppercase"
+              aria-label={`Hint ${hintNumber} of ${totalHints}. ${totalHints - hintNumber + 1} guesses remaining`}
             >
-              {/* Progress dots - inverted to show remaining */}
-              {Array.from({ length: totalHints }, (_, i) => (
-                <div
-                  key={i}
-                  className={`h-2 w-2 rounded-full transition-all duration-300 ${
-                    i >= hintNumber - 1
-                      ? "bg-primary ring-primary/20 shadow-sm ring-1" // Filled blue for remaining attempts
-                      : "border-primary/30 border bg-transparent" // Empty for used attempts
-                  }`}
-                  aria-hidden="true"
-                />
-              ))}
-            </div>
+              Hint {hintNumber} of {totalHints}
+            </span>
           </div>
 
           {isLoading ? (

@@ -30,6 +30,37 @@
 
 ## Medium Priority [This Quarter]
 
+### 🎨 UI Polish & Visual Hierarchy [Ready for Implementation]
+
+#### Enhanced Visual Hierarchy
+
+- [M] [UI] Make hint card the hero element with elevated glass morphism | Impact: 8 | Time: 45 mins
+  - Increase hint text: 20px desktop, 18px mobile
+  - Glass morphism: backdrop blur + gradient background
+  - Deep elevation shadow with primary color glow
+  - Reduce opacity of past hints (0.9 → 0.7)
+  - Add scale micro-animation on hint change
+
+#### Smart Keyboard Focus
+
+- [S] [UI] Add custom focus ring with shimmer animation | Impact: 7 | Time: 30 mins
+  - Glowing focus ring with primary color
+  - Prevent viewport zoom on mobile focus
+  - Keep keyboard persistent between guesses
+  - Add focus-pulse animation
+
+#### Paper Background & Typewriter Effect
+
+- [M] [UI] Add subtle paper texture background | Impact: 7 | Time: 30 mins
+  - Layered paper effect with SVG noise
+  - Different textures for light/dark modes
+  - CSS-only implementation (no JS)
+- [L] [UI] Implement typewriter animation for hints | Impact: 8 | Time: 1 hour
+  - Create TypewriterText component
+  - 25ms per character with blinking cursor
+  - Respects prefers-reduced-motion
+  - Subtle confetti on completion
+
 ### 📱 Mobile & Accessibility
 
 - [M] [A11Y] Increase button touch targets to 44x44px minimum | Impact: 6 | Current: 32-40px

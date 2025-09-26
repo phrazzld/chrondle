@@ -47,12 +47,10 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
   // Active game state - show normal instructions
   if (!isGameComplete) {
     return (
-      <div className={`text-left mb-6 ${className}`}>
-        <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
-          Guess the Year
-        </h2>
-        <p className="text-lg text-muted-foreground leading-7">
-          All of these events happened in the same year. Can you guess the year?
+      <div className={`mb-6 text-left ${className}`}>
+        <h2 className="text-foreground mb-2 text-xl font-bold sm:text-2xl">Guess the Year</h2>
+        <p className="text-muted-foreground text-lg leading-7">
+          Each hint is an event from the same year.
         </p>
       </div>
     );
@@ -65,12 +63,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
       case "success":
         return (
           <div className="flex items-center justify-center gap-2">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -84,12 +77,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
       case "error":
         return (
           <div className="flex items-center justify-center gap-2">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -103,12 +91,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
       default:
         return (
           <div className="flex items-center justify-center gap-2">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -140,19 +123,18 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
     <div className={`mb-1 ${className}`}>
       {/* Answer Reveal Section - Compact for Loss State */}
       {!hasWon && targetYear && (
-        <div className="mb-6 w-full flex items-center gap-4 p-6 bg-gradient-to-br from-red-500/5 to-red-600/10 border border-red-500/20 rounded-xl">
-          <div className="flex flex-col items-start flex-1">
-            <div className="text-xs text-red-600 dark:text-red-400 uppercase tracking-wide font-medium mb-1">
+        <div className="mb-6 flex w-full items-center gap-4 rounded-xl border border-red-500/20 bg-gradient-to-br from-red-500/5 to-red-600/10 p-6">
+          <div className="flex flex-1 flex-col items-start">
+            <div className="mb-1 text-xs font-medium tracking-wide text-red-600 uppercase dark:text-red-400">
               The answer was
             </div>
-            <div className="text-2xl sm:text-3xl font-bold text-red-700 dark:text-red-300">
+            <div className="text-2xl font-bold text-red-700 sm:text-3xl dark:text-red-300">
               {formatYear(targetYear)}
             </div>
             {/* Show closest guess information if available */}
             {closestGuess && (
-              <div className="text-sm text-red-600/80 dark:text-red-400/80 mt-1">
-                Your closest: {formatYear(closestGuess.guess)} (
-                {closestGuess.distance} year
+              <div className="mt-1 text-sm text-red-600/80 dark:text-red-400/80">
+                Your closest: {formatYear(closestGuess.guess)} ({closestGuess.distance} year
                 {closestGuess.distance === 1 ? "" : "s"} off)
               </div>
             )}
@@ -166,23 +148,18 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
 
       {/* Success State - Show answer with celebration */}
       {hasWon && targetYear && (
-        <div className="mb-6 w-full flex items-center gap-4 p-6 bg-gradient-to-br from-green-500/5 to-green-600/10 border border-green-500/20 rounded-xl">
-          <div className="flex flex-col items-start flex-1">
-            <div className="text-xs text-green-600 dark:text-green-400 uppercase tracking-wide font-medium mb-1">
+        <div className="mb-6 flex w-full items-center gap-4 rounded-xl border border-green-500/20 bg-gradient-to-br from-green-500/5 to-green-600/10 p-6">
+          <div className="flex flex-1 flex-col items-start">
+            <div className="mb-1 text-xs font-medium tracking-wide text-green-600 uppercase dark:text-green-400">
               The year was
             </div>
-            <div className="text-2xl sm:text-3xl font-bold text-green-700 dark:text-green-300">
+            <div className="text-2xl font-bold text-green-700 sm:text-3xl dark:text-green-300">
               {formatYear(targetYear)}
             </div>
           </div>
 
           <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -198,13 +175,13 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
       {/* Conditional Layout: Show countdown for daily puzzles, compact share for archive */}
       {!isArchive ? (
         // Daily puzzle layout with countdown
-        <div className="w-full flex items-center gap-4 p-6 bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl mb-4">
+        <div className="from-primary/5 to-primary/10 border-primary/20 mb-4 flex w-full items-center gap-4 rounded-xl border bg-gradient-to-br p-6">
           {/* Countdown Section */}
-          <div className="flex flex-col items-start flex-1">
-            <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">
+          <div className="flex flex-1 flex-col items-start">
+            <div className="text-muted-foreground mb-1 text-xs font-medium tracking-wide uppercase">
               Next puzzle in
             </div>
-            <div className="text-2xl sm:text-3xl font-mono font-bold text-primary">
+            <div className="text-primary font-mono text-2xl font-bold sm:text-3xl">
               {timeString || "00:00:00"}
             </div>
           </div>
@@ -225,7 +202,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
         </div>
       ) : (
         // Archive puzzle layout - just share button in a more compact form
-        <div className="w-full flex justify-center mb-4">
+        <div className="mb-4 flex w-full justify-center">
           <RippleButton
             onClick={() => shareGame()}
             disabled={isSharing}

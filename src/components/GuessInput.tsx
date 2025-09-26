@@ -157,7 +157,7 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
             onChange={(e) => setYear(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Enter year"
-            className="font-accent flex-1 border-0 bg-transparent px-3 py-3 text-left text-lg font-bold tracking-wide placeholder:text-sm placeholder:leading-none placeholder:font-normal focus:outline-none sm:py-0 sm:text-2xl sm:placeholder:text-base"
+            className="font-accent flex-1 border-0 bg-transparent px-3 py-3 text-left text-lg font-bold tracking-wide placeholder:text-sm placeholder:font-normal focus:outline-none sm:py-2 sm:text-2xl sm:placeholder:text-base"
             title="Use ↑↓ arrow keys (±1 year) or Shift+↑↓ (±10 years) to adjust the year"
             required
             disabled={disabled}
