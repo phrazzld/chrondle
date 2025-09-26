@@ -117,19 +117,16 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
     remainingGuesses: number,
     disabled: boolean,
     isLoading: boolean,
-    isSubmitting: boolean,
   ): string => {
     // Show loading state first, before checking disabled
     if (isLoading) return "Loading game...";
-    // Show submitting state during guess submission
-    if (isSubmitting) return "Guessing...";
     // Only show "Game Over" if disabled and NOT loading
     if (disabled) return "Game Over";
     if (remainingGuesses === 0) return "No guesses remaining";
     return "Guess";
   };
 
-  const buttonText = getButtonText(remainingGuesses, disabled, isLoading, isSubmitting);
+  const buttonText = getButtonText(remainingGuesses, disabled, isLoading);
   const isSubmitDisabled = disabled || remainingGuesses <= 0;
 
   return (
