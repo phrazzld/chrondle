@@ -39,26 +39,24 @@ export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
         }}
         className="w-full"
       >
-        <div className="py-3 px-4 rounded-lg border border-border/70 bg-muted/30 shadow-md shadow-primary/5 hover:shadow-lg hover:shadow-primary/10 transition-shadow duration-200">
+        <div className="border-border/70 bg-muted/30 shadow-primary/5 hover:shadow-primary/10 rounded-lg border px-4 py-3 shadow-md transition-shadow duration-200 hover:shadow-lg">
           <div className="mb-2">
-            <h3 className="text-xs text-muted-foreground uppercase font-accent tracking-wide flex items-center gap-2">
-              <span className="inline-flex w-5 h-5 rounded-full bg-primary/10 text-primary items-center justify-center text-[10px] font-bold">
-                {hintNumber}
-              </span>
+            <span
+              className="text-muted-foreground font-accent text-xs tracking-wide uppercase"
+              aria-label={`Hint ${hintNumber} of ${totalHints}. ${totalHints - hintNumber + 1} guesses remaining`}
+            >
               Hint {hintNumber} of {totalHints}
-            </h3>
+            </span>
           </div>
 
           {isLoading ? (
             <div className="flex items-center gap-3">
               <LoadingSpinner size="sm" />
-              <span className="text-base font-body text-muted-foreground">
-                Loading hint...
-              </span>
+              <span className="font-body text-muted-foreground text-base">Loading hint...</span>
             </div>
           ) : (
             <div role="status" aria-live="polite" aria-atomic="true">
-              <HintText className="text-base sm:text-lg text-left font-body leading-relaxed text-foreground">
+              <HintText className="font-body text-foreground text-left text-base leading-relaxed sm:text-lg">
                 {hintText}
               </HintText>
             </div>

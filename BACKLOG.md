@@ -8,6 +8,7 @@
 - [S] [SECURITY] Add runtime environment variable validation with Zod | Impact: 8 | Risk: Config errors
 - [M] [SECURITY] Add rate limiting to historicalContext API endpoint | Impact: 9 | Risk: Cost overruns
 - [S] [RELIABILITY] Add request timeout (AbortController) to Convex fetch | Impact: 8 | Risk: Hangs
+- [M] [SECURITY] Review Bitcoin address handling and QR code generation | Impact: 7 | Risk: Cryptocurrency security | Source: PR #31 review
 
 ## High Priority [This Sprint]
 
@@ -16,6 +17,8 @@
 - [L] [TEST] Add comprehensive tests for useChrondle hook | Impact: 9 | Coverage: Core game logic
 - [L] [TEST] Add tests for GameTimeline (330 lines) and HintsDisplay (407 lines) | Impact: 7
 - [M] [TEST] Add tests for useStreak, useNotifications, useClipboard hooks | Impact: 6
+- [M] [TEST] Add integration tests for BC/AD toggle workflow | Impact: 6 | Coverage: New UI flow | Source: PR #31 review
+- [S] [TEST] Add edge case tests for Bitcoin address validation | Impact: 5 | Coverage: Security | Source: PR #31 review
 
 ### ⚡ Performance & Monitoring
 
@@ -29,6 +32,37 @@
 - [M] [CLEANUP] Replace 60+ console.log/error with structured logging | Impact: 6 | Security risk
 
 ## Medium Priority [This Quarter]
+
+### 🎨 UI Polish & Visual Hierarchy [Ready for Implementation]
+
+#### Enhanced Visual Hierarchy
+
+- [M] [UI] Make hint card the hero element with elevated glass morphism | Impact: 8 | Time: 45 mins
+  - Increase hint text: 20px desktop, 18px mobile
+  - Glass morphism: backdrop blur + gradient background
+  - Deep elevation shadow with primary color glow
+  - Reduce opacity of past hints (0.9 → 0.7)
+  - Add scale micro-animation on hint change
+
+#### Smart Keyboard Focus
+
+- [S] [UI] Add custom focus ring with shimmer animation | Impact: 7 | Time: 30 mins
+  - Glowing focus ring with primary color
+  - Prevent viewport zoom on mobile focus
+  - Keep keyboard persistent between guesses
+  - Add focus-pulse animation
+
+#### Paper Background & Typewriter Effect
+
+- [M] [UI] Add subtle paper texture background | Impact: 7 | Time: 30 mins
+  - Layered paper effect with SVG noise
+  - Different textures for light/dark modes
+  - CSS-only implementation (no JS)
+- [L] [UI] Implement typewriter animation for hints | Impact: 8 | Time: 1 hour
+  - Create TypewriterText component
+  - 25ms per character with blinking cursor
+  - Respects prefers-reduced-motion
+  - Subtle confetti on completion
 
 ### 📱 Mobile & Accessibility
 

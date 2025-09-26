@@ -40,11 +40,14 @@ describe("CurrentHintCard", () => {
     error: null as string | null,
   };
 
-  it("renders heading with hint count", () => {
+  it("renders hint counter", () => {
     render(<CurrentHintCard {...baseProps} />);
 
-    const heading = screen.getByRole("heading", { level: 3 });
-    expect(heading.textContent).toMatch(/Hint 1 of 6/i);
+    const hintText = screen.getByText("Hint 1 of 6");
+    expect(hintText).toBeTruthy();
+    // The aria-label includes both hint number and guesses remaining
+    const container = screen.getByLabelText("Hint 1 of 6. 6 guesses remaining");
+    expect(container).toBeTruthy();
   });
 
   it("announces hint text in a polite live region", () => {
@@ -71,6 +74,6 @@ describe("CurrentHintCard", () => {
   it("does not render when error is present", () => {
     render(<CurrentHintCard {...baseProps} error="boom" />);
 
-    expect(screen.queryByRole("heading", { level: 3 })).toBe(null);
+    expect(screen.queryByText(/Hint \d+ of \d+/)).toBe(null);
   });
 });
