@@ -7,6 +7,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Copy, Check, Heart } from "lucide-react";
 
+// Constants
+const COPY_FEEDBACK_DURATION_MS = 2000;
+
 interface SupportModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -43,7 +46,10 @@ export default function SupportModal({ open, onOpenChange }: SupportModalProps) 
         },
       })
         .then(setQrDataUrl)
-        .catch(console.error);
+        .catch(() => {
+          // Silently fail - QR code is nice to have but not critical
+          setQrDataUrl("");
+        });
     }
   }, [address, open]);
 
@@ -51,9 +57,10 @@ export default function SupportModal({ open, onOpenChange }: SupportModalProps) 
     try {
       await navigator.clipboard.writeText(address);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error("Failed to copy address:", error);
+      setTimeout(() => setCopied(false), COPY_FEEDBACK_DURATION_MS);
+    } catch {
+      // Clipboard API not available or permission denied
+      // Could show a toast here if we had a toast system
     }
   };
 

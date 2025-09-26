@@ -10,6 +10,10 @@ import { getStreakColorClasses, cn } from "@/lib/utils";
 import { formatPuzzleNumber } from "@/lib/puzzleUtils";
 import SupportModal from "@/components/SupportModal";
 
+// Constants
+const HEARTBEAT_DELAY_MS = 2000;
+const HEARTBEAT_DURATION_MS = 3000;
+
 interface AppHeaderProps {
   currentStreak?: number;
   isDebugMode?: boolean;
@@ -33,8 +37,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       setTimeout(() => {
         setShowHeartbeat(true);
         sessionStorage.setItem("heartbeatShown", "true");
-        setTimeout(() => setShowHeartbeat(false), 3000);
-      }, 2000);
+        setTimeout(() => setShowHeartbeat(false), HEARTBEAT_DURATION_MS);
+      }, HEARTBEAT_DELAY_MS);
     }
   }, []);
 
