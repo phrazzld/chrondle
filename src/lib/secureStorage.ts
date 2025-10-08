@@ -28,9 +28,7 @@ export interface StorageSchema<T> {
 /**
  * Result type for storage operations
  */
-export type StorageResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: string };
+export type StorageResult<T> = { success: true; data: T } | { success: false; error: string };
 
 /**
  * Validates a storage key to prevent injection attacks
@@ -157,9 +155,7 @@ function safeJsonStringify(value: unknown): string | null {
   try {
     // Validate before stringifying
     if (!isSafeValue(value)) {
-      console.warn(
-        "[SecureStorage] Value failed safety check before stringify",
-      );
+      console.warn("[SecureStorage] Value failed safety check before stringify");
       return null;
     }
 
@@ -199,10 +195,7 @@ function isStorageAvailable(): boolean {
 /**
  * Securely get an item from localStorage with validation
  */
-export function secureGetItem<T>(
-  key: string,
-  schema?: StorageSchema<T>,
-): T | null {
+export function secureGetItem<T>(key: string, schema?: StorageSchema<T>): T | null {
   if (!isStorageAvailable()) {
     return null;
   }
@@ -228,11 +221,7 @@ export function secureGetItem<T>(
 /**
  * Securely set an item in localStorage with validation
  */
-export function secureSetItem<T>(
-  key: string,
-  value: T,
-  schema?: StorageSchema<T>,
-): boolean {
+export function secureSetItem<T>(key: string, value: T, schema?: StorageSchema<T>): boolean {
   if (!isStorageAvailable()) {
     return false;
   }
@@ -246,10 +235,7 @@ export function secureSetItem<T>(
   if (schema) {
     const result = schema.safeParse(value);
     if (!result.success) {
-      console.warn(
-        "[SecureStorage] Value failed schema validation:",
-        result.error,
-      );
+      console.warn("[SecureStorage] Value failed schema validation:", result.error);
       return false;
     }
   }
@@ -362,14 +348,21 @@ export const themePreferencesSchema = z.object({
 });
 
 /**
+ * Schema for anonymous user streak data
+ */
+const anonymousStreakSchema = z.object({
+  currentStreak: z.number().int().min(0).max(10000),
+  lastCompletedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // ISO date format YYYY-MM-DD
+});
+
+/**
  * Export pre-configured typed storage instances
  */
-export const gameStateStorage = createTypedStorage(
-  "chrondle-game-state",
-  anonymousGameStateSchema,
-);
+export const gameStateStorage = createTypedStorage("chrondle-game-state", anonymousGameStateSchema);
 
-export const themeStorage = createTypedStorage(
-  "chrondle-theme",
-  themePreferencesSchema,
+export const themeStorage = createTypedStorage("chrondle-theme", themePreferencesSchema);
+
+export const anonymousStreakStorage = createTypedStorage(
+  "chrondle-anonymous-streak",
+  anonymousStreakSchema,
 );
