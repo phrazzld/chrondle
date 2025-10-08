@@ -144,6 +144,10 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
       // logger.gameComplete is not available, use logger.info instead
       logger.info(`Game complete: ${won ? "Won" : "Lost"} in ${guessCount} guesses`);
       setLastGuessCount(guessCount);
+
+      // Update streak (dual-mode):
+      // - Authenticated: no-op (backend submitGuess mutation already updated)
+      // - Anonymous: calculate and persist to localStorage
       updateStreak(won);
     },
     [updateStreak],
