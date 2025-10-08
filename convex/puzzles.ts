@@ -1,12 +1,8 @@
 import { v } from "convex/values";
-import {
-  query,
-  mutation,
-  internalMutation,
-  DatabaseWriter,
-} from "./_generated/server";
+import { query, mutation, internalMutation, DatabaseWriter } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
+import { calculateStreak, getUTCDateString } from "./lib/streakCalculation";
 
 // Internal mutation for cron job to generate daily puzzle
 export const generateDailyPuzzle = internalMutation({
@@ -59,8 +55,7 @@ export const generateDailyPuzzle = internalMutation({
     }
 
     // Select a random year
-    const randomYear =
-      availableYears[Math.floor(Math.random() * availableYears.length)];
+    const randomYear = availableYears[Math.floor(Math.random() * availableYears.length)];
 
     // Get all unused events for the selected year
     const yearEvents = await ctx.db
@@ -193,8 +188,7 @@ export const ensureTodaysPuzzle = mutation({
       throw new Error("No years available with enough unused events");
     }
 
-    const randomYear =
-      availableYears[Math.floor(Math.random() * availableYears.length)];
+    const randomYear = availableYears[Math.floor(Math.random() * availableYears.length)];
 
     const yearEvents = await ctx.db
       .query("events")
@@ -229,9 +223,7 @@ export const ensureTodaysPuzzle = mutation({
 
     const newPuzzle = await ctx.db.get(puzzleId);
 
-    console.warn(
-      `Created puzzle #${nextPuzzleNumber} for ${today} with year ${randomYear.year}`,
-    );
+    console.warn(`Created puzzle #${nextPuzzleNumber} for ${today} with year ${randomYear.year}`);
 
     return { status: "created", puzzle: newPuzzle };
   },
@@ -330,9 +322,7 @@ export const submitGuess = mutation({
     // Check if play record exists
     const existingPlay = await ctx.db
       .query("plays")
-      .withIndex("by_user_puzzle", (q) =>
-        q.eq("userId", args.userId).eq("puzzleId", args.puzzleId),
-      )
+      .withIndex("by_user_puzzle", (q) => q.eq("userId", args.userId).eq("puzzleId", args.puzzleId))
       .first();
 
     const isCorrect = args.guess === puzzle.targetYear;
@@ -355,6 +345,7 @@ export const submitGuess = mutation({
       // Update puzzle stats if completed
       if (isCorrect) {
         await updatePuzzleStats(ctx, args.puzzleId);
+        await updateUserStreak(ctx, args.userId, true);
       }
 
       return {
@@ -372,9 +363,10 @@ export const submitGuess = mutation({
         updatedAt: Date.now(),
       });
 
-      // Update puzzle stats
+      // Update puzzle stats if completed
       if (isCorrect) {
         await updatePuzzleStats(ctx, args.puzzleId);
+        await updateUserStreak(ctx, args.userId, true);
       }
 
       return {
@@ -387,10 +379,7 @@ export const submitGuess = mutation({
 });
 
 // Helper function to update puzzle statistics
-async function updatePuzzleStats(
-  ctx: { db: DatabaseWriter },
-  puzzleId: Id<"puzzles">,
-) {
+async function updatePuzzleStats(ctx: { db: DatabaseWriter }, puzzleId: Id<"puzzles">) {
   // Get all completed plays for this puzzle
   const completedPlays = await ctx.db
     .query("plays")
@@ -402,16 +391,37 @@ async function updatePuzzleStats(
   if (playCount === 0) return;
 
   // Calculate average guesses
-  const totalGuesses = completedPlays.reduce(
-    (sum: number, play) => sum + play.guesses.length,
-    0,
-  );
+  const totalGuesses = completedPlays.reduce((sum: number, play) => sum + play.guesses.length, 0);
   const avgGuesses = totalGuesses / playCount;
 
   // Update puzzle
   await ctx.db.patch(puzzleId, {
     playCount,
     avgGuesses: Math.round(avgGuesses * 10) / 10, // Round to 1 decimal
+    updatedAt: Date.now(),
+  });
+}
+
+// Helper function to update user streak after completing a puzzle
+async function updateUserStreak(ctx: { db: DatabaseWriter }, userId: Id<"users">, hasWon: boolean) {
+  const user = await ctx.db.get(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const today = getUTCDateString();
+  const result = calculateStreak(user.lastCompletedDate || null, user.currentStreak, today, hasWon);
+
+  // Special case: same-day completion returns currentStreak = 0 as signal
+  // Don't update if already played today
+  if (result.currentStreak === 0 && result.lastCompletedDate === user.lastCompletedDate) {
+    return; // No update needed
+  }
+
+  await ctx.db.patch(userId, {
+    currentStreak: result.currentStreak,
+    lastCompletedDate: result.lastCompletedDate,
+    longestStreak: Math.max(result.currentStreak, user.longestStreak),
     updatedAt: Date.now(),
   });
 }
@@ -448,9 +458,7 @@ export const getUserPlay = query({
       // Perform the query with defensive programming
       const play = await ctx.db
         .query("plays")
-        .withIndex("by_user_puzzle", (q) =>
-          q.eq("userId", userId).eq("puzzleId", puzzleId),
-        )
+        .withIndex("by_user_puzzle", (q) => q.eq("userId", userId).eq("puzzleId", puzzleId))
         .first();
 
       // Log successful query in development for debugging
@@ -511,9 +519,7 @@ export const getCronSchedule = query({
 
       // If it's currently exactly midnight (rare edge case), use today's midnight
       const nextMidnightUTC =
-        now.getUTCHours() === 0 &&
-        now.getUTCMinutes() === 0 &&
-        now.getUTCSeconds() < 10
+        now.getUTCHours() === 0 && now.getUTCMinutes() === 0 && now.getUTCSeconds() < 10
           ? new Date(now.setUTCHours(0, 0, 0, 0))
           : tomorrow;
 
