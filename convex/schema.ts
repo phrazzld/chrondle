@@ -47,6 +47,7 @@ export default defineSchema({
     username: v.optional(v.string()), // For future leaderboards
     currentStreak: v.number(),
     longestStreak: v.number(),
+    lastCompletedDate: v.optional(v.string()), // ISO date (YYYY-MM-DD) of last puzzle completion
     totalPlays: v.number(),
     perfectGames: v.number(), // Guessed in 1 try
     updatedAt: v.number(), // For streak updates
