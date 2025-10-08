@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation, internalMutation } from "./_generated/server";
+import { isConsecutiveDay } from "./lib/streakCalculation";
 
 // Create a new user (called by Clerk webhook) - internal version
 export const createUser = internalMutation({
@@ -93,9 +94,7 @@ export const getOrCreateCurrentUser = mutation({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
-      throw new Error(
-        "Not authenticated - cannot create user without Clerk identity",
-      );
+      throw new Error("Not authenticated - cannot create user without Clerk identity");
     }
 
     try {
@@ -146,8 +145,7 @@ export const getOrCreateCurrentUser = mutation({
 
       return newUser;
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       console.error("[getOrCreateCurrentUser] Failed to create user:", {
         error: errorMessage,
         clerkId: identity.subject,
@@ -195,8 +193,7 @@ export const userExists = query({
         email: user?.email,
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       return {
         exists: false,
         error: errorMessage,
@@ -258,10 +255,7 @@ export const updateUserStats = internalMutation({
     guessCount: v.number(),
     previousPuzzleDate: v.optional(v.string()),
   },
-  handler: async (
-    ctx,
-    { userId, puzzleCompleted, guessCount, previousPuzzleDate },
-  ) => {
+  handler: async (ctx, { userId, puzzleCompleted, guessCount, previousPuzzleDate }) => {
     const user = await ctx.db.get(userId);
     if (!user) {
       throw new Error("User not found");
@@ -287,17 +281,12 @@ export const updateUserStats = internalMutation({
       }
 
       // Update streak
-      const yesterday = new Date(Date.now() - 86400000)
-        .toISOString()
-        .slice(0, 10);
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
 
       if (previousPuzzleDate === yesterday) {
         // Continue streak
         updates.currentStreak = user.currentStreak + 1;
-        updates.longestStreak = Math.max(
-          user.currentStreak + 1,
-          user.longestStreak,
-        );
+        updates.longestStreak = Math.max(user.currentStreak + 1, user.longestStreak);
       } else if (!previousPuzzleDate || previousPuzzleDate < yesterday) {
         // Start new streak
         updates.currentStreak = 1;
@@ -354,9 +343,7 @@ export const mergeAnonymousState = mutation({
       // Check if user already has a play record for this puzzle
       const existingPlay = await ctx.db
         .query("plays")
-        .withIndex("by_user_puzzle", (q) =>
-          q.eq("userId", user._id).eq("puzzleId", puzzleId),
-        )
+        .withIndex("by_user_puzzle", (q) => q.eq("userId", user._id).eq("puzzleId", puzzleId))
         .first();
 
       if (existingPlay) {
@@ -365,8 +352,7 @@ export const mergeAnonymousState = mutation({
           // Anonymous user made more progress, update with their guesses
           await ctx.db.patch(existingPlay._id, {
             guesses: guesses,
-            completedAt:
-              isComplete && hasWon ? Date.now() : existingPlay.completedAt,
+            completedAt: isComplete && hasWon ? Date.now() : existingPlay.completedAt,
             updatedAt: Date.now(),
           });
         }
@@ -408,8 +394,7 @@ export const mergeAnonymousState = mutation({
           : "Anonymous state migrated to account",
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       console.error("[mergeAnonymousState] Failed to merge anonymous state:", {
         error: errorMessage,
         userId: user._id,
@@ -423,6 +408,90 @@ export const mergeAnonymousState = mutation({
       return {
         success: false,
         message: `Failed to merge anonymous state: ${errorMessage}`,
+      };
+    }
+  },
+});
+
+// Merge anonymous streak data when user signs in
+export const mergeAnonymousStreak = mutation({
+  args: {
+    anonymousStreak: v.number(),
+    anonymousLastCompletedDate: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated - cannot merge anonymous streak");
+    }
+
+    // Get or create the current user
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk", (q) => q.eq("clerkId", identity.subject))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found - cannot merge anonymous streak");
+    }
+
+    // Don't process if anonymous streak is 0 or invalid
+    if (args.anonymousStreak === 0 || !args.anonymousLastCompletedDate) {
+      return {
+        mergedStreak: user.currentStreak,
+        source: "server" as const,
+        message: "No anonymous streak to merge",
+      };
+    }
+
+    try {
+      // Check if streaks can be combined (consecutive days)
+      const canCombine =
+        user.lastCompletedDate &&
+        args.anonymousLastCompletedDate &&
+        isConsecutiveDay(user.lastCompletedDate, args.anonymousLastCompletedDate);
+
+      let mergedStreak: number;
+      let source: "anonymous" | "server" | "combined";
+
+      if (canCombine) {
+        // Streaks are consecutive - combine them
+        mergedStreak = user.currentStreak + args.anonymousStreak;
+        source = "combined";
+      } else {
+        // Streaks are not consecutive - take the higher value
+        mergedStreak = Math.max(user.currentStreak, args.anonymousStreak);
+        source = mergedStreak === args.anonymousStreak ? "anonymous" : "server";
+      }
+
+      // Update user record with merged streak
+      await ctx.db.patch(user._id, {
+        currentStreak: mergedStreak,
+        longestStreak: Math.max(mergedStreak, user.longestStreak),
+        lastCompletedDate: args.anonymousLastCompletedDate || user.lastCompletedDate,
+        updatedAt: Date.now(),
+      });
+
+      return {
+        mergedStreak,
+        source,
+        message: `Streak merged successfully (${source})`,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error("[mergeAnonymousStreak] Failed to merge streaks:", {
+        error: errorMessage,
+        userId: user._id,
+        anonymousStreak: args.anonymousStreak,
+        serverStreak: user.currentStreak,
+        timestamp: new Date().toISOString(),
+      });
+
+      // Don't throw - return error info but don't break auth flow
+      return {
+        mergedStreak: user.currentStreak,
+        source: "server" as const,
+        message: `Failed to merge: ${errorMessage}`,
       };
     }
   },
@@ -457,10 +526,7 @@ export const getUserStats = query({
       recentPlays: plays,
       completionRate:
         user.totalPlays > 0
-          ? Math.round(
-              (plays.filter((p) => p.completedAt).length / user.totalPlays) *
-                100,
-            )
+          ? Math.round((plays.filter((p) => p.completedAt).length / user.totalPlays) * 100)
           : 0,
     };
   },
