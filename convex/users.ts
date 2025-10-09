@@ -452,23 +452,33 @@ export const mergeAnonymousStreak = mutation({
         isConsecutiveDay(user.lastCompletedDate, args.anonymousLastCompletedDate);
 
       let mergedStreak: number;
+      let mergedDate: string;
       let source: "anonymous" | "server" | "combined";
 
       if (canCombine) {
         // Streaks are consecutive - combine them
         mergedStreak = user.currentStreak + args.anonymousStreak;
+        mergedDate = args.anonymousLastCompletedDate; // Use most recent (anonymous)
         source = "combined";
       } else {
         // Streaks are not consecutive - take the higher value
         mergedStreak = Math.max(user.currentStreak, args.anonymousStreak);
-        source = mergedStreak === args.anonymousStreak ? "anonymous" : "server";
+
+        // Use date from whichever source provided the winning streak
+        if (args.anonymousStreak > user.currentStreak) {
+          mergedDate = args.anonymousLastCompletedDate;
+          source = "anonymous";
+        } else {
+          mergedDate = user.lastCompletedDate || args.anonymousLastCompletedDate;
+          source = "server";
+        }
       }
 
       // Update user record with merged streak
       await ctx.db.patch(user._id, {
         currentStreak: mergedStreak,
         longestStreak: Math.max(mergedStreak, user.longestStreak),
-        lastCompletedDate: args.anonymousLastCompletedDate || user.lastCompletedDate,
+        lastCompletedDate: mergedDate,
         updatedAt: Date.now(),
       });
 

@@ -4,6 +4,9 @@ import { Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
 import { calculateStreak, getUTCDateString } from "./lib/streakCalculation";
 
+// Game configuration constants
+const MAX_GUESSES = 6;
+
 // Internal mutation for cron job to generate daily puzzle
 export const generateDailyPuzzle = internalMutation({
   args: {
@@ -342,10 +345,13 @@ export const submitGuess = mutation({
         updatedAt: Date.now(),
       });
 
-      // Update puzzle stats if completed
+      // Update puzzle stats and streak
       if (isCorrect) {
         await updatePuzzleStats(ctx, args.puzzleId);
         await updateUserStreak(ctx, args.userId, true);
+      } else if (updatedGuesses.length >= MAX_GUESSES) {
+        // Game lost - reset streak to 0
+        await updateUserStreak(ctx, args.userId, false);
       }
 
       return {
@@ -363,11 +369,13 @@ export const submitGuess = mutation({
         updatedAt: Date.now(),
       });
 
-      // Update puzzle stats if completed
+      // Update puzzle stats and streak
       if (isCorrect) {
         await updatePuzzleStats(ctx, args.puzzleId);
         await updateUserStreak(ctx, args.userId, true);
       }
+      // Note: For new play records, we never have MAX_GUESSES on first submission
+      // Loss streak reset only happens in the existing play path above
 
       return {
         correct: isCorrect,
