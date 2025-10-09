@@ -139,13 +139,14 @@ Expected: streak=10, date="2025-10-05" ✅ CORRECT
 
 - ✅ Phase 1: Backend Foundation (5/5 tasks)
 - ✅ Phase 2: Frontend Refactor (4/4 tasks)
-- 🚨 Phase 2.5: PR Review Fixes (0/3 tasks) **← CURRENT FOCUS**
+- ✅ Phase 2.5: PR Review Fixes (3/3 tasks - Awaiting Codex approval)
 - ⏸️ Phase 3: Historical Migration (deferred)
 
-**Total Commits**: 9
+**Total Commits**: 11
 
 - Backend: 5 commits (calculation utility, tests, schema, mutations)
 - Frontend: 4 commits (storage schema, hook refactor, tests, verification)
+- Review Fixes: 2 commits (P1 bug fixes, TODO updates)
 
 **Test Results** (Pre-Fix):
 
@@ -206,5 +207,11 @@ Expected: streak=10, date="2025-10-05" ✅ CORRECT
 
 ---
 
-**Current Focus**: Fix P1-A (loss streak reset) and P1-B (merge date logic)
-**Next Command**: Implement fixes in `convex/puzzles.ts` and `convex/users.ts`
+**Current Status**: ✅ All P1 fixes complete - Awaiting Codex re-review
+**Next Steps**:
+
+1. Monitor PR for Codex review results
+2. Address any additional feedback if needed
+3. Merge PR once approved
+4. Deploy to production
+5. Execute manual test scenarios
