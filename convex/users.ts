@@ -458,7 +458,11 @@ export const mergeAnonymousStreak = mutation({
       if (canCombine) {
         // Streaks are consecutive - combine them
         mergedStreak = user.currentStreak + args.anonymousStreak;
-        mergedDate = args.anonymousLastCompletedDate; // Use most recent (anonymous)
+        // Use most recent date (whichever is later)
+        mergedDate =
+          user.lastCompletedDate && user.lastCompletedDate > args.anonymousLastCompletedDate
+            ? user.lastCompletedDate
+            : args.anonymousLastCompletedDate;
         source = "combined";
       } else {
         // Streaks are not consecutive - take the higher value
