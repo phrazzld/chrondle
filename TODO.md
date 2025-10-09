@@ -107,9 +107,9 @@ Expected: streak=10, date="2025-10-05" ✅ CORRECT
 **PR Review Actions**:
 
 - [x] Posted PR comment with fix summary
-- [ ] Request Codex re-review: `@codex review`
-- [ ] Wait for Codex review results
-- [ ] Address any additional feedback
+- [x] Request Codex re-review: `@codex review`
+- [~] Wait for Codex review results (IN PROGRESS)
+- [ ] Address any additional feedback (if needed)
 
 **Manual Test Scenarios** (DEFERRED - requires deployment):
 
@@ -142,11 +142,11 @@ Expected: streak=10, date="2025-10-05" ✅ CORRECT
 - ✅ Phase 2.5: PR Review Fixes (3/3 tasks - Awaiting Codex approval)
 - ⏸️ Phase 3: Historical Migration (deferred)
 
-**Total Commits**: 11
+**Total Commits**: 13
 
 - Backend: 5 commits (calculation utility, tests, schema, mutations)
 - Frontend: 4 commits (storage schema, hook refactor, tests, verification)
-- Review Fixes: 2 commits (P1 bug fixes, TODO updates)
+- Review Fixes: 4 commits (P1 bug fixes, TODO updates, date ordering fix)
 
 **Test Results** (Pre-Fix):
 
