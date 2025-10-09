@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation, internalMutation } from "./_generated/server";
-import { isConsecutiveDay } from "./lib/streakCalculation";
+import { isConsecutiveDay, getUTCDateString } from "./lib/streakCalculation";
 
 // Create a new user (called by Clerk webhook) - internal version
 export const createUser = internalMutation({
@@ -413,6 +413,30 @@ export const mergeAnonymousState = mutation({
   },
 });
 
+/**
+ * Calculate the first day of a streak given its last day and length
+ *
+ * When an anonymous user builds a multi-day streak, we only store the
+ * last completion date and streak count. To determine if this streak
+ * is consecutive with a server streak, we need to calculate when the
+ * anonymous streak STARTED.
+ *
+ * @param lastDate - Last day of streak (ISO YYYY-MM-DD)
+ * @param streakLength - Number of consecutive days
+ * @returns First day of streak (ISO YYYY-MM-DD)
+ *
+ * @example
+ * getStreakFirstDay("2025-10-13", 3) → "2025-10-11"
+ * getStreakFirstDay("2025-10-13", 1) → "2025-10-13"
+ */
+function getStreakFirstDay(lastDate: string, streakLength: number): string {
+  if (streakLength <= 0) return lastDate;
+
+  const date = new Date(lastDate + "T00:00:00.000Z");
+  date.setUTCDate(date.getUTCDate() - (streakLength - 1));
+  return getUTCDateString(date);
+}
+
 // Merge anonymous streak data when user signs in
 export const mergeAnonymousStreak = mutation({
   args: {
@@ -445,11 +469,20 @@ export const mergeAnonymousStreak = mutation({
     }
 
     try {
+      // Calculate first day of anonymous streak to properly check for consecutive days
+      // Example: If anonymous has 3-day streak ending Oct 13, it started Oct 11
+      const anonymousFirstDay =
+        args.anonymousStreak > 0
+          ? getStreakFirstDay(args.anonymousLastCompletedDate, args.anonymousStreak)
+          : args.anonymousLastCompletedDate;
+
       // Check if streaks can be combined (consecutive days)
+      // We compare server's LAST day with anonymous FIRST day
+      // This handles multi-day anonymous streaks correctly
       const canCombine =
         user.lastCompletedDate &&
         args.anonymousLastCompletedDate &&
-        isConsecutiveDay(user.lastCompletedDate, args.anonymousLastCompletedDate);
+        isConsecutiveDay(user.lastCompletedDate, anonymousFirstDay);
 
       let mergedStreak: number;
       let mergedDate: string;
