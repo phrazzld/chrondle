@@ -414,6 +414,121 @@ export const mergeAnonymousState = mutation({
 });
 
 /**
+ * Validation result for anonymous streak data
+ */
+interface StreakValidationResult {
+  isValid: boolean;
+  reason?: string;
+}
+
+/**
+ * Validate anonymous streak data to prevent client-side manipulation
+ *
+ * Anonymous streak data comes from localStorage and is UNTRUSTED.
+ * This function ensures the data is plausible and prevents users from
+ * arbitrarily inflating their streaks by calling the mutation directly.
+ *
+ * Validation Rules:
+ * 1. Date format must be valid ISO YYYY-MM-DD
+ * 2. Date must not be in the future
+ * 3. Date must not be too old (>90 days is suspicious)
+ * 4. Streak count must be positive
+ * 5. Streak count must not exceed maximum cap (365 days)
+ * 6. Streak length must be consistent with date range
+ *
+ * @param streakCount - Claimed streak length
+ * @param lastCompletedDate - Claimed last completion date
+ * @returns Validation result with isValid flag and optional reason
+ */
+function validateAnonymousStreak(
+  streakCount: number,
+  lastCompletedDate: string,
+): StreakValidationResult {
+  // Rule 1: Validate date format
+  const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+  if (!isoDatePattern.test(lastCompletedDate)) {
+    return {
+      isValid: false,
+      reason: "Invalid date format (expected YYYY-MM-DD)",
+    };
+  }
+
+  // Verify it's a real date (not 2024-13-45)
+  const lastDate = new Date(lastCompletedDate + "T00:00:00.000Z");
+  if (isNaN(lastDate.getTime())) {
+    return {
+      isValid: false,
+      reason: "Invalid date value",
+    };
+  }
+
+  // Ensure date roundtrips correctly (catches edge cases)
+  if (getUTCDateString(lastDate) !== lastCompletedDate) {
+    return {
+      isValid: false,
+      reason: "Date does not roundtrip correctly",
+    };
+  }
+
+  // Rule 2: Date must not be in the future
+  const now = new Date();
+  const today = getUTCDateString(now);
+  if (lastCompletedDate > today) {
+    return {
+      isValid: false,
+      reason: "Date cannot be in the future",
+    };
+  }
+
+  // Rule 3: Date must not be too old (90 days is generous limit)
+  const ninetyDaysAgo = new Date(now);
+  ninetyDaysAgo.setUTCDate(ninetyDaysAgo.getUTCDate() - 90);
+  const ninetyDaysAgoString = getUTCDateString(ninetyDaysAgo);
+  if (lastCompletedDate < ninetyDaysAgoString) {
+    return {
+      isValid: false,
+      reason: "Date is too old (>90 days)",
+    };
+  }
+
+  // Rule 4: Streak count must be positive
+  if (streakCount < 0) {
+    return {
+      isValid: false,
+      reason: "Streak count cannot be negative",
+    };
+  }
+
+  // Rule 5: Maximum streak cap (365 days = 1 year)
+  const MAX_ANONYMOUS_STREAK = 365;
+  if (streakCount > MAX_ANONYMOUS_STREAK) {
+    return {
+      isValid: false,
+      reason: `Streak count exceeds maximum (${MAX_ANONYMOUS_STREAK} days)`,
+    };
+  }
+
+  // Rule 6: Streak length must be consistent with date range
+  // If user claims N-day streak ending on lastDate, the first day should be N-1 days before
+  // We can't verify the exact days, but we can ensure it's plausible
+  if (streakCount > 0) {
+    const firstDay = new Date(lastDate);
+    firstDay.setUTCDate(firstDay.getUTCDate() - (streakCount - 1));
+    const firstDayString = getUTCDateString(firstDay);
+
+    // First day must be within our 90-day window
+    if (firstDayString < ninetyDaysAgoString) {
+      return {
+        isValid: false,
+        reason: "Streak extends beyond plausible date range",
+      };
+    }
+  }
+
+  return { isValid: true };
+}
+
+/**
  * Calculate the first day of a streak given its last day and length
  *
  * When an anonymous user builds a multi-day streak, we only store the
@@ -465,6 +580,31 @@ export const mergeAnonymousStreak = mutation({
         mergedStreak: user.currentStreak,
         source: "server" as const,
         message: "No anonymous streak to merge",
+      };
+    }
+
+    // CRITICAL SECURITY: Validate anonymous streak data
+    // Anonymous data comes from client-side localStorage and is UNTRUSTED
+    // Users could manipulate this data or call this mutation directly with fake values
+    const validation = validateAnonymousStreak(
+      args.anonymousStreak,
+      args.anonymousLastCompletedDate,
+    );
+
+    if (!validation.isValid) {
+      console.warn("[mergeAnonymousStreak] Invalid anonymous streak data:", {
+        reason: validation.reason,
+        userId: user._id,
+        clerkId: identity.subject,
+        anonymousStreak: args.anonymousStreak,
+        anonymousLastCompletedDate: args.anonymousLastCompletedDate,
+        timestamp: new Date().toISOString(),
+      });
+
+      return {
+        mergedStreak: user.currentStreak,
+        source: "server" as const,
+        message: `Invalid anonymous data: ${validation.reason}`,
       };
     }
 
