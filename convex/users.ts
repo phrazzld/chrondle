@@ -638,16 +638,28 @@ export const mergeAnonymousStreak = mutation({
             : args.anonymousLastCompletedDate;
         source = "combined";
       } else {
-        // Streaks are not consecutive - take the higher value
+        // Streaks are not consecutive - pick the better one
         mergedStreak = Math.max(user.currentStreak, args.anonymousStreak);
 
-        // Use date from whichever source provided the winning streak
+        // Decision logic: prefer longer streak, use recency as tiebreaker
         if (args.anonymousStreak > user.currentStreak) {
+          // Anonymous streak is longer - use its data
           mergedDate = args.anonymousLastCompletedDate;
           source = "anonymous";
-        } else {
+        } else if (args.anonymousStreak < user.currentStreak) {
+          // Server streak is longer - use its data
           mergedDate = user.lastCompletedDate || args.anonymousLastCompletedDate;
           source = "server";
+        } else {
+          // Streaks are equal length - use more recent date as tiebreaker
+          // This preserves freshness and avoids next-day gap bugs
+          if (args.anonymousLastCompletedDate > (user.lastCompletedDate || "")) {
+            mergedDate = args.anonymousLastCompletedDate;
+            source = "anonymous";
+          } else {
+            mergedDate = user.lastCompletedDate || args.anonymousLastCompletedDate;
+            source = "server";
+          }
         }
       }
 
