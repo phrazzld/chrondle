@@ -109,34 +109,55 @@ export function useStreak(): UseStreakReturn {
           achievements: [],
         };
       } else {
-        // Anonymous: calculate and save to localStorage
-        const today = getUTCDateString();
-        const result = calculateStreak(
-          anonymousStreak.lastCompletedDate || null,
-          anonymousStreak.currentStreak,
-          today,
-          hasWon,
+        // Anonymous: calculate and save to localStorage using functional update
+        // This prevents the callback from depending on anonymousStreak state
+        let resultData: StreakData | null = null;
+
+        setAnonymousStreak((prev) => {
+          const today = getUTCDateString();
+          const result = calculateStreak(
+            prev.lastCompletedDate || null,
+            prev.currentStreak,
+            today,
+            hasWon,
+          );
+
+          const newStreak = {
+            currentStreak: result.currentStreak,
+            lastCompletedDate: result.lastCompletedDate,
+          };
+
+          // Save to localStorage
+          anonymousStreakStorage.set(newStreak);
+
+          // Capture result for return value
+          resultData = {
+            currentStreak: result.currentStreak,
+            longestStreak: result.currentStreak,
+            totalGamesPlayed: 0,
+            lastPlayedDate: result.lastCompletedDate,
+            playedDates: [],
+            achievements: [],
+          };
+
+          return newStreak;
+        });
+
+        // Return the calculated result
+        // If resultData is null (shouldn't happen), return default
+        return (
+          resultData || {
+            currentStreak: 0,
+            longestStreak: 0,
+            totalGamesPlayed: 0,
+            lastPlayedDate: "",
+            playedDates: [],
+            achievements: [],
+          }
         );
-
-        // Save to localStorage
-        const newStreak = {
-          currentStreak: result.currentStreak,
-          lastCompletedDate: result.lastCompletedDate,
-        };
-        anonymousStreakStorage.set(newStreak);
-        setAnonymousStreak(newStreak);
-
-        return {
-          currentStreak: result.currentStreak,
-          longestStreak: result.currentStreak,
-          totalGamesPlayed: 0,
-          lastPlayedDate: result.lastCompletedDate,
-          playedDates: [],
-          achievements: [],
-        };
       }
     },
-    [isSignedIn, convexUser, anonymousStreak],
+    [isSignedIn, convexUser], // Removed anonymousStreak dependency
   );
 
   // Trigger migration when user signs in

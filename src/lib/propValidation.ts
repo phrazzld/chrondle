@@ -18,10 +18,7 @@ function warn(componentName: string, message: string): void {
 /**
  * Validate GameLayout critical props
  */
-export function validateGameLayoutProps(
-  props: unknown,
-  componentName = "GameLayout",
-): void {
+export function validateGameLayoutProps(props: unknown, componentName = "GameLayout"): void {
   if (!isDevelopment) return;
 
   const p = props as Record<string, any>;
@@ -66,10 +63,7 @@ export function validateGameLayoutProps(
 /**
  * Validate GuessInput critical props
  */
-export function validateGuessInputProps(
-  props: unknown,
-  componentName = "GuessInput",
-): void {
+export function validateGuessInputProps(props: unknown, componentName = "GuessInput"): void {
   if (!isDevelopment) return;
 
   const p = props as Record<string, any>;
@@ -92,10 +86,7 @@ export function validateGuessInputProps(
   }
 
   // Check optional onValidationError
-  if (
-    p.onValidationError !== undefined &&
-    typeof p.onValidationError !== "function"
-  ) {
+  if (p.onValidationError !== undefined && typeof p.onValidationError !== "function") {
     warn(componentName, "onValidationError must be a function if provided");
   }
 }
@@ -103,10 +94,7 @@ export function validateGuessInputProps(
 /**
  * Validate HintsDisplay critical props
  */
-export function validateHintsDisplayProps(
-  props: unknown,
-  componentName = "HintsDisplay",
-): void {
+export function validateHintsDisplayProps(props: unknown, componentName = "HintsDisplay"): void {
   if (!isDevelopment) return;
 
   const p = props as Record<string, any>;
@@ -128,15 +116,11 @@ export function validateHintsDisplayProps(
     warn(componentName, "targetYear must be a number");
   }
 
-  // Check currentHintIndex is valid
-  if (typeof p.currentHintIndex !== "number") {
-    warn(componentName, "currentHintIndex must be a number");
-  } else if (p.currentHintIndex < 0 || p.currentHintIndex > 5) {
-    warn(componentName, "currentHintIndex must be between 0 and 5");
+  // Check optional isGameComplete boolean
+  if (p.isGameComplete !== undefined && typeof p.isGameComplete !== "boolean") {
+    warn(componentName, "isGameComplete must be a boolean if provided");
   }
 
-  // Check isLoading is boolean
-  if (typeof p.isLoading !== "boolean") {
-    warn(componentName, "isLoading must be a boolean");
-  }
+  // Note: currentHintIndex and isLoading props removed from interface
+  // These are now calculated internally by the component
 }
