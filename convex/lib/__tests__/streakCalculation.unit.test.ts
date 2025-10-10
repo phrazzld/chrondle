@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { calculateStreak, getUTCDateString, isConsecutiveDay } from "../streakCalculation";
+import {
+  calculateStreak,
+  calculateStreakUpdate,
+  applyStreakUpdate,
+  getUTCDateString,
+  isConsecutiveDay,
+} from "../streakCalculation";
 
 describe("Streak Calculation Utilities", () => {
   describe("getUTCDateString", () => {
@@ -322,6 +328,178 @@ describe("Streak Calculation Utilities", () => {
         expect(result).toEqual({
           currentStreak: 1,
           lastCompletedDate: "2025-12-31",
+        });
+      });
+    });
+  });
+
+  describe("calculateStreakUpdate (Discriminated Union)", () => {
+    describe("no-change updates", () => {
+      it("should return no-change for same-day replay", () => {
+        const update = calculateStreakUpdate("2025-10-09", 5, "2025-10-09", true);
+        expect(update).toEqual({
+          type: "no-change",
+          reason: "same-day-replay",
+        });
+      });
+
+      it("should return no-change even when hasWon=false on same day", () => {
+        const update = calculateStreakUpdate("2025-10-09", 5, "2025-10-09", false);
+        expect(update).toEqual({
+          type: "no-change",
+          reason: "same-day-replay",
+        });
+      });
+    });
+
+    describe("increment updates", () => {
+      it("should increment for consecutive day win", () => {
+        const update = calculateStreakUpdate("2025-10-08", 5, "2025-10-09", true);
+        expect(update).toEqual({
+          type: "increment",
+          newStreak: 6,
+          date: "2025-10-09",
+          reason: "consecutive-day-win",
+        });
+      });
+
+      it("should increment from 1 to 2", () => {
+        const update = calculateStreakUpdate("2025-10-08", 1, "2025-10-09", true);
+        expect(update).toEqual({
+          type: "increment",
+          newStreak: 2,
+          date: "2025-10-09",
+          reason: "consecutive-day-win",
+        });
+      });
+    });
+
+    describe("reset updates", () => {
+      it("should reset on loss (consecutive day)", () => {
+        const update = calculateStreakUpdate("2025-10-08", 5, "2025-10-09", false);
+        expect(update).toEqual({
+          type: "reset",
+          date: "2025-10-09",
+          reason: "loss",
+        });
+      });
+
+      it("should reset on loss (gap)", () => {
+        const update = calculateStreakUpdate("2025-10-05", 10, "2025-10-09", false);
+        expect(update).toEqual({
+          type: "reset",
+          date: "2025-10-09",
+          reason: "loss",
+        });
+      });
+    });
+
+    describe("initialize updates", () => {
+      it("should initialize on first win", () => {
+        const update = calculateStreakUpdate(null, 0, "2025-10-09", true);
+        expect(update).toEqual({
+          type: "initialize",
+          date: "2025-10-09",
+          reason: "first-win",
+        });
+      });
+
+      it("should restart after gap (missed days)", () => {
+        const update = calculateStreakUpdate("2025-10-05", 10, "2025-10-09", true);
+        expect(update).toEqual({
+          type: "initialize",
+          date: "2025-10-09",
+          reason: "restart-after-gap",
+        });
+      });
+
+      it("should restart after 1-day gap", () => {
+        const update = calculateStreakUpdate("2025-10-07", 5, "2025-10-09", true);
+        expect(update).toEqual({
+          type: "initialize",
+          date: "2025-10-09",
+          reason: "restart-after-gap",
+        });
+      });
+    });
+  });
+
+  describe("applyStreakUpdate", () => {
+    describe("no-change updates", () => {
+      it("should preserve state on no-change", () => {
+        const result = applyStreakUpdate(
+          { currentStreak: 5, lastCompletedDate: "2025-10-09" },
+          { type: "no-change", reason: "same-day-replay" },
+        );
+        expect(result).toEqual({
+          currentStreak: 5,
+          lastCompletedDate: "2025-10-09",
+        });
+      });
+
+      it("should handle null lastCompletedDate on no-change", () => {
+        const result = applyStreakUpdate(
+          { currentStreak: 0, lastCompletedDate: null },
+          { type: "no-change", reason: "same-day-replay" },
+        );
+        expect(result).toEqual({
+          currentStreak: 0,
+          lastCompletedDate: "",
+        });
+      });
+    });
+
+    describe("increment updates", () => {
+      it("should apply increment correctly", () => {
+        const result = applyStreakUpdate(
+          { currentStreak: 5, lastCompletedDate: "2025-10-08" },
+          {
+            type: "increment",
+            newStreak: 6,
+            date: "2025-10-09",
+            reason: "consecutive-day-win",
+          },
+        );
+        expect(result).toEqual({
+          currentStreak: 6,
+          lastCompletedDate: "2025-10-09",
+        });
+      });
+    });
+
+    describe("reset updates", () => {
+      it("should reset streak to zero", () => {
+        const result = applyStreakUpdate(
+          { currentStreak: 10, lastCompletedDate: "2025-10-08" },
+          { type: "reset", date: "2025-10-09", reason: "loss" },
+        );
+        expect(result).toEqual({
+          currentStreak: 0,
+          lastCompletedDate: "2025-10-09",
+        });
+      });
+    });
+
+    describe("initialize updates", () => {
+      it("should start new streak at 1", () => {
+        const result = applyStreakUpdate(
+          { currentStreak: 0, lastCompletedDate: null },
+          { type: "initialize", date: "2025-10-09", reason: "first-win" },
+        );
+        expect(result).toEqual({
+          currentStreak: 1,
+          lastCompletedDate: "2025-10-09",
+        });
+      });
+
+      it("should restart streak at 1 after gap", () => {
+        const result = applyStreakUpdate(
+          { currentStreak: 10, lastCompletedDate: "2025-10-05" },
+          { type: "initialize", date: "2025-10-09", reason: "restart-after-gap" },
+        );
+        expect(result).toEqual({
+          currentStreak: 1,
+          lastCompletedDate: "2025-10-09",
         });
       });
     });

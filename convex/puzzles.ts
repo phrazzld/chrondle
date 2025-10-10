@@ -2,7 +2,11 @@ import { v } from "convex/values";
 import { query, mutation, internalMutation, DatabaseWriter } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
-import { calculateStreak, getUTCDateString } from "./lib/streakCalculation";
+import {
+  calculateStreakUpdate,
+  applyStreakUpdate,
+  getUTCDateString,
+} from "./lib/streakCalculation";
 
 // Game configuration constants
 const MAX_GUESSES = 6;
@@ -414,23 +418,58 @@ async function updatePuzzleStats(ctx: { db: DatabaseWriter }, puzzleId: Id<"puzz
 async function updateUserStreak(ctx: { db: DatabaseWriter }, userId: Id<"users">, hasWon: boolean) {
   const user = await ctx.db.get(userId);
   if (!user) {
+    console.error("[updateUserStreak] User not found:", userId);
     throw new Error("User not found");
   }
 
   const today = getUTCDateString();
-  const result = calculateStreak(user.lastCompletedDate || null, user.currentStreak, today, hasWon);
 
-  // Special case: same-day completion returns currentStreak = 0 as signal
-  // Don't update if already played today
-  if (result.currentStreak === 0 && result.lastCompletedDate === user.lastCompletedDate) {
-    return; // No update needed
+  // Calculate streak update using explicit discriminated union
+  const update = calculateStreakUpdate(
+    user.lastCompletedDate || null,
+    user.currentStreak,
+    today,
+    hasWon,
+  );
+
+  // Log update for debugging
+  console.warn("[updateUserStreak] Calculated update:", {
+    userId,
+    updateType: update.type,
+    reason: update.reason,
+    currentStreak: user.currentStreak,
+  });
+
+  // Handle no-change case explicitly (same-day replay)
+  if (update.type === "no-change") {
+    console.warn("[updateUserStreak] Same-day replay - preserving streak:", user.currentStreak);
+    return; // No database update needed
   }
 
+  // Apply the update to get new state
+  const newState = applyStreakUpdate(
+    {
+      currentStreak: user.currentStreak,
+      lastCompletedDate: user.lastCompletedDate || null,
+    },
+    update,
+  );
+
+  // Update database with new streak
+  const longestStreak = Math.max(newState.currentStreak, user.longestStreak);
+
   await ctx.db.patch(userId, {
-    currentStreak: result.currentStreak,
-    lastCompletedDate: result.lastCompletedDate,
-    longestStreak: Math.max(result.currentStreak, user.longestStreak),
+    currentStreak: newState.currentStreak,
+    lastCompletedDate: newState.lastCompletedDate,
+    longestStreak,
     updatedAt: Date.now(),
+  });
+
+  console.warn("[updateUserStreak] Updated user streak:", {
+    userId,
+    updateType: update.type,
+    newStreak: newState.currentStreak,
+    longestStreak,
   });
 }
 

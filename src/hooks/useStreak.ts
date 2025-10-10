@@ -5,8 +5,13 @@ import { useUser } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { anonymousStreakStorage } from "@/lib/secureStorage";
-import { calculateStreak, getUTCDateString } from "../../convex/lib/streakCalculation";
+import {
+  calculateStreakUpdate,
+  applyStreakUpdate,
+  getUTCDateString,
+} from "../../convex/lib/streakCalculation";
 import { STREAK_CONFIG } from "@/lib/constants";
+import { logger } from "@/lib/logger";
 
 /**
  * Streak data structure (compatible with existing interface)
@@ -99,7 +104,7 @@ export function useStreak(): UseStreakReturn {
       if (isSignedIn && convexUser) {
         // Authenticated: streak is already updated by submitGuess mutation
         // This is essentially a no-op since the backend handles it
-        // Just return current streak data from Convex
+        logger.debug("[useStreak] Authenticated user - backend already updated streak");
         return {
           currentStreak: convexUser.currentStreak,
           longestStreak: convexUser.longestStreak,
@@ -109,42 +114,65 @@ export function useStreak(): UseStreakReturn {
           achievements: [],
         };
       } else {
-        // Anonymous: calculate and save to localStorage using functional update
-        // This prevents the callback from depending on anonymousStreak state
+        // Anonymous: calculate update and apply using discriminated union pattern
         let resultData: StreakData | null = null;
 
         setAnonymousStreak((prev) => {
           const today = getUTCDateString();
-          const result = calculateStreak(
+
+          // Calculate what should happen (explicit command pattern)
+          const update = calculateStreakUpdate(
             prev.lastCompletedDate || null,
             prev.currentStreak,
             today,
             hasWon,
           );
 
-          const newStreak = {
-            currentStreak: result.currentStreak,
-            lastCompletedDate: result.lastCompletedDate,
-          };
+          // Log the update for visibility
+          logger.debug("[useStreak] Calculated streak update:", {
+            type: update.type,
+            reason: update.reason,
+            currentStreak: prev.currentStreak,
+          });
 
-          // Save to localStorage
-          anonymousStreakStorage.set(newStreak);
+          // Apply the update to get new state
+          const newState = applyStreakUpdate(prev, update);
 
-          // Capture result for return value
+          // Log same-day replays explicitly (this was the bug!)
+          if (update.type === "no-change") {
+            logger.debug("[useStreak] Same-day replay detected - preserving streak:", {
+              preservedStreak: newState.currentStreak,
+              date: newState.lastCompletedDate,
+            });
+          }
+
+          // Save to localStorage (even for no-change, to ensure consistency)
+          const saveSuccess = anonymousStreakStorage.set({
+            currentStreak: newState.currentStreak,
+            lastCompletedDate: newState.lastCompletedDate,
+          });
+
+          if (!saveSuccess) {
+            logger.warn("[useStreak] Failed to save streak to localStorage");
+          }
+
+          // Prepare return data
           resultData = {
-            currentStreak: result.currentStreak,
-            longestStreak: result.currentStreak,
-            totalGamesPlayed: 0,
-            lastPlayedDate: result.lastCompletedDate,
+            currentStreak: newState.currentStreak,
+            longestStreak: newState.currentStreak, // Anonymous users don't track history
+            totalGamesPlayed: 0, // Not tracked for anonymous
+            lastPlayedDate: newState.lastCompletedDate,
             playedDates: [],
             achievements: [],
           };
 
-          return newStreak;
+          return {
+            currentStreak: newState.currentStreak,
+            lastCompletedDate: newState.lastCompletedDate,
+          };
         });
 
         // Return the calculated result
-        // If resultData is null (shouldn't happen), return default
         return (
           resultData || {
             currentStreak: 0,
@@ -157,7 +185,7 @@ export function useStreak(): UseStreakReturn {
         );
       }
     },
-    [isSignedIn, convexUser], // Removed anonymousStreak dependency
+    [isSignedIn, convexUser], // Stable dependencies - no anonymousStreak
   );
 
   // Trigger migration when user signs in

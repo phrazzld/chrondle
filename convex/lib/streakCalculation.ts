@@ -6,14 +6,86 @@
  *
  * Module Responsibility: Calculate streaks from dates - the "what" not "how to persist"
  * Hidden Complexity: UTC timezone handling, date comparison edge cases, null handling
+ *
+ * Design: Uses discriminated unions to make streak update operations explicit.
+ * Instead of returning ambiguous numbers, we return self-describing commands.
  */
 
 /**
- * Result of streak calculation
+ * Result of streak calculation - DEPRECATED
+ * Use StreakUpdate instead for explicit command semantics
+ * @deprecated
  */
 export interface StreakCalculationResult {
   currentStreak: number;
   lastCompletedDate: string;
+}
+
+/**
+ * Explicit streak update operations using discriminated union pattern
+ *
+ * Each variant represents a different update command with clear semantics.
+ * This eliminates ambiguity (e.g., "is 0 a reset or a no-op?") and makes
+ * the code self-documenting.
+ */
+export type StreakUpdate =
+  | {
+      /** No state change needed - preserves existing streak */
+      type: "no-change";
+      reason: "same-day-replay";
+    }
+  | {
+      /** Increment streak - consecutive day win */
+      type: "increment";
+      newStreak: number;
+      date: string;
+      reason: "consecutive-day-win";
+    }
+  | {
+      /** Reset streak to zero */
+      type: "reset";
+      date: string;
+      reason: "loss" | "missed-days";
+    }
+  | {
+      /** Start new streak at 1 */
+      type: "initialize";
+      date: string;
+      reason: "first-win" | "restart-after-gap";
+    };
+
+/**
+ * Type guard: Check if update is no-change
+ */
+export function isNoChange(
+  update: StreakUpdate,
+): update is Extract<StreakUpdate, { type: "no-change" }> {
+  return update.type === "no-change";
+}
+
+/**
+ * Type guard: Check if update is increment
+ */
+export function isIncrement(
+  update: StreakUpdate,
+): update is Extract<StreakUpdate, { type: "increment" }> {
+  return update.type === "increment";
+}
+
+/**
+ * Type guard: Check if update is reset
+ */
+export function isReset(update: StreakUpdate): update is Extract<StreakUpdate, { type: "reset" }> {
+  return update.type === "reset";
+}
+
+/**
+ * Type guard: Check if update is initialize
+ */
+export function isInitialize(
+  update: StreakUpdate,
+): update is Extract<StreakUpdate, { type: "initialize" }> {
+  return update.type === "initialize";
 }
 
 /**
@@ -190,4 +262,163 @@ export function calculateStreak(
     currentStreak: 1,
     lastCompletedDate: todayDate,
   };
+}
+
+/**
+ * Calculate streak update using explicit discriminated union pattern
+ *
+ * This function returns a self-describing command that states exactly what
+ * should happen to the streak. No ambiguous return values, no hidden semantics.
+ *
+ * @param lastCompletedDate - Date of last puzzle completion (ISO YYYY-MM-DD) or null
+ * @param currentStreak - Current streak count before this game
+ * @param todayDate - Date of current game completion (ISO YYYY-MM-DD)
+ * @param hasWon - Whether the player won this game
+ * @returns Explicit update command describing what should happen
+ *
+ * @throws Error if date strings are invalid format
+ *
+ * @example Same-day replay - no state change
+ * calculateStreakUpdate("2025-10-09", 5, "2025-10-09", true)
+ * // → { type: 'no-change', reason: 'same-day-replay' }
+ *
+ * @example Consecutive day win - increment
+ * calculateStreakUpdate("2025-10-08", 5, "2025-10-09", true)
+ * // → { type: 'increment', newStreak: 6, date: "2025-10-09", reason: 'consecutive-day-win' }
+ *
+ * @example Player lost - reset
+ * calculateStreakUpdate("2025-10-08", 5, "2025-10-09", false)
+ * // → { type: 'reset', date: "2025-10-09", reason: 'loss' }
+ *
+ * @example First win ever - initialize
+ * calculateStreakUpdate(null, 0, "2025-10-09", true)
+ * // → { type: 'initialize', date: "2025-10-09", reason: 'first-win' }
+ *
+ * @example Gap detected - restart
+ * calculateStreakUpdate("2025-10-05", 10, "2025-10-09", true)
+ * // → { type: 'initialize', date: "2025-10-09", reason: 'restart-after-gap' }
+ */
+export function calculateStreakUpdate(
+  lastCompletedDate: string | null,
+  currentStreak: number,
+  todayDate: string,
+  hasWon: boolean,
+): StreakUpdate {
+  // Validate today's date
+  if (!isValidDateString(todayDate)) {
+    throw new Error(`Invalid today date: ${todayDate}`);
+  }
+
+  // Same-day replay: No state change needed
+  // This is the fix for the bug - we explicitly return "no-change" instead of 0
+  if (lastCompletedDate === todayDate) {
+    return {
+      type: "no-change",
+      reason: "same-day-replay",
+    };
+  }
+
+  // Player lost: Reset streak to zero
+  if (!hasWon) {
+    return {
+      type: "reset",
+      date: todayDate,
+      reason: "loss",
+    };
+  }
+
+  // First play ever: Initialize streak at 1
+  if (!lastCompletedDate) {
+    return {
+      type: "initialize",
+      date: todayDate,
+      reason: "first-win",
+    };
+  }
+
+  // Validate last completed date
+  if (!isValidDateString(lastCompletedDate)) {
+    throw new Error(`Invalid last completed date: ${lastCompletedDate}`);
+  }
+
+  // Consecutive day win: Increment streak
+  if (isConsecutiveDay(lastCompletedDate, todayDate)) {
+    return {
+      type: "increment",
+      newStreak: currentStreak + 1,
+      date: todayDate,
+      reason: "consecutive-day-win",
+    };
+  }
+
+  // Gap detected (missed days): Restart streak at 1
+  return {
+    type: "initialize",
+    date: todayDate,
+    reason: "restart-after-gap",
+  };
+}
+
+/**
+ * Apply streak update to current state
+ *
+ * Converts an update command from calculateStreakUpdate into an actual
+ * state change. This separates "what to do" from "how to do it".
+ *
+ * @param currentState - Current streak state before update
+ * @param update - Update command from calculateStreakUpdate
+ * @returns New streak state after applying update
+ *
+ * @example Preserve state on no-change
+ * applyStreakUpdate(
+ *   { currentStreak: 5, lastCompletedDate: "2025-10-09" },
+ *   { type: 'no-change', reason: 'same-day-replay' }
+ * )
+ * // → { currentStreak: 5, lastCompletedDate: "2025-10-09" }
+ *
+ * @example Apply increment
+ * applyStreakUpdate(
+ *   { currentStreak: 5, lastCompletedDate: "2025-10-08" },
+ *   { type: 'increment', newStreak: 6, date: "2025-10-09", reason: 'consecutive-day-win' }
+ * )
+ * // → { currentStreak: 6, lastCompletedDate: "2025-10-09" }
+ */
+export function applyStreakUpdate(
+  currentState: { currentStreak: number; lastCompletedDate: string | null },
+  update: StreakUpdate,
+): { currentStreak: number; lastCompletedDate: string } {
+  switch (update.type) {
+    case "no-change":
+      // Preserve existing state - no changes
+      return {
+        currentStreak: currentState.currentStreak,
+        lastCompletedDate: currentState.lastCompletedDate || "",
+      };
+
+    case "increment":
+      // Apply the incremented streak value
+      return {
+        currentStreak: update.newStreak,
+        lastCompletedDate: update.date,
+      };
+
+    case "reset":
+      // Reset streak to zero
+      return {
+        currentStreak: 0,
+        lastCompletedDate: update.date,
+      };
+
+    case "initialize":
+      // Start new streak at 1
+      return {
+        currentStreak: 1,
+        lastCompletedDate: update.date,
+      };
+
+    default:
+      // TypeScript exhaustiveness check - will error if we miss a case
+      const _exhaustive: never = update;
+      throw new Error(`Unhandled update type: ${(_exhaustive as StreakUpdate).type}`);
+  }
 }
