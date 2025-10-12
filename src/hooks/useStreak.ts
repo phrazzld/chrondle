@@ -102,14 +102,37 @@ export function useStreak(): UseStreakReturn {
   const updateStreak = useCallback(
     (hasWon: boolean): StreakData => {
       if (isSignedIn && convexUser) {
-        // Authenticated: streak is already updated by submitGuess mutation
-        // This is essentially a no-op since the backend handles it
-        logger.debug("[useStreak] Authenticated user - backend already updated streak");
+        // Authenticated: Calculate optimistic update while backend processes
+        // submitGuess mutation handles actual persistence, but we provide immediate feedback
+        const today = getUTCDateString();
+
+        const update = calculateStreakUpdate(
+          convexUser.lastCompletedDate || null,
+          convexUser.currentStreak,
+          today,
+          hasWon,
+        );
+
+        // Apply optimistic update for immediate UI feedback
+        const optimisticState = applyStreakUpdate(
+          {
+            currentStreak: convexUser.currentStreak,
+            lastCompletedDate: convexUser.lastCompletedDate || null,
+          },
+          update,
+        );
+
+        logger.debug("[useStreak] Authenticated user - returning optimistic update:", {
+          type: update.type,
+          optimisticStreak: optimisticState.currentStreak,
+          actualStreak: convexUser.currentStreak,
+        });
+
         return {
-          currentStreak: convexUser.currentStreak,
-          longestStreak: convexUser.longestStreak,
+          currentStreak: optimisticState.currentStreak,
+          longestStreak: Math.max(convexUser.longestStreak, optimisticState.currentStreak),
           totalGamesPlayed: convexUser.totalPlays,
-          lastPlayedDate: convexUser.lastCompletedDate || "",
+          lastPlayedDate: optimisticState.lastCompletedDate,
           playedDates: [],
           achievements: [],
         };
@@ -195,8 +218,10 @@ export function useStreak(): UseStreakReturn {
       return;
     }
 
-    // Only migrate if signed in and have anonymous streak
-    if (!isSignedIn || !clerkUser) {
+    // Only migrate if signed in and Convex user exists
+    // CRITICAL: Must wait for convexUser to be provisioned before attempting migration
+    // First-time sign-ins won't have a Convex user until creation mutation completes
+    if (!isSignedIn || !clerkUser || !convexUser) {
       return;
     }
 
@@ -205,25 +230,37 @@ export function useStreak(): UseStreakReturn {
       return;
     }
 
-    // Mark as migrated immediately to prevent double-migration
-    hasMigratedRef.current = true;
+    // Trigger migration (mark as complete only AFTER success)
+    logger.debug("[useStreak] Attempting anonymous streak migration:", {
+      anonymousStreak: anonymousStreak.currentStreak,
+      anonymousDate: anonymousStreak.lastCompletedDate,
+    });
 
-    // Trigger migration
     mergeStreakMutation({
       anonymousStreak: anonymousStreak.currentStreak,
       anonymousLastCompletedDate: anonymousStreak.lastCompletedDate,
     })
       .then((result) => {
-        console.warn("[useStreak] Streak migration successful:", result);
+        // Mark as migrated only after successful merge
+        hasMigratedRef.current = true;
+        logger.info("[useStreak] Streak migration successful:", result);
         // Clear localStorage after successful migration
         anonymousStreakStorage.remove();
         setAnonymousStreak({ currentStreak: 0, lastCompletedDate: "" });
       })
       .catch((error) => {
-        console.error("[useStreak] Streak migration failed:", error);
-        // Don't clear hasMigrated flag - we tried once, don't spam retries
+        logger.error("[useStreak] Streak migration failed:", error);
+        // Allow retry for "User not found" errors (Convex user not yet provisioned)
+        if (error?.message?.includes("User not found")) {
+          logger.warn("[useStreak] User not found - will retry on next render");
+          // Don't set hasMigratedRef so effect can retry once user is created
+        } else {
+          // For other errors, mark as migrated to prevent infinite retries
+          hasMigratedRef.current = true;
+          logger.error("[useStreak] Non-recoverable migration error - will not retry");
+        }
       });
-  }, [isSignedIn, clerkUser, anonymousStreak, mergeStreakMutation]);
+  }, [isSignedIn, clerkUser, convexUser, anonymousStreak, mergeStreakMutation]);
 
   // Achievement checking (when streak increases)
   useEffect(() => {
