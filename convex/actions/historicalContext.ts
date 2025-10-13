@@ -172,14 +172,20 @@ Remember: you're not just listing events or teaching history—you're telling th
         );
       };
 
+      // System prompt for historian persona
+      const systemPrompt = `You are a master historian crafting a vivid narrative. Channel the storytelling power of Barbara Tuchman, the narrative confidence of Tom Holland, and the immersive drama of Dan Carlin.
+
+Your readers need to understand not just what happened, but what it felt like to live through this year—its texture, its tensions, its transformations.
+
+Use BC/AD dating exclusively. Write 350-450 words that make readers feel they're witnessing history unfold.`;
+
       // Retry loop with exponential backoff (max 3 attempts)
       const maxAttempts = 3;
       let lastError: Error = new Error("Unknown error occurred during context generation");
       let generatedContext: string | undefined;
-      let currentModel = gpt5Enabled ? "openai/gpt-5" : "google/gemini-2.5-flash"; // Use GPT-5 if enabled
+      let currentModel = gpt5Enabled ? "openai/gpt-5" : "google/gemini-2.5-flash";
       let hasHitRateLimit = false;
 
-      // Log model selection
       console.error("[HistoricalContext] Using model:", currentModel, "for puzzle:", puzzleId);
 
       for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -188,34 +194,25 @@ Remember: you're not just listing events or teaching history—you're telling th
             `[HistoricalContext] Attempt ${attempt + 1}/${maxAttempts} for puzzle ${puzzleId}, year ${year}`,
           );
 
-          // Make fetch call to OpenRouter API
-          const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          // Build API request config
+          const apiConfig = buildAPIConfig({
+            model: currentModel,
+            prompt,
+            systemPrompt,
+            temperature: 1.0,
+            maxTokens: 8000,
+          });
+
+          // Make fetch call to OpenRouter Responses API
+          const response = await fetch("https://openrouter.ai/api/alpha/responses", {
             method: "POST",
             headers: {
               Authorization: `Bearer ${apiKey}`,
               "Content-Type": "application/json",
               "HTTP-Referer": "https://chrondle.com",
-              "X-Title": "Chrondle Historical Context GPT-5",
+              "X-Title": "Chrondle Historical Context",
             },
-            body: JSON.stringify({
-              model: currentModel,
-              messages: [
-                {
-                  role: "system",
-                  content: `You are a master historian crafting a vivid narrative. Channel the storytelling power of Barbara Tuchman, the narrative confidence of Tom Holland, and the immersive drama of Dan Carlin.
-
-Your readers need to understand not just what happened, but what it felt like to live through this year—its texture, its tensions, its transformations.
-
-Use BC/AD dating exclusively. Write 350-450 words that make readers feel they're witnessing history unfold.`,
-                },
-                {
-                  role: "user",
-                  content: prompt,
-                },
-              ],
-              temperature: 1.0,
-              max_tokens: 8000,
-            }),
+            body: JSON.stringify(apiConfig),
           });
 
           // Check if request was successful
