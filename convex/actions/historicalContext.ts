@@ -65,8 +65,8 @@ function enhanceHistoricalContext(text: string): string {
  *
  * @returns Responses API request body with:
  *   - input: Combined system and user prompts
- *   - reasoning: High effort reasoning with automatic summaries
- *   - text: High verbosity plain text output (350-450 word target)
+ *   - reasoning: Low effort reasoning with automatic summaries
+ *   - text: Low verbosity plain text output (175-225 word target)
  *   - temperature: Controls response creativity
  *   - max_output_tokens: Output length limit
  *
@@ -83,11 +83,11 @@ function buildAPIConfig(args: {
     model: args.model,
     input: `${args.systemPrompt}\n\n${args.prompt}`,
     reasoning: {
-      effort: "high",
+      effort: "low",
       summary: "auto",
     },
     text: {
-      verbosity: "high",
+      verbosity: "low",
       format: { type: "text" },
     },
     temperature: args.temperature,
@@ -103,10 +103,10 @@ function buildAPIConfig(args: {
  * with GPT-5 reasoning controls for high-quality narrative generation.
  *
  * Features:
- * - High reasoning effort and verbosity for rich 350-450 word narratives
+ * - Low reasoning effort and verbosity for concise 175-225 word narratives
  * - Automatic BC/AD format enforcement (replaces BCE/CE)
  * - Exponential backoff retry logic with GPT-5 → GPT-5-mini fallback
- * - Cost estimation logging (~$0.026 per puzzle with reasoning tokens)
+ * - Cost estimation logging (~$0.015-0.018 per puzzle with reasoning tokens)
  *
  * @param puzzleId - ID of the puzzle to generate context for
  * @param year - Target year for the historical narrative
@@ -135,31 +135,18 @@ export const generateHistoricalContext = internalAction({
 
       // Prepare prompt using template from constants
       const eventsText = args.events.join("\n");
-      const prompt = `Create a compelling historical narrative for the year ${year}.
+      const prompt = `Write a concise historical overview of ${year}.
 
-Key events to weave into your narrative:
+Structure your response in two parts:
+1. First, describe the ERA - what was happening in the world at this time? What were the defining forces, tensions, or transformations of this period?
+2. Then, narrow to the YEAR - what made ${year} specifically significant within that broader context?
+
+Some events that occurred this year (for reference - use only if they enhance your narrative):
 ${eventsText}
 
-APPROACH:
-Begin by establishing the era's broader context. What world did these events emerge from? What forces were in motion? Paint the zeitgeist—the unspoken assumptions, the dominant powers, the emerging tensions. Then narrow your focus to show how this specific year became a turning point.
+Don't force these events into your response if they don't fit naturally. Focus on telling a clear, factual story about why this year mattered. Include concrete details that help readers understand the period.
 
-Weave the events into a flowing narrative where each development feels both surprising and inevitable. Show the connections—how one event triggered another, how distant occurrences rhymed or collided. Build momentum. Make readers feel they're watching history unfold in real time, not knowing how it will end.
-
-Ground everything in human experience. Include sensory details that make the era tangible—what people saw, heard, feared, celebrated. Show how these grand events rippled through daily life. Remember: the people living through ${year} experienced it as their present, full of uncertainty and possibility.
-
-Throughout your narrative, search for the deeper pattern—the thread that connects these seemingly disparate events. What transformation was occurring? What was this year really about? By the end, readers should understand why ${year} mattered, not through the lens of hindsight, but through the power of its own unfolding story.
-
-STYLE NOTES:
-- Write with the urgency of unfolding drama, even in past tense
-- Favor concrete details over abstractions 
-- Show cause and effect through your narrative flow
-- Mix punchy, declarative sentences with flowing, complex ones
-- Make the pace match the period—frenetic for revolutionary years, deliberate for slow-burning changes
-- Use "meanwhile" and "at the same time" to show simultaneity
-- Include at least one moment that makes readers think "I had no idea that happened then"
-- End with something memorable—a line that captures the year's essence
-
-Remember: you're not just listing events or teaching history—you're telling the story of a year that changed the world.`;
+Keep your response direct and focused. Aim for 175-225 words.`;
 
       // Helper functions for retry logic
       const sleep = (ms: number): Promise<void> => {
@@ -204,11 +191,11 @@ Remember: you're not just listing events or teaching history—you're telling th
       };
 
       // System prompt for historian persona
-      const systemPrompt = `You are a master historian crafting a vivid narrative. Channel the storytelling power of Barbara Tuchman, the narrative confidence of Tom Holland, and the immersive drama of Dan Carlin.
+      const systemPrompt = `You are a knowledgeable historian providing clear, concise historical context.
 
-Your readers need to understand not just what happened, but what it felt like to live through this year—its texture, its tensions, its transformations.
+Write factual narratives that explain what made a year historically significant. Use straightforward language and concrete details.
 
-Use BC/AD dating exclusively. Write 350-450 words that make readers feel they're witnessing history unfold.`;
+Use BC/AD dating exclusively. Aim for 175-225 words.`;
 
       // Retry loop with exponential backoff (max 3 attempts)
       const maxAttempts = 3;

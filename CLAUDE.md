@@ -107,7 +107,7 @@ const { themeMode, setThemeMode, mounted } = useEnhancedTheme();
 
 **Historical Context Generation (AI):**
 
-Chrondle uses OpenRouter's **Responses API Alpha** with GPT-5 to generate rich historical narratives after puzzle completion. This provides educational context that helps players understand the year's significance.
+Chrondle uses OpenRouter's **Responses API Alpha** with GPT-5 to generate concise historical narratives after puzzle completion. This provides educational context that helps players understand the year's significance.
 
 **API Configuration:**
 
@@ -116,11 +116,11 @@ Chrondle uses OpenRouter's **Responses API Alpha** with GPT-5 to generate rich h
 {
   model: "openai/gpt-5",
   reasoning: {
-    effort: "high",        // Deep narrative reasoning for event integration
+    effort: "low",         // Efficient reasoning for factual context
     summary: "auto"        // Automatic reasoning summaries
   },
   text: {
-    verbosity: "high",     // Rich, detailed narratives (350-450 words)
+    verbosity: "low",      // Concise narratives (175-225 words)
     format: { type: "text" }
   },
   temperature: 1.0,
@@ -130,11 +130,11 @@ Chrondle uses OpenRouter's **Responses API Alpha** with GPT-5 to generate rich h
 
 **Key Features:**
 
-- **High Reasoning Effort**: GPT-5's reasoning controls enable deeper historical analysis and event integration
-- **High Verbosity**: Produces rich 350-450 word narratives (vs 200-300 baseline) that make history vivid and engaging
+- **Low Reasoning Effort**: Efficient reasoning for clear, factual historical context
+- **Low Verbosity**: Produces concise 175-225 word narratives that are informative without being flowery
 - **BC/AD Enforcement**: Automatic post-processing replaces BCE/CE with BC/AD for consistency
 - **Fallback Chain**: GPT-5 → GPT-5-mini (on rate limit) → Gemini 2.5 Flash (if GPT-5 disabled)
-- **Cost Efficiency**: ~$0.026 per puzzle with reasoning tokens (+13% vs baseline Chat Completions)
+- **Cost Efficiency**: ~$0.015-0.018 per puzzle with reasoning tokens (~40% savings vs high verbosity)
 
 **Implementation:**
 
@@ -143,12 +143,12 @@ Chrondle uses OpenRouter's **Responses API Alpha** with GPT-5 to generate rich h
 - Testing: `pnpm tsx scripts/test-responses-api.ts`
 - Docs: See `.env.example` for configuration details
 
-**Quality Metrics (from production):**
+**Quality Metrics (target):**
 
-- Word count: 300-600 words (high verbosity produces richer content)
-- Event integration: 80-100% of puzzle events mentioned in narrative
+- Word count: 175-225 words (concise and focused)
+- Event integration: Flexible (3-5 of 6 events, not forced)
 - BC/AD compliance: 100% (automatic enforcement)
-- Generation time: 5-10 seconds average
+- Generation time: 3-7 seconds average
 
 **Component Composition:**
 
