@@ -138,12 +138,19 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
   const [, setValidationError] = useState("");
   const [, setLastGuessCount] = useState(0);
 
+  // Guard to prevent multiple game over handling
+  const hasHandledGameOverRef = useRef(false);
+
   // Handle game over with streak updates
   const handleGameOver = useCallback(
     (won: boolean, guessCount: number) => {
       // logger.gameComplete is not available, use logger.info instead
       logger.info(`Game complete: ${won ? "Won" : "Lost"} in ${guessCount} guesses`);
       setLastGuessCount(guessCount);
+
+      // Update streak (dual-mode):
+      // - Authenticated: no-op (backend submitGuess mutation already updated)
+      // - Anonymous: calculate and persist to localStorage
       updateStreak(won);
     },
     [updateStreak],
@@ -151,9 +158,16 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
 
   // Watch for game completion
   useEffect(() => {
-    if (gameLogic.isGameComplete && !gameLogic.isLoading) {
+    // Only handle game over once per completion
+    if (gameLogic.isGameComplete && !gameLogic.isLoading && !hasHandledGameOverRef.current) {
+      hasHandledGameOverRef.current = true;
       const guessCount = gameLogic.gameState.guesses.length;
       handleGameOver(gameLogic.hasWon, guessCount);
+    }
+
+    // Reset guard when game resets (for debug mode or archive navigation)
+    if (!gameLogic.isGameComplete) {
+      hasHandledGameOverRef.current = false;
     }
   }, [
     gameLogic.isGameComplete,
