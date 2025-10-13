@@ -1,10 +1,11 @@
-#!/usr/bin/env node
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
  * Test script for OpenRouter Responses API integration
  * Validates API endpoint, response parsing, and context quality
+ *
+ * Usage: pnpm tsx scripts/test-responses-api.ts
  */
 
 import { ConvexHttpClient } from "convex/browser";
