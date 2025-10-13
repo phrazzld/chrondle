@@ -50,8 +50,27 @@ function enhanceHistoricalContext(text: string): string {
 }
 
 /**
- * Builds Responses API request configuration for GPT-5
- * Uses reasoning controls for high-quality narrative generation
+ * Builds OpenRouter Responses API request configuration
+ *
+ * Uses the Responses API Alpha endpoint with reasoning controls for high-quality
+ * narrative generation. This function combines prompts and maps parameters to the
+ * Responses API format.
+ *
+ * @param args - Configuration object
+ * @param args.model - OpenRouter model identifier (e.g., "openai/gpt-5")
+ * @param args.prompt - User prompt describing the historical narrative task
+ * @param args.systemPrompt - System-level instructions for the historian persona
+ * @param args.temperature - Sampling temperature for response variability (0.0-2.0)
+ * @param args.maxTokens - Maximum tokens to generate in the response
+ *
+ * @returns Responses API request body with:
+ *   - input: Combined system and user prompts
+ *   - reasoning: High effort reasoning with automatic summaries
+ *   - text: High verbosity plain text output (350-450 word target)
+ *   - temperature: Controls response creativity
+ *   - max_output_tokens: Output length limit
+ *
+ * @see https://openrouter.ai/docs/responses-api
  */
 function buildAPIConfig(args: {
   model: string;
@@ -78,8 +97,20 @@ function buildAPIConfig(args: {
 
 /**
  * Internal action to generate historical context for a puzzle
- * Called by the puzzle generation cron job after creating a new puzzle
- * Makes external API call to OpenRouter to generate AI narrative
+ *
+ * Called by the puzzle generation cron job after creating a new puzzle.
+ * Makes external API call to OpenRouter's Responses API Alpha endpoint
+ * with GPT-5 reasoning controls for high-quality narrative generation.
+ *
+ * Features:
+ * - High reasoning effort and verbosity for rich 350-450 word narratives
+ * - Automatic BC/AD format enforcement (replaces BCE/CE)
+ * - Exponential backoff retry logic with GPT-5 → GPT-5-mini fallback
+ * - Cost estimation logging (~$0.026 per puzzle with reasoning tokens)
+ *
+ * @param puzzleId - ID of the puzzle to generate context for
+ * @param year - Target year for the historical narrative
+ * @param events - Array of 6 historical events to weave into the narrative
  */
 export const generateHistoricalContext = internalAction({
   args: {
