@@ -14,19 +14,10 @@ interface ErrorWithStatus extends Error {
   status?: number;
 }
 
-// Response type for OpenRouter Responses API (Alpha)
-interface ResponsesAPIResponse {
+// Response type for OpenRouter Responses API
+interface APIResponse {
   output_text: string;
   reasoning_tokens?: number;
-}
-
-// Response type for OpenRouter Chat Completions API (legacy)
-interface ChatCompletionsResponse {
-  choices: Array<{
-    message: {
-      content: string;
-    };
-  }>;
 }
 
 /**
@@ -56,6 +47,33 @@ function enhanceHistoricalContext(text: string): string {
   enhanced = enhanced.trim();
 
   return enhanced;
+}
+
+/**
+ * Builds Responses API request configuration for GPT-5
+ * Uses reasoning controls for high-quality narrative generation
+ */
+function buildAPIConfig(args: {
+  model: string;
+  prompt: string;
+  systemPrompt: string;
+  temperature: number;
+  maxTokens: number;
+}) {
+  return {
+    model: args.model,
+    input: `${args.systemPrompt}\n\n${args.prompt}`,
+    reasoning: {
+      effort: "high",
+      summary: "auto",
+    },
+    text: {
+      verbosity: "high",
+      format: { type: "text" },
+    },
+    temperature: args.temperature,
+    max_output_tokens: args.maxTokens,
+  };
 }
 
 /**
