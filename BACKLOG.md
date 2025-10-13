@@ -1,5 +1,10 @@
 # BACKLOG
 
+> **Note**: This BACKLOG.md contains the project-wide task backlog and roadmap.
+> For branch-specific work tracking, see TODO.md files in feature branches.
+
+---
+
 ## Critical [Fix This Week]
 
 ### ✅ PR Review Fixes - Streak Persistence (COMPLETED - PR #34)
