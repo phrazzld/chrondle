@@ -231,24 +231,32 @@ Use BC/AD dating exclusively. Write 350-450 words that make readers feel they're
             throw error;
           }
 
-          // Parse response
-          const responseData = await response.json();
-          generatedContext = responseData.choices?.[0]?.message?.content;
+          // Parse Responses API response
+          const responseData = (await response.json()) as APIResponse;
+          generatedContext = responseData.output_text;
 
           if (!generatedContext || typeof generatedContext !== "string") {
             console.error(
-              `[HistoricalContext] Attempt ${attempt + 1} failed - Invalid response structure from OpenRouter`,
+              `[HistoricalContext] Attempt ${attempt + 1} failed - Invalid response structure from Responses API`,
             );
-            throw new Error("Invalid response from OpenRouter API");
+            throw new Error("Invalid response from Responses API");
           }
 
-          // Cost estimation for GPT-5 ($0.01/1K input tokens + $0.03/1K output tokens)
-          if (currentModel.includes("gpt-5")) {
-            const inputTokens = Math.ceil(prompt.length / 4); // Rough estimate: 4 chars per token
-            const outputTokens = Math.ceil(generatedContext.length / 4);
-            const costEstimate = inputTokens * 0.00001 + outputTokens * 0.00003;
+          // Log reasoning tokens if present
+          if (responseData.reasoning_tokens) {
             console.error(
-              `[HistoricalContext] Cost estimate for ${currentModel}: $${costEstimate.toFixed(4)} (${inputTokens} input, ${outputTokens} output tokens)`,
+              `[HistoricalContext] Reasoning tokens used: ${responseData.reasoning_tokens}`,
+            );
+          }
+
+          // Cost estimation for GPT-5 ($0.01/1K input + $0.03/1K output)
+          if (currentModel.includes("gpt-5")) {
+            const inputTokens = Math.ceil(prompt.length / 4);
+            const outputTokens = Math.ceil(generatedContext.length / 4);
+            const reasoningTokens = responseData.reasoning_tokens || 0;
+            const costEstimate = inputTokens * 0.00001 + (outputTokens + reasoningTokens) * 0.00003;
+            console.error(
+              `[HistoricalContext] Cost estimate: $${costEstimate.toFixed(4)} (${inputTokens} input, ${outputTokens} output, ${reasoningTokens} reasoning)`,
             );
           }
 
