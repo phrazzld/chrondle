@@ -14,6 +14,21 @@ interface ErrorWithStatus extends Error {
   status?: number;
 }
 
+// Response type for OpenRouter Responses API (Alpha)
+interface ResponsesAPIResponse {
+  output_text: string;
+  reasoning_tokens?: number;
+}
+
+// Response type for OpenRouter Chat Completions API (legacy)
+interface ChatCompletionsResponse {
+  choices: Array<{
+    message: {
+      content: string;
+    };
+  }>;
+}
+
 /**
  * Enforces BC/AD date format in historical context text
  * Replaces any BCE/CE occurrences with BC/AD
