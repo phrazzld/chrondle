@@ -352,10 +352,10 @@ export const submitGuess = mutation({
       // Update puzzle stats and streak
       if (isCorrect) {
         await updatePuzzleStats(ctx, args.puzzleId);
-        await updateUserStreak(ctx, args.userId, true);
+        await updateUserStreak(ctx, args.userId, true, puzzle.date);
       } else if (updatedGuesses.length >= MAX_GUESSES) {
-        // Game lost - reset streak to 0
-        await updateUserStreak(ctx, args.userId, false);
+        // Game lost - reset streak to 0 (only for today's daily puzzle)
+        await updateUserStreak(ctx, args.userId, false, puzzle.date);
       }
 
       return {
@@ -376,7 +376,7 @@ export const submitGuess = mutation({
       // Update puzzle stats and streak
       if (isCorrect) {
         await updatePuzzleStats(ctx, args.puzzleId);
-        await updateUserStreak(ctx, args.userId, true);
+        await updateUserStreak(ctx, args.userId, true, puzzle.date);
       }
       // Note: For new play records, we never have MAX_GUESSES on first submission
       // Loss streak reset only happens in the existing play path above
@@ -414,8 +414,23 @@ async function updatePuzzleStats(ctx: { db: DatabaseWriter }, puzzleId: Id<"puzz
   });
 }
 
-// Helper function to update user streak after completing a puzzle
-async function updateUserStreak(ctx: { db: DatabaseWriter }, userId: Id<"users">, hasWon: boolean) {
+/**
+ * Update user streak after completing a puzzle
+ *
+ * CRITICAL: Only updates streak for TODAY'S daily puzzle to prevent
+ * archive/historical puzzle plays from affecting daily streak mechanics.
+ *
+ * @param ctx - Convex database context
+ * @param userId - User ID to update
+ * @param hasWon - Whether the user won the puzzle
+ * @param puzzleDate - ISO date string (YYYY-MM-DD) of the puzzle being played
+ */
+async function updateUserStreak(
+  ctx: { db: DatabaseWriter },
+  userId: Id<"users">,
+  hasWon: boolean,
+  puzzleDate: string,
+) {
   const user = await ctx.db.get(userId);
   if (!user) {
     console.error("[updateUserStreak] User not found:", userId);
@@ -423,6 +438,17 @@ async function updateUserStreak(ctx: { db: DatabaseWriter }, userId: Id<"users">
   }
 
   const today = getUTCDateString();
+
+  // CRITICAL: Only update streak for today's daily puzzle
+  // Archive/historical puzzle plays should NOT affect daily streak
+  if (puzzleDate !== today) {
+    console.warn("[updateUserStreak] Skipping streak update for archive puzzle:", {
+      puzzleDate,
+      today,
+      userId,
+    });
+    return; // No streak update for archive puzzles
+  }
 
   // Calculate streak update using explicit discriminated union
   const update = calculateStreakUpdate(
