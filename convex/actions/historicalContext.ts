@@ -14,6 +14,12 @@ interface ErrorWithStatus extends Error {
   status?: number;
 }
 
+// Response type for OpenRouter Responses API
+interface APIResponse {
+  output_text: string;
+  reasoning_tokens?: number;
+}
+
 /**
  * Enforces BC/AD date format in historical context text
  * Replaces any BCE/CE occurrences with BC/AD
@@ -44,9 +50,67 @@ function enhanceHistoricalContext(text: string): string {
 }
 
 /**
+ * Builds OpenRouter Responses API request configuration
+ *
+ * Uses the Responses API Alpha endpoint with reasoning controls for high-quality
+ * narrative generation. This function combines prompts and maps parameters to the
+ * Responses API format.
+ *
+ * @param args - Configuration object
+ * @param args.model - OpenRouter model identifier (e.g., "openai/gpt-5")
+ * @param args.prompt - User prompt describing the historical narrative task
+ * @param args.systemPrompt - System-level instructions for the historian persona
+ * @param args.temperature - Sampling temperature for response variability (0.0-2.0)
+ * @param args.maxTokens - Maximum tokens to generate in the response
+ *
+ * @returns Responses API request body with:
+ *   - input: Combined system and user prompts
+ *   - reasoning: Low effort reasoning with automatic summaries
+ *   - text: Low verbosity plain text output (175-225 word target)
+ *   - temperature: Controls response creativity
+ *   - max_output_tokens: Output length limit
+ *
+ * @see https://openrouter.ai/docs/responses-api
+ */
+function buildAPIConfig(args: {
+  model: string;
+  prompt: string;
+  systemPrompt: string;
+  temperature: number;
+  maxTokens: number;
+}) {
+  return {
+    model: args.model,
+    input: `${args.systemPrompt}\n\n${args.prompt}`,
+    reasoning: {
+      effort: "low",
+      summary: "auto",
+    },
+    text: {
+      verbosity: "low",
+      format: { type: "text" },
+    },
+    temperature: args.temperature,
+    max_output_tokens: args.maxTokens,
+  };
+}
+
+/**
  * Internal action to generate historical context for a puzzle
- * Called by the puzzle generation cron job after creating a new puzzle
- * Makes external API call to OpenRouter to generate AI narrative
+ *
+ * Called by the puzzle generation cron job after creating a new puzzle.
+ * Makes external API call to OpenRouter's Responses API Alpha endpoint
+ * with GPT-5 reasoning controls for high-quality narrative generation.
+ *
+ * Features:
+ * - Low reasoning effort and verbosity for concise 175-225 word narratives
+ * - Automatic BC/AD format enforcement (replaces BCE/CE)
+ * - Exponential backoff retry logic with GPT-5 → GPT-5-mini fallback
+ * - Cost estimation logging (~$0.015-0.018 per puzzle with reasoning tokens)
+ *
+ * @param puzzleId - ID of the puzzle to generate context for
+ * @param year - Target year for the historical narrative
+ * @param events - Array of 6 historical events to weave into the narrative
  */
 export const generateHistoricalContext = internalAction({
   args: {
@@ -71,31 +135,18 @@ export const generateHistoricalContext = internalAction({
 
       // Prepare prompt using template from constants
       const eventsText = args.events.join("\n");
-      const prompt = `Create a compelling historical narrative for the year ${year}.
+      const prompt = `Write a concise historical overview of ${year}.
 
-Key events to weave into your narrative:
+Structure your response in two parts:
+1. First, describe the ERA - what was happening in the world at this time? What were the defining forces, tensions, or transformations of this period?
+2. Then, narrow to the YEAR - what made ${year} specifically significant within that broader context?
+
+Some events that occurred this year (for reference - use only if they enhance your narrative):
 ${eventsText}
 
-APPROACH:
-Begin by establishing the era's broader context. What world did these events emerge from? What forces were in motion? Paint the zeitgeist—the unspoken assumptions, the dominant powers, the emerging tensions. Then narrow your focus to show how this specific year became a turning point.
+Don't force these events into your response if they don't fit naturally. Focus on telling a clear, factual story about why this year mattered. Include concrete details that help readers understand the period.
 
-Weave the events into a flowing narrative where each development feels both surprising and inevitable. Show the connections—how one event triggered another, how distant occurrences rhymed or collided. Build momentum. Make readers feel they're watching history unfold in real time, not knowing how it will end.
-
-Ground everything in human experience. Include sensory details that make the era tangible—what people saw, heard, feared, celebrated. Show how these grand events rippled through daily life. Remember: the people living through ${year} experienced it as their present, full of uncertainty and possibility.
-
-Throughout your narrative, search for the deeper pattern—the thread that connects these seemingly disparate events. What transformation was occurring? What was this year really about? By the end, readers should understand why ${year} mattered, not through the lens of hindsight, but through the power of its own unfolding story.
-
-STYLE NOTES:
-- Write with the urgency of unfolding drama, even in past tense
-- Favor concrete details over abstractions 
-- Show cause and effect through your narrative flow
-- Mix punchy, declarative sentences with flowing, complex ones
-- Make the pace match the period—frenetic for revolutionary years, deliberate for slow-burning changes
-- Use "meanwhile" and "at the same time" to show simultaneity
-- Include at least one moment that makes readers think "I had no idea that happened then"
-- End with something memorable—a line that captures the year's essence
-
-Remember: you're not just listing events or teaching history—you're telling the story of a year that changed the world.`;
+Keep your response direct and focused. Aim for 175-225 words.`;
 
       // Helper functions for retry logic
       const sleep = (ms: number): Promise<void> => {
@@ -139,14 +190,20 @@ Remember: you're not just listing events or teaching history—you're telling th
         );
       };
 
+      // System prompt for historian persona
+      const systemPrompt = `You are a knowledgeable historian providing clear, concise historical context.
+
+Write factual narratives that explain what made a year historically significant. Use straightforward language and concrete details.
+
+Use BC/AD dating exclusively. Aim for 175-225 words.`;
+
       // Retry loop with exponential backoff (max 3 attempts)
       const maxAttempts = 3;
       let lastError: Error = new Error("Unknown error occurred during context generation");
       let generatedContext: string | undefined;
-      let currentModel = gpt5Enabled ? "openai/gpt-5" : "google/gemini-2.5-flash"; // Use GPT-5 if enabled
+      let currentModel = gpt5Enabled ? "openai/gpt-5" : "google/gemini-2.5-flash";
       let hasHitRateLimit = false;
 
-      // Log model selection
       console.error("[HistoricalContext] Using model:", currentModel, "for puzzle:", puzzleId);
 
       for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -155,34 +212,25 @@ Remember: you're not just listing events or teaching history—you're telling th
             `[HistoricalContext] Attempt ${attempt + 1}/${maxAttempts} for puzzle ${puzzleId}, year ${year}`,
           );
 
-          // Make fetch call to OpenRouter API
-          const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          // Build API request config
+          const apiConfig = buildAPIConfig({
+            model: currentModel,
+            prompt,
+            systemPrompt,
+            temperature: 1.0,
+            maxTokens: 8000,
+          });
+
+          // Make fetch call to OpenRouter Responses API
+          const response = await fetch("https://openrouter.ai/api/alpha/responses", {
             method: "POST",
             headers: {
               Authorization: `Bearer ${apiKey}`,
               "Content-Type": "application/json",
               "HTTP-Referer": "https://chrondle.com",
-              "X-Title": "Chrondle Historical Context GPT-5",
+              "X-Title": "Chrondle Historical Context",
             },
-            body: JSON.stringify({
-              model: currentModel,
-              messages: [
-                {
-                  role: "system",
-                  content: `You are a master historian crafting a vivid narrative. Channel the storytelling power of Barbara Tuchman, the narrative confidence of Tom Holland, and the immersive drama of Dan Carlin.
-
-Your readers need to understand not just what happened, but what it felt like to live through this year—its texture, its tensions, its transformations.
-
-Use BC/AD dating exclusively. Write 350-450 words that make readers feel they're witnessing history unfold.`,
-                },
-                {
-                  role: "user",
-                  content: prompt,
-                },
-              ],
-              temperature: 1.0,
-              max_tokens: 8000,
-            }),
+            body: JSON.stringify(apiConfig),
           });
 
           // Check if request was successful
@@ -201,24 +249,32 @@ Use BC/AD dating exclusively. Write 350-450 words that make readers feel they're
             throw error;
           }
 
-          // Parse response
-          const responseData = await response.json();
-          generatedContext = responseData.choices?.[0]?.message?.content;
+          // Parse Responses API response
+          const responseData = (await response.json()) as APIResponse;
+          generatedContext = responseData.output_text;
 
           if (!generatedContext || typeof generatedContext !== "string") {
             console.error(
-              `[HistoricalContext] Attempt ${attempt + 1} failed - Invalid response structure from OpenRouter`,
+              `[HistoricalContext] Attempt ${attempt + 1} failed - Invalid response structure from Responses API`,
             );
-            throw new Error("Invalid response from OpenRouter API");
+            throw new Error("Invalid response from Responses API");
           }
 
-          // Cost estimation for GPT-5 ($0.01/1K input tokens + $0.03/1K output tokens)
-          if (currentModel.includes("gpt-5")) {
-            const inputTokens = Math.ceil(prompt.length / 4); // Rough estimate: 4 chars per token
-            const outputTokens = Math.ceil(generatedContext.length / 4);
-            const costEstimate = inputTokens * 0.00001 + outputTokens * 0.00003;
+          // Log reasoning tokens if present
+          if (responseData.reasoning_tokens) {
             console.error(
-              `[HistoricalContext] Cost estimate for ${currentModel}: $${costEstimate.toFixed(4)} (${inputTokens} input, ${outputTokens} output tokens)`,
+              `[HistoricalContext] Reasoning tokens used: ${responseData.reasoning_tokens}`,
+            );
+          }
+
+          // Cost estimation for GPT-5 ($0.01/1K input + $0.03/1K output)
+          if (currentModel.includes("gpt-5")) {
+            const inputTokens = Math.ceil(prompt.length / 4);
+            const outputTokens = Math.ceil(generatedContext.length / 4);
+            const reasoningTokens = responseData.reasoning_tokens || 0;
+            const costEstimate = inputTokens * 0.00001 + (outputTokens + reasoningTokens) * 0.00003;
+            console.error(
+              `[HistoricalContext] Cost estimate: $${costEstimate.toFixed(4)} (${inputTokens} input, ${outputTokens} output, ${reasoningTokens} reasoning)`,
             );
           }
 

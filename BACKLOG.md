@@ -1,5 +1,10 @@
 # BACKLOG
 
+> **Note**: This BACKLOG.md contains the project-wide task backlog and roadmap.
+> For branch-specific work tracking, see TODO.md files in feature branches.
+
+---
+
 ## Critical [Fix This Week]
 
 ### ✅ PR Review Fixes - Streak Persistence (COMPLETED - PR #34)
@@ -18,7 +23,7 @@ All P1 bugs fixed across 6 Codex review cycles:
 
 ### 🔒 Security & Production Readiness
 
-- [S] [SECURITY] Update vulnerable dependencies (@eslint/plugin-kit, vite) | Impact: 3 | Risk: Low severity
+- ✅ [S] [SECURITY] Update vulnerable dependencies | Impact: 3 | **RESOLVED**: No vulnerabilities found (checked 2025-10-13)
 - [S] [SECURITY] Add runtime environment variable validation with Zod | Impact: 8 | Risk: Config errors
 - [M] [SECURITY] Add rate limiting to historicalContext API endpoint | Impact: 9 | Risk: Cost overruns
 - [S] [RELIABILITY] Add request timeout (AbortController) to Convex fetch | Impact: 8 | Risk: Hangs
@@ -151,3 +156,165 @@ All P1 bugs fixed across 6 Codex review cycles:
 - [GORDIAN] Replace ALL fancy animations with single button component
 - [GORDIAN] Use only browser prefers-color-scheme for theming
 - [GORDIAN] Collapse modals into inline UI elements
+
+---
+
+## OpenRouter Responses API Migration - Future Enhancements
+
+### Gradual Rollout Infrastructure
+
+**Description**: Implement probabilistic feature flag system for controlled percentage-based rollout (10% → 50% → 100%)
+
+**Value**: Reduces risk by enabling incremental deployment with real-time monitoring of quality/cost/performance before full rollout
+
+**Estimated Effort**: 2-3 hours
+
+- Add `RESPONSES_API_ROLLOUT_PERCENTAGE` environment variable
+- Implement `Math.random() < rolloutPercentage` gate in endpoint selection logic
+- Add logging to track which API was used for each puzzle
+- Create dashboard query to monitor API usage distribution
+
+---
+
+### A/B Testing Infrastructure
+
+**Description**: Parallel generation system that creates historical context using both APIs and compares quality/cost/performance metrics
+
+**Value**: Quantitative comparison of Responses API improvements vs. Chat Completions baseline
+
+**Estimated Effort**: 4-6 hours
+
+- Modify `generateHistoricalContext` to support dual generation mode
+- Store both contexts with metadata (API type, cost, generation time, token counts)
+- Create Convex query to compare side-by-side for manual quality review
+- Add analytics dashboard showing cost/performance distributions
+
+---
+
+### Cost Monitoring Dashboard
+
+**Description**: Real-time cost tracking dashboard showing per-puzzle costs, daily totals, and cost trends over time
+
+**Value**: Proactive cost management and budget forecasting for historical context generation
+
+**Estimated Effort**: 3-4 hours
+
+- Add `costEstimate` field to puzzles schema
+- Create aggregation queries for daily/weekly/monthly costs
+- Build admin dashboard component showing cost metrics
+- Add alerting for unexpected cost spikes
+
+---
+
+### Quality Metrics Tracking
+
+**Description**: Automated quality scoring system for generated narratives (word count, BC/AD compliance, event integration, readability scores)
+
+**Value**: Objective measurement of narrative quality improvements from Responses API parameters
+
+**Estimated Effort**: 5-7 hours
+
+- Implement automated checks: word count (350-450 target), BC/AD ratio, event mention count
+- Add readability score calculation (Flesch-Kincaid or similar)
+- Store quality metrics with each puzzle's historical context
+- Create quality dashboard showing trends and distributions
+- Flag low-quality contexts for manual review
+
+---
+
+### Dynamic Parameter Tuning
+
+**Description**: Adaptive system that adjusts reasoning effort and verbosity based on year complexity (e.g., wartime years get high effort, quiet years get medium)
+
+**Value**: Optimizes cost/quality tradeoff by allocating more reasoning effort to historically complex years
+
+**Estimated Effort**: 6-8 hours
+
+- Define year complexity heuristics (event count, diversity, historical significance)
+- Implement complexity scoring function
+- Map complexity scores to reasoning effort levels (low/medium/high)
+- Add complexity metadata to events table
+- Create algorithm to select optimal parameters per year
+
+---
+
+### Multi-Model Fallback Chain
+
+**Description**: Cascade system that tries GPT-5 → GPT-5-mini → GPT-4o → Gemini 2.5 based on availability and rate limits
+
+**Value**: Improved reliability and uptime for historical context generation despite API rate limits
+
+**Estimated Effort**: 3-4 hours
+
+- Define fallback priority list with model configurations
+- Implement cascade logic in retry loop
+- Add logging to track fallback frequency
+- Create metrics dashboard showing model usage distribution
+
+---
+
+### Streaming Response Support
+
+**Description**: Use Server-Sent Events (SSE) streaming for progressive narrative generation
+
+**Impact**: Reduces perceived latency for users waiting for historical context after puzzle completion
+
+**Estimated Effort**: 4-5 hours
+
+---
+
+### Historical Context Regeneration Tool
+
+**Description**: Admin tool to batch regenerate all existing puzzle contexts using Responses API with new parameters
+
+**Impact**: Brings all historical puzzles up to new quality standards without manual intervention
+
+**Estimated Effort**: 2-3 hours
+
+---
+
+### Context Quality Voting System
+
+**Description**: Allow users to rate historical context quality (helpful/not helpful) to identify low-quality narratives for regeneration
+
+**Impact**: User feedback drives continuous quality improvement
+
+**Estimated Effort**: 4-6 hours
+
+---
+
+## OpenRouter Responses API Migration - Technical Debt Opportunities
+
+### Remove Chat Completions API Code Path
+
+**Description**: After successful Responses API rollout (1-2 weeks), remove all Chat Completions fallback code and simplify implementation
+
+**Benefit**: Reduces code complexity, removes dual-mode maintenance burden, improves readability
+
+**Estimated Effort**: 1 hour
+
+**Timing**: Only after 2+ weeks of stable Responses API usage in production
+
+---
+
+### Migrate from Alpha to Stable Responses API
+
+**Description**: When OpenRouter promotes Responses API from Alpha to stable, migrate to production endpoint
+
+**Benefit**: Removes "Alpha" risk, potentially gains additional features and guarantees
+
+**Estimated Effort**: 30 minutes (endpoint URL change + testing)
+
+**Timing**: When OpenRouter announces stable Responses API release
+
+---
+
+### Add Response Caching Layer
+
+**Description**: Cache generated historical contexts in CDN or edge storage to reduce API calls for frequently viewed puzzles
+
+**Benefit**: Reduces API costs for popular puzzles, improves response latency
+
+**Estimated Effort**: 3-4 hours
+
+**Timing**: After observing puzzle view patterns in production analytics

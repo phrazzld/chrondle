@@ -105,6 +105,51 @@ const { themeMode, setThemeMode, mounted } = useEnhancedTheme();
 - Cron jobs for daily puzzle generation
 - Authentication integration with Clerk for user progress tracking
 
+**Historical Context Generation (AI):**
+
+Chrondle uses OpenRouter's **Responses API Alpha** with GPT-5 to generate concise historical narratives after puzzle completion. This provides educational context that helps players understand the year's significance.
+
+**API Configuration:**
+
+```typescript
+// Endpoint: https://openrouter.ai/api/alpha/responses
+{
+  model: "openai/gpt-5",
+  reasoning: {
+    effort: "low",         // Efficient reasoning for factual context
+    summary: "auto"        // Automatic reasoning summaries
+  },
+  text: {
+    verbosity: "low",      // Concise narratives (175-225 words)
+    format: { type: "text" }
+  },
+  temperature: 1.0,
+  max_output_tokens: 8000
+}
+```
+
+**Key Features:**
+
+- **Low Reasoning Effort**: Efficient reasoning for clear, factual historical context
+- **Low Verbosity**: Produces concise 175-225 word narratives that are informative without being flowery
+- **BC/AD Enforcement**: Automatic post-processing replaces BCE/CE with BC/AD for consistency
+- **Fallback Chain**: GPT-5 → GPT-5-mini (on rate limit) → Gemini 2.5 Flash (if GPT-5 disabled)
+- **Cost Efficiency**: ~$0.015-0.018 per puzzle with reasoning tokens (~40% savings vs high verbosity)
+
+**Implementation:**
+
+- File: `convex/actions/historicalContext.ts`
+- Triggered by: `generateDailyPuzzle` mutation via scheduled action
+- Testing: `pnpm tsx scripts/test-responses-api.ts`
+- Docs: See `.env.example` for configuration details
+
+**Quality Metrics (target):**
+
+- Word count: 175-225 words (concise and focused)
+- Event integration: Flexible (3-5 of 6 events, not forced)
+- BC/AD compliance: 100% (automatic enforcement)
+- Generation time: 3-7 seconds average
+
 **Component Composition:**
 
 - shadcn/ui patterns with Radix UI primitives
