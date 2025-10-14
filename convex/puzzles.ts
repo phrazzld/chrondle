@@ -7,6 +7,7 @@ import {
   applyStreakUpdate,
   getUTCDateString,
 } from "./lib/streakCalculation";
+import { selectYearForPuzzle } from "./puzzles/generation";
 
 // Game configuration constants
 const MAX_GUESSES = 6;
@@ -37,53 +38,14 @@ export const generateDailyPuzzle = internalMutation({
 
     const nextPuzzleNumber = (latestPuzzle?.puzzleNumber || 0) + 1;
 
-    // Get available years with 6+ unused events
-    // Inline the logic to avoid circular dependency
-    const unusedEvents = await ctx.db
-      .query("events")
-      .filter((q) => q.eq(q.field("puzzleId"), undefined))
-      .collect();
-
-    // Group by year and count
-    const yearCounts = new Map<number, number>();
-    for (const event of unusedEvents) {
-      const count = yearCounts.get(event.year) || 0;
-      yearCounts.set(event.year, count + 1);
-    }
-
-    // Filter years with 6+ events
-    const availableYears = Array.from(yearCounts.entries())
-      .filter(([, count]) => count >= 6)
-      .map(([year, count]) => ({ year, availableEvents: count }))
-      .sort((a, b) => a.year - b.year);
-
-    if (availableYears.length === 0) {
-      throw new Error("No years available with enough unused events");
-    }
-
-    // Select a random year
-    const randomYear = availableYears[Math.floor(Math.random() * availableYears.length)];
-
-    // Get all unused events for the selected year
-    const yearEvents = await ctx.db
-      .query("events")
-      .withIndex("by_year", (q) => q.eq("year", randomYear.year))
-      .filter((q) => q.eq(q.field("puzzleId"), undefined))
-      .collect();
-
-    // Randomly select 6 events
-    const shuffled = [...yearEvents].sort(() => Math.random() - 0.5);
-    const selectedEvents = shuffled.slice(0, 6);
-
-    if (selectedEvents.length < 6) {
-      throw new Error(`Not enough events for year ${randomYear.year}`);
-    }
+    // Select a year with 6+ unused events and get random events from it
+    const { year: selectedYear, events: selectedEvents } = await selectYearForPuzzle(ctx);
 
     // Create the puzzle
     const puzzleId = await ctx.db.insert("puzzles", {
       puzzleNumber: nextPuzzleNumber,
       date: targetDate,
-      targetYear: randomYear.year,
+      targetYear: selectedYear,
       events: selectedEvents.map((e) => e.event),
       playCount: 0,
       avgGuesses: 0,
@@ -105,13 +67,13 @@ export const generateDailyPuzzle = internalMutation({
         internal.actions.historicalContext.generateHistoricalContext,
         {
           puzzleId,
-          year: randomYear.year,
+          year: selectedYear,
           events: selectedEvents.map((e) => e.event),
         },
       );
 
       console.warn(
-        `Scheduled historical context generation for puzzle ${puzzleId} (year ${randomYear.year})`,
+        `Scheduled historical context generation for puzzle ${puzzleId} (year ${selectedYear})`,
       );
     } catch (schedulerError) {
       // Log but don't fail puzzle creation - graceful degradation
@@ -121,9 +83,7 @@ export const generateDailyPuzzle = internalMutation({
       );
     }
 
-    console.warn(
-      `Created puzzle #${nextPuzzleNumber} for ${targetDate} with year ${randomYear.year}`,
-    );
+    console.warn(`Created puzzle #${nextPuzzleNumber} for ${targetDate} with year ${selectedYear}`);
 
     return {
       status: "created",
@@ -131,7 +91,7 @@ export const generateDailyPuzzle = internalMutation({
         _id: puzzleId,
         puzzleNumber: nextPuzzleNumber,
         date: targetDate,
-        targetYear: randomYear.year,
+        targetYear: selectedYear,
       },
     };
   },
@@ -174,46 +134,13 @@ export const ensureTodaysPuzzle = mutation({
     const latestPuzzle = await ctx.db.query("puzzles").order("desc").first();
     const nextPuzzleNumber = (latestPuzzle?.puzzleNumber || 0) + 1;
 
-    // Get available years with 6+ unused events
-    const unusedEvents = await ctx.db
-      .query("events")
-      .filter((q) => q.eq(q.field("puzzleId"), undefined))
-      .collect();
-
-    const yearCounts = new Map<number, number>();
-    for (const event of unusedEvents) {
-      const count = yearCounts.get(event.year) || 0;
-      yearCounts.set(event.year, count + 1);
-    }
-
-    const availableYears = Array.from(yearCounts.entries())
-      .filter(([, count]) => count >= 6)
-      .map(([year, count]) => ({ year, availableEvents: count }))
-      .sort((a, b) => a.year - b.year);
-
-    if (availableYears.length === 0) {
-      throw new Error("No years available with enough unused events");
-    }
-
-    const randomYear = availableYears[Math.floor(Math.random() * availableYears.length)];
-
-    const yearEvents = await ctx.db
-      .query("events")
-      .withIndex("by_year", (q) => q.eq("year", randomYear.year))
-      .filter((q) => q.eq(q.field("puzzleId"), undefined))
-      .collect();
-
-    const shuffled = [...yearEvents].sort(() => Math.random() - 0.5);
-    const selectedEvents = shuffled.slice(0, 6);
-
-    if (selectedEvents.length < 6) {
-      throw new Error(`Not enough events for year ${randomYear.year}`);
-    }
+    // Select a year with 6+ unused events and get random events from it
+    const { year: selectedYear, events: selectedEvents } = await selectYearForPuzzle(ctx);
 
     const puzzleId = await ctx.db.insert("puzzles", {
       puzzleNumber: nextPuzzleNumber,
       date: today,
-      targetYear: randomYear.year,
+      targetYear: selectedYear,
       events: selectedEvents.map((e) => e.event),
       playCount: 0,
       avgGuesses: 0,
@@ -230,7 +157,7 @@ export const ensureTodaysPuzzle = mutation({
 
     const newPuzzle = await ctx.db.get(puzzleId);
 
-    console.warn(`Created puzzle #${nextPuzzleNumber} for ${today} with year ${randomYear.year}`);
+    console.warn(`Created puzzle #${nextPuzzleNumber} for ${today} with year ${selectedYear}`);
 
     return { status: "created", puzzle: newPuzzle };
   },
