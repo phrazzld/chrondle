@@ -9,6 +9,16 @@ import {
 } from "./lib/streakCalculation";
 import { selectYearForPuzzle } from "./puzzles/generation";
 
+// Re-export query functions for backward compatibility (until Phase 4 frontend migration)
+export {
+  getDailyPuzzle,
+  getPuzzleById,
+  getPuzzleByNumber,
+  getArchivePuzzles,
+  getTotalPuzzles,
+  getPuzzleYears,
+} from "./puzzles/queries";
+
 // Game configuration constants
 const MAX_GUESSES = 6;
 
@@ -97,20 +107,6 @@ export const generateDailyPuzzle = internalMutation({
   },
 });
 
-// Get today's puzzle - just returns the puzzle or null
-export const getDailyPuzzle = query({
-  handler: async (ctx) => {
-    const today = new Date().toISOString().slice(0, 10);
-
-    const puzzle = await ctx.db
-      .query("puzzles")
-      .withIndex("by_date", (q) => q.eq("date", today))
-      .first();
-
-    return puzzle;
-  },
-});
-
 // Public mutation to ensure today's puzzle exists
 export const ensureTodaysPuzzle = mutation({
   handler: async (ctx) => {
@@ -160,82 +156,6 @@ export const ensureTodaysPuzzle = mutation({
     console.warn(`Created puzzle #${nextPuzzleNumber} for ${today} with year ${selectedYear}`);
 
     return { status: "created", puzzle: newPuzzle };
-  },
-});
-
-// Get total number of puzzles
-export const getTotalPuzzles = query({
-  handler: async (ctx) => {
-    const puzzles = await ctx.db.query("puzzles").collect();
-    return { count: puzzles.length };
-  },
-});
-
-// Get all unique puzzle years
-export const getPuzzleYears = query({
-  handler: async (ctx) => {
-    const puzzles = await ctx.db.query("puzzles").collect();
-
-    // Extract unique years
-    const yearsSet = new Set<number>();
-    for (const puzzle of puzzles) {
-      yearsSet.add(puzzle.targetYear);
-    }
-
-    // Convert to array and sort descending (newest first)
-    const years = Array.from(yearsSet).sort((a, b) => b - a);
-
-    return { years };
-  },
-});
-
-// Get puzzle by ID
-export const getPuzzleById = query({
-  args: { puzzleId: v.id("puzzles") },
-  handler: async (ctx, { puzzleId }) => {
-    const puzzle = await ctx.db.get(puzzleId);
-    return puzzle;
-  },
-});
-
-// Get puzzle by number
-export const getPuzzleByNumber = query({
-  args: { puzzleNumber: v.number() },
-  handler: async (ctx, { puzzleNumber }) => {
-    const puzzle = await ctx.db
-      .query("puzzles")
-      .withIndex("by_number", (q) => q.eq("puzzleNumber", puzzleNumber))
-      .first();
-
-    return puzzle;
-  },
-});
-
-// Get archive puzzles (paginated)
-export const getArchivePuzzles = query({
-  args: {
-    page: v.number(),
-    pageSize: v.number(),
-  },
-  handler: async (ctx, { page, pageSize }) => {
-    // Get total count
-    const allPuzzles = await ctx.db.query("puzzles").collect();
-    const totalCount = allPuzzles.length;
-
-    // Get puzzles sorted by puzzle number (newest first)
-    const puzzles = await ctx.db.query("puzzles").order("desc").collect();
-
-    // Manual pagination
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const paginatedPuzzles = puzzles.slice(startIndex, endIndex);
-
-    return {
-      puzzles: paginatedPuzzles,
-      totalPages: Math.ceil(totalCount / pageSize),
-      currentPage: page,
-      totalCount,
-    };
   },
 });
 
