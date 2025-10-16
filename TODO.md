@@ -55,7 +55,7 @@
 
 **Goal**: Clear module boundaries, each ~100 lines with single responsibility
 
-- [ ] **Create `convex/puzzles/queries.ts` - Puzzle retrieval**
+- [x] **Create `convex/puzzles/queries.ts` - Puzzle retrieval**
 
   ```
   Files: convex/puzzles/queries.ts (NEW)
@@ -66,6 +66,13 @@
   Test: Archive page loads, daily puzzle loads, puzzle by ID works
   Time: 1h
   ```
+
+  **Implementation Notes**:
+
+  - Created 129-line focused module for puzzle retrieval
+  - Added re-exports in puzzles.ts for backward compatibility
+  - Reduced puzzles.ts from ~690L to 539L (-151 lines)
+  - Type checking passes, no breaking changes
 
   **Module Design**:
 
