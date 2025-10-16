@@ -22,84 +22,8 @@ export {
   manualGeneratePuzzle,
 } from "./puzzles/generation";
 
-// Get user's play record for a puzzle
-export const getUserPlay = query({
-  args: {
-    puzzleId: v.id("puzzles"),
-    userId: v.id("users"),
-  },
-  handler: async (ctx, { puzzleId, userId }) => {
-    try {
-      // Validate input parameters
-      if (!puzzleId || !userId) {
-        console.warn("[getUserPlay] Missing required parameters:", {
-          puzzleId: puzzleId ? "provided" : "missing",
-          userId: userId ? "provided" : "missing",
-          timestamp: new Date().toISOString(),
-        });
-        return null;
-      }
-
-      // Additional validation: Check if the IDs are valid format
-      // Convex IDs are strings, so we check they're non-empty strings
-      if (typeof puzzleId !== "string" || typeof userId !== "string") {
-        console.warn("[getUserPlay] Invalid parameter types:", {
-          puzzleIdType: typeof puzzleId,
-          userIdType: typeof userId,
-          timestamp: new Date().toISOString(),
-        });
-        return null;
-      }
-
-      // Perform the query with defensive programming
-      const play = await ctx.db
-        .query("plays")
-        .withIndex("by_user_puzzle", (q) => q.eq("userId", userId).eq("puzzleId", puzzleId))
-        .first();
-
-      // Log successful query in development for debugging
-      if (process.env.NODE_ENV === "development" && play) {
-        console.error("[getUserPlay] Successfully retrieved play record:", {
-          userId: userId.slice(0, 8) + "...", // Log partial ID for privacy
-          puzzleId: puzzleId.slice(0, 8) + "...",
-          hasGuesses: play.guesses?.length > 0,
-          isCompleted: !!play.completedAt,
-        });
-      }
-
-      return play;
-    } catch (error) {
-      // Log the error with context for debugging
-      console.error("[getUserPlay] Error fetching user play record:", {
-        error: error instanceof Error ? error.message : String(error),
-        userId: userId ? userId.slice(0, 8) + "..." : "undefined",
-        puzzleId: puzzleId ? puzzleId.slice(0, 8) + "..." : "undefined",
-        timestamp: new Date().toISOString(),
-        stack: error instanceof Error ? error.stack : undefined,
-      });
-
-      // Return null instead of throwing to allow graceful degradation
-      // The client can handle null as "no play record found"
-      return null;
-    }
-  },
-});
-
-// Get user's completed puzzles
-export const getUserCompletedPuzzles = query({
-  args: {
-    userId: v.id("users"),
-  },
-  handler: async (ctx, { userId }) => {
-    const completedPlays = await ctx.db
-      .query("plays")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .filter((q) => q.neq(q.field("completedAt"), null))
-      .collect();
-
-    return completedPlays;
-  },
-});
+// Re-export play queries for backward compatibility
+export { getUserPlay, getUserCompletedPuzzles } from "./plays/queries";
 
 // Get next cron schedule for countdown system
 export const getCronSchedule = query({
