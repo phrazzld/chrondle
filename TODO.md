@@ -103,7 +103,7 @@
   - Reduced puzzles.ts from 539L to 354L (-185 lines)
   - Type checking passes, no breaking changes
 
-- [ ] **Move generation to `convex/puzzles/generation.ts`**
+- [x] **Move generation to `convex/puzzles/generation.ts`**
 
   ```
   Files: convex/puzzles/generation.ts (already exists), move generateDailyPuzzle, ensureTodaysPuzzle
@@ -114,6 +114,14 @@
   Test: Check cron execution, verify puzzle creation
   Time: 45min
   ```
+
+  **Implementation Notes**:
+
+  - Consolidated 3 generation functions into existing generation.ts module
+  - Module now contains 264 lines with complete generation logic
+  - Added re-exports in puzzles.ts for backward compatibility
+  - Reduced puzzles.ts from 354L to 197L (-157 lines)
+  - Type checking passes, no breaking changes
 
 - [ ] **Create `convex/plays/queries.ts` - User progress tracking**
 
