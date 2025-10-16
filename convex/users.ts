@@ -1,6 +1,9 @@
 import { v } from "convex/values";
-import { query, mutation, internalMutation } from "./_generated/server";
+import { mutation, internalMutation } from "./_generated/server";
 import { isConsecutiveDay, getUTCDateString } from "./lib/streakCalculation";
+
+// Re-export query functions for backward compatibility
+export { getCurrentUser, getUserByClerkId, userExists, getUserStats } from "./users/queries";
 
 // Create a new user (called by Clerk webhook) - internal version
 export const createUser = internalMutation({
@@ -65,27 +68,6 @@ export const createUserFromWebhook = mutation({
     });
 
     return userId;
-  },
-});
-
-// Get current user
-export const getCurrentUser = query({
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return null;
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk", (q) => q.eq("clerkId", identity.subject))
-      .first();
-
-    // Add debug logging when user lookup returns null
-    if (!user && identity.subject) {
-    }
-
-    return user;
   },
 });
 
@@ -157,64 +139,6 @@ export const getOrCreateCurrentUser = mutation({
       // Re-throw error to prevent silent failures
       throw new Error(`User creation failed: ${errorMessage}`);
     }
-  },
-});
-
-// Check if user exists (helper query for debugging and validation)
-export const userExists = query({
-  args: {
-    clerkId: v.optional(v.string()),
-  },
-  handler: async (ctx, { clerkId }) => {
-    let targetClerkId = clerkId;
-
-    // If no clerkId provided, use current authenticated user's ID
-    if (!targetClerkId) {
-      const identity = await ctx.auth.getUserIdentity();
-      if (!identity) {
-        return {
-          exists: false,
-          error: "No clerkId provided and no authenticated user",
-        };
-      }
-      targetClerkId = identity.subject;
-    }
-
-    try {
-      const user = await ctx.db
-        .query("users")
-        .withIndex("by_clerk", (q) => q.eq("clerkId", targetClerkId))
-        .first();
-
-      return {
-        exists: !!user,
-        userId: user?._id,
-        clerkId: targetClerkId,
-        email: user?.email,
-      };
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      return {
-        exists: false,
-        error: errorMessage,
-        clerkId: targetClerkId,
-      };
-    }
-  },
-});
-
-// Get user by clerk ID (for webhooks and internal use)
-export const getUserByClerkId = query({
-  args: {
-    clerkId: v.string(),
-  },
-  handler: async (ctx, { clerkId }) => {
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk", (q) => q.eq("clerkId", clerkId))
-      .first();
-
-    return user;
   },
 });
 
@@ -693,40 +617,5 @@ export const mergeAnonymousStreak = mutation({
         message: `Failed to merge: ${errorMessage}`,
       };
     }
-  },
-});
-
-// Get user statistics with play history
-export const getUserStats = query({
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return null;
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk", (q) => q.eq("clerkId", identity.subject))
-      .first();
-
-    if (!user) {
-      return null;
-    }
-
-    // Get user's play history
-    const plays = await ctx.db
-      .query("plays")
-      .withIndex("by_user", (q) => q.eq("userId", user._id))
-      .order("desc")
-      .take(20);
-
-    return {
-      ...user,
-      recentPlays: plays,
-      completionRate:
-        user.totalPlays > 0
-          ? Math.round((plays.filter((p) => p.completedAt).length / user.totalPlays) * 100)
-          : 0,
-    };
   },
 });

@@ -239,7 +239,7 @@
 
 **Goal**: Separate user CRUD, auth, migration, validation, statistics
 
-- [ ] **Create `convex/users/queries.ts` - User retrieval**
+- [x] **Create `convex/users/queries.ts` - User retrieval**
 
   ```
   Files: convex/users/queries.ts (NEW)
@@ -250,6 +250,17 @@
   Test: Sign in, verify user data, check stats page
   Time: 45min
   ```
+
+  **Implementation Notes**:
+
+  - Created 157-line module with 4 query functions
+  - Extracted from users.ts (732L → 626L, -106 lines)
+  - getCurrentUser: Get authenticated user data
+  - getUserByClerkId: Get user by Clerk ID (webhooks/internal)
+  - userExists: Check existence with optional clerkId
+  - getUserStats: User statistics with recent play history
+  - Re-exported in users.ts for backward compatibility
+  - All tests pass, type checking clean
 
 - [ ] **Create `convex/users/mutations.ts` - User management**
 
