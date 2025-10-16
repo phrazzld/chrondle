@@ -164,11 +164,11 @@
   - Reduced mutations.ts from 239L to 208L (-31 lines)
   - Type checking passes, no breaking changes
 
-- [ ] **Create `convex/streaks/mutations.ts` - Streak management**
+- [x] **Create `convex/streaks/mutations.ts` - Streak management**
 
   ```
   Files: convex/streaks/mutations.ts (NEW)
-  Extract: updateUserStreak (from puzzles.ts:428-450)
+  Extract: updateUserStreak (from puzzles/mutations.ts:135-207)
   Module: Single responsibility - user streak updates
   Interface: Internal function updateUserStreak(ctx, userId, hasWon, puzzleDate)
   Success: Streaks update correctly, archive puzzles don't affect streaks
@@ -176,16 +176,24 @@
   Time: 45min
   ```
 
+  **Implementation Notes**:
+
+  - Created 108-line module with updateUserStreak function
+  - Extracted from puzzles/mutations.ts (207L → 115L, -92 lines)
+  - Critical business rule: Archive puzzles (puzzleDate !== today) do NOT update streaks
+  - All tests pass, type checking clean
+
   **Critical Business Rule**: Archive puzzles (puzzleDate !== today) do NOT update streaks
 
-  - Enforce with PuzzleType union: `{ type: 'daily' | 'archive'; date: string }`
-  - Type-level guarantee this rule isn't violated
+  - Enforced via early return when puzzleDate !== getUTCDateString()
+  - Console warnings log skip reason for debugging
+  - Prevents historical/archive plays from affecting daily streaks
 
-- [ ] **Create `convex/system/scheduling.ts` - Cron utilities**
+- [x] **Create `convex/system/scheduling.ts` - Cron utilities**
 
   ```
   Files: convex/system/scheduling.ts (NEW)
-  Extract: getCronSchedule
+  Extract: getCronSchedule (from puzzles.ts:29-73)
   Module: Single responsibility - system scheduling info
   Interface: 1 query function
   Success: Countdown timer shows correct schedule
@@ -193,17 +201,31 @@
   Time: 15min
   ```
 
-- [ ] **Create `convex/actions/context.ts` - Historical context**
+  **Implementation Notes**:
+
+  - Created 53-line module for cron schedule queries
+  - Extracted from puzzles.ts (119L → 40L after all extractions)
+  - Re-exported in puzzles.ts for backward compatibility
+  - Type checking passes, no breaking changes
+
+- [x] **Create `convex/puzzles/context.ts` - Historical context**
 
   ```
-  Files: convex/actions/context.ts (NEW)
-  Extract: updateHistoricalContext (from puzzles.ts)
+  Files: convex/puzzles/context.ts (NEW)
+  Extract: updateHistoricalContext (from puzzles.ts:76-119)
   Module: Single responsibility - AI context generation
   Interface: 1 internal mutation
   Success: Context generates after puzzle creation
   Test: Verify new puzzles have historicalContext field populated
   Time: 30min
   ```
+
+  **Implementation Notes**:
+
+  - Created 53-line module for historical context updates
+  - Extracted from puzzles.ts (119L → 40L after all extractions)
+  - Called by historicalContext action via internal.puzzles.updateHistoricalContext
+  - Re-exported in puzzles.ts for backward compatibility
 
 - [ ] **Delete `convex/puzzles.ts` after migration verification**
   ```

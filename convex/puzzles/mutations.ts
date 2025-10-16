@@ -1,12 +1,9 @@
 import { v } from "convex/values";
-import { mutation, DatabaseWriter } from "../_generated/server";
+import { mutation } from "../_generated/server";
 import { Id } from "../_generated/dataModel";
-import {
-  calculateStreakUpdate,
-  applyStreakUpdate,
-  getUTCDateString,
-} from "../lib/streakCalculation";
+import { getUTCDateString } from "../lib/streakCalculation";
 import { updatePuzzleStats } from "../plays/statistics";
+import { updateUserStreak } from "../streaks/mutations";
 
 /**
  * Puzzle Mutations - Game State Changes
@@ -17,11 +14,9 @@ import { updatePuzzleStats } from "../plays/statistics";
  * Exports:
  * - submitGuess: Submit a guess for authenticated users
  *
- * Internal helpers:
- * - updateUserStreak: TODO - Will move to streaks/mutations.ts in next task
- *
  * Dependencies:
  * - updatePuzzleStats: Imported from plays/statistics.ts
+ * - updateUserStreak: Imported from streaks/mutations.ts
  */
 
 // Game configuration
@@ -118,90 +113,3 @@ export const submitGuess = mutation({
     }
   },
 });
-
-/**
- * Update user streak after completing a puzzle
- *
- * TODO: Extract to convex/streaks/mutations.ts in Phase 2
- *
- * CRITICAL BUSINESS RULE: Only updates streak for TODAY'S daily puzzle to prevent
- * archive/historical puzzle plays from affecting daily streak mechanics.
- *
- * @param ctx - Database writer context
- * @param userId - User ID to update
- * @param hasWon - Whether the user won the puzzle
- * @param puzzleDate - ISO date string (YYYY-MM-DD) of the puzzle being played
- */
-async function updateUserStreak(
-  ctx: { db: DatabaseWriter },
-  userId: Id<"users">,
-  hasWon: boolean,
-  puzzleDate: string,
-) {
-  const user = await ctx.db.get(userId);
-  if (!user) {
-    console.error("[updateUserStreak] User not found:", userId);
-    throw new Error("User not found");
-  }
-
-  const today = getUTCDateString();
-
-  // CRITICAL: Only update streak for today's daily puzzle
-  // Archive/historical puzzle plays should NOT affect daily streak
-  if (puzzleDate !== today) {
-    console.warn("[updateUserStreak] Skipping streak update for archive puzzle:", {
-      puzzleDate,
-      today,
-      userId,
-    });
-    return; // No streak update for archive puzzles
-  }
-
-  // Calculate streak update using explicit discriminated union
-  const update = calculateStreakUpdate(
-    user.lastCompletedDate || null,
-    user.currentStreak,
-    today,
-    hasWon,
-  );
-
-  // Log update for debugging
-  console.warn("[updateUserStreak] Calculated update:", {
-    userId,
-    updateType: update.type,
-    reason: update.reason,
-    currentStreak: user.currentStreak,
-  });
-
-  // Handle no-change case explicitly (same-day replay)
-  if (update.type === "no-change") {
-    console.warn("[updateUserStreak] Same-day replay - preserving streak:", user.currentStreak);
-    return; // No database update needed
-  }
-
-  // Apply the update to get new state
-  const newState = applyStreakUpdate(
-    {
-      currentStreak: user.currentStreak,
-      lastCompletedDate: user.lastCompletedDate || null,
-    },
-    update,
-  );
-
-  // Update database with new streak
-  const longestStreak = Math.max(newState.currentStreak, user.longestStreak);
-
-  await ctx.db.patch(userId, {
-    currentStreak: newState.currentStreak,
-    lastCompletedDate: newState.lastCompletedDate,
-    longestStreak,
-    updatedAt: Date.now(),
-  });
-
-  console.warn("[updateUserStreak] Updated user streak:", {
-    userId,
-    updateType: update.type,
-    newStreak: newState.currentStreak,
-    longestStreak,
-  });
-}
