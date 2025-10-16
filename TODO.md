@@ -258,12 +258,12 @@
   - Called by historicalContext action via internal.puzzles.updateHistoricalContext
   - Re-exported in puzzles.ts for backward compatibility
 
-- [ ] **Delete `convex/puzzles.ts` after migration verification**
+- [x] **Delete `convex/puzzles.ts` after migration verification** - SKIPPED (keeping as barrel file)
   ```
-  Files: convex/puzzles.ts (DELETE)
-  Success: All imports resolved, no references to old file
-  Test: `pnpm type-check` passes, all pages load correctly
-  Time: 15min
+  Decision: Keep puzzles.ts as permanent barrel file for backward compatibility
+  Rationale: Deep Module principle - simple interface (api.puzzles.*) hiding complex implementation
+  Frontend: 13 files use api.puzzles.* - zero migration needed
+  Status: puzzles.ts reduced to 40-line barrel file with re-exports
   ```
 
 ## Phase 3: Split users.ts God Object (1 → 5 Focused Modules)
@@ -370,24 +370,23 @@
   - Date consistency checks prevent gaming the system
   - Note: `sessionId`/rate limiting deferred (see BACKLOG for future enhancement)
 
-- [ ] **Create `convex/migration/validation.ts` - Streak validation**
+- [x] **Create `convex/migration/validation.ts` - Streak validation** - COMPLETED (merged into anonymous.ts)
 
   ```
-  Files: convex/migration/validation.ts (NEW)
-  Extract: validateAnonymousStreak (87 lines from users.ts:443-529)
-  Module: Single responsibility - anonymous streak security checks
-  Interface: Pure function validateAnonymousStreak(streak, date): { isValid, reason }
-  Success: Invalid streaks rejected, valid ones accepted
-  Test: Existing validation tests pass (convex/lib/__tests__/anonymousStreakValidation.test.ts)
-  Time: 45min
+  Decision: Validation logic kept in convex/migration/anonymous.ts
+  Rationale: Validation is tightly coupled to merge logic - splitting creates shallow modules
+  Implementation: validateAnonymousStreak helper function in anonymous.ts:58-144 (87 lines)
+  Security: 6 comprehensive validation rules prevent client-side manipulation
+  Test: 13 tests in convex/__tests__/mergeAnonymousStreak.test.ts cover all validation paths
+  Status: Complete - validation integrated with merge mutations
   ```
 
-- [ ] **Delete `convex/users.ts` after migration verification**
+- [x] **Delete `convex/users.ts` after migration verification** - SKIPPED (keeping as barrel file)
   ```
-  Files: convex/users.ts (DELETE)
-  Success: All imports resolved, webhook still creates users
-  Test: Full auth flow works, `pnpm type-check` passes
-  Time: 15min
+  Decision: Keep users.ts as permanent barrel file for backward compatibility
+  Rationale: Deep Module principle - simple interface (api.users.*) hiding complex implementation
+  Frontend: Multiple files use api.users.* - zero migration needed
+  Status: users.ts reduced to 20-line barrel file with re-exports
   ```
 
 ## Phase 4: Update Frontend Imports
