@@ -81,7 +81,7 @@
   - Exports: query functions only
   - No side effects, pure data retrieval
 
-- [ ] **Create `convex/puzzles/mutations.ts` - Game actions**
+- [x] **Create `convex/puzzles/mutations.ts` - Game actions**
 
   ```
   Files: convex/puzzles/mutations.ts (NEW)
@@ -92,6 +92,16 @@
   Test: Make guess in game, verify mutation succeeds
   Time: 30min
   ```
+
+  **Implementation Notes**:
+
+  - Created 239-line module with submitGuess mutation
+  - Includes helper functions (temporary until Phase 2 tasks 5-6):
+    - updatePuzzleStats → will move to plays/statistics.ts
+    - updateUserStreak → will move to streaks/mutations.ts
+  - Added re-export in puzzles.ts for backward compatibility
+  - Reduced puzzles.ts from 539L to 354L (-185 lines)
+  - Type checking passes, no breaking changes
 
 - [ ] **Move generation to `convex/puzzles/generation.ts`**
 
