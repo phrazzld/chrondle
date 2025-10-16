@@ -1,13 +1,6 @@
 import { v } from "convex/values";
-import { query, mutation, internalMutation, DatabaseWriter } from "./_generated/server";
+import { query, internalMutation } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
-import { internal } from "./_generated/api";
-import {
-  calculateStreakUpdate,
-  applyStreakUpdate,
-  getUTCDateString,
-} from "./lib/streakCalculation";
-import { selectYearForPuzzle } from "./puzzles/generation";
 
 // Re-export query functions for backward compatibility (until Phase 4 frontend migration)
 export {
@@ -22,145 +15,12 @@ export {
 // Re-export mutation functions for backward compatibility
 export { submitGuess } from "./puzzles/mutations";
 
-// Game configuration constants
-const MAX_GUESSES = 6;
-
-// Internal mutation for cron job to generate daily puzzle
-export const generateDailyPuzzle = internalMutation({
-  args: {
-    force: v.optional(v.boolean()),
-    date: v.optional(v.string()), // Allow specific date for on-demand generation
-  },
-  handler: async (ctx, args) => {
-    // Get the target date - either specified or today in UTC
-    const targetDate = args.date || new Date().toISOString().slice(0, 10);
-
-    // Check if puzzle already exists for this date
-    const existingPuzzle = await ctx.db
-      .query("puzzles")
-      .withIndex("by_date", (q) => q.eq("date", targetDate))
-      .first();
-
-    if (existingPuzzle) {
-      console.warn(`Puzzle for ${targetDate} already exists`);
-      return { status: "already_exists", puzzle: existingPuzzle };
-    }
-
-    // Get the highest puzzle number
-    const latestPuzzle = await ctx.db.query("puzzles").order("desc").first();
-
-    const nextPuzzleNumber = (latestPuzzle?.puzzleNumber || 0) + 1;
-
-    // Select a year with 6+ unused events and get random events from it
-    const { year: selectedYear, events: selectedEvents } = await selectYearForPuzzle(ctx);
-
-    // Create the puzzle
-    const puzzleId = await ctx.db.insert("puzzles", {
-      puzzleNumber: nextPuzzleNumber,
-      date: targetDate,
-      targetYear: selectedYear,
-      events: selectedEvents.map((e) => e.event),
-      playCount: 0,
-      avgGuesses: 0,
-      updatedAt: Date.now(),
-    });
-
-    // Update the selected events with the puzzleId
-    for (const event of selectedEvents) {
-      await ctx.db.patch(event._id, {
-        puzzleId,
-        updatedAt: Date.now(),
-      });
-    }
-
-    // Schedule historical context generation (non-blocking)
-    try {
-      await ctx.scheduler.runAfter(
-        0, // Run immediately
-        internal.actions.historicalContext.generateHistoricalContext,
-        {
-          puzzleId,
-          year: selectedYear,
-          events: selectedEvents.map((e) => e.event),
-        },
-      );
-
-      console.warn(
-        `Scheduled historical context generation for puzzle ${puzzleId} (year ${selectedYear})`,
-      );
-    } catch (schedulerError) {
-      // Log but don't fail puzzle creation - graceful degradation
-      console.error(
-        `[generateDailyPuzzle] Failed to schedule context generation for puzzle ${puzzleId}:`,
-        schedulerError,
-      );
-    }
-
-    console.warn(`Created puzzle #${nextPuzzleNumber} for ${targetDate} with year ${selectedYear}`);
-
-    return {
-      status: "created",
-      puzzle: {
-        _id: puzzleId,
-        puzzleNumber: nextPuzzleNumber,
-        date: targetDate,
-        targetYear: selectedYear,
-      },
-    };
-  },
-});
-
-// Public mutation to ensure today's puzzle exists
-export const ensureTodaysPuzzle = mutation({
-  handler: async (ctx) => {
-    const today = new Date().toISOString().slice(0, 10);
-
-    // Check if puzzle already exists
-    const existingPuzzle = await ctx.db
-      .query("puzzles")
-      .withIndex("by_date", (q) => q.eq("date", today))
-      .first();
-
-    if (existingPuzzle) {
-      return { status: "exists", puzzle: existingPuzzle };
-    }
-
-    // Trigger generation using our internal mutation logic
-    // We'll inline the generation logic here to avoid circular dependencies
-    console.warn(`[ensureTodaysPuzzle] Generating puzzle for ${today}`);
-
-    // Get the highest puzzle number
-    const latestPuzzle = await ctx.db.query("puzzles").order("desc").first();
-    const nextPuzzleNumber = (latestPuzzle?.puzzleNumber || 0) + 1;
-
-    // Select a year with 6+ unused events and get random events from it
-    const { year: selectedYear, events: selectedEvents } = await selectYearForPuzzle(ctx);
-
-    const puzzleId = await ctx.db.insert("puzzles", {
-      puzzleNumber: nextPuzzleNumber,
-      date: today,
-      targetYear: selectedYear,
-      events: selectedEvents.map((e) => e.event),
-      playCount: 0,
-      avgGuesses: 0,
-      updatedAt: Date.now(),
-    });
-
-    // Update events with puzzleId
-    for (const event of selectedEvents) {
-      await ctx.db.patch(event._id, {
-        puzzleId,
-        updatedAt: Date.now(),
-      });
-    }
-
-    const newPuzzle = await ctx.db.get(puzzleId);
-
-    console.warn(`Created puzzle #${nextPuzzleNumber} for ${today} with year ${selectedYear}`);
-
-    return { status: "created", puzzle: newPuzzle };
-  },
-});
+// Re-export generation functions for backward compatibility
+export {
+  generateDailyPuzzle,
+  ensureTodaysPuzzle,
+  manualGeneratePuzzle,
+} from "./puzzles/generation";
 
 // Get user's play record for a puzzle
 export const getUserPlay = query({
@@ -285,24 +145,6 @@ export const getCronSchedule = query({
         fallback: true,
       };
     }
-  },
-});
-
-// Manual trigger for generating a puzzle (for testing)
-export const manualGeneratePuzzle = mutation({
-  handler: async () => {
-    // Only allow in development
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("Manual puzzle generation not allowed in production");
-    }
-
-    // TODO: Refactor to avoid circular dependency
-    // For now, returning a placeholder since this is dev-only
-    return {
-      status: "error",
-      message:
-        "Manual generation temporarily disabled due to circular dependency. Use cron job instead.",
-    };
   },
 });
 
