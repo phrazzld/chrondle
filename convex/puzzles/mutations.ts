@@ -6,6 +6,7 @@ import {
   applyStreakUpdate,
   getUTCDateString,
 } from "../lib/streakCalculation";
+import { updatePuzzleStats } from "../plays/statistics";
 
 /**
  * Puzzle Mutations - Game State Changes
@@ -16,9 +17,11 @@ import {
  * Exports:
  * - submitGuess: Submit a guess for authenticated users
  *
- * Internal helpers (to be extracted in Phase 2):
- * - updatePuzzleStats: Will move to plays/statistics.ts
- * - updateUserStreak: Will move to streaks/mutations.ts
+ * Internal helpers:
+ * - updateUserStreak: TODO - Will move to streaks/mutations.ts in next task
+ *
+ * Dependencies:
+ * - updatePuzzleStats: Imported from plays/statistics.ts
  */
 
 // Game configuration
@@ -115,41 +118,6 @@ export const submitGuess = mutation({
     }
   },
 });
-
-/**
- * Update puzzle statistics after completion
- *
- * TODO: Extract to convex/plays/statistics.ts in Phase 2
- *
- * Calculates:
- * - Total play count (completed games)
- * - Average guesses (rounded to 1 decimal)
- *
- * @param ctx - Database writer context
- * @param puzzleId - Puzzle to update
- */
-async function updatePuzzleStats(ctx: { db: DatabaseWriter }, puzzleId: Id<"puzzles">) {
-  // Get all completed plays for this puzzle
-  const completedPlays = await ctx.db
-    .query("plays")
-    .withIndex("by_puzzle", (q) => q.eq("puzzleId", puzzleId))
-    .filter((q) => q.neq(q.field("completedAt"), null))
-    .collect();
-
-  const playCount = completedPlays.length;
-  if (playCount === 0) return;
-
-  // Calculate average guesses
-  const totalGuesses = completedPlays.reduce((sum: number, play) => sum + play.guesses.length, 0);
-  const avgGuesses = totalGuesses / playCount;
-
-  // Update puzzle
-  await ctx.db.patch(puzzleId, {
-    playCount,
-    avgGuesses: Math.round(avgGuesses * 10) / 10, // Round to 1 decimal
-    updatedAt: Date.now(),
-  });
-}
 
 /**
  * Update user streak after completing a puzzle
