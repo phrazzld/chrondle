@@ -262,7 +262,7 @@
   - Re-exported in users.ts for backward compatibility
   - All tests pass, type checking clean
 
-- [ ] **Create `convex/users/mutations.ts` - User management**
+- [x] **Create `convex/users/mutations.ts` - User management**
 
   ```
   Files: convex/users/mutations.ts (NEW)
@@ -273,6 +273,17 @@
   Test: Trigger webhook, update username, verify changes
   Time: 1h
   ```
+
+  **Implementation Notes**:
+
+  - Created 206-line module with 4 mutation functions
+  - Extracted from users.ts (626L → 463L, -163 lines)
+  - createUser: Internal mutation for webhook user creation
+  - createUserFromWebhook: Public webhook mutation
+  - getOrCreateCurrentUser: JIT user creation for authenticated users
+  - updateUsername: Update user display name
+  - Re-exported in users.ts for backward compatibility
+  - All tests pass, type checking clean
 
 - [ ] **Create `convex/users/statistics.ts` - User stats aggregation**
 
