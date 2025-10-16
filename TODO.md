@@ -123,7 +123,7 @@
   - Reduced puzzles.ts from 354L to 197L (-157 lines)
   - Type checking passes, no breaking changes
 
-- [ ] **Create `convex/plays/queries.ts` - User progress tracking**
+- [x] **Create `convex/plays/queries.ts` - User progress tracking**
 
   ```
   Files: convex/plays/queries.ts (NEW)
@@ -134,6 +134,15 @@
   Test: Check game progress, verify archive filtering
   Time: 30min
   ```
+
+  **Implementation Notes**:
+
+  - Created 111-line module with 2 query functions
+  - getUserPlay: Defensive programming with null returns on errors
+  - getUserCompletedPuzzles: Archive filtering for completed puzzles
+  - Added re-export in puzzles.ts for backward compatibility
+  - Reduced puzzles.ts from 197L to 120L (-77 lines)
+  - Type checking passes, no breaking changes
 
 - [ ] **Create `convex/plays/statistics.ts` - Puzzle stats**
 
