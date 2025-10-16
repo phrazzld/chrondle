@@ -144,11 +144,11 @@
   - Reduced puzzles.ts from 197L to 120L (-77 lines)
   - Type checking passes, no breaking changes
 
-- [ ] **Create `convex/plays/statistics.ts` - Puzzle stats**
+- [x] **Create `convex/plays/statistics.ts` - Puzzle stats**
 
   ```
   Files: convex/plays/statistics.ts (NEW)
-  Extract: updatePuzzleStats (from puzzles.ts:428-500)
+  Extract: updatePuzzleStats (from puzzles/mutations.ts)
   Module: Single responsibility - aggregate puzzle statistics
   Interface: Internal function updatePuzzleStats(ctx, puzzleId)
   Success: Stats update after game completion
@@ -156,7 +156,13 @@
   Time: 45min
   ```
 
-  **Note**: updatePuzzleStats currently in puzzles.ts, moves to plays domain
+  **Implementation Notes**:
+
+  - Created 53-line module for statistics calculation
+  - Calculates playCount and avgGuesses from completed plays
+  - Imported into mutations.ts to maintain functionality
+  - Reduced mutations.ts from 239L to 208L (-31 lines)
+  - Type checking passes, no breaking changes
 
 - [ ] **Create `convex/streaks/mutations.ts` - Streak management**
 
