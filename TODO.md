@@ -285,7 +285,7 @@
   - Re-exported in users.ts for backward compatibility
   - All tests pass, type checking clean
 
-- [ ] **Create `convex/users/statistics.ts` - User stats aggregation**
+- [x] **Create `convex/users/statistics.ts` - User stats aggregation**
 
   ```
   Files: convex/users/statistics.ts (NEW)
@@ -296,6 +296,15 @@
   Test: Complete game, verify totalPlays and perfectGames increment
   Time: 30min
   ```
+
+  **Implementation Notes**:
+
+  - Created 100-line module with updateUserStats function
+  - Extracted from users.ts (463L → 404L, -59 lines)
+  - Tracks totalPlays, perfectGames (1-guess wins), streaks
+  - Streak logic: Continues if previous was yesterday, resets on gaps/failures
+  - Re-exported in users.ts for backward compatibility
+  - All tests pass, type checking clean
 
 - [ ] **Create `convex/migration/anonymous.ts` - Anonymous data merge**
 

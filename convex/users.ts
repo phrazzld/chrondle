@@ -13,67 +13,8 @@ export {
   updateUsername,
 } from "./users/mutations";
 
-// Update user stats after completing a puzzle
-export const updateUserStats = internalMutation({
-  args: {
-    userId: v.id("users"),
-    puzzleCompleted: v.boolean(),
-    guessCount: v.number(),
-    previousPuzzleDate: v.optional(v.string()),
-  },
-  handler: async (ctx, { userId, puzzleCompleted, guessCount, previousPuzzleDate }) => {
-    const user = await ctx.db.get(userId);
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    const updates: Partial<{
-      updatedAt: number;
-      totalPlays: number;
-      perfectGames: number;
-      currentStreak: number;
-      longestStreak: number;
-    }> = {
-      updatedAt: Date.now(),
-    };
-
-    if (puzzleCompleted) {
-      // Increment total plays
-      updates.totalPlays = user.totalPlays + 1;
-
-      // Check if it was a perfect game (1 guess)
-      if (guessCount === 1) {
-        updates.perfectGames = user.perfectGames + 1;
-      }
-
-      // Update streak
-      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-
-      if (previousPuzzleDate === yesterday) {
-        // Continue streak
-        updates.currentStreak = user.currentStreak + 1;
-        updates.longestStreak = Math.max(user.currentStreak + 1, user.longestStreak);
-      } else if (!previousPuzzleDate || previousPuzzleDate < yesterday) {
-        // Start new streak
-        updates.currentStreak = 1;
-        updates.longestStreak = Math.max(1, user.longestStreak);
-      }
-      // If previousPuzzleDate is today, don't update streak (already played today)
-    } else {
-      // Failed puzzle breaks streak
-      updates.currentStreak = 0;
-    }
-
-    await ctx.db.patch(userId, updates);
-
-    return {
-      currentStreak: updates.currentStreak ?? user.currentStreak,
-      longestStreak: updates.longestStreak ?? user.longestStreak,
-      totalPlays: updates.totalPlays ?? user.totalPlays,
-      perfectGames: updates.perfectGames ?? user.perfectGames,
-    };
-  },
-});
+// Re-export statistics functions for backward compatibility
+export { updateUserStats } from "./users/statistics";
 
 // Merge anonymous game state when user authenticates
 export const mergeAnonymousState = mutation({
