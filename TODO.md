@@ -363,66 +363,98 @@
 
 **Goal**: All frontend code uses new module paths
 
-- [ ] **Update all `api.puzzles.*` imports**
+**STATUS**: ✅ **PHASE COMPLETE - NO CHANGES NEEDED**
 
-  ```
-  Files: All files in src/ using api.puzzles (15 files found)
-  Approach: Convex auto-generates new api paths after module split
-  New paths: api.puzzles.queries.*, api.puzzles.mutations.*, api.plays.queries.*, etc.
-  Success: `pnpm type-check` passes, no import errors
-  Test: All pages load, game functions work
-  Time: 1h
-  ```
+**Implementation Notes**:
 
-  **Convex Auto-Generation**: After moving mutations/queries, `api` object auto-updates
+- Barrel file pattern maintains backward compatibility
+- `convex/puzzles.ts` re-exports from focused modules → `api.puzzles.*` still works
+- `convex/users.ts` re-exports from focused modules → `api.users.*` still works
+- TypeScript compilation clean: `pnpm type-check` ✅
+- All 500 tests passing: `pnpm test:ci` ✅
+- Frontend imports require NO updates (Deep Module principle - simple interface hiding complex implementation)
 
-  - `api.puzzles.getDailyPuzzle` → `api.puzzles.queries.getDailyPuzzle`
-  - `api.puzzles.submitGuess` → `api.puzzles.mutations.submitGuess`
-  - TypeScript will catch ALL import errors at compile time
+**Verification**:
 
-- [ ] **Update all `api.users.*` imports**
-  ```
-  Files: All files in src/ using api.users
-  Approach: Follow same pattern as puzzles imports
-  Success: Auth flows work, user data loads
-  Test: Sign in/out, profile updates, streak displays
-  Time: 45min
-  ```
+```bash
+# Found 13 files using api imports - all still work correctly
+grep -r "from.*convex.*generated.*api" src/
+# Examples still working:
+# - api.puzzles.getDailyPuzzle (via puzzles.ts → puzzles/queries.ts)
+# - api.users.getCurrentUser (via users.ts → users/queries.ts)
+# - api.users.mergeAnonymousStreak (via users.ts → migration/anonymous.ts)
+```
+
+- [x] **Update all `api.puzzles.*` imports** - NOT NEEDED (barrel file pattern)
+- [x] **Update all `api.users.*` imports** - NOT NEEDED (barrel file pattern)
 
 ## Phase 5: Test Coverage & Validation
 
 **Goal**: Verify no regressions, all functionality preserved
 
-- [ ] **Run full test suite**
+- [x] **Run full test suite**
 
   ```
-  Command: pnpm test
-  Success: All existing tests pass
-  Coverage: No decrease in test coverage
-  Time: 10min
+  Command: pnpm test:ci
+  Success: ✅ All 500 tests pass (27 test files)
+  Coverage: No decrease - all existing tests pass
+  Time: 3.95s
   ```
 
-- [ ] **Run type checking**
+  **Test Results**:
+
+  - Core game logic: 22 tests ✅
+  - Secure storage: 21 tests ✅
+  - React hooks: 39 tests ✅
+  - Archive puzzle streaks: 15 tests ✅
+  - Anonymous streak merge: 13 tests ✅
+  - Integration tests: 18 tests ✅
+
+- [x] **Run type checking**
 
   ```
   Command: pnpm type-check
-  Success: Zero TypeScript errors
-  Time: 5min
+  Success: ✅ Zero TypeScript errors
+  Time: ~5s
   ```
 
-- [ ] **Manual smoke tests**
+  **Verification**: Barrel file re-exports maintain full type safety across all modules
+
+- [ ] **Manual smoke tests** - REQUIRES USER TESTING
+
   ```
-  Tests:
-  - [ ] Daily puzzle loads and is playable
-  - [ ] Archive page displays completed puzzles
-  - [ ] Guess submission works and updates stats
-  - [ ] Streaks update correctly for daily puzzles
-  - [ ] Anonymous play works
-  - [ ] Sign-in merges anonymous data
-  - [ ] Webhook creates users
-  - [ ] Historical context generates for new puzzles
+  Tests (user must verify in browser):
+  - [ ] Daily puzzle loads and is playable (uses api.puzzles.getDailyPuzzle → puzzles/queries.ts)
+  - [ ] Archive page displays completed puzzles (uses api.puzzles.getUserCompletedPuzzles → plays/queries.ts)
+  - [ ] Guess submission works and updates stats (uses api.puzzles.submitGuess → puzzles/mutations.ts)
+  - [ ] Streaks update correctly for daily puzzles (uses updateUserStreak in streaks/mutations.ts)
+  - [ ] Anonymous play works (localStorage + local session hooks)
+  - [ ] Sign-in merges anonymous data (uses api.users.mergeAnonymousStreak → migration/anonymous.ts)
+  - [ ] Webhook creates users (uses api.users.createUserFromWebhook → users/mutations.ts)
+  - [ ] Historical context generates for new puzzles (uses updateHistoricalContext → puzzles/context.ts)
+
   Success: All manual tests pass
   Time: 30min
+
+  Note: Automated tests verify 500 unit/integration test cases.
+  Manual testing confirms end-to-end user flows work in production environment.
+  ```
+
+  **Module Coverage Map**:
+
+  ```
+  puzzles/queries.ts     → Daily puzzle loading
+  puzzles/mutations.ts   → Guess submission
+  puzzles/generation.ts  → Cron job puzzle creation
+  puzzles/context.ts     → AI historical context
+  plays/queries.ts       → User play history
+  plays/statistics.ts    → Play aggregation
+  users/queries.ts       → User data retrieval
+  users/mutations.ts     → User CRUD operations
+  users/statistics.ts    → User stats updates
+  migration/anonymous.ts → Anonymous data merge
+  streaks/mutations.ts   → Streak tracking
+  system/scheduling.ts   → Countdown timer
   ```
 
 ## Design Iteration Checkpoints
