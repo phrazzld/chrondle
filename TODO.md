@@ -146,12 +146,17 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
   - All 553 tests passing, type-check clean
   ```
 
-- [ ] Remove legacy string union types
+- [x] Remove legacy string union types
   ```
-  Files: Search for "puzzleId.*string.*Id" patterns
-  Approach: Delete deprecated types, update references
+  Files: Completed during previous migration task
+  Approach: Removed string unions from Progress interface, enforced Id<"puzzles">
   Success: No legacy types remain, all usages migrated
-  Time: 60min
+  Time: Included in previous task
+  Work Log:
+  - Progress.puzzleId changed from Id<"puzzles"> | string to Id<"puzzles"> only
+  - All Puzzle interfaces now use id: Id<"puzzles"> (no string union)
+  - Legacy gameState.ts Puzzle interface removed entirely
+  - Type-check confirms no string|Id unions remain in Puzzle types
   ```
 
 ## Phase 2: Code Quality & Organization [High Impact, Low-Medium Effort]
