@@ -166,15 +166,22 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
 **Impact**: 9/10 - Eliminates primary anti-pattern
 **Effort**: 3h
 
-- [ ] Create `src/lib/display/formatting.ts` module
+- [x] Create `src/lib/display/formatting.ts` module
 
   ```
-  Files: NEW src/lib/display/formatting.ts, MOVE formatYear, formatCountdown
-  Approach: Extract display formatting functions
+  Files: NEW src/lib/display/formatting.ts, MOVE formatYear, formatCountdown, getTimeUntilMidnight
+  Approach: Extract display formatting functions from utils.ts
   Success: Functions moved, imports updated, tests pass
-  Module: Single responsibility (display formatting)
+  Module: Single responsibility (time/countdown formatting)
   Dependencies: None (pure functions)
   Time: 45min
+  Work Log:
+  - Created src/lib/display/formatting.ts with formatCountdown() and getTimeUntilMidnight()
+  - Removed formatYear, formatCountdown, getTimeUntilMidnight from utils.ts
+  - Updated useCountdown.ts import to use new module
+  - Updated formatYear test to import from displayFormatting.ts
+  - Note: formatYear already existed in displayFormatting.ts (comprehensive module)
+  - All 553 tests passing, type-check clean
   ```
 
 - [ ] Create `src/lib/game/proximity.ts` module
