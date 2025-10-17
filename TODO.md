@@ -108,14 +108,22 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
 **Impact**: 9/10 - Eliminates category of type confusion bugs
 **Effort**: 3h
 
-- [ ] Define canonical Puzzle interface with consistent naming
+- [x] Define canonical Puzzle interface with consistent naming
 
   ```
-  Files: src/types/puzzle.ts
+  Files: NEW src/types/puzzle.ts
   Approach: Single source of truth - id: Id<"puzzles">, puzzleNumber: number, targetYear: number
   Success: Interface compiles, removes string|Id union confusion
   Module: Clear, non-overlapping field names
   Time: 30min
+  Work Log:
+  - Created src/types/puzzle.ts with canonical Puzzle interface
+  - Defined id: Id<"puzzles"> (no string union confusion)
+  - Renamed "year" to "targetYear" (eliminates ambiguity)
+  - Added PuzzleWithContext for optional historicalContext
+  - Implemented type guards: hasHistoricalContext(), isValidPuzzle()
+  - Comprehensive JSDoc explaining field purposes and design rationale
+  - Type-check passes - ready for migration
   ```
 
 - [ ] Update all Puzzle references to use canonical interface
@@ -199,12 +207,40 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
 **Effort**: 30min
 
 - [ ] Rename mergeGuesses to reconcileGuessesWithPriority
+
   ```
-  Files: src/lib/deriveGameState.ts:42-63
-  Approach: Rename + add comprehensive JSDoc with examples
-  Success: Name reflects actual behavior (dedup + priority + cap)
-  Documentation: Note O(n²) complexity, explain server-first priority
-  Time: 30min
+  Files:
+  - src/lib/deriveGameState.ts:45 (function definition)
+  - src/lib/deriveGameState.ts:128 (call site)
+  - src/lib/__tests__/deriveGameState.unit.test.ts:4 (import)
+  - src/lib/__tests__/deriveGameState.unit.test.ts:294+ (test suite)
+
+  Pattern: Follow JSDoc style from displayFormatting.ts with @example blocks
+
+  Approach:
+  1. Rename function from mergeGuesses → reconcileGuessesWithPriority
+  2. Update JSDoc to emphasize THREE behaviors (not just "merge"):
+     - Deduplication: Removes duplicates between server and session
+     - Priority ordering: Server guesses come first (source of truth)
+     - Capping: Result capped at MAX_GUESSES (6)
+  3. Add @example block showing typical reconciliation scenario
+  4. Add @example block showing deduplication behavior
+  5. Update all call sites and imports to use new name
+  6. Update test suite describe() block name
+  7. Run tests to verify no behavior changed
+
+  Success criteria:
+  - Function renamed in all 4 locations
+  - JSDoc has comprehensive description with 2+ examples
+  - All 22 tests in deriveGameState.unit.test.ts pass
+  - Type-check passes
+
+  Edge cases already handled:
+  - Empty arrays (both, one, or none)
+  - Duplicates within session guesses
+  - Result exceeding MAX_GUESSES
+
+  Time: 20min
   ```
 
 ### 2.3 Migrate console.log to Structured Logger
