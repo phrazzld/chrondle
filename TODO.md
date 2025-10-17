@@ -244,13 +244,19 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
 **Impact**: 6/10 - Future-proofs for archive mode
 **Effort**: 15min
 
-- [ ] Replace .includes() with Set for O(1) lookups
+- [x] Replace .includes() with Set for O(1) lookups
   ```
   Files: src/lib/deriveGameState.ts:42-63
   Approach: const serverSet = new Set(serverGuesses); if (!serverSet.has(guess))
   Success: O(n+m) linear complexity, tests pass unchanged
   Performance: 0.5ms → 0.05ms (~10x faster), scales to 100+ guesses
   Time: 15min
+  Work Log:
+  - Replaced .includes() with Set.has() for O(1) lookups
+  - Added serverSet.add() to track session guesses and avoid duplicates
+  - Updated JSDoc to document O(n+m) complexity
+  - All 22 deriveGameState tests pass
+  - Type-check passes
   ```
 
 ### 3.2 Remove Deprecated Functions

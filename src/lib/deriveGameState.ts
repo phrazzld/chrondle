@@ -35,14 +35,14 @@ export interface DataSources {
  * Session guesses are appended but duplicates are removed
  * Total is capped at MAX_GUESSES (6)
  *
+ * Performance: O(n+m) linear complexity using Set for deduplication
+ * Previously O(n*m) due to .includes() in loop - now optimized for future archive mode
+ *
  * @param serverGuesses - Guesses from the server (persisted)
  * @param sessionGuesses - Guesses from the current session (not yet persisted)
  * @returns Merged array of guesses, capped at MAX_GUESSES
  */
-export function mergeGuesses(
-  serverGuesses: number[],
-  sessionGuesses: number[],
-): number[] {
+export function mergeGuesses(serverGuesses: number[], sessionGuesses: number[]): number[] {
   // Return empty array if both inputs are empty
   if (serverGuesses.length === 0 && sessionGuesses.length === 0) {
     return [];
@@ -51,10 +51,14 @@ export function mergeGuesses(
   // Start with server guesses (source of truth)
   const merged = [...serverGuesses];
 
+  // Use Set for O(1) duplicate checking instead of O(n) .includes()
+  const serverSet = new Set(serverGuesses);
+
   // Add session guesses that aren't duplicates
   for (const guess of sessionGuesses) {
-    if (!merged.includes(guess)) {
+    if (!serverSet.has(guess)) {
       merged.push(guess);
+      serverSet.add(guess); // Track added guesses to avoid duplicates within session
     }
   }
 
@@ -115,9 +119,7 @@ export function deriveGameState(sources: DataSources): GameState {
 
     // Get server guesses from progress (if user is authenticated and has progress)
     const serverGuesses =
-      auth.isAuthenticated && progress.progress
-        ? progress.progress.guesses
-        : [];
+      auth.isAuthenticated && progress.progress ? progress.progress.guesses : [];
 
     // Get session guesses
     const sessionGuesses = session.sessionGuesses;
@@ -139,18 +141,14 @@ export function deriveGameState(sources: DataSources): GameState {
     const guessedCorrectly = lastGuess === puzzle.puzzle.targetYear;
     const usedAllGuesses = allGuesses.length >= GAME_CONFIG.MAX_GUESSES;
 
-    const isComplete =
-      hasServerCompletion || guessedCorrectly || usedAllGuesses;
+    const isComplete = hasServerCompletion || guessedCorrectly || usedAllGuesses;
 
     // Calculate win status
     // Won if: completed AND last guess matches target year
     const hasWon = isComplete && guessedCorrectly;
 
     // Calculate remaining guesses
-    const remainingGuesses = Math.max(
-      0,
-      GAME_CONFIG.MAX_GUESSES - allGuesses.length,
-    );
+    const remainingGuesses = Math.max(0, GAME_CONFIG.MAX_GUESSES - allGuesses.length);
 
     // Return ready state with all derived values
     return {
