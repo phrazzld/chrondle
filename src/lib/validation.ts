@@ -3,6 +3,7 @@
  */
 
 import type { Id } from "../../convex/_generated/dataModel";
+import { logger } from "@/lib/logger";
 
 /**
  * Regular expression for validating Convex ID format
@@ -70,15 +71,12 @@ export function isValidConvexId(id: unknown): boolean {
  *   await ctx.db.get(userId);
  * } catch (error) {
  *   if (error instanceof ConvexIdValidationError) {
- *     console.error(`Invalid ${error.type} ID: ${error.id}`);
+ *     logger.error(`Invalid ${error.type} ID: ${error.id}`);
  *   }
  * }
  * ```
  */
-export function assertConvexId<T extends TableNames>(
-  id: string,
-  type: T,
-): Id<T> {
+export function assertConvexId<T extends TableNames>(id: string, type: T): Id<T> {
   if (!isValidConvexId(id)) {
     throw new ConvexIdValidationError(
       `Invalid ${type} ID format: expected 32 lowercase alphanumeric characters, got "${id}"`,
@@ -105,7 +103,7 @@ export function assertConvexId<T extends TableNames>(
  *   const user = await ctx.db.get(userId);
  * } else {
  *   // Handle missing or invalid user ID
- *   console.log("No valid user ID available");
+ *   logger.debug("No valid user ID available");
  * }
  * ```
  */
@@ -119,7 +117,7 @@ export function safeConvexId<T extends TableNames>(
 
   if (!isValidConvexId(id)) {
     if (process.env.NODE_ENV === "development") {
-      console.warn(
+      logger.warn(
         `[safeConvexId] Invalid ${type} ID format detected:`,
         id,
         "Expected 32-character lowercase alphanumeric Convex ID",
@@ -149,13 +147,11 @@ export function safeConvexId<T extends TableNames>(
  * if (validation.allValid) {
  *   // All IDs are valid
  * } else {
- *   console.error("Invalid IDs:", validation.invalid);
+ *   logger.error("Invalid IDs:", validation.invalid);
  * }
  * ```
  */
-export function validateConvexIds(
-  ids: Record<string, string | null | undefined>,
-): {
+export function validateConvexIds(ids: Record<string, string | null | undefined>): {
   allValid: boolean;
   valid: string[];
   invalid: string[];
@@ -205,9 +201,7 @@ export function validateConvexIds(
  * }
  * ```
  */
-export function isConvexIdValidationError(
-  error: unknown,
-): error is ConvexIdValidationError {
+export function isConvexIdValidationError(error: unknown): error is ConvexIdValidationError {
   return error instanceof ConvexIdValidationError;
 }
 

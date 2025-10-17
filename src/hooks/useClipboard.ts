@@ -1,6 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
+import { logger } from "@/lib/logger";
 
 export interface UseClipboardReturn {
   copyToClipboard: (text: string) => Promise<boolean>;
@@ -14,34 +15,33 @@ export function useClipboard(): UseClipboardReturn {
 
   const copyToClipboard = useCallback(async (text: string): Promise<boolean> => {
     setIsCopying(true);
-    
+
     try {
       // Modern clipboard API
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(text);
         setLastCopySuccess(true);
         return true;
-      } 
-      
+      }
+
       // Fallback for older browsers
-      const textarea = document.createElement('textarea');
+      const textarea = document.createElement("textarea");
       textarea.value = text;
-      textarea.style.position = 'fixed';
-      textarea.style.left = '-9999px';
-      textarea.style.top = '-9999px';
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      textarea.style.top = "-9999px";
       document.body.appendChild(textarea);
-      
+
       textarea.focus();
       textarea.select();
-      
-      const success = document.execCommand('copy');
+
+      const success = document.execCommand("copy");
       document.body.removeChild(textarea);
-      
+
       setLastCopySuccess(success);
       return success;
-      
     } catch (error) {
-      console.error('Failed to copy text:', error);
+      logger.error("Failed to copy text:", error);
       setLastCopySuccess(false);
       return false;
     } finally {
@@ -52,6 +52,6 @@ export function useClipboard(): UseClipboardReturn {
   return {
     copyToClipboard,
     isCopying,
-    lastCopySuccess
+    lastCopySuccess,
   };
 }

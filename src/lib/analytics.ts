@@ -10,6 +10,7 @@
  */
 
 import { GameState, isReady } from "@/types/gameState";
+import { logger } from "@/lib/logger";
 
 /**
  * Analytics event types for game state tracking
@@ -101,8 +102,7 @@ export class GameAnalytics {
   private constructor(config?: Partial<AnalyticsConfig>) {
     this.config = {
       enabled:
-        process.env.NODE_ENV === "production" ||
-        process.env.NEXT_PUBLIC_ANALYTICS_DEBUG === "true",
+        process.env.NODE_ENV === "production" || process.env.NEXT_PUBLIC_ANALYTICS_DEBUG === "true",
       debugMode: process.env.NODE_ENV === "development",
       sampleRate: 1.0, // Track all events by default
       batchSize: 10,
@@ -189,8 +189,7 @@ export class GameAnalytics {
     if (!this.config.enabled) return;
 
     const distance = Math.abs(guess - targetYear);
-    const direction =
-      guess < targetYear ? "before" : guess > targetYear ? "after" : "exact";
+    const direction = guess < targetYear ? "before" : guess > targetYear ? "after" : "exact";
 
     this.track(
       AnalyticsEvent.GUESS_SUBMITTED,
@@ -323,9 +322,7 @@ export class GameAnalytics {
     const threshold = operation === "derivation" ? 10 : 200; // ms
     if (duration > threshold) {
       const event =
-        operation === "derivation"
-          ? AnalyticsEvent.SLOW_DERIVATION
-          : AnalyticsEvent.SLOW_QUERY;
+        operation === "derivation" ? AnalyticsEvent.SLOW_DERIVATION : AnalyticsEvent.SLOW_QUERY;
 
       this.track(event, {
         duration,
@@ -389,7 +386,7 @@ export class GameAnalytics {
     // Debug logging
     if (this.config.debugMode) {
       // Using console.error which is allowed by ESLint
-      console.error("[Analytics]", event, properties);
+      logger.error("[Analytics]", event, properties);
     }
 
     // Flush if batch size reached
@@ -411,10 +408,7 @@ export class GameAnalytics {
   /**
    * Detect potential state issues
    */
-  private detectStateIssues(
-    previousState: GameState | null,
-    newState: GameState,
-  ): void {
+  private detectStateIssues(previousState: GameState | null, newState: GameState): void {
     // Detect if progress was lost
     if (
       previousState &&
@@ -422,18 +416,11 @@ export class GameAnalytics {
       isReady(newState) &&
       previousState.guesses.length > newState.guesses.length
     ) {
-      this.trackProgressLost(
-        previousState.guesses,
-        newState.guesses,
-        undefined,
-      );
+      this.trackProgressLost(previousState.guesses, newState.guesses, undefined);
     }
 
     // Detect unexpected state transitions
-    if (
-      previousState?.status === "ready" &&
-      newState.status === "loading-progress"
-    ) {
+    if (previousState?.status === "ready" && newState.status === "loading-progress") {
       // This shouldn't happen - going backwards in loading priority
       this.track(AnalyticsEvent.STATE_ERROR, {
         issue: "backward_transition",
@@ -489,7 +476,7 @@ export class GameAnalytics {
         body: JSON.stringify({ events }),
         keepalive: true, // Important for beforeunload
       }).catch((error) => {
-        console.error("Analytics flush failed:", error);
+        logger.error("Analytics flush failed:", error);
         // Re-add events to queue for retry
         this.eventQueue.unshift(...events);
       });
@@ -498,7 +485,7 @@ export class GameAnalytics {
     // Debug output
     if (this.config.debugMode) {
       // Using console.error which is allowed by ESLint
-      console.error("[Analytics] Flushed", events.length, "events");
+      logger.error("[Analytics] Flushed", events.length, "events");
     }
   }
 

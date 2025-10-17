@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
 import { formatCountdown, getTimeUntilMidnight } from "@/lib/display/formatting";
+import { logger } from "@/lib/logger";
 
 export interface UseCountdownReturn {
   timeString: string;
@@ -45,7 +46,7 @@ export function useCountdown(options: UseCountdownOptions = {}): UseCountdownRet
     if (effectiveTarget && isComplete) {
       // New target arrived, reset completion
       setIsComplete(false);
-      console.warn("[useCountdown] New target detected, resetting completion state");
+      logger.warn("[useCountdown] New target detected, resetting completion state");
     }
   }, [effectiveTarget, isComplete]);
 
@@ -82,7 +83,7 @@ export function useCountdown(options: UseCountdownOptions = {}): UseCountdownRet
           setTimeString("00:00:00");
           if (!isComplete) {
             setIsComplete(true);
-            console.warn("[useCountdown] Countdown complete, new puzzle should be available");
+            logger.warn("[useCountdown] Countdown complete, new puzzle should be available");
             // The query will refetch automatically due to Convex reactivity
           }
           return;
@@ -93,7 +94,7 @@ export function useCountdown(options: UseCountdownOptions = {}): UseCountdownRet
           setIsComplete(false);
         }
       } catch (err) {
-        console.error("[useCountdown] Calculation failed:", err);
+        logger.error("[useCountdown] Calculation failed:", err);
         setTimeString("--:--:--");
         setError("Countdown calculation failed");
       }

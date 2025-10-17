@@ -119,8 +119,8 @@ export function isLoadingProgress(state: GameState): state is LoadingProgressSta
  * @example
  * const gameState = deriveGameState(data);
  * if (isReady(gameState)) {
- *   console.log(`Playing puzzle #${gameState.puzzle.puzzleNumber}`);
- *   console.log(`Guesses: ${gameState.guesses.length}/${6}`);
+ *   logger.debug(`Playing puzzle #${gameState.puzzle.puzzleNumber}`);
+ *   logger.debug(`Guesses: ${gameState.guesses.length}/${6}`);
  * }
  */
 export function isReady(state: GameState): state is ReadyState {

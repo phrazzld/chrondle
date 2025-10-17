@@ -1,5 +1,6 @@
 import { GameState, Puzzle } from "@/types/gameState";
 import { GAME_CONFIG } from "@/lib/constants";
+import { logger } from "@/lib/logger";
 
 /**
  * Data sources from the orthogonal hooks
@@ -181,7 +182,7 @@ export function deriveGameState(sources: DataSources): GameState {
     };
   } catch (error) {
     // Log the error for debugging
-    console.error("Error deriving game state:", error);
+    logger.error("Error deriving game state:", error);
 
     // Return error state with helpful message
     return {

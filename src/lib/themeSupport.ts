@@ -2,15 +2,11 @@
 // Classifies and organizes historical puzzles into thematic collections
 
 import { getPuzzleForYear } from "./puzzleData";
+import { logger } from "@/lib/logger";
 
 // --- TYPE DEFINITIONS ---
 
-export type Theme =
-  | "ancient-civilizations"
-  | "science"
-  | "art"
-  | "conflict"
-  | "general";
+export type Theme = "ancient-civilizations" | "science" | "art" | "conflict" | "general";
 
 export interface ThemeMetadata {
   name: string;
@@ -297,9 +293,7 @@ export function classifyPuzzleTheme(year: number, events: string[]): Theme {
 export function getThemeMetadata(): Record<Theme, ThemeMetadata> {
   // TODO: This function needs to be updated to use Convex data
   // For now, return empty arrays as puzzles are loaded dynamically
-  console.warn(
-    "🚧 getThemeMetadata() - Needs Convex migration for dynamic puzzle data",
-  );
+  logger.warn("🚧 getThemeMetadata() - Needs Convex migration for dynamic puzzle data");
 
   const yearsByTheme: Record<Theme, number[]> = {
     "ancient-civilizations": [],
@@ -321,8 +315,7 @@ export function getThemeMetadata(): Record<Theme, ThemeMetadata> {
     },
     science: {
       name: "Scientific Breakthroughs",
-      description:
-        "Discover pivotal moments in human understanding of the natural world",
+      description: "Discover pivotal moments in human understanding of the natural world",
       icon: "🔬",
       color: "#4169E1",
       yearCount: yearsByTheme["science"].length,
@@ -330,8 +323,7 @@ export function getThemeMetadata(): Record<Theme, ThemeMetadata> {
     },
     art: {
       name: "Arts & Culture",
-      description:
-        "Journey through the greatest achievements in human creativity and expression",
+      description: "Journey through the greatest achievements in human creativity and expression",
       icon: "🎨",
       color: "#FF6347",
       yearCount: yearsByTheme["art"].length,
@@ -339,8 +331,7 @@ export function getThemeMetadata(): Record<Theme, ThemeMetadata> {
     },
     conflict: {
       name: "Wars & Conflicts",
-      description:
-        "Witness the battles and revolutions that shaped the course of history",
+      description: "Witness the battles and revolutions that shaped the course of history",
       icon: "⚔️",
       color: "#DC143C",
       yearCount: yearsByTheme["conflict"].length,

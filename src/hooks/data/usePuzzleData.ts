@@ -5,6 +5,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "convex/_generated/dataModel";
 import { PuzzleWithContext } from "@/types/puzzle";
+import { logger } from "@/lib/logger";
 
 /**
  * Puzzle data structure returned from Convex
@@ -70,10 +71,10 @@ export function usePuzzleData(puzzleNumber?: number, initialData?: unknown): Use
       dailyPuzzle === null // null means query returned but no puzzle exists
     ) {
       // Trigger on-demand generation for today
-      console.warn(`[usePuzzleData] No daily puzzle found, triggering on-demand generation`);
+      logger.warn(`[usePuzzleData] No daily puzzle found, triggering on-demand generation`);
 
       ensurePuzzle().catch((error) => {
-        console.error("[usePuzzleData] Failed to generate puzzle on-demand:", error);
+        logger.error("[usePuzzleData] Failed to generate puzzle on-demand:", error);
       });
     }
   }, [dailyPuzzle, puzzleNumber, shouldSkipQuery, ensurePuzzle]);

@@ -3,6 +3,8 @@
  * Provides statistical analysis for game performance and guess accuracy
  */
 
+import { logger } from "@/lib/logger";
+
 /**
  * Result of closest guess calculation
  */
@@ -53,7 +55,7 @@ export function calculateClosestGuess(
 
     return { guess: closestGuess, distance: closestDistance };
   } catch (error) {
-    console.error("Closest guess calculation failed:", error);
+    logger.error("Closest guess calculation failed:", error);
     return null;
   }
 }

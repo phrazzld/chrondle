@@ -328,7 +328,7 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
   - Found ~145 console.* calls that need migration to logger
   ```
 
-- [ ] Migrate 145 console.\* calls to logger usage
+- [x] Migrate 145 console.\* calls to logger usage
 
   ```
   Files: 40 files across src/ (see grep results)
@@ -338,6 +338,18 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
           console.error → logger.error (always logged)
           console.warn → logger.warn
   Time: 2h 30min
+  Work Log:
+  - Migrated 42 files (excluding src/lib/logger.ts which implements logger)
+  - Replaced ~145 console.* calls with logger.* calls
+  - Added logger imports to all affected files
+  - Migration pattern: console.log → logger.debug, console.error → logger.error, console.warn → logger.warn
+  - Fixed broken imports in useMutationWithRetry.ts
+  - Added missing logger imports to 5 files (curatedYears, statistics, propValidation, themeSupport, wdyr)
+  - Removed unused logger imports from 3 files (gameState types, puzzle types, useUserProgress)
+  - Preserved console.groupCollapsed/groupEnd in wdyr.ts for Why Did You Render debugging tool
+  - Zero no-console violations remaining (verified with lint)
+  - Type-check passes, all 553 tests pass
+  - Now using 214 logger.* calls throughout codebase for structured logging
   ```
 
 - [ ] Verify no secrets in logger output

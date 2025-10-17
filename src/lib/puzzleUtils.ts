@@ -1,4 +1,5 @@
 import { getIndexFromYear } from "./puzzleData";
+import { logger } from "@/lib/logger";
 
 /**
  * Calculate puzzle number for a given year
@@ -16,10 +17,7 @@ export function getPuzzleNumberForYear(year: number): number | null {
  * @param isDebugMode Whether debug mode is active
  * @returns Today's puzzle number
  */
-export function getTodaysPuzzleNumber(
-  debugYear?: string,
-  isDebugMode?: boolean,
-): number {
+export function getTodaysPuzzleNumber(debugYear?: string, isDebugMode?: boolean): number {
   // If debug mode with specific year, get puzzle number for that year
   if (isDebugMode && debugYear) {
     const year = parseInt(debugYear);
@@ -50,6 +48,6 @@ export function formatPuzzleNumber(num: number): string {
 export function getYearFromPuzzleNumber(puzzleNumber: number): number | null {
   // TODO: This function needs to query Convex for the puzzle by number
   // Puzzle numbers are no longer tied to specific years
-  console.warn("🚧 getYearFromPuzzleNumber() - Needs Convex migration");
+  logger.warn("🚧 getYearFromPuzzleNumber() - Needs Convex migration");
   return null;
 }

@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Copy, Check } from "lucide-react";
 import { ANIMATION_DURATIONS } from "@/lib/animationConstants";
+import { logger } from "@/lib/logger";
 
 interface BitcoinModalProps {
   open: boolean;
@@ -44,7 +45,7 @@ export default function BitcoinModal({ open, onOpenChange }: BitcoinModalProps) 
         },
       })
         .then(setQrDataUrl)
-        .catch(console.error);
+        .catch((error) => logger.error("QR code generation failed:", error));
     }
   }, [address, open]);
 
@@ -54,7 +55,7 @@ export default function BitcoinModal({ open, onOpenChange }: BitcoinModalProps) 
       setCopied(true);
       setTimeout(() => setCopied(false), ANIMATION_DURATIONS.COPY_FEEDBACK);
     } catch (error) {
-      console.error("Failed to copy address:", error);
+      logger.error("Failed to copy address:", error);
     }
   };
 

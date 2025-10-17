@@ -85,7 +85,7 @@ export function saveProgress(
       closestGuess = bestGuess;
       closestDistance = bestDistance;
     } catch (error) {
-      console.warn("Failed to calculate closest guess for save:", error);
+      logger.warn("Failed to calculate closest guess for save:", error);
     }
   }
 

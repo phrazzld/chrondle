@@ -75,7 +75,7 @@ export interface PuzzleWithContext extends Puzzle {
  *
  * @example
  * if (hasHistoricalContext(puzzle)) {
- *   console.log(puzzle.historicalContext);
+ *   logger.debug(puzzle.historicalContext);
  * }
  */
 export function hasHistoricalContext(

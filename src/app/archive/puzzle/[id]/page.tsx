@@ -18,6 +18,7 @@ import { ConfettiRef } from "@/components/magicui/confetti";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { ArchiveErrorBoundary } from "@/components/ArchiveErrorBoundary";
+import { logger } from "@/lib/logger";
 
 // Type for validation result
 type PuzzleIdValidation =
@@ -113,7 +114,7 @@ function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps): React.ReactEle
           );
         }
       } catch (error) {
-        console.error("Failed to fetch total puzzles count:", error);
+        logger.error("Failed to fetch total puzzles count:", error);
         setFetchError("Failed to load puzzle data");
         setAnnouncement("Error: Failed to load puzzle data");
       } finally {

@@ -11,7 +11,7 @@
  *
  * @example
  * const ms = getTimeUntilMidnight();
- * console.log(`${Math.floor(ms / 1000 / 60)} minutes until next puzzle`);
+ * logger.debug(`${Math.floor(ms / 1000 / 60)} minutes until next puzzle`);
  */
 export function getTimeUntilMidnight(): number {
   const now = new Date();

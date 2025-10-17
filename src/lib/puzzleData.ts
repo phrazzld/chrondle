@@ -119,7 +119,7 @@ export const TOTAL_PUZZLES = 0; // This will be replaced by server-side fetching
  */
 export function getPuzzleForYear(year: number): string[] {
   // TODO: Fetch from Convex
-  console.warn(`🚧 getPuzzleForYear(${year}) - Convex migration in progress`);
+  logger.warn(`🚧 getPuzzleForYear(${year}) - Convex migration in progress`);
   return [];
 }
 
@@ -129,7 +129,7 @@ export function getPuzzleForYear(year: number): string[] {
  * @deprecated Use getPuzzleYearsAsync instead
  */
 export function getPuzzleYears(): number[] {
-  console.warn("🚧 getPuzzleYears() - DEPRECATED: Use getPuzzleYearsAsync for accurate data");
+  logger.warn("🚧 getPuzzleYears() - DEPRECATED: Use getPuzzleYearsAsync for accurate data");
   return [];
 }
 
@@ -154,7 +154,7 @@ export async function getPuzzleYearsAsync(): Promise<number[]> {
  */
 export function getPuzzleByYear(year: number): Puzzle | null {
   // TODO: Fetch from Convex
-  console.warn(`🚧 getPuzzleByYear(${year}) - Convex migration in progress`);
+  logger.warn(`🚧 getPuzzleByYear(${year}) - Convex migration in progress`);
   return null;
 }
 
@@ -165,7 +165,7 @@ export function getPuzzleByYear(year: number): Puzzle | null {
  */
 export function hasPuzzleForYear(year: number): boolean {
   // TODO: Check in Convex
-  console.warn(`🚧 hasPuzzleForYear(${year}) - Convex migration in progress`);
+  logger.warn(`🚧 hasPuzzleForYear(${year}) - Convex migration in progress`);
   return false;
 }
 
@@ -175,7 +175,7 @@ export function hasPuzzleForYear(year: number): boolean {
  */
 export function getSupportedYears(): number[] {
   // TODO: Fetch from Convex
-  console.warn("🚧 getSupportedYears() - Convex migration in progress");
+  logger.warn("🚧 getSupportedYears() - Convex migration in progress");
   return [];
 }
 
@@ -188,7 +188,7 @@ export function getSupportedYears(): number[] {
  * @deprecated Use getPuzzleByIndexAsync instead
  */
 export function getPuzzleByIndex(index: number): Puzzle | null {
-  console.warn(`🚧 getPuzzleByIndex(${index}) - DEPRECATED: Use getPuzzleByIndexAsync`);
+  logger.warn(`🚧 getPuzzleByIndex(${index}) - DEPRECATED: Use getPuzzleByIndexAsync`);
   return null;
 }
 
@@ -240,7 +240,7 @@ export async function getPuzzleByIndexAsync(index: number): Promise<Puzzle | nul
  */
 export function getIndexFromYear(year: number): number {
   // TODO: Implement with Convex data
-  console.warn(`🚧 getIndexFromYear(${year}) - Convex migration in progress`);
+  logger.warn(`🚧 getIndexFromYear(${year}) - Convex migration in progress`);
   return -1;
 }
 
@@ -251,7 +251,7 @@ export function getIndexFromYear(year: number): number {
  */
 export function getYearFromIndex(index: number): number | null {
   // TODO: Implement with Convex data
-  console.warn(`🚧 getYearFromIndex(${index}) - Convex migration in progress`);
+  logger.warn(`🚧 getYearFromIndex(${index}) - Convex migration in progress`);
   return null;
 }
 

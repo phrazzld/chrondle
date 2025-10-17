@@ -5,6 +5,7 @@
 
 import { generateWordleBoxes } from "@/lib/game/proximity";
 import { calculateClosestGuess } from "@/lib/game/statistics";
+import { logger } from "@/lib/logger";
 
 /**
  * Formats the closest guess message with achievement indicators
@@ -26,7 +27,7 @@ function formatClosestGuessMessage(
   const { distance } = closestData;
 
   if (typeof distance !== "number" || !isFinite(distance) || distance < 0) {
-    console.warn("Invalid distance in formatClosestGuessMessage:", distance);
+    logger.warn("Invalid distance in formatClosestGuessMessage:", distance);
     return "";
   }
 
@@ -42,7 +43,7 @@ function formatClosestGuessMessage(
       return ` (Closest: ${distance} years off)`;
     }
   } catch (error) {
-    console.error("Error formatting closest guess message:", error);
+    logger.error("Error formatting closest guess message:", error);
     return "";
   }
 }
@@ -102,7 +103,7 @@ export function generateShareText(
       typeof hasWon !== "boolean" ||
       (puzzleNumber !== undefined && typeof puzzleNumber !== "number")
     ) {
-      console.error("Invalid inputs to generateShareText");
+      logger.error("Invalid inputs to generateShareText");
       return "Chrondle share text generation failed";
     }
 
@@ -122,7 +123,7 @@ export function generateShareText(
       const closestData = calculateClosestGuess(guesses, targetYear);
       closestMessage = formatClosestGuessMessage(closestData, hasWon);
     } catch (error) {
-      console.warn("Failed to calculate closest guess for sharing:", error);
+      logger.warn("Failed to calculate closest guess for sharing:", error);
       // Continue without closest guess message
     }
 
@@ -138,7 +139,7 @@ export function generateShareText(
 
     return result;
   } catch (error) {
-    console.error("Failed to generate share text:", error);
+    logger.error("Failed to generate share text:", error);
     // Fallback to basic share text
     return `Chrondle: ${hasWon ? "Won" : "Lost"} in ${guesses.length}/6 guesses\nhttps://www.chrondle.app`;
   }
