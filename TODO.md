@@ -352,12 +352,21 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
   - Now using 214 logger.* calls throughout codebase for structured logging
   ```
 
-- [ ] Verify no secrets in logger output
+- [x] Verify no secrets in logger output
   ```
-  Files: All migrated logger calls
+  Files: All migrated logger calls (214 total across 52 files)
   Approach: Audit logger.* calls for API keys, tokens
   Success: No sensitive data logged
-  Time: 15min
+  Time: 45min (extended for security fix)
+  Work Log:
+  - Audited all 214 logger.* calls across src/ and convex/ directories
+  - Found CRITICAL vulnerability: OpenRouter API errors logged without sanitization
+  - Implemented sanitizeErrorForLogging() to redact sk-or-v1-* API keys
+  - Applied sanitization to all 4 error logging locations in historicalContext.ts
+  - Added ESLint exception for Convex actions (Node.js context)
+  - Verified safe patterns: env vars, localStorage keys, auth flags
+  - Created comprehensive audit report: docs/security/LOGGER_AUDIT_2025-10-17.md
+  - Fixes [SECURITY] HIGH - API Key Exposure in Error Messages (BACKLOG.md:22-29)
   ```
 
 ## Phase 3: Performance & Future-Proofing [Medium Impact, Low Effort]
