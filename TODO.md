@@ -312,13 +312,20 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
 **Impact**: 8/10 - Clean console, structured logs
 **Effort**: 3h
 
-- [ ] Configure ESLint no-console rule with logger exceptions
+- [x] Configure ESLint no-console rule with logger exceptions
 
   ```
   Files: eslint.config.mjs
   Approach: Enable no-console, allow logger.* methods
   Success: Lint fails on console.* usage
   Time: 15min
+  Work Log:
+  - Changed no-console rule from ["error", { "allow": ["warn", "error"] }] to "error" (disallow all console)
+  - Added exception for src/lib/logger.ts (where logger is implemented)
+  - Added exception for scripts/**/*.js, scripts/**/*.mjs (build scripts need console)
+  - Added exception for **/__tests__/**, **/*.test.ts, **/*.test.tsx (test files can use console)
+  - Verified lint now catches console usage across codebase
+  - Found ~145 console.* calls that need migration to logger
   ```
 
 - [ ] Migrate 145 console.\* calls to logger usage

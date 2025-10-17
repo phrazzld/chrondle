@@ -26,11 +26,20 @@ const eslintConfig = [
   },
   {
     rules: {
-      "no-console": ["error", { "allow": ["warn", "error"] }]
+      // Disallow all console usage - use logger from src/lib/logger.ts instead
+      "no-console": "error"
     }
   },
   {
-    files: ["scripts/**/*.js", "scripts/**/*.mjs"],
+    // Allow console usage in logger.ts itself (where logger is implemented)
+    files: ["src/lib/logger.ts"],
+    rules: {
+      "no-console": "off"
+    }
+  },
+  {
+    // Allow console usage in scripts and test files
+    files: ["scripts/**/*.js", "scripts/**/*.mjs", "**/__tests__/**", "**/*.test.ts", "**/*.test.tsx"],
     rules: {
       "no-console": "off",
       "@typescript-eslint/no-require-imports": "off",
