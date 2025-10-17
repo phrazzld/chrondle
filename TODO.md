@@ -72,31 +72,35 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
 **Impact**: 10/10 - Prevents silent bugs from comment removal
 **Effort**: 2h
 
-- [ ] Create PuzzleType discriminated union in types
+- [x] Create PuzzleType discriminated union in types
 
   ```
-  Files: NEW src/types/puzzleType.ts
+  Files: NEW convex/lib/puzzleType.ts
   Approach: Discriminated union { type: 'daily' | 'archive'; date: string }
   Success: Type compiles, clear distinction enforced at compile time
   Module: Self-documenting business rule through types
   Time: 30min
+  Work Log:
+  - Created convex/lib/puzzleType.ts with discriminated union
+  - Implemented classifyPuzzle() to derive type from date (single source of truth)
+  - Added isDailyPuzzle() and isArchivePuzzle() type guards
+  - Comprehensive JSDoc explaining business rule enforcement
+  - No schema change needed - classification derived from date vs. today
   ```
 
-- [ ] Update Convex schema with puzzleType field
-
+- [x] Refactor streak update logic to use type discrimination
   ```
-  Files: convex/schema.ts, convex/puzzles.ts
-  Approach: Add puzzleType: v.union(v.literal("daily"), v.literal("archive"))
-  Success: Schema compiles, migration path documented
-  Time: 45min
-  ```
-
-- [ ] Refactor streak update logic to use type discrimination
-  ```
-  Files: convex/puzzles.ts:428-450
-  Approach: Replace comment with type guard if (puzzle.type === 'daily')
+  Files: convex/lib/streakHelpers.ts
+  Approach: Use classifyPuzzle() and isDailyPuzzle() type guard
   Success: Early return logic preserved, type-safe, self-documenting
-  Time: 45min
+  Time: 15min
+  Work Log:
+  - Replaced date comparison with type-safe classification
+  - Import classifyPuzzle and isDailyPuzzle from puzzleType module
+  - Updated logging to show puzzleType in warning messages
+  - All 15 archive puzzle streak tests pass
+  - All 60 streak calculation tests pass
+  - Business rule now self-documenting through types
   ```
 
 ### 1.3 Standardize Puzzle Terminology
