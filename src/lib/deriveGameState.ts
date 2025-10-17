@@ -30,19 +30,39 @@ export interface DataSources {
 }
 
 /**
- * Merges server guesses with session guesses
- * Server guesses take precedence as they are the source of truth
- * Session guesses are appended but duplicates are removed
- * Total is capped at MAX_GUESSES (6)
+ * Reconciles server and session guesses with priority ordering
+ *
+ * Performs three critical operations:
+ * 1. **Deduplication**: Removes duplicates between server and session guesses
+ * 2. **Priority Ordering**: Server guesses come first (source of truth for persistence)
+ * 3. **Capping**: Result is capped at MAX_GUESSES (6) to enforce game rules
  *
  * Performance: O(n+m) linear complexity using Set for deduplication
  * Previously O(n*m) due to .includes() in loop - now optimized for future archive mode
  *
- * @param serverGuesses - Guesses from the server (persisted)
+ * @param serverGuesses - Guesses from the server (persisted, source of truth)
  * @param sessionGuesses - Guesses from the current session (not yet persisted)
- * @returns Merged array of guesses, capped at MAX_GUESSES
+ * @returns Reconciled array with server guesses first, session guesses appended, duplicates removed, capped at 6
+ *
+ * @example
+ * // Typical reconciliation: server has 2 guesses, session adds 1 new guess
+ * reconcileGuessesWithPriority([1960, 1970], [1965]);
+ * // [1960, 1970, 1965] - session guess appended after server guesses
+ *
+ * @example
+ * // Deduplication: session guess already exists on server
+ * reconcileGuessesWithPriority([1960, 1970], [1970, 1965]);
+ * // [1960, 1970, 1965] - duplicate 1970 removed, only 1965 added
+ *
+ * @example
+ * // Capping: result exceeds MAX_GUESSES
+ * reconcileGuessesWithPriority([1960, 1965, 1970, 1975], [1980, 1985, 1990]);
+ * // [1960, 1965, 1970, 1975, 1980, 1985] - capped at 6 guesses
  */
-export function mergeGuesses(serverGuesses: number[], sessionGuesses: number[]): number[] {
+export function reconcileGuessesWithPriority(
+  serverGuesses: number[],
+  sessionGuesses: number[],
+): number[] {
   // Return empty array if both inputs are empty
   if (serverGuesses.length === 0 && sessionGuesses.length === 0) {
     return [];
@@ -125,7 +145,7 @@ export function deriveGameState(sources: DataSources): GameState {
     const sessionGuesses = session.sessionGuesses;
 
     // Merge guesses (server first, then session without duplicates)
-    const allGuesses = mergeGuesses(serverGuesses, sessionGuesses);
+    const allGuesses = reconcileGuessesWithPriority(serverGuesses, sessionGuesses);
 
     // Calculate completion status
     // Complete if:

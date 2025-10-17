@@ -261,7 +261,7 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
 **Impact**: 8/10 - Reduces developer confusion
 **Effort**: 30min
 
-- [ ] Rename mergeGuesses to reconcileGuessesWithPriority
+- [x] Rename mergeGuesses to reconcileGuessesWithPriority
 
   ```
   Files:
@@ -296,6 +296,15 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
   - Result exceeding MAX_GUESSES
 
   Time: 20min
+
+  Work Log:
+  - Renamed mergeGuesses → reconcileGuessesWithPriority in all 4 locations
+  - Updated JSDoc with comprehensive description emphasizing THREE behaviors
+  - Added 3 @example blocks: typical reconciliation, deduplication, capping
+  - Updated function signature and call site in deriveGameState.ts
+  - Updated import and test suite describe() in deriveGameState.unit.test.ts
+  - All 22 tests passing, type-check clean
+  - Function name now self-documenting: "reconcile" + "priority" clearly communicate intent
   ```
 
 ### 2.3 Migrate console.log to Structured Logger
