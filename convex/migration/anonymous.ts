@@ -86,9 +86,13 @@ function validateAnonymousStreak(
   }
 
   // Rule 2: Date must not be in the future
+  // Use proper Date comparison for robustness across edge cases
   const now = new Date();
   const today = getUTCDateString(now);
-  if (lastCompletedDate > today) {
+  const lastDateObj = new Date(lastCompletedDate + "T00:00:00.000Z");
+  const todayDateObj = new Date(today + "T00:00:00.000Z");
+
+  if (lastDateObj > todayDateObj) {
     return {
       isValid: false,
       reason: "Date cannot be in the future",
@@ -98,8 +102,8 @@ function validateAnonymousStreak(
   // Rule 3: Date must not be too old (90 days is generous limit)
   const ninetyDaysAgo = new Date(now);
   ninetyDaysAgo.setUTCDate(ninetyDaysAgo.getUTCDate() - 90);
-  const ninetyDaysAgoString = getUTCDateString(ninetyDaysAgo);
-  if (lastCompletedDate < ninetyDaysAgoString) {
+
+  if (lastDateObj < ninetyDaysAgo) {
     return {
       isValid: false,
       reason: "Date is too old (>90 days)",
@@ -127,12 +131,11 @@ function validateAnonymousStreak(
   // If user claims N-day streak ending on lastDate, the first day should be N-1 days before
   // We can't verify the exact days, but we can ensure it's plausible
   if (streakCount > 0) {
-    const firstDay = new Date(lastDate);
+    const firstDay = new Date(lastDateObj);
     firstDay.setUTCDate(firstDay.getUTCDate() - (streakCount - 1));
-    const firstDayString = getUTCDateString(firstDay);
 
     // First day must be within our 90-day window
-    if (firstDayString < ninetyDaysAgoString) {
+    if (firstDay < ninetyDaysAgo) {
       return {
         isValid: false,
         reason: "Streak extends beyond plausible date range",
