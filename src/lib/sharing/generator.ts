@@ -4,7 +4,7 @@
  */
 
 import { generateWordleBoxes } from "@/lib/game/proximity";
-import { calculateClosestGuess } from "@/lib/utils";
+import { calculateClosestGuess } from "@/lib/game/statistics";
 
 /**
  * Formats the closest guess message with achievement indicators

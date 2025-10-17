@@ -1,43 +1,8 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { generateWordleBoxes } from "@/lib/game/proximity";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
-}
-
-// Utility functions for the game
-
-// Calculate closest guess for sharing and display
-export function calculateClosestGuess(
-  guesses: number[],
-  targetYear: number,
-): { guess: number; distance: number } | null {
-  if (!Array.isArray(guesses) || guesses.length === 0 || typeof targetYear !== "number") {
-    return null;
-  }
-
-  try {
-    let closestDistance = Infinity;
-    let closestGuess = guesses[0];
-
-    for (const guess of guesses) {
-      if (typeof guess !== "number" || !isFinite(guess)) {
-        continue;
-      }
-
-      const distance = Math.abs(guess - targetYear);
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestGuess = guess;
-      }
-    }
-
-    return { guess: closestGuess, distance: closestDistance };
-  } catch (error) {
-    console.error("Closest guess calculation failed:", error);
-    return null;
-  }
 }
 
 export interface StreakColorClasses {

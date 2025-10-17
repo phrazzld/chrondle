@@ -221,7 +221,7 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
   - Social sharing generation now isolated in single-responsibility module
   ```
 
-- [ ] Create `src/lib/game/statistics.ts` module
+- [x] Create `src/lib/game/statistics.ts` module
 
   ```
   Files: NEW src/lib/game/statistics.ts, MOVE calculateClosestGuess
@@ -229,6 +229,14 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
   Success: Stats logic centralized
   Module: Single responsibility (game statistics)
   Time: 30min
+  Work Log:
+  - Created src/lib/game/statistics.ts with calculateClosestGuess() function
+  - Added ClosestGuessResult interface for type safety
+  - Updated import in sharing/generator.ts from utils to game/statistics
+  - Removed calculateClosestGuess from utils.ts
+  - Removed unused generateWordleBoxes import from utils.ts
+  - All 553 tests passing, type-check clean
+  - Game statistics now isolated in single-responsibility module
   ```
 
 - [ ] Create `src/lib/ui/streak-styling.ts` module
