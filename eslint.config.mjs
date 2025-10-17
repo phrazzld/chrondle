@@ -45,6 +45,13 @@ const eslintConfig = [
       "@typescript-eslint/no-require-imports": "off",
       "@typescript-eslint/no-unused-vars": "warn"
     }
+  },
+  {
+    // Allow console usage in Convex actions (Node.js context, not browser)
+    files: ["convex/actions/**/*.ts", "convex/**/*.ts"],
+    rules: {
+      "no-console": "off"
+    }
   }
 ];
 
