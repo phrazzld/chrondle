@@ -1,7 +1,6 @@
 // Game State Management for Chrondle
 // Static puzzle database with pre-curated historical events
 
-import { getPuzzleForYear } from "./puzzleData";
 import { logger } from "./logger";
 import { Id } from "convex/_generated/dataModel";
 // Storage imports removed - using in-memory state only
@@ -47,64 +46,9 @@ export function createInitialGameState(): GameState {
   };
 }
 
-// Deterministic daily year selection from pre-curated puzzle database
-export function getDailyYear(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  debugYear?: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  isDebugMode?: boolean,
-): number {
-  // This function is deprecated - daily puzzles are now handled by Convex
-  logger.warn(
-    "🚧 getDailyYear() is deprecated - use Convex getDailyPuzzle instead",
-  );
-
-  // Return placeholder year for backward compatibility
-  // This should not be used in production
-  return 2000;
-}
-
-// Initialize daily puzzle from static database
-// DEPRECATED: Use Convex-based puzzle loading instead (useChrondle hook)
-export function initializePuzzle(
-  debugYear?: string,
-  isDebugMode?: boolean,
-): Puzzle {
-  // Get the daily year (with debug support)
-  const targetYear = getDailyYear(debugYear, isDebugMode);
-
-  // Load events from static database
-  const events = getPuzzleForYear(targetYear);
-
-  if (events.length === 0) {
-    // This should never happen with a properly curated database
-    throw new Error(
-      `No puzzle found for year ${targetYear}. This indicates a bug in the puzzle database or daily selection logic.`,
-    );
-  }
-
-  logger.debug(
-    `🔍 DEBUG: Loaded ${events.length} events for year ${targetYear} from static database`,
-  );
-
-  // Generate simple puzzle ID for today (just the date)
-  // NOTE: This creates a date-string ID that is NOT compatible with Convex system
-  // Convex system uses proper document IDs (Id<"puzzles">)
-  const today = new Date();
-  const dateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
-
-  // Create puzzle object
-  const puzzle: Puzzle = {
-    year: targetYear,
-    events: events, // Events are already in the correct order in the database!
-    puzzleId: dateString, // Legacy date-string ID for backward compatibility
-  };
-
-  logger.debug(`🔍 DEBUG: Puzzle initialized successfully:`, puzzle);
-  return puzzle;
-}
-
 // Local Storage Management
+// Note: getDailyYear() and initializePuzzle() were deprecated and removed in favor of Convex-based puzzle loading
+// Migration: Use useChrondle hook which calls Convex getDailyPuzzle query
 export function getStorageKey(): string {
   const today = new Date();
   const dateString = today.toISOString().slice(0, 10); // YYYY-MM-DD
@@ -166,10 +110,7 @@ export function saveProgress(
   return false;
 }
 
-export function loadProgress(
-  gameState: GameState,
-  isDebugMode?: boolean,
-): void {
+export function loadProgress(gameState: GameState, isDebugMode?: boolean): void {
   if (isDebugMode) {
     logger.debug("Debug mode: skipping localStorage load");
     return;

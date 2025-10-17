@@ -264,7 +264,7 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
 **Impact**: 6/10 - Reduces confusion, cleaner codebase
 **Effort**: 1h
 
-- [ ] Delete getDailyYear() placeholder function
+- [x] Delete getDailyYear() placeholder function
 
   ```
   Files: src/lib/gameState.ts:51-65
@@ -273,21 +273,31 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
   Time: 20min
   ```
 
-- [ ] Delete initializePuzzle() deprecated logic
+- [x] Delete initializePuzzle() deprecated logic
 
   ```
   Files: src/lib/gameState.ts:68-105
   Approach: Remove 30+ lines of dead code
   Success: Dead code removed, no production impact
   Time: 20min
+  Work Log:
+  - Removed getDailyYear() (15 lines) and initializePuzzle() (37 lines)
+  - Removed unused getPuzzleForYear import
+  - Added migration comment directing to useChrondle hook
+  - Type-check passes
   ```
 
-- [ ] Add deprecation notes to CHANGELOG.md
+- [x] Add deprecation notes to CHANGELOG.md
   ```
   Files: CHANGELOG.md
   Approach: Document removed functions, migration path (use Convex)
   Success: Clear migration guide for any external consumers
   Time: 20min
+  Work Log:
+  - Created new CHANGELOG.md following Keep a Changelog format
+  - Documented removal of getDailyYear() and initializePuzzle()
+  - Provided migration examples using useChrondle() hook
+  - Explained rationale (Convex backend replaces static database)
   ```
 
 ## Quality Gates
