@@ -3,15 +3,10 @@
  * Each state represents a specific phase in the data loading and game lifecycle
  */
 
-/**
- * Puzzle data structure (aligned with usePuzzleData hook)
- */
-export interface Puzzle {
-  id: string;
-  targetYear: number;
-  events: string[];
-  puzzleNumber: number;
-}
+import type { Puzzle } from "./puzzle";
+
+// Re-export for convenience
+export type { Puzzle } from "./puzzle";
 
 /**
  * Game is loading the puzzle data
@@ -115,9 +110,7 @@ export function isLoadingAuth(state: GameState): state is LoadingAuthState {
  *   return <LoadingSpinner text="Loading your progress..." />;
  * }
  */
-export function isLoadingProgress(
-  state: GameState,
-): state is LoadingProgressState {
+export function isLoadingProgress(state: GameState): state is LoadingProgressState {
   return state.status === "loading-progress";
 }
 

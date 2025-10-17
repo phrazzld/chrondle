@@ -126,13 +126,24 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
   - Type-check passes - ready for migration
   ```
 
-- [ ] Update all Puzzle references to use canonical interface
+- [x] Update all Puzzle references to use canonical interface
 
   ```
-  Files: All files using Puzzle type (search: "interface Puzzle|type Puzzle")
+  Files: All files using Puzzle type (7 files migrated)
   Approach: Replace puzzleId with id, year with targetYear
   Success: Type-check passes, no union confusion
   Time: 90min
+  Work Log:
+  - Migrated src/types/gameState.ts to import and re-export canonical Puzzle
+  - Updated src/lib/gameState.ts to use canonical Puzzle (removed legacy interface)
+  - Fixed field references: puzzle.year → puzzle.targetYear, puzzle.puzzleId → puzzle.id
+  - Updated src/lib/debugUtilities.ts field access (targetYear)
+  - Updated src/lib/puzzleData.ts to use canonical Puzzle with proper Id<"puzzles"> casting
+  - Updated src/hooks/data/usePuzzleData.ts to return PuzzleWithContext
+  - Fixed 3 test files: useChrondle.race-condition, id-validation.integration, deriveGameState.unit
+  - Added Id<"puzzles"> type casts to all test mock data
+  - Removed Progress.puzzleId string union (now only Id<"puzzles">)
+  - All 553 tests passing, type-check clean
   ```
 
 - [ ] Remove legacy string union types

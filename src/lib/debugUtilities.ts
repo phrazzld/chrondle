@@ -39,9 +39,7 @@ export function isDebugEnabled(): boolean {
  * Create debug utilities for development environment
  * Returns null in production builds
  */
-export function createDebugUtilities(
-  gameState: GameState,
-): DebugUtilities | null {
+export function createDebugUtilities(gameState: GameState): DebugUtilities | null {
   // Completely disable in production
   if (process.env.NODE_ENV === "production") {
     return null;
@@ -70,7 +68,7 @@ export function createDebugUtilities(
 
     setYear: (year: number) => {
       if (gameState.puzzle) {
-        gameState.puzzle.year = year;
+        gameState.puzzle.targetYear = year;
         logger.info(`Forced year to ${year}`);
       }
     },
@@ -88,7 +86,7 @@ export function createDebugUtilities(
       logger.info("🔍 Current date:", new Date().toISOString());
       logger.info("🔍 Game state:", gameState);
       if (gameState.puzzle) {
-        logger.info("🔍 Puzzle year:", gameState.puzzle.year);
+        logger.info("🔍 Puzzle year:", gameState.puzzle.targetYear);
         logger.info("🔍 Events count:", gameState.puzzle.events.length);
       }
     },

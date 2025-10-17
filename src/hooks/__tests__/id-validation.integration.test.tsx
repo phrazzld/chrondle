@@ -8,6 +8,7 @@ import { renderHook } from "@testing-library/react";
 import { useUserProgress } from "../data/useUserProgress";
 import { useGameActions } from "../actions/useGameActions";
 import type { DataSources } from "@/lib/deriveGameState";
+import { Id } from "convex/_generated/dataModel";
 
 // Create mock functions that we can manipulate
 const mockUseQuery = vi.fn();
@@ -52,9 +53,7 @@ describe("ID Validation Integration Tests", () => {
       const clerkId = "user_2gFqK5X7B8hM9nL0P3rT6vY1dZ4w";
       const validPuzzleId = "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a";
 
-      const { result } = renderHook(() =>
-        useUserProgress(clerkId, validPuzzleId),
-      );
+      const { result } = renderHook(() => useUserProgress(clerkId, validPuzzleId));
 
       // Should skip the query
       expect(mockUseQuery).toHaveBeenCalledWith(expect.any(Object), "skip");
@@ -178,9 +177,7 @@ describe("ID Validation Integration Tests", () => {
       const invalidUserId = "user_invalid";
       const validPuzzleId = "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a";
 
-      const { result: result1 } = renderHook(() =>
-        useUserProgress(invalidUserId, validPuzzleId),
-      );
+      const { result: result1 } = renderHook(() => useUserProgress(invalidUserId, validPuzzleId));
 
       expect(result1.current.progress).toBeNull();
       expect(result1.current.isLoading).toBe(false);
@@ -192,9 +189,7 @@ describe("ID Validation Integration Tests", () => {
       const validUserId = "ab2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q";
       const invalidPuzzleId = "puzzle_invalid";
 
-      const { result: result2 } = renderHook(() =>
-        useUserProgress(validUserId, invalidPuzzleId),
-      );
+      const { result: result2 } = renderHook(() => useUserProgress(validUserId, invalidPuzzleId));
 
       expect(result2.current.progress).toBeNull();
       expect(result2.current.isLoading).toBe(false);
@@ -212,7 +207,7 @@ describe("ID Validation Integration Tests", () => {
       const sources: DataSources = {
         puzzle: {
           puzzle: {
-            id: "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a",
+            id: "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a" as Id<"puzzles">,
             targetYear: 1969,
             events: ["Event 1", "Event 2"],
             puzzleNumber: 1,
@@ -252,8 +247,7 @@ describe("ID Validation Integration Tests", () => {
       // Should show authentication error toast
       expect(mockAddToast).toHaveBeenCalledWith({
         title: "Authentication Error",
-        description:
-          "There was an issue with your user session. Please refresh the page.",
+        description: "There was an issue with your user session. Please refresh the page.",
         variant: "destructive",
       });
 
@@ -273,7 +267,7 @@ describe("ID Validation Integration Tests", () => {
       const sources: DataSources = {
         puzzle: {
           puzzle: {
-            id: "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a",
+            id: "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a" as Id<"puzzles">,
             targetYear: 1969,
             events: ["Event 1", "Event 2"],
             puzzleNumber: 1,
@@ -323,7 +317,7 @@ describe("ID Validation Integration Tests", () => {
       const sources: DataSources = {
         puzzle: {
           puzzle: {
-            id: "invalid_puzzle_id_format", // Invalid format
+            id: "invalid_puzzle_id_format" as Id<"puzzles">, // Invalid format
             targetYear: 1969,
             events: ["Event 1", "Event 2"],
             puzzleNumber: 1,
@@ -360,8 +354,7 @@ describe("ID Validation Integration Tests", () => {
       // Should show error toast
       expect(mockAddToast).toHaveBeenCalledWith({
         title: "Authentication Error",
-        description:
-          "There was an issue with your user session. Please refresh the page.",
+        description: "There was an issue with your user session. Please refresh the page.",
         variant: "destructive",
       });
     });
@@ -373,7 +366,7 @@ describe("ID Validation Integration Tests", () => {
       const sources: DataSources = {
         puzzle: {
           puzzle: {
-            id: "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a",
+            id: "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a" as Id<"puzzles">,
             targetYear: 1969,
             events: ["Event 1", "Event 2"],
             puzzleNumber: 1,
@@ -420,7 +413,7 @@ describe("ID Validation Integration Tests", () => {
       const sources: DataSources = {
         puzzle: {
           puzzle: {
-            id: "invalid", // Invalid ID to trigger error
+            id: "invalid" as Id<"puzzles">, // Invalid ID to trigger error
             targetYear: 1969,
             events: ["Event 1", "Event 2"],
             puzzleNumber: 1,
@@ -456,8 +449,7 @@ describe("ID Validation Integration Tests", () => {
       // Should show error about authentication
       expect(mockAddToast).toHaveBeenCalledWith({
         title: "Authentication Error",
-        description:
-          "There was an issue with your user session. Please refresh the page.",
+        description: "There was an issue with your user session. Please refresh the page.",
         variant: "destructive",
       });
     });
@@ -482,7 +474,7 @@ describe("ID Validation Integration Tests", () => {
       const sources: DataSources = {
         puzzle: {
           puzzle: {
-            id: "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a",
+            id: "jh7k3n4m8p9q2r5s6t1u0v3w4x8y9z0a" as Id<"puzzles">,
             targetYear: 1969,
             events: ["Event 1"],
             puzzleNumber: 1,
@@ -506,9 +498,7 @@ describe("ID Validation Integration Tests", () => {
         },
       };
 
-      const { result: actionsResult } = renderHook(() =>
-        useGameActions(sources),
-      );
+      const { result: actionsResult } = renderHook(() => useGameActions(sources));
 
       // Both hooks should handle the invalid ID appropriately
       expect(actionsResult.current).toBeDefined();
@@ -540,7 +530,7 @@ describe("ID Validation Integration Tests", () => {
       const sources: DataSources = {
         puzzle: {
           puzzle: {
-            id: validPuzzleId,
+            id: validPuzzleId as Id<"puzzles">,
             targetYear: 1969,
             events: ["Event 1"],
             puzzleNumber: 1,

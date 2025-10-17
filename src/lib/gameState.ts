@@ -3,15 +3,12 @@
 
 import { logger } from "./logger";
 import { Id } from "convex/_generated/dataModel";
+import { Puzzle } from "@/types/puzzle";
 // Storage imports removed - using in-memory state only
 // Authenticated users should use Convex for persistence
 
-export interface Puzzle {
-  year: number;
-  events: string[];
-  puzzleId: Id<"puzzles"> | string; // Convex ID for new system, string for legacy compatibility
-  puzzleNumber?: number; // The sequential puzzle number from Convex
-}
+// Re-export canonical Puzzle type for backward compatibility
+export type { Puzzle } from "@/types/puzzle";
 
 export interface GameState {
   puzzle: Puzzle | null;
@@ -23,7 +20,7 @@ export interface GameState {
 export interface Progress {
   guesses: number[];
   isGameOver: boolean;
-  puzzleId: Id<"puzzles"> | string | null; // Convex ID for new system, string for legacy compatibility
+  puzzleId: Id<"puzzles"> | null;
   puzzleYear: number | null;
   timestamp: string;
   // Closest guess tracking for enhanced sharing
@@ -78,7 +75,7 @@ export function saveProgress(
       let bestGuess = gameState.guesses[0];
 
       for (const guess of gameState.guesses) {
-        const distance = Math.abs(guess - gameState.puzzle.year);
+        const distance = Math.abs(guess - gameState.puzzle.targetYear);
         if (distance < bestDistance) {
           bestDistance = distance;
           bestGuess = guess;
@@ -95,8 +92,8 @@ export function saveProgress(
   const progress: Progress = {
     guesses: gameState.guesses,
     isGameOver: gameState.isGameOver,
-    puzzleId: gameState.puzzle ? gameState.puzzle.puzzleId : null,
-    puzzleYear: gameState.puzzle ? gameState.puzzle.year : null,
+    puzzleId: gameState.puzzle ? gameState.puzzle.id : null,
+    puzzleYear: gameState.puzzle ? gameState.puzzle.targetYear : null,
     timestamp: new Date().toISOString(),
     closestGuess,
     closestDistance,

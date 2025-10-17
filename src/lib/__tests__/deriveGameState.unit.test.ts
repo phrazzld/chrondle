@@ -1,28 +1,16 @@
 import { describe, it, expect } from "vitest";
-import {
-  deriveGameState,
-  mergeGuesses,
-  type DataSources,
-} from "../deriveGameState";
+import { deriveGameState, mergeGuesses, type DataSources } from "../deriveGameState";
 import { GAME_CONFIG } from "../constants";
+import { Id } from "convex/_generated/dataModel";
 
 describe("deriveGameState", () => {
   // Helper to create default data sources
-  const createDataSources = (
-    overrides?: Partial<DataSources>,
-  ): DataSources => ({
+  const createDataSources = (overrides?: Partial<DataSources>): DataSources => ({
     puzzle: {
       puzzle: {
-        id: "puzzle-1",
+        id: "puzzle-1" as Id<"puzzles">,
         targetYear: 1969,
-        events: [
-          "Event 1",
-          "Event 2",
-          "Event 3",
-          "Event 4",
-          "Event 5",
-          "Event 6",
-        ],
+        events: ["Event 1", "Event 2", "Event 3", "Event 4", "Event 5", "Event 6"],
         puzzleNumber: 1,
       },
       isLoading: false,
@@ -323,10 +311,7 @@ describe("mergeGuesses", () => {
   });
 
   it("should cap merged guesses at MAX_GUESSES", () => {
-    const result = mergeGuesses(
-      [1950, 1960, 1970],
-      [1980, 1990, 2000, 2010, 2020],
-    );
+    const result = mergeGuesses([1950, 1960, 1970], [1980, 1990, 2000, 2010, 2020]);
     expect(result).toEqual([1950, 1960, 1970, 1980, 1990, 2000]);
     expect(result.length).toBe(GAME_CONFIG.MAX_GUESSES);
   });
