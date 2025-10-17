@@ -1,30 +1,12 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { generateWordleBoxes } from "@/lib/game/proximity";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 // Utility functions for the game
-
-export function getGuessDirectionInfo(guess: number, target: number) {
-  const difference = guess - target;
-  if (difference === 0) {
-    return { direction: "correct", icon: "🎯", text: "Perfect! You found it!" };
-  } else if (difference > 0) {
-    return {
-      direction: "earlier",
-      icon: "▼",
-      text: "Too late - try an earlier year",
-    };
-  } else {
-    return {
-      direction: "later",
-      icon: "▲",
-      text: "Too early - try a later year",
-    };
-  }
-}
 
 // Calculate closest guess for sharing and display
 export function calculateClosestGuess(
@@ -147,18 +129,6 @@ export function generateShareText(
     // Fallback to basic share text
     return `Chrondle: ${hasWon ? "Won" : "Lost"} in ${guesses.length}/6 guesses\nhttps://www.chrondle.app`;
   }
-}
-
-export function generateWordleBoxes(guess: number, targetYear: number): string {
-  const distance = Math.abs(guess - targetYear);
-
-  // Use same thresholds as ProximityDisplay component for consistency
-  if (distance === 0) return "🎯"; // Perfect
-  if (distance <= 10) return "🔥"; // Very hot
-  if (distance <= 50) return "♨️"; // Hot
-  if (distance <= 150) return "🌡️"; // Warm
-  if (distance <= 500) return "❄️"; // Cold
-  return "🧊"; // Very cold
 }
 
 export function generateEmojiTimeline(guesses: number[], targetYear: number): string {

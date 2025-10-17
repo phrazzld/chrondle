@@ -184,14 +184,21 @@ Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
   - All 553 tests passing, type-check clean
   ```
 
-- [ ] Create `src/lib/game/proximity.ts` module
+- [x] Create `src/lib/game/proximity.ts` module
 
   ```
   Files: NEW src/lib/game/proximity.ts, MOVE getGuessDirectionInfo, generateWordleBoxes
-  Approach: Extract guess feedback logic
+  Approach: Extract guess feedback logic from utils.ts
   Success: Functions moved, game logic centralized
   Module: Single responsibility (proximity feedback)
   Time: 45min
+  Work Log:
+  - Created src/lib/game/proximity.ts with getGuessDirectionInfo() and generateWordleBoxes()
+  - Added comprehensive JSDoc with examples and threshold documentation
+  - Updated 3 import locations: archive/puzzle/[id]/page.tsx, Timeline.tsx, useScreenReaderAnnouncements.ts
+  - Updated utils.ts to import generateWordleBoxes for generateEmojiTimeline dependency
+  - Removed duplicate functions from utils.ts
+  - All 553 tests passing, type-check clean
   ```
 
 - [ ] Create `src/lib/sharing/generator.ts` module

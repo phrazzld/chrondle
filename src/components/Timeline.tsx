@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState, useEffect, useRef } from "react";
-import { getGuessDirectionInfo } from "@/lib/utils";
+import { getGuessDirectionInfo } from "@/lib/game/proximity";
 import { NumberTicker } from "@/components/ui/NumberTicker";
 
 interface TimelineProps {
@@ -18,12 +18,7 @@ interface GuessWithFeedback {
   direction: "earlier" | "later" | "correct";
 }
 
-export const Timeline: React.FC<TimelineProps> = ({
-  minYear,
-  maxYear,
-  guesses,
-  targetYear,
-}) => {
+export const Timeline: React.FC<TimelineProps> = ({ minYear, maxYear, guesses, targetYear }) => {
   // Display range state with simple transitions
   const [currentDisplayRange, setCurrentDisplayRange] = useState<{
     min: number;
@@ -73,8 +68,7 @@ export const Timeline: React.FC<TimelineProps> = ({
   // Helper function to convert year to position on timeline (using animated range)
   const getPositionX = (year: number): number => {
     const percentage =
-      (year - currentDisplayRange.min) /
-      (currentDisplayRange.max - currentDisplayRange.min);
+      (year - currentDisplayRange.min) / (currentDisplayRange.max - currentDisplayRange.min);
     return 50 + percentage * 700; // 50 to 750 on the SVG viewBox for full timeline width
   };
 
@@ -101,10 +95,7 @@ export const Timeline: React.FC<TimelineProps> = ({
     const newRange = { min: validMin, max: validMax };
 
     // Only update if values actually changed
-    if (
-      newRange.min !== currentDisplayRange.min ||
-      newRange.max !== currentDisplayRange.max
-    ) {
+    if (newRange.min !== currentDisplayRange.min || newRange.max !== currentDisplayRange.max) {
       // Capture current values as previous BEFORE updating
       prevMinRef.current = currentDisplayRange.min;
       prevMaxRef.current = currentDisplayRange.max;
@@ -114,8 +105,8 @@ export const Timeline: React.FC<TimelineProps> = ({
   }, [validMin, validMax, currentDisplayRange.min, currentDisplayRange.max]);
 
   return (
-    <div className="w-full mb-0">
-      <div className="flex items-center justify-between gap-1 sm:gap-2 px-1">
+    <div className="mb-0 w-full">
+      <div className="flex items-center justify-between gap-1 px-1 sm:gap-2">
         {/* Left bookend label */}
         <div className="min-w-0 flex-shrink-0 text-left">
           <span className="inline-flex items-baseline">
@@ -123,10 +114,10 @@ export const Timeline: React.FC<TimelineProps> = ({
               key={`min-${currentDisplayRange.min}`}
               value={Math.abs(Math.round(currentDisplayRange.min))}
               startValue={Math.abs(Math.round(prevMinRef.current))}
-              className="text-sm sm:text-sm font-bold text-blue-500/80 dark:text-blue-400/80 whitespace-nowrap"
+              className="text-sm font-bold whitespace-nowrap text-blue-500/80 sm:text-sm dark:text-blue-400/80"
               duration={800}
             />
-            <span className="text-sm sm:text-sm font-bold text-blue-500/80 dark:text-blue-400/80 ml-1">
+            <span className="ml-1 text-sm font-bold text-blue-500/80 sm:text-sm dark:text-blue-400/80">
               {currentDisplayRange.min < 0 ? "BC" : "AD"}
             </span>
           </span>
@@ -135,7 +126,7 @@ export const Timeline: React.FC<TimelineProps> = ({
         {/* Timeline SVG */}
         <svg
           viewBox="0 25 800 50"
-          className="flex-1 h-16 sm:h-16"
+          className="h-16 flex-1 sm:h-16"
           preserveAspectRatio="xMidYMid meet"
           style={{ overflow: "hidden" }}
         >
@@ -189,8 +180,7 @@ export const Timeline: React.FC<TimelineProps> = ({
           {validGuesses
             .filter(
               (guess) =>
-                guess.year >= currentDisplayRange.min &&
-                guess.year <= currentDisplayRange.max,
+                guess.year >= currentDisplayRange.min && guess.year <= currentDisplayRange.max,
             )
             .map((guess, index) => {
               const x = getPositionX(guess.year);
@@ -209,13 +199,7 @@ export const Timeline: React.FC<TimelineProps> = ({
               return (
                 <g key={`valid-${index}-${guess.year}`}>
                   {!isCorrect && (
-                    <circle
-                      cx={x}
-                      cy="50"
-                      r="10"
-                      fill="currentColor"
-                      className={colorClass}
-                    />
+                    <circle cx={x} cy="50" r="10" fill="currentColor" className={colorClass} />
                   )}
                 </g>
               );
@@ -229,10 +213,10 @@ export const Timeline: React.FC<TimelineProps> = ({
               key={`max-${currentDisplayRange.max}`}
               value={Math.abs(Math.round(currentDisplayRange.max))}
               startValue={Math.abs(Math.round(prevMaxRef.current))}
-              className="text-sm sm:text-sm font-bold text-red-500/80 dark:text-red-400/80 whitespace-nowrap"
+              className="text-sm font-bold whitespace-nowrap text-red-500/80 sm:text-sm dark:text-red-400/80"
               duration={800}
             />
-            <span className="text-sm sm:text-sm font-bold text-red-500/80 dark:text-red-400/80 ml-1">
+            <span className="ml-1 text-sm font-bold text-red-500/80 sm:text-sm dark:text-red-400/80">
               {currentDisplayRange.max < 0 ? "BC" : "AD"}
             </span>
           </span>

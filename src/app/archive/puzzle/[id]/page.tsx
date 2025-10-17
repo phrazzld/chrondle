@@ -10,7 +10,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { Footer } from "@/components/Footer";
 import { LiveAnnouncer } from "@/components/ui/LiveAnnouncer";
 import { useVictoryConfetti } from "@/hooks/useVictoryConfetti";
-import { getGuessDirectionInfo } from "@/lib/utils";
+import { getGuessDirectionInfo } from "@/lib/game/proximity";
 import { formatYear } from "@/lib/displayFormatting";
 import { getEnhancedProximityFeedback } from "@/lib/enhancedFeedback";
 import { BackgroundAnimation } from "@/components/BackgroundAnimation";

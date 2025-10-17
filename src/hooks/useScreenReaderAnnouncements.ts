@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getGuessDirectionInfo } from "@/lib/utils";
+import { getGuessDirectionInfo } from "@/lib/game/proximity";
 import { formatYear } from "@/lib/displayFormatting";
 import { getEnhancedProximityFeedback } from "@/lib/enhancedFeedback";
 
@@ -31,20 +31,14 @@ export function useScreenReaderAnnouncements({
       const targetYear = puzzle.year;
 
       if (latestGuess === targetYear) {
-        setAnnouncement(
-          `Correct! The year was ${formatYear(targetYear)}. Congratulations!`,
-        );
+        setAnnouncement(`Correct! The year was ${formatYear(targetYear)}. Congratulations!`);
       } else {
         const directionInfo = getGuessDirectionInfo(latestGuess, targetYear);
-        const enhancedFeedback = getEnhancedProximityFeedback(
-          latestGuess,
-          targetYear,
-          {
-            previousGuesses: guesses.slice(0, -1),
-            includeHistoricalContext: true,
-            includeProgressiveTracking: true,
-          },
-        );
+        const enhancedFeedback = getEnhancedProximityFeedback(latestGuess, targetYear, {
+          previousGuesses: guesses.slice(0, -1),
+          includeHistoricalContext: true,
+          includeProgressiveTracking: true,
+        });
         const cleanDirection = directionInfo.direction
           .toLowerCase()
           .replace("▲", "")
