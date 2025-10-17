@@ -2,8 +2,8 @@ import { v } from "convex/values";
 import { mutation } from "../_generated/server";
 import { Id } from "../_generated/dataModel";
 import { getUTCDateString } from "../lib/streakCalculation";
-import { updatePuzzleStats } from "../plays/statistics";
-import { updateUserStreak } from "../streaks/mutations";
+import { updatePuzzleStats } from "../lib/puzzleHelpers";
+import { updateUserStreak } from "../lib/streakHelpers";
 
 /**
  * Puzzle Mutations - Game State Changes
@@ -15,8 +15,8 @@ import { updateUserStreak } from "../streaks/mutations";
  * - submitGuess: Submit a guess for authenticated users
  *
  * Dependencies:
- * - updatePuzzleStats: Imported from plays/statistics.ts
- * - updateUserStreak: Imported from streaks/mutations.ts
+ * - updatePuzzleStats: Imported from lib/puzzleHelpers.ts
+ * - updateUserStreak: Imported from lib/streakHelpers.ts
  */
 
 // Game configuration
@@ -76,10 +76,22 @@ export const submitGuess = mutation({
       // Update puzzle stats and streak
       if (isCorrect) {
         await updatePuzzleStats(ctx, args.puzzleId);
-        await updateUserStreak(ctx, args.userId, true, puzzle.date);
+
+        // Update streak with error handling to prevent breaking puzzle submission
+        try {
+          await updateUserStreak(ctx, args.userId, true, puzzle.date);
+        } catch (error) {
+          console.error("[submitGuess] Streak update failed (non-critical):", error);
+          // Continue - puzzle submission still succeeds even if streak update fails
+        }
       } else if (updatedGuesses.length >= MAX_GUESSES) {
         // Game lost - reset streak to 0 (only for today's daily puzzle)
-        await updateUserStreak(ctx, args.userId, false, puzzle.date);
+        try {
+          await updateUserStreak(ctx, args.userId, false, puzzle.date);
+        } catch (error) {
+          console.error("[submitGuess] Streak update failed (non-critical):", error);
+          // Continue - puzzle submission still succeeds even if streak update fails
+        }
       }
 
       return {
