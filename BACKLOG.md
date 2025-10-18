@@ -18,15 +18,17 @@ Analyzed by: 7 specialized perspectives (complexity-archaeologist, architecture-
 **Fix**: Reject webhook immediately if secret not configured, add timestamp validation (5min tolerance)
 **Effort**: 45m | **Risk**: CRITICAL - Production auth compromise
 
-### [SECURITY] HIGH - API Key Exposure in Error Messages
+### [SECURITY] HIGH - API Key Exposure in Error Messages ✅ RESOLVED
 
-**File**: `convex/actions/historicalContext.ts:131-248`
-**Perspectives**: security-sentinel
-**Severity**: HIGH
-**Impact**: OpenRouter API key leaked in error logs/monitoring systems
-**Attack Scenario**: Trigger generation with invalid data → OpenRouter error contains `sk-or-v1-...` → Attacker extracts from logs
-**Fix**: Sanitize all errors before logging with regex: `sk-or-v1-[a-zA-Z0-9]{32,}` → `sk-or-v1-***REDACTED***`
-**Effort**: 30m | **Risk**: HIGH - API cost abuse
+**Status**: ✅ FIXED in PR #38 (commit ff59321)
+**File**: `convex/actions/historicalContext.ts`
+**Resolution**: Implemented `sanitizeErrorForLogging()` function
+
+- Redacts `sk-or-v1-[a-zA-Z0-9]{32,}` patterns → `sk-or-v1-***REDACTED***`
+- Redacts `Bearer sk-or-v1-...` headers → `Bearer sk-or-v1-***REDACTED***`
+- Applied to all 4 error logging locations in historicalContext.ts
+- Security audit completed: `docs/security/LOGGER_AUDIT_2025-10-17.md`
+  **Impact**: OpenRouter API keys can no longer leak in error logs or monitoring systems
 
 ### [SECURITY] HIGH - Anonymous Streak Manipulation
 
