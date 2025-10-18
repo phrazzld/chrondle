@@ -64,7 +64,7 @@ describe("ID Validation Integration Tests", () => {
 
       // Should have logged warning about invalid ID
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        "[safeConvexId] Invalid users ID format detected:",
+        "[WARN] [safeConvexId] Invalid users ID format detected:",
         clerkId,
         "Expected 32-character lowercase alphanumeric Convex ID",
       );
@@ -253,7 +253,7 @@ describe("ID Validation Integration Tests", () => {
 
       // Should log validation error
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "Invalid ID format detected:",
+        "[ERROR] Invalid ID format detected:",
         expect.any(String),
         "for type:",
         "users",
