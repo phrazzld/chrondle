@@ -5,7 +5,7 @@ import { getEnhancedProximityFeedback } from "@/lib/enhancedFeedback";
 
 interface UseScreenReaderAnnouncementsProps {
   guesses: number[];
-  puzzle: { year: number; events: string[] } | null;
+  puzzle: { targetYear: number; events: string[] } | null;
   lastGuessCount: number;
   setLastGuessCount: (count: number) => void;
 }
@@ -28,7 +28,7 @@ export function useScreenReaderAnnouncements({
     // Only announce when a new guess has been made
     if (currentGuessCount > lastGuessCount && currentGuessCount > 0 && puzzle) {
       const latestGuess = guesses[currentGuessCount - 1];
-      const targetYear = puzzle.year;
+      const targetYear = puzzle.targetYear;
 
       if (latestGuess === targetYear) {
         setAnnouncement(`Correct! The year was ${formatYear(targetYear)}. Congratulations!`);
