@@ -5,6 +5,7 @@
  */
 
 import { GAME_CONFIG } from "./constants";
+import { logger } from "@/lib/logger";
 
 export type Era = "BC" | "AD";
 
@@ -29,9 +30,7 @@ export function convertToInternalYear(year: number, era: Era): number {
 
     // Validate input
     if (year < 0) {
-      console.warn(
-        "convertToInternalYear: Year should be positive in UI representation",
-      );
+      logger.warn("convertToInternalYear: Year should be positive in UI representation");
       year = Math.abs(year);
     }
 
@@ -44,7 +43,7 @@ export function convertToInternalYear(year: number, era: Era): number {
     // AD years remain positive
     return year;
   } catch (error) {
-    console.error("Era conversion error:", error);
+    logger.error("Era conversion error:", error);
     // Return a safe default (current year) if conversion fails
     return new Date().getFullYear();
   }
@@ -85,10 +84,7 @@ export function isValidEraYear(year: number, era: Era): boolean {
   const internalYear = convertToInternalYear(year, era);
 
   // Check against game bounds
-  if (
-    internalYear < GAME_CONFIG.MIN_YEAR ||
-    internalYear > GAME_CONFIG.MAX_YEAR
-  ) {
+  if (internalYear < GAME_CONFIG.MIN_YEAR || internalYear > GAME_CONFIG.MAX_YEAR) {
     return false;
   }
 
@@ -162,11 +158,7 @@ export function getEraYearRange(era: Era): { min: number; max: number } {
  * @param delta - Amount to change (positive or negative)
  * @returns New year value, clamped to valid range
  */
-export function adjustYearWithinEra(
-  year: number,
-  era: Era,
-  delta: number,
-): number {
+export function adjustYearWithinEra(year: number, era: Era, delta: number): number {
   const newYear = year + delta;
   const range = getEraYearRange(era);
 

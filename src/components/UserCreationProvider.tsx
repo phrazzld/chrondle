@@ -1,18 +1,13 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useReducer,
-  ReactNode,
-} from "react";
+import React, { createContext, useContext, useEffect, useReducer, ReactNode } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useMutationWithRetry } from "@/hooks/useMutationWithRetry";
 import { Doc, Id } from "../../convex/_generated/dataModel";
 import { useAnonymousGameState } from "@/hooks/useAnonymousGameState";
+import { logger } from "@/lib/logger";
 
 // Auth state machine states
 type AuthState =
@@ -43,10 +38,7 @@ type StateMachineAction =
   | { type: "RESET" };
 
 // State machine reducer
-function authStateReducer(
-  state: StateMachineState,
-  action: StateMachineAction,
-): StateMachineState {
+function authStateReducer(state: StateMachineState, action: StateMachineAction): StateMachineState {
   // Log state transitions in development
 
   switch (action.type) {
@@ -142,9 +134,7 @@ interface UserCreationContextType {
   isUserReady: boolean; // True when user exists and creation is complete
 }
 
-const UserCreationContext = createContext<UserCreationContextType | undefined>(
-  undefined,
-);
+const UserCreationContext = createContext<UserCreationContextType | undefined>(undefined);
 
 export function useUserCreation() {
   const context = useContext(UserCreationContext);
@@ -181,34 +171,28 @@ export function UserCreationProvider({ children }: UserCreationProviderProps) {
   const anonymousGameState = useAnonymousGameState();
 
   // JIT user creation mutation with retry logic for transient errors
-  const getOrCreateUser = useMutationWithRetry(
-    api.users.getOrCreateCurrentUser,
-    {
-      maxRetries: 3,
-      baseDelayMs: 1000,
-      onRetry: (attempt, error) => {
-        console.error(
-          `[UserCreationProvider] Retrying user creation (attempt ${attempt}/3):`,
-          error.message,
-        );
-      },
+  const getOrCreateUser = useMutationWithRetry(api.users.getOrCreateCurrentUser, {
+    maxRetries: 3,
+    baseDelayMs: 1000,
+    onRetry: (attempt, error) => {
+      logger.error(
+        `[UserCreationProvider] Retrying user creation (attempt ${attempt}/3):`,
+        error.message,
+      );
     },
-  );
+  });
 
   // Anonymous state migration mutation
-  const mergeAnonymousState = useMutationWithRetry(
-    api.users.mergeAnonymousState,
-    {
-      maxRetries: 2,
-      baseDelayMs: 500,
-      onRetry: (attempt, error) => {
-        console.warn(
-          `[UserCreationProvider] Retrying anonymous state migration (attempt ${attempt}/2):`,
-          error.message,
-        );
-      },
+  const mergeAnonymousState = useMutationWithRetry(api.users.mergeAnonymousState, {
+    maxRetries: 2,
+    baseDelayMs: 500,
+    onRetry: (attempt, error) => {
+      logger.warn(
+        `[UserCreationProvider] Retrying anonymous state migration (attempt ${attempt}/2):`,
+        error.message,
+      );
     },
-  );
+  });
 
   // Effect 1: Monitor auth state changes (Clerk loading and authentication)
   useEffect(() => {
@@ -246,11 +230,7 @@ export function UserCreationProvider({ children }: UserCreationProviderProps) {
             // Migrate anonymous game state to the newly created user account
             try {
               const anonymousState = anonymousGameState.loadGameState();
-              if (
-                anonymousState &&
-                anonymousState.puzzleId &&
-                anonymousState.guesses.length > 0
-              ) {
+              if (anonymousState && anonymousState.puzzleId && anonymousState.guesses.length > 0) {
                 await mergeAnonymousState({
                   puzzleId: anonymousState.puzzleId as Id<"puzzles">,
                   guesses: anonymousState.guesses,
@@ -263,16 +243,11 @@ export function UserCreationProvider({ children }: UserCreationProviderProps) {
               }
             } catch (migrationError) {
               // Log migration error but don't fail the auth flow
-              console.warn(
-                "[UserCreationProvider] Failed to migrate anonymous state:",
-                {
-                  error:
-                    migrationError instanceof Error
-                      ? migrationError.message
-                      : String(migrationError),
-                  timestamp: new Date().toISOString(),
-                },
-              );
+              logger.warn("[UserCreationProvider] Failed to migrate anonymous state:", {
+                error:
+                  migrationError instanceof Error ? migrationError.message : String(migrationError),
+                timestamp: new Date().toISOString(),
+              });
               // Migration failure is non-critical - user can still proceed
             }
 
@@ -285,9 +260,8 @@ export function UserCreationProvider({ children }: UserCreationProviderProps) {
             });
           }
         } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : String(error);
-          console.error("[UserCreationProvider] User creation failed:", {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          logger.error("[UserCreationProvider] User creation failed:", {
             error: errorMessage,
             timestamp: new Date().toISOString(),
           });
@@ -322,8 +296,6 @@ export function UserCreationProvider({ children }: UserCreationProviderProps) {
   };
 
   return (
-    <UserCreationContext.Provider value={contextValue}>
-      {children}
-    </UserCreationContext.Provider>
+    <UserCreationContext.Provider value={contextValue}>{children}</UserCreationContext.Provider>
   );
 }

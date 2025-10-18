@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useQuery as useConvexQuery } from "convex/react";
 import { FunctionReference, FunctionReturnType } from "convex/server";
+import { logger } from "@/lib/logger";
 
 /**
  * Configuration for retry behavior
@@ -38,7 +39,7 @@ const DEFAULT_RETRY_CONFIG: Required<RetryConfig> = {
     );
   },
   onRetry: (attempt: number, error: Error) => {
-    console.warn(`[useQueryWithRetry] Retry attempt ${attempt}:`, {
+    logger.warn(`[useQueryWithRetry] Retry attempt ${attempt}:`, {
       error: error.message,
       timestamp: new Date().toISOString(),
       stack: error.stack,
@@ -49,11 +50,7 @@ const DEFAULT_RETRY_CONFIG: Required<RetryConfig> = {
 /**
  * Calculate exponential backoff delay with jitter
  */
-function calculateBackoffDelay(
-  attempt: number,
-  baseDelayMs: number,
-  maxDelayMs: number,
-): number {
+function calculateBackoffDelay(attempt: number, baseDelayMs: number, maxDelayMs: number): number {
   // Exponential backoff: 1s, 2s, 4s
   const exponentialDelay = baseDelayMs * Math.pow(2, attempt);
   // Add jitter to prevent thundering herd
@@ -79,7 +76,7 @@ function calculateBackoffDelay(
  *   {
  *     maxRetries: 3,
  *     onRetry: (attempt, error) => {
- *       console.error(`Retrying due to: ${error.message}`);
+ *       logger.error(`Retrying due to: ${error.message}`);
  *     }
  *   }
  * );
@@ -88,15 +85,8 @@ function calculateBackoffDelay(
 export function useQueryWithRetry<
   Query extends FunctionReference<"query">,
   Args = Query extends FunctionReference<"query", infer A> ? A : never,
->(
-  query: Query,
-  args: Args | "skip",
-  config?: RetryConfig,
-): FunctionReturnType<Query> | undefined {
-  const mergedConfig = useMemo(
-    () => ({ ...DEFAULT_RETRY_CONFIG, ...config }),
-    [config],
-  );
+>(query: Query, args: Args | "skip", config?: RetryConfig): FunctionReturnType<Query> | undefined {
+  const mergedConfig = useMemo(() => ({ ...DEFAULT_RETRY_CONFIG, ...config }), [config]);
 
   // Track retry state
   const [retryCount, setRetryCount] = useState(0);
@@ -125,7 +115,7 @@ export function useQueryWithRetry<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const scheduleRetry = useCallback(() => {
     if (retryCount >= mergedConfig.maxRetries) {
-      console.error("[useQueryWithRetry] Max retries reached:", {
+      logger.error("[useQueryWithRetry] Max retries reached:", {
         query: "query",
         retries: retryCount,
         lastError: lastErrorRef.current?.message,
@@ -141,7 +131,7 @@ export function useQueryWithRetry<
       mergedConfig.maxDelayMs,
     );
 
-    console.error(
+    logger.error(
       `[useQueryWithRetry] Scheduling retry ${retryCount + 1}/${mergedConfig.maxRetries} after ${delay}ms`,
     );
 
@@ -184,7 +174,7 @@ export function useQueryWithRetry<
   // Log retry information in development
   useEffect(() => {
     if (process.env.NODE_ENV === "development" && isRetrying) {
-      console.error("[useQueryWithRetry] Retry state:", {
+      logger.error("[useQueryWithRetry] Retry state:", {
         query: "query",
         attempt: retryCount,
         isRetrying,
@@ -208,15 +198,13 @@ export function useQueryWithRetry<
  * );
  * ```
  */
-export function createQueryHookWithRetry<
-  Query extends FunctionReference<"query">,
->(query: Query, defaultConfig?: RetryConfig) {
+export function createQueryHookWithRetry<Query extends FunctionReference<"query">>(
+  query: Query,
+  defaultConfig?: RetryConfig,
+) {
   return function useQueryHook<
     Args = Query extends FunctionReference<"query", infer A> ? A : never,
-  >(
-    args: Args | "skip",
-    config?: RetryConfig,
-  ): FunctionReturnType<Query> | undefined {
+  >(args: Args | "skip", config?: RetryConfig): FunctionReturnType<Query> | undefined {
     return useQueryWithRetry(query, args, { ...defaultConfig, ...config });
   };
 }

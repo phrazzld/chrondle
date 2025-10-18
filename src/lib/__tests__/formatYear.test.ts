@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatYear } from "../utils";
+import { formatYear } from "../displayFormatting";
 
 describe("formatYear utility", () => {
   it("formats BC years correctly", () => {

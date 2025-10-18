@@ -2,11 +2,8 @@
 
 import { useRef, useCallback, useMemo } from "react";
 import { useMutation as useConvexMutation } from "convex/react";
-import {
-  FunctionReference,
-  FunctionArgs,
-  FunctionReturnType,
-} from "convex/server";
+import { FunctionReference, FunctionArgs, FunctionReturnType } from "convex/server";
+import { logger } from "@/lib/logger";
 
 /**
  * Configuration for mutation retry behavior
@@ -45,7 +42,7 @@ const DEFAULT_MUTATION_RETRY_CONFIG: Required<MutationRetryConfig> = {
     );
   },
   onRetry: (attempt: number, error: Error) => {
-    console.warn(`[useMutationWithRetry] Retry attempt ${attempt}:`, {
+    logger.warn(`[useMutationWithRetry] Retry attempt ${attempt}:`, {
       error: error.message,
       timestamp: new Date().toISOString(),
       stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
@@ -56,11 +53,7 @@ const DEFAULT_MUTATION_RETRY_CONFIG: Required<MutationRetryConfig> = {
 /**
  * Calculate exponential backoff delay with jitter
  */
-function calculateBackoffDelay(
-  attempt: number,
-  baseDelayMs: number,
-  maxDelayMs: number,
-): number {
+function calculateBackoffDelay(attempt: number, baseDelayMs: number, maxDelayMs: number): number {
   // Exponential backoff: 1s, 2s, 4s
   const exponentialDelay = baseDelayMs * Math.pow(2, attempt);
   // Add jitter to prevent thundering herd
@@ -91,7 +84,7 @@ function sleep(ms: number): Promise<void> {
  *   {
  *     maxRetries: 3,
  *     onRetry: (attempt, error) => {
- *       console.log(`Retrying submission: ${error.message}`);
+ *       logger.debug(`Retrying submission: ${error.message}`);
  *     }
  *   }
  * );
@@ -103,17 +96,12 @@ function sleep(ms: number): Promise<void> {
  * }
  * ```
  */
-export function useMutationWithRetry<
-  Mutation extends FunctionReference<"mutation">,
->(
+export function useMutationWithRetry<Mutation extends FunctionReference<"mutation">>(
   mutation: Mutation,
   config?: MutationRetryConfig,
 ): (args: FunctionArgs<Mutation>) => Promise<FunctionReturnType<Mutation>> {
   // Memoize config to avoid dependency changes
-  const mergedConfig = useMemo(
-    () => ({ ...DEFAULT_MUTATION_RETRY_CONFIG, ...config }),
-    [config],
-  );
+  const mergedConfig = useMemo(() => ({ ...DEFAULT_MUTATION_RETRY_CONFIG, ...config }), [config]);
 
   // Use the standard Convex mutation hook
   const mutate = useConvexMutation(mutation);
@@ -123,9 +111,7 @@ export function useMutationWithRetry<
 
   // Create the wrapped mutation function with retry logic
   const mutateWithRetry = useCallback(
-    async (
-      args: FunctionArgs<Mutation>,
-    ): Promise<FunctionReturnType<Mutation>> => {
+    async (args: FunctionArgs<Mutation>): Promise<FunctionReturnType<Mutation>> => {
       let lastError: Error | null = null;
       retryCountRef.current = 0;
 
@@ -138,13 +124,10 @@ export function useMutationWithRetry<
           retryCountRef.current = 0;
 
           if (process.env.NODE_ENV === "development" && attempt > 0) {
-            console.error(
-              `[useMutationWithRetry] Succeeded after ${attempt} retries:`,
-              {
-                mutation: "mutation",
-                timestamp: new Date().toISOString(),
-              },
-            );
+            logger.error(`[useMutationWithRetry] Succeeded after ${attempt} retries:`, {
+              mutation: "mutation",
+              timestamp: new Date().toISOString(),
+            });
           }
 
           return result;
@@ -153,7 +136,7 @@ export function useMutationWithRetry<
 
           // Check if we should retry this error
           if (!mergedConfig.shouldRetry(lastError)) {
-            console.error("[useMutationWithRetry] Non-retryable error:", {
+            logger.error("[useMutationWithRetry] Non-retryable error:", {
               mutation: "mutation",
               error: lastError.message,
               timestamp: new Date().toISOString(),
@@ -163,7 +146,7 @@ export function useMutationWithRetry<
 
           // Don't retry on last attempt
           if (attempt === mergedConfig.maxRetries) {
-            console.error("[useMutationWithRetry] Max retries reached:", {
+            logger.error("[useMutationWithRetry] Max retries reached:", {
               mutation: "mutation",
               retries: attempt,
               error: lastError.message,
@@ -182,7 +165,7 @@ export function useMutationWithRetry<
           // Notify about retry
           mergedConfig.onRetry(attempt + 1, lastError);
 
-          console.error(
+          logger.error(
             `[useMutationWithRetry] Retrying ${attempt + 1}/${mergedConfig.maxRetries} after ${delay}ms`,
           );
 
@@ -193,10 +176,9 @@ export function useMutationWithRetry<
       }
 
       // If we get here, all retries failed
-      const finalError =
-        lastError || new Error("Mutation failed after all retries");
+      const finalError = lastError || new Error("Mutation failed after all retries");
 
-      console.error("[useMutationWithRetry] All retries exhausted:", {
+      logger.error("[useMutationWithRetry] All retries exhausted:", {
         mutation: "mutation",
         totalAttempts: mergedConfig.maxRetries + 1,
         error: finalError.message,
@@ -223,9 +205,10 @@ export function useMutationWithRetry<
  * );
  * ```
  */
-export function createMutationHookWithRetry<
-  Mutation extends FunctionReference<"mutation">,
->(mutation: Mutation, defaultConfig?: MutationRetryConfig) {
+export function createMutationHookWithRetry<Mutation extends FunctionReference<"mutation">>(
+  mutation: Mutation,
+  defaultConfig?: MutationRetryConfig,
+) {
   return function useMutationHook(
     config?: MutationRetryConfig,
   ): (args: FunctionArgs<Mutation>) => Promise<FunctionReturnType<Mutation>> {

@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
-import { formatCountdown, getTimeUntilMidnight } from "@/lib/utils";
+import { formatCountdown, getTimeUntilMidnight } from "@/lib/display/formatting";
+import { logger } from "@/lib/logger";
 
 export interface UseCountdownReturn {
   timeString: string;
@@ -26,9 +27,7 @@ export interface UseCountdownOptions {
   enableFallback?: boolean;
 }
 
-export function useCountdown(
-  options: UseCountdownOptions = {},
-): UseCountdownReturn {
+export function useCountdown(options: UseCountdownOptions = {}): UseCountdownReturn {
   const { targetTimestamp, enableFallback = true } = options;
 
   const [timeString, setTimeString] = useState("00:00:00");
@@ -36,10 +35,7 @@ export function useCountdown(
   const [error, setError] = useState<string | null>(null);
 
   // Get cron schedule from Convex if no target timestamp provided
-  const cronSchedule = useQuery(
-    api.puzzles.getCronSchedule,
-    targetTimestamp ? undefined : {},
-  );
+  const cronSchedule = useQuery(api.puzzles.getCronSchedule, targetTimestamp ? undefined : {});
 
   // Calculate effective target timestamp
   const effectiveTarget = targetTimestamp || cronSchedule?.nextScheduledTime;
@@ -50,9 +46,7 @@ export function useCountdown(
     if (effectiveTarget && isComplete) {
       // New target arrived, reset completion
       setIsComplete(false);
-      console.warn(
-        "[useCountdown] New target detected, resetting completion state",
-      );
+      logger.warn("[useCountdown] New target detected, resetting completion state");
     }
   }, [effectiveTarget, isComplete]);
 
@@ -89,9 +83,7 @@ export function useCountdown(
           setTimeString("00:00:00");
           if (!isComplete) {
             setIsComplete(true);
-            console.warn(
-              "[useCountdown] Countdown complete, new puzzle should be available",
-            );
+            logger.warn("[useCountdown] Countdown complete, new puzzle should be available");
             // The query will refetch automatically due to Convex reactivity
           }
           return;
@@ -102,7 +94,7 @@ export function useCountdown(
           setIsComplete(false);
         }
       } catch (err) {
-        console.error("[useCountdown] Calculation failed:", err);
+        logger.error("[useCountdown] Calculation failed:", err);
         setTimeString("--:--:--");
         setError("Countdown calculation failed");
       }

@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { getGuessDirectionInfo } from "@/lib/utils";
+import { getGuessDirectionInfo } from "@/lib/game/proximity";
 import { formatYear } from "@/lib/displayFormatting";
 import { getEnhancedProximityFeedback } from "@/lib/enhancedFeedback";
 
 interface UseScreenReaderAnnouncementsProps {
   guesses: number[];
-  puzzle: { year: number; events: string[] } | null;
+  puzzle: { targetYear: number; events: string[] } | null;
   lastGuessCount: number;
   setLastGuessCount: (count: number) => void;
 }
@@ -28,23 +28,17 @@ export function useScreenReaderAnnouncements({
     // Only announce when a new guess has been made
     if (currentGuessCount > lastGuessCount && currentGuessCount > 0 && puzzle) {
       const latestGuess = guesses[currentGuessCount - 1];
-      const targetYear = puzzle.year;
+      const targetYear = puzzle.targetYear;
 
       if (latestGuess === targetYear) {
-        setAnnouncement(
-          `Correct! The year was ${formatYear(targetYear)}. Congratulations!`,
-        );
+        setAnnouncement(`Correct! The year was ${formatYear(targetYear)}. Congratulations!`);
       } else {
         const directionInfo = getGuessDirectionInfo(latestGuess, targetYear);
-        const enhancedFeedback = getEnhancedProximityFeedback(
-          latestGuess,
-          targetYear,
-          {
-            previousGuesses: guesses.slice(0, -1),
-            includeHistoricalContext: true,
-            includeProgressiveTracking: true,
-          },
-        );
+        const enhancedFeedback = getEnhancedProximityFeedback(latestGuess, targetYear, {
+          previousGuesses: guesses.slice(0, -1),
+          includeHistoricalContext: true,
+          includeProgressiveTracking: true,
+        });
         const cleanDirection = directionInfo.direction
           .toLowerCase()
           .replace("▲", "")

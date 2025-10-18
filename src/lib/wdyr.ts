@@ -7,11 +7,9 @@
  */
 
 import React from "react";
+import { logger } from "@/lib/logger";
 
-if (
-  process.env.NODE_ENV === "development" &&
-  process.env.NEXT_PUBLIC_WDYR === "true"
-) {
+if (process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_WDYR === "true") {
   if (typeof window !== "undefined") {
     // Dynamic import to avoid loading in production
     import("@welldone-software/why-did-you-render").then((whyDidYouRender) => {
@@ -40,14 +38,7 @@ if (
 
         // Custom notification for re-renders
         notifier: (updateInfo) => {
-          const {
-            displayName,
-            reason,
-            prevProps,
-            nextProps,
-            prevState,
-            nextState,
-          } = updateInfo;
+          const { displayName, reason, prevProps, nextProps, prevState, nextState } = updateInfo;
 
           // Skip expected re-renders
           if (
@@ -63,14 +54,14 @@ if (
             `%c[WDYR] ${displayName} re-rendered`,
             "color: orange; font-weight: bold;",
           );
-          console.log("Reason:", reason);
+          logger.debug("Reason:", reason);
 
           if (prevProps && nextProps) {
-            console.log("Props changed:", { prevProps, nextProps });
+            logger.debug("Props changed:", { prevProps, nextProps });
           }
 
           if (prevState && nextState) {
-            console.log("State changed:", { prevState, nextState });
+            logger.debug("State changed:", { prevState, nextState });
           }
 
           console.groupEnd();
@@ -94,7 +85,7 @@ if (
         ],
       });
 
-      console.log(
+      logger.debug(
         "%c[WDYR] why-did-you-render enabled for development",
         "color: green; font-weight: bold;",
       );

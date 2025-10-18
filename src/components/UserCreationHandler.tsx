@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { useUser } from "@clerk/nextjs";
 import { api } from "../../convex/_generated/api";
 import { useMutationWithRetry } from "@/hooks/useMutationWithRetry";
+import { logger } from "@/lib/logger";
 
 interface AuthState {
   hasClerkUser: boolean;
@@ -24,10 +25,7 @@ interface UserCreationHandlerProps {
  * Detects when user is signed in via Clerk but has no Convex user record
  * and triggers user creation with appropriate loading state
  */
-export function UserCreationHandler({
-  authState,
-  children,
-}: UserCreationHandlerProps) {
+export function UserCreationHandler({ authState, children }: UserCreationHandlerProps) {
   const { isSignedIn } = useUser();
   const getOrCreateUser = useMutationWithRetry(
     api.users.getOrCreateCurrentUser,
@@ -36,7 +34,7 @@ export function UserCreationHandler({
         maxRetries: 3,
         baseDelayMs: 1000,
         onRetry: (attempt: number, error: Error) => {
-          console.error(
+          logger.error(
             `[UserCreationHandler] Retrying user creation (attempt ${attempt}/3):`,
             error.message,
           );
@@ -53,16 +51,8 @@ export function UserCreationHandler({
   // Detect if user creation is needed
   const needsUserCreation = useMemo(
     () =>
-      isSignedIn &&
-      authState.hasClerkUser &&
-      !authState.hasConvexUser &&
-      !userCreationCompleted,
-    [
-      isSignedIn,
-      authState.hasClerkUser,
-      authState.hasConvexUser,
-      userCreationCompleted,
-    ],
+      isSignedIn && authState.hasClerkUser && !authState.hasConvexUser && !userCreationCompleted,
+    [isSignedIn, authState.hasClerkUser, authState.hasConvexUser, userCreationCompleted],
   );
 
   const handleUserCreation = useCallback(async () => {
@@ -78,9 +68,8 @@ export function UserCreationHandler({
         // Trigger page refresh to get updated completion data
         setShouldRefresh(true);
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        console.error("[UserCreationHandler] User creation failed:", {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        logger.error("[UserCreationHandler] User creation failed:", {
           error: errorMessage,
           timestamp: new Date().toISOString(),
         });
@@ -89,12 +78,7 @@ export function UserCreationHandler({
         setUserCreationLoading(false);
       }
     }
-  }, [
-    needsUserCreation,
-    userCreationLoading,
-    userCreationCompleted,
-    getOrCreateUser,
-  ]);
+  }, [needsUserCreation, userCreationLoading, userCreationCompleted, getOrCreateUser]);
 
   useEffect(() => {
     handleUserCreation();
@@ -113,15 +97,13 @@ export function UserCreationHandler({
   // Show loading state during user creation
   if (userCreationLoading) {
     return (
-      <div className="min-h-screen flex flex-col bg-background">
-        <div className="flex-grow flex items-center justify-center">
+      <div className="bg-background flex min-h-screen flex-col">
+        <div className="flex flex-grow items-center justify-center">
           <div className="text-center">
-            <div className="animate-pulse text-muted-foreground mb-2">
+            <div className="text-muted-foreground mb-2 animate-pulse">
               Setting up your account...
             </div>
-            <div className="text-sm text-muted-foreground">
-              This will only take a moment
-            </div>
+            <div className="text-muted-foreground text-sm">This will only take a moment</div>
           </div>
         </div>
       </div>

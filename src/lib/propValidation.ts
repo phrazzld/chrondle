@@ -4,6 +4,8 @@
  * Provides development-time checks without complex type gymnastics
  */
 
+import { logger } from "@/lib/logger";
+
 const isDevelopment = process.env.NODE_ENV === "development";
 
 /**
@@ -11,7 +13,7 @@ const isDevelopment = process.env.NODE_ENV === "development";
  */
 function warn(componentName: string, message: string): void {
   if (isDevelopment) {
-    console.warn(`[${componentName}] ${message}`);
+    logger.warn(`[${componentName}] ${message}`);
   }
 }
 

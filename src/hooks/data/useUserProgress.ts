@@ -51,9 +51,9 @@ interface UseUserProgressReturn {
  *
  * if (isLoading) return <div>Loading progress...</div>;
  * if (progress) {
- *   console.log(`User has made ${progress.guesses.length} guesses`);
+ *   logger.debug(`User has made ${progress.guesses.length} guesses`);
  *   if (progress.completedAt) {
- *     console.log(`Completed at ${new Date(progress.completedAt)}`);
+ *     logger.debug(`Completed at ${new Date(progress.completedAt)}`);
  *   }
  * }
  *

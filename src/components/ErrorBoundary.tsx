@@ -73,13 +73,13 @@ export class ErrorBoundary extends Component<Props, State> {
 
       // Send to console for basic telemetry
       // In a real production app, you would send this to a service like Sentry, LogRocket, etc.
-      console.error("PRODUCTION_ERROR:", JSON.stringify(errorData, null, 2));
+      logger.error("PRODUCTION_ERROR:", JSON.stringify(errorData, null, 2));
 
       // Optional: Send to a telemetry service
       // Example: window.gtag?.('event', 'exception', { description: error.message, fatal: false });
     } catch (reportingError) {
       // Don't let error reporting crash the app
-      console.error("Failed to report error:", reportingError);
+      logger.error("Failed to report error:", reportingError);
     }
   }
 
@@ -99,9 +99,7 @@ export class ErrorBoundary extends Component<Props, State> {
   };
 
   private handleClearStorage = () => {
-    if (
-      confirm("Clear all game data and reload? This will reset your progress.")
-    ) {
+    if (confirm("Clear all game data and reload? This will reset your progress.")) {
       // No localStorage to clear - just reload
       logger.info("Reloading page (no localStorage to clear)");
       window.location.reload();
@@ -117,29 +115,27 @@ export class ErrorBoundary extends Component<Props, State> {
 
       // Default error UI
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <div className="max-w-md w-full mx-4 p-6 bg-card rounded-lg border shadow-lg">
+        <div className="bg-background flex min-h-screen items-center justify-center">
+          <div className="bg-card mx-4 w-full max-w-md rounded-lg border p-6 shadow-lg">
             <div className="text-center">
-              <div className="text-4xl mb-4">🚨</div>
-              <h1 className="text-xl font-bold text-foreground mb-2">
-                Something went wrong
-              </h1>
+              <div className="mb-4 text-4xl">🚨</div>
+              <h1 className="text-foreground mb-2 text-xl font-bold">Something went wrong</h1>
               <p className="text-muted-foreground mb-6">
-                We&apos;re sorry! An unexpected error occurred. This has been
-                logged for investigation.
+                We&apos;re sorry! An unexpected error occurred. This has been logged for
+                investigation.
               </p>
 
               <div className="space-y-3">
                 <button
                   onClick={this.handleReload}
-                  className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-md px-4 py-2 transition-colors"
                 >
                   Reload Game
                 </button>
 
                 <button
                   onClick={this.handleClearStorage}
-                  className="w-full px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors"
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full rounded-md px-4 py-2 transition-colors"
                 >
                   Clear Data & Reload
                 </button>
@@ -148,10 +144,10 @@ export class ErrorBoundary extends Component<Props, State> {
               {/* Show error details in development */}
               {process.env.NODE_ENV === "development" && this.state.error && (
                 <details className="mt-6 text-left">
-                  <summary className="cursor-pointer text-sm text-muted-foreground">
+                  <summary className="text-muted-foreground cursor-pointer text-sm">
                     Error Details (Development)
                   </summary>
-                  <pre className="mt-2 text-xs bg-muted p-3 rounded overflow-auto max-h-32">
+                  <pre className="bg-muted mt-2 max-h-32 overflow-auto rounded p-3 text-xs">
                     {this.state.error.message}
                     {this.state.error.stack}
                   </pre>

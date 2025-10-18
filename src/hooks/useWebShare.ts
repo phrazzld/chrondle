@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { getShareStrategy, type ShareStrategy } from "@/lib/platformDetection";
+import { logger } from "@/lib/logger";
 
 export interface UseWebShareReturn {
   share: (text: string) => Promise<boolean>;
@@ -14,12 +15,10 @@ export interface UseWebShareReturn {
 
 export function useWebShare(): UseWebShareReturn {
   const [isSharing, setIsSharing] = useState(false);
-  const [lastShareSuccess, setLastShareSuccess] = useState<boolean | null>(
+  const [lastShareSuccess, setLastShareSuccess] = useState<boolean | null>(null);
+  const [shareMethod, setShareMethod] = useState<"webshare" | "clipboard" | "fallback" | null>(
     null,
   );
-  const [shareMethod, setShareMethod] = useState<
-    "webshare" | "clipboard" | "fallback" | null
-  >(null);
 
   // Get platform-appropriate sharing strategy
   const shareStrategy = getShareStrategy();
@@ -44,10 +43,7 @@ export function useWebShare(): UseWebShareReturn {
               return true;
             } catch (shareError) {
               // User cancelled or share failed, fall back to clipboard
-              console.warn(
-                "Web Share cancelled or failed, falling back to clipboard:",
-                shareError,
-              );
+              logger.warn("Web Share cancelled or failed, falling back to clipboard:", shareError);
               // Fall through to clipboard fallback
             }
           }
@@ -81,7 +77,7 @@ export function useWebShare(): UseWebShareReturn {
         setLastShareSuccess(success);
         return success;
       } catch (error) {
-        console.error("Failed to share:", error);
+        logger.error("Failed to share:", error);
         setLastShareSuccess(false);
         return false;
       } finally {

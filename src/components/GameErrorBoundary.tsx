@@ -76,15 +76,10 @@ export class GameErrorBoundary extends Component<Props, State> {
     }
   }
 
-  private reportGameError(
-    error: Error,
-    errorInfo: ErrorInfo,
-    errorCount: number,
-  ) {
+  private reportGameError(error: Error, errorInfo: ErrorInfo, errorCount: number) {
     if (process.env.NODE_ENV !== "production") {
       // In development, log detailed debugging info
-      // Using console.error which is allowed by ESLint
-      console.error("🎮 Game Error Debug Info", {
+      logger.error("🎮 Game Error Debug Info", {
         error: error.message,
         stack: error.stack,
         componentStack: errorInfo.componentStack,
@@ -110,7 +105,7 @@ export class GameErrorBoundary extends Component<Props, State> {
       };
 
       // Log for production monitoring
-      console.error("GAME_ERROR:", JSON.stringify(errorData, null, 2));
+      logger.error("GAME_ERROR:", JSON.stringify(errorData, null, 2));
 
       // Send to analytics if available
       if (typeof window !== "undefined" && "gtag" in window) {
@@ -123,7 +118,7 @@ export class GameErrorBoundary extends Component<Props, State> {
         });
       }
     } catch (reportingError) {
-      console.error("Failed to report game error:", reportingError);
+      logger.error("Failed to report game error:", reportingError);
     }
   }
 
@@ -143,11 +138,7 @@ export class GameErrorBoundary extends Component<Props, State> {
     // Clear any problematic localStorage and reload
     try {
       // Clear only game-related localStorage keys
-      const keysToRemove = [
-        "chrondle-anonymous-id",
-        "chrondle-session",
-        "chrondle-debug",
-      ];
+      const keysToRemove = ["chrondle-anonymous-id", "chrondle-session", "chrondle-debug"];
 
       keysToRemove.forEach((key) => {
         localStorage.removeItem(key);
@@ -168,42 +159,31 @@ export class GameErrorBoundary extends Component<Props, State> {
 
     return (
       <details className="mt-6 text-left">
-        <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <Bug className="inline w-4 h-4 mr-1" />
+        <summary className="text-muted-foreground hover:text-foreground cursor-pointer text-sm transition-colors">
+          <Bug className="mr-1 inline h-4 w-4" />
           Developer Details
         </summary>
         <div className="mt-3 space-y-3">
-          <div className="bg-muted/50 p-3 rounded-md">
-            <p className="text-xs font-mono text-muted-foreground mb-1">
-              Error Message:
-            </p>
-            <pre className="text-xs font-mono overflow-auto">
-              {this.state.error.message}
-            </pre>
+          <div className="bg-muted/50 rounded-md p-3">
+            <p className="text-muted-foreground mb-1 font-mono text-xs">Error Message:</p>
+            <pre className="overflow-auto font-mono text-xs">{this.state.error.message}</pre>
           </div>
 
-          <div className="bg-muted/50 p-3 rounded-md">
-            <p className="text-xs font-mono text-muted-foreground mb-1">
-              Stack Trace:
-            </p>
-            <pre className="text-xs font-mono overflow-auto max-h-32">
-              {this.state.error.stack}
-            </pre>
+          <div className="bg-muted/50 rounded-md p-3">
+            <p className="text-muted-foreground mb-1 font-mono text-xs">Stack Trace:</p>
+            <pre className="max-h-32 overflow-auto font-mono text-xs">{this.state.error.stack}</pre>
           </div>
 
-          <div className="bg-muted/50 p-3 rounded-md">
-            <p className="text-xs font-mono text-muted-foreground mb-1">
-              Component Stack:
-            </p>
-            <pre className="text-xs font-mono overflow-auto max-h-32">
+          <div className="bg-muted/50 rounded-md p-3">
+            <p className="text-muted-foreground mb-1 font-mono text-xs">Component Stack:</p>
+            <pre className="max-h-32 overflow-auto font-mono text-xs">
               {this.state.errorInfo?.componentStack}
             </pre>
           </div>
 
-          <div className="bg-muted/50 p-3 rounded-md">
-            <p className="text-xs font-mono text-muted-foreground">
-              Error Count: {this.state.errorCount} | Puzzle:{" "}
-              {this.props.puzzleNumber || "daily"}
+          <div className="bg-muted/50 rounded-md p-3">
+            <p className="text-muted-foreground font-mono text-xs">
+              Error Count: {this.state.errorCount} | Puzzle: {this.props.puzzleNumber || "daily"}
             </p>
           </div>
         </div>
@@ -219,18 +199,16 @@ export class GameErrorBoundary extends Component<Props, State> {
         this.state.error?.stack?.includes("deriveGameState");
 
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background p-4">
-          <div className="max-w-md w-full">
-            <div className="bg-card rounded-lg border shadow-lg p-6">
+        <div className="bg-background flex min-h-screen items-center justify-center p-4">
+          <div className="w-full max-w-md">
+            <div className="bg-card rounded-lg border p-6 shadow-lg">
               <div className="text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-destructive/10 mb-4">
-                  <AlertTriangle className="w-6 h-6 text-destructive" />
+                <div className="bg-destructive/10 mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full">
+                  <AlertTriangle className="text-destructive h-6 w-6" />
                 </div>
 
-                <h1 className="text-xl font-bold text-foreground mb-2">
-                  {isDerivationError
-                    ? "Game State Error"
-                    : "Something went wrong with the game"}
+                <h1 className="text-foreground mb-2 text-xl font-bold">
+                  {isDerivationError ? "Game State Error" : "Something went wrong with the game"}
                 </h1>
 
                 <p className="text-muted-foreground mb-6">
@@ -244,16 +222,16 @@ export class GameErrorBoundary extends Component<Props, State> {
                   {/* Soft reload - try to recover without losing data */}
                   <button
                     onClick={this.handleSoftReload}
-                    className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 transition-colors"
                   >
-                    <RotateCw className="w-4 h-4" />
+                    <RotateCw className="h-4 w-4" />
                     Try Again
                   </button>
 
                   {/* Navigate to home */}
                   <Link href="/" className="block">
-                    <button className="w-full px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 transition-colors flex items-center justify-center gap-2">
-                      <Home className="w-4 h-4" />
+                    <button className="bg-secondary text-secondary-foreground hover:bg-secondary/90 flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 transition-colors">
+                      <Home className="h-4 w-4" />
                       Go to Today&apos;s Puzzle
                     </button>
                   </Link>
@@ -262,7 +240,7 @@ export class GameErrorBoundary extends Component<Props, State> {
                   {this.state.errorCount > 2 && (
                     <button
                       onClick={this.handleHardReload}
-                      className="w-full px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors"
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full rounded-md px-4 py-2 transition-colors"
                     >
                       Clear Data & Reload
                     </button>
@@ -271,7 +249,7 @@ export class GameErrorBoundary extends Component<Props, State> {
 
                 {/* Error counter for persistent issues */}
                 {this.state.errorCount > 1 && (
-                  <p className="mt-4 text-xs text-muted-foreground">
+                  <p className="text-muted-foreground mt-4 text-xs">
                     Error occurred {this.state.errorCount} times
                   </p>
                 )}
@@ -282,9 +260,9 @@ export class GameErrorBoundary extends Component<Props, State> {
             </div>
 
             {/* Help text */}
-            <p className="mt-4 text-center text-xs text-muted-foreground">
-              If this problem persists, please try a different browser or clear
-              your browser&apos;s cache.
+            <p className="text-muted-foreground mt-4 text-center text-xs">
+              If this problem persists, please try a different browser or clear your browser&apos;s
+              cache.
             </p>
           </div>
         </div>

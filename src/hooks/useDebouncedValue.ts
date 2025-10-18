@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { logger } from "@/lib/logger";
 
 /**
  * Hook that debounces a value by delaying updates until the value has been stable for the specified delay.
@@ -63,7 +64,7 @@ export function useDebouncedValue<T>(value: T, delay: number): T {
           // Log debounce updates in development for debugging (when debug hooks enabled)
           const isObject = typeof value === "object" && value !== null;
           const valueStr = isObject ? JSON.stringify(value) : String(value);
-          console.error(
+          logger.error(
             `[useDebouncedValue] Value updated after ${delay}ms:`,
             valueStr.length > 50 ? valueStr.substring(0, 50) + "..." : valueStr,
           );
@@ -120,10 +121,7 @@ export function useDebouncedValue<T>(value: T, delay: number): T {
  * });
  * ```
  */
-export function useDebouncedValues<T extends Record<string, unknown>>(
-  values: T,
-  delay: number,
-): T {
+export function useDebouncedValues<T extends Record<string, unknown>>(values: T, delay: number): T {
   const [debouncedValues, setDebouncedValues] = useState<T>(values);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const mountedRef = useRef(true);
@@ -140,7 +138,7 @@ export function useDebouncedValues<T extends Record<string, unknown>>(
       values !== lastValuesRef.current &&
       JSON.stringify(values) === JSON.stringify(lastValuesRef.current)
     ) {
-      console.warn(
+      logger.warn(
         "[useDebouncedValues] Values object reference changed but contents are identical. " +
           "This causes unnecessary debounce resets. Please memoize the values object with useMemo. " +
           "See the hook's JSDoc for examples.",
@@ -177,7 +175,7 @@ export function useDebouncedValues<T extends Record<string, unknown>>(
         ) {
           // Log debounce updates in development for debugging (when debug hooks enabled)
           const keys = Object.keys(values);
-          console.error(
+          logger.error(
             `[useDebouncedValues] ${keys.length} values updated after ${delay}ms:`,
             keys.join(", "),
           );

@@ -2,6 +2,7 @@ import { useCallback, useMemo } from "react";
 import { useAuthState } from "@/hooks/data/useAuthState";
 import { GAME_CONFIG } from "@/lib/constants";
 import { gameStateStorage } from "@/lib/secureStorage";
+import { logger } from "@/lib/logger";
 
 /**
  * Game state structure for anonymous users
@@ -77,7 +78,7 @@ export function useAnonymousGameState(): UseAnonymousGameStateReturn {
 
       const success = gameStateStorage.set(stateWithTimestamp);
       if (!success) {
-        console.warn("Failed to save anonymous game state");
+        logger.warn("Failed to save anonymous game state");
       }
     },
     [isAuthenticated, isLoading],
@@ -129,7 +130,7 @@ export function useAnonymousGameState(): UseAnonymousGameStateReturn {
 
     const success = gameStateStorage.remove();
     if (!success) {
-      console.warn("Failed to clear anonymous game state");
+      logger.warn("Failed to clear anonymous game state");
     }
   }, []);
 

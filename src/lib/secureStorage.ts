@@ -4,6 +4,7 @@
  */
 
 import { z } from "zod";
+import { logger } from "@/lib/logger";
 
 /**
  * Security configuration for localStorage operations
@@ -112,7 +113,7 @@ function safeJsonParse<T>(json: string, schema?: StorageSchema<T>): T | null {
   try {
     // Check string size before parsing
     if (json.length > SECURITY_CONFIG.MAX_VALUE_SIZE) {
-      console.warn("[SecureStorage] Value exceeds maximum size limit");
+      logger.warn("[SecureStorage] Value exceeds maximum size limit");
       return null;
     }
 
@@ -127,7 +128,7 @@ function safeJsonParse<T>(json: string, schema?: StorageSchema<T>): T | null {
 
     // Validate the parsed value structure
     if (!isSafeValue(parsed)) {
-      console.warn("[SecureStorage] Parsed value failed safety check");
+      logger.warn("[SecureStorage] Parsed value failed safety check");
       return null;
     }
 
@@ -135,7 +136,7 @@ function safeJsonParse<T>(json: string, schema?: StorageSchema<T>): T | null {
     if (schema) {
       const result = schema.safeParse(parsed);
       if (!result.success) {
-        console.warn("[SecureStorage] Schema validation failed:", result.error);
+        logger.warn("[SecureStorage] Schema validation failed:", result.error);
         return null;
       }
       return result.data ?? null;
@@ -143,7 +144,7 @@ function safeJsonParse<T>(json: string, schema?: StorageSchema<T>): T | null {
 
     return parsed as T;
   } catch (error) {
-    console.warn("[SecureStorage] JSON parse error:", error);
+    logger.warn("[SecureStorage] JSON parse error:", error);
     return null;
   }
 }
@@ -155,7 +156,7 @@ function safeJsonStringify(value: unknown): string | null {
   try {
     // Validate before stringifying
     if (!isSafeValue(value)) {
-      console.warn("[SecureStorage] Value failed safety check before stringify");
+      logger.warn("[SecureStorage] Value failed safety check before stringify");
       return null;
     }
 
@@ -163,13 +164,13 @@ function safeJsonStringify(value: unknown): string | null {
 
     // Check final size
     if (json.length > SECURITY_CONFIG.MAX_VALUE_SIZE) {
-      console.warn("[SecureStorage] Stringified value exceeds maximum size");
+      logger.warn("[SecureStorage] Stringified value exceeds maximum size");
       return null;
     }
 
     return json;
   } catch (error) {
-    console.warn("[SecureStorage] JSON stringify error:", error);
+    logger.warn("[SecureStorage] JSON stringify error:", error);
     return null;
   }
 }
@@ -201,7 +202,7 @@ export function secureGetItem<T>(key: string, schema?: StorageSchema<T>): T | nu
   }
 
   if (!validateKey(key)) {
-    console.warn("[SecureStorage] Invalid key:", key);
+    logger.warn("[SecureStorage] Invalid key:", key);
     return null;
   }
 
@@ -213,7 +214,7 @@ export function secureGetItem<T>(key: string, schema?: StorageSchema<T>): T | nu
 
     return safeJsonParse<T>(raw, schema);
   } catch (error) {
-    console.warn("[SecureStorage] Get item error:", error);
+    logger.warn("[SecureStorage] Get item error:", error);
     return null;
   }
 }
@@ -227,7 +228,7 @@ export function secureSetItem<T>(key: string, value: T, schema?: StorageSchema<T
   }
 
   if (!validateKey(key)) {
-    console.warn("[SecureStorage] Invalid key:", key);
+    logger.warn("[SecureStorage] Invalid key:", key);
     return false;
   }
 
@@ -235,7 +236,7 @@ export function secureSetItem<T>(key: string, value: T, schema?: StorageSchema<T
   if (schema) {
     const result = schema.safeParse(value);
     if (!result.success) {
-      console.warn("[SecureStorage] Value failed schema validation:", result.error);
+      logger.warn("[SecureStorage] Value failed schema validation:", result.error);
       return false;
     }
   }
@@ -249,7 +250,7 @@ export function secureSetItem<T>(key: string, value: T, schema?: StorageSchema<T
     localStorage.setItem(key, json);
     return true;
   } catch (error) {
-    console.warn("[SecureStorage] Set item error:", error);
+    logger.warn("[SecureStorage] Set item error:", error);
     return false;
   }
 }
@@ -263,7 +264,7 @@ export function secureRemoveItem(key: string): boolean {
   }
 
   if (!validateKey(key)) {
-    console.warn("[SecureStorage] Invalid key:", key);
+    logger.warn("[SecureStorage] Invalid key:", key);
     return false;
   }
 
@@ -271,7 +272,7 @@ export function secureRemoveItem(key: string): boolean {
     localStorage.removeItem(key);
     return true;
   } catch (error) {
-    console.warn("[SecureStorage] Remove item error:", error);
+    logger.warn("[SecureStorage] Remove item error:", error);
     return false;
   }
 }
@@ -285,7 +286,7 @@ export function secureClearPrefix(prefix: string): boolean {
   }
 
   if (!validateKey(prefix)) {
-    console.warn("[SecureStorage] Invalid prefix:", prefix);
+    logger.warn("[SecureStorage] Invalid prefix:", prefix);
     return false;
   }
 
@@ -304,7 +305,7 @@ export function secureClearPrefix(prefix: string): boolean {
 
     return true;
   } catch (error) {
-    console.warn("[SecureStorage] Clear prefix error:", error);
+    logger.warn("[SecureStorage] Clear prefix error:", error);
     return false;
   }
 }

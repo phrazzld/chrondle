@@ -3,6 +3,7 @@
 import { useMemo, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useUserCreation } from "@/components/UserCreationProvider";
+import { logger } from "@/lib/logger";
 
 /**
  * Return type for the useAuthState hook
@@ -46,12 +47,8 @@ export function useAuthState(): UseAuthStateReturn {
 
       // Development-only debug logging for state transitions
       if (process.env.NODE_ENV === "development") {
-        if (
-          !prevStateRef.current ||
-          prevStateRef.current.isLoading !== result.isLoading
-        ) {
-          // eslint-disable-next-line no-console
-          console.log("[useAuthState] Auth loading...", {
+        if (!prevStateRef.current || prevStateRef.current.isLoading !== result.isLoading) {
+          logger.debug("[useAuthState] Auth loading...", {
             clerkLoaded: isLoaded,
             userCreationLoading,
           });
@@ -76,8 +73,7 @@ export function useAuthState(): UseAuthStateReturn {
           !prevStateRef.current ||
           prevStateRef.current.isAuthenticated !== result.isAuthenticated
         ) {
-          // eslint-disable-next-line no-console
-          console.log("[useAuthState] User signed out");
+          logger.debug("[useAuthState] User signed out");
         }
       }
 
@@ -95,10 +91,7 @@ export function useAuthState(): UseAuthStateReturn {
 
       // Development-only debug logging for edge case
       if (process.env.NODE_ENV === "development") {
-        console.warn(
-          "[useAuthState] Edge case: User object exists but no ID found",
-          { user },
-        );
+        logger.warn("[useAuthState] Edge case: User object exists but no ID found", { user });
       }
 
       prevStateRef.current = result;
@@ -117,13 +110,10 @@ export function useAuthState(): UseAuthStateReturn {
 
       // Development-only debug logging
       if (process.env.NODE_ENV === "development") {
-        console.warn(
-          "[useAuthState] Clerk authenticated but Convex user not ready:",
-          {
-            clerkId: user.id,
-            currentUser,
-          },
-        );
+        logger.warn("[useAuthState] Clerk authenticated but Convex user not ready:", {
+          clerkId: user.id,
+          currentUser,
+        });
       }
 
       prevStateRef.current = result;
@@ -144,8 +134,7 @@ export function useAuthState(): UseAuthStateReturn {
         prevStateRef.current.isAuthenticated !== result.isAuthenticated ||
         prevStateRef.current.userId !== result.userId
       ) {
-        // eslint-disable-next-line no-console
-        console.log("[useAuthState] User authenticated with Convex ID:", {
+        logger.debug("[useAuthState] User authenticated with Convex ID:", {
           convexId: result.userId,
           clerkId: user.id,
           previousState: prevStateRef.current,

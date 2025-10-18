@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useChrondle } from "../useChrondle";
+import { Id } from "convex/_generated/dataModel";
 
 // Mock all dependencies
 vi.mock("../data/usePuzzleData", () => ({
@@ -31,7 +32,7 @@ import { useGameActions } from "../actions/useGameActions";
 
 describe("useChrondle Race Condition Tests", () => {
   const mockPuzzle = {
-    id: "puzzle-1",
+    id: "puzzle-1" as Id<"puzzles">,
     targetYear: 1969,
     events: ["Event 1", "Event 2", "Event 3", "Event 4", "Event 5", "Event 6"],
     puzzleNumber: 1,

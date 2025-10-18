@@ -1,28 +1,20 @@
 import { describe, it, expect } from "vitest";
 import {
   deriveGameState,
-  mergeGuesses,
+  reconcileGuessesWithPriority,
   type DataSources,
 } from "../deriveGameState";
 import { GAME_CONFIG } from "../constants";
+import { Id } from "convex/_generated/dataModel";
 
 describe("deriveGameState", () => {
   // Helper to create default data sources
-  const createDataSources = (
-    overrides?: Partial<DataSources>,
-  ): DataSources => ({
+  const createDataSources = (overrides?: Partial<DataSources>): DataSources => ({
     puzzle: {
       puzzle: {
-        id: "puzzle-1",
+        id: "puzzle-1" as Id<"puzzles">,
         targetYear: 1969,
-        events: [
-          "Event 1",
-          "Event 2",
-          "Event 3",
-          "Event 4",
-          "Event 5",
-          "Event 6",
-        ],
+        events: ["Event 1", "Event 2", "Event 3", "Event 4", "Event 5", "Event 6"],
         puzzleNumber: 1,
       },
       isLoading: false,
@@ -291,48 +283,45 @@ describe("deriveGameState", () => {
   });
 });
 
-describe("mergeGuesses", () => {
+describe("reconcileGuessesWithPriority", () => {
   it("should return empty array when both inputs are empty", () => {
-    const result = mergeGuesses([], []);
+    const result = reconcileGuessesWithPriority([], []);
     expect(result).toEqual([]);
   });
 
   it("should return server guesses when session is empty", () => {
-    const result = mergeGuesses([1950, 1960], []);
+    const result = reconcileGuessesWithPriority([1950, 1960], []);
     expect(result).toEqual([1950, 1960]);
   });
 
   it("should return session guesses when server is empty", () => {
-    const result = mergeGuesses([], [1970, 1980]);
+    const result = reconcileGuessesWithPriority([], [1970, 1980]);
     expect(result).toEqual([1970, 1980]);
   });
 
   it("should merge server and session guesses", () => {
-    const result = mergeGuesses([1950, 1960], [1970, 1980]);
+    const result = reconcileGuessesWithPriority([1950, 1960], [1970, 1980]);
     expect(result).toEqual([1950, 1960, 1970, 1980]);
   });
 
   it("should remove duplicates from session guesses", () => {
-    const result = mergeGuesses([1950, 1960], [1960, 1970]);
+    const result = reconcileGuessesWithPriority([1950, 1960], [1960, 1970]);
     expect(result).toEqual([1950, 1960, 1970]);
   });
 
   it("should preserve server guess order as source of truth", () => {
-    const result = mergeGuesses([1960, 1950], [1970]);
+    const result = reconcileGuessesWithPriority([1960, 1950], [1970]);
     expect(result).toEqual([1960, 1950, 1970]);
   });
 
   it("should cap merged guesses at MAX_GUESSES", () => {
-    const result = mergeGuesses(
-      [1950, 1960, 1970],
-      [1980, 1990, 2000, 2010, 2020],
-    );
+    const result = reconcileGuessesWithPriority([1950, 1960, 1970], [1980, 1990, 2000, 2010, 2020]);
     expect(result).toEqual([1950, 1960, 1970, 1980, 1990, 2000]);
     expect(result.length).toBe(GAME_CONFIG.MAX_GUESSES);
   });
 
   it("should handle all duplicates in session", () => {
-    const result = mergeGuesses([1950, 1960, 1970], [1950, 1960, 1970]);
+    const result = reconcileGuessesWithPriority([1950, 1960, 1970], [1950, 1960, 1970]);
     expect(result).toEqual([1950, 1960, 1970]);
   });
 });

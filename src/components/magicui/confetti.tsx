@@ -19,6 +19,7 @@ import React, {
 
 import { Button } from "@/components/ui/button";
 import { ComponentProps } from "react";
+import { logger } from "@/lib/logger";
 
 type ButtonProps = ComponentProps<typeof Button>;
 
@@ -62,35 +63,26 @@ const ConfettiComponent = forwardRef<ConfettiRef, Props>((props, ref) => {
               confettiRef.current = confettiLib;
 
               try {
-                instanceRef.current = (confettiRef.current as any).create(
-                  node,
-                  {
-                    ...globalOptions,
-                    resize: true,
-                  },
-                );
+                instanceRef.current = (confettiRef.current as any).create(node, {
+                  ...globalOptions,
+                  resize: true,
+                });
               } catch (error) {
-                console.warn("🎊 Could not load worker", error);
+                logger.warn("🎊 Could not load worker", error);
                 // Fallback: try without worker if CSP blocks it
                 try {
-                  instanceRef.current = (confettiRef.current as any).create(
-                    node,
-                    {
-                      ...globalOptions,
-                      resize: true,
-                      useWorker: false,
-                    },
-                  );
+                  instanceRef.current = (confettiRef.current as any).create(node, {
+                    ...globalOptions,
+                    resize: true,
+                    useWorker: false,
+                  });
                 } catch (fallbackError) {
-                  console.error(
-                    "🎊 Confetti initialization failed completely",
-                    fallbackError,
-                  );
+                  logger.error("🎊 Confetti initialization failed completely", fallbackError);
                 }
               }
             })
             .catch((error) => {
-              console.error("🎊 Failed to load confetti library", error);
+              logger.error("🎊 Failed to load confetti library", error);
             });
         } else {
           // Confetti already loaded, create instance
@@ -100,7 +92,7 @@ const ConfettiComponent = forwardRef<ConfettiRef, Props>((props, ref) => {
               resize: true,
             });
           } catch (error) {
-            console.warn("🎊 Could not load worker", error);
+            logger.warn("🎊 Could not load worker", error);
             // Fallback: try without worker if CSP blocks it
             try {
               instanceRef.current = (confettiRef.current as any).create(node, {
@@ -109,10 +101,7 @@ const ConfettiComponent = forwardRef<ConfettiRef, Props>((props, ref) => {
                 useWorker: false,
               });
             } catch (fallbackError) {
-              console.error(
-                "🎊 Confetti initialization failed completely",
-                fallbackError,
-              );
+              logger.error("🎊 Confetti initialization failed completely", fallbackError);
             }
           }
         }
@@ -131,7 +120,7 @@ const ConfettiComponent = forwardRef<ConfettiRef, Props>((props, ref) => {
       try {
         await instanceRef.current?.({ ...options, ...opts });
       } catch (error) {
-        console.error("Confetti error:", error);
+        logger.error("Confetti error:", error);
       }
     },
     [options],
@@ -152,7 +141,7 @@ const ConfettiComponent = forwardRef<ConfettiRef, Props>((props, ref) => {
         try {
           await fire();
         } catch (error) {
-          console.error("Confetti effect error:", error);
+          logger.error("Confetti effect error:", error);
         }
       })();
     }
@@ -173,16 +162,11 @@ ConfettiComponent.displayName = "Confetti";
 export const Confetti = ConfettiComponent;
 
 interface ConfettiButtonProps extends ButtonProps {
-  options?: ConfettiOptions &
-    ConfettiGlobalOptions & { canvas?: HTMLCanvasElement };
+  options?: ConfettiOptions & ConfettiGlobalOptions & { canvas?: HTMLCanvasElement };
   children?: React.ReactNode;
 }
 
-const ConfettiButtonComponent = ({
-  options,
-  children,
-  ...props
-}: ConfettiButtonProps) => {
+const ConfettiButtonComponent = ({ options, children, ...props }: ConfettiButtonProps) => {
   const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     try {
       const rect = event.currentTarget.getBoundingClientRect();
@@ -199,7 +183,7 @@ const ConfettiButtonComponent = ({
         },
       });
     } catch (error) {
-      console.error("Confetti button error:", error);
+      logger.error("Confetti button error:", error);
     }
   };
 

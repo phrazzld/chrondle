@@ -5,15 +5,13 @@ import { usePuzzleData } from "@/hooks/data/usePuzzleData";
 import { useAuthState } from "@/hooks/data/useAuthState";
 import { useUserProgress } from "@/hooks/data/useUserProgress";
 import { useLocalSession } from "@/hooks/data/useLocalSession";
-import {
-  useGameActions,
-  UseGameActionsReturn,
-} from "@/hooks/actions/useGameActions";
+import { useGameActions, UseGameActionsReturn } from "@/hooks/actions/useGameActions";
 import { deriveGameState, DataSources } from "@/lib/deriveGameState";
 import { GameState } from "@/types/gameState";
 import { useAnalytics, usePerformanceTracking } from "@/hooks/useAnalytics";
 import { isValidConvexId } from "@/lib/validation";
 import { useDebouncedValues } from "@/hooks/useDebouncedValue";
+import { logger } from "@/lib/logger";
 
 /**
  * Return type for the useChrondle hook
@@ -39,8 +37,8 @@ export interface UseChronldeReturn extends UseGameActionsReturn {
  * const { gameState, submitGuess, resetGame, isSubmitting } = useChrondle();
  *
  * if (isReady(gameState)) {
- *   console.log(`Playing puzzle #${gameState.puzzle.puzzleNumber}`);
- *   console.log(`Guesses: ${gameState.guesses.length}/${gameState.remainingGuesses + gameState.guesses.length}`);
+ *   logger.debug(`Playing puzzle #${gameState.puzzle.puzzleNumber}`);
+ *   logger.debug(`Guesses: ${gameState.guesses.length}/${gameState.remainingGuesses + gameState.guesses.length}`);
  * }
  *
  * @example
@@ -51,10 +49,7 @@ export interface UseChronldeReturn extends UseGameActionsReturn {
  * // With preloaded puzzle data from server
  * const { gameState, submitGuess } = useChrondle(undefined, serverPuzzle);
  */
-export function useChrondle(
-  puzzleNumber?: number,
-  initialPuzzle?: unknown,
-): UseChronldeReturn {
+export function useChrondle(puzzleNumber?: number, initialPuzzle?: unknown): UseChronldeReturn {
   // Compose all orthogonal data sources
   // Hooks must be called unconditionally due to React rules
   const puzzle = usePuzzleData(puzzleNumber, initialPuzzle);
@@ -70,14 +65,11 @@ export function useChrondle(
     // Validate the ID format before passing it to useUserProgress
     if (!isValidConvexId(auth.userId)) {
       if (process.env.NODE_ENV === "development") {
-        console.error(
-          "[useChrondle] Invalid user ID format detected - skipping progress query:",
-          {
-            userId: auth.userId,
-            isAuthenticated: auth.isAuthenticated,
-            isLoading: auth.isLoading,
-          },
-        );
+        logger.error("[useChrondle] Invalid user ID format detected - skipping progress query:", {
+          userId: auth.userId,
+          isAuthenticated: auth.isAuthenticated,
+          isLoading: auth.isLoading,
+        });
       }
       return null; // Don't attempt to query with invalid ID
     }
@@ -150,9 +142,7 @@ export function useChrondle(
   // These don't affect user interaction so can be batched by React
   const deferredGameState = useDeferredValue(gameState);
   const deferredSessionGuesses = useDeferredValue(session.sessionGuesses);
-  const deferredServerGuesses = useDeferredValue(
-    progress.progress?.guesses || [],
-  );
+  const deferredServerGuesses = useDeferredValue(progress.progress?.guesses || []);
 
   // Analytics tracking for state transitions and divergence detection
   // Uses deferred values to prevent blocking user interactions
@@ -163,8 +153,7 @@ export function useChrondle(
     sessionGuesses: deferredSessionGuesses,
     serverGuesses: deferredServerGuesses,
     enabled:
-      process.env.NODE_ENV === "production" ||
-      process.env.NEXT_PUBLIC_ANALYTICS_DEBUG === "true",
+      process.env.NODE_ENV === "production" || process.env.NEXT_PUBLIC_ANALYTICS_DEBUG === "true",
   });
 
   // Development-only state transition logging

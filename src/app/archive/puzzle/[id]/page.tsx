@@ -10,7 +10,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { Footer } from "@/components/Footer";
 import { LiveAnnouncer } from "@/components/ui/LiveAnnouncer";
 import { useVictoryConfetti } from "@/hooks/useVictoryConfetti";
-import { getGuessDirectionInfo } from "@/lib/utils";
+import { getGuessDirectionInfo } from "@/lib/game/proximity";
 import { formatYear } from "@/lib/displayFormatting";
 import { getEnhancedProximityFeedback } from "@/lib/enhancedFeedback";
 import { BackgroundAnimation } from "@/components/BackgroundAnimation";
@@ -18,6 +18,7 @@ import { ConfettiRef } from "@/components/magicui/confetti";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { ArchiveErrorBoundary } from "@/components/ArchiveErrorBoundary";
+import { logger } from "@/lib/logger";
 
 // Type for validation result
 type PuzzleIdValidation =
@@ -113,7 +114,7 @@ function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps): React.ReactEle
           );
         }
       } catch (error) {
-        console.error("Failed to fetch total puzzles count:", error);
+        logger.error("Failed to fetch total puzzles count:", error);
         setFetchError("Failed to load puzzle data");
         setAnnouncement("Error: Failed to load puzzle data");
       } finally {

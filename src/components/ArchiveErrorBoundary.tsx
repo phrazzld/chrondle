@@ -4,6 +4,7 @@ import React from "react";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { Archive, Home, RotateCw } from "lucide-react";
 import Link from "next/link";
+import { logger } from "@/lib/logger";
 
 interface ArchiveErrorBoundaryProps {
   children: React.ReactNode;
@@ -13,20 +14,15 @@ interface ArchiveErrorBoundaryProps {
 /**
  * Specialized error boundary for archive routes with custom fallback UI
  */
-export function ArchiveErrorBoundary({
-  children,
-  year,
-}: ArchiveErrorBoundaryProps) {
+export function ArchiveErrorBoundary({ children, year }: ArchiveErrorBoundaryProps) {
   return (
     <ErrorBoundary
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <div className="max-w-md w-full mx-4 p-6 bg-card rounded-lg border shadow-lg">
+        <div className="bg-background flex min-h-screen items-center justify-center">
+          <div className="bg-card mx-4 w-full max-w-md rounded-lg border p-6 shadow-lg">
             <div className="text-center">
-              <div className="text-4xl mb-4">🚨</div>
-              <h1 className="text-xl font-bold text-foreground mb-2">
-                Archive Error
-              </h1>
+              <div className="mb-4 text-4xl">🚨</div>
+              <h1 className="text-foreground mb-2 text-xl font-bold">Archive Error</h1>
               <p className="text-muted-foreground mb-6">
                 {year
                   ? `Unable to load the puzzle for year ${year}.`
@@ -36,24 +32,24 @@ export function ArchiveErrorBoundary({
 
               <div className="space-y-3">
                 <Link href="/archive" className="block">
-                  <button className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors flex items-center justify-center gap-2">
-                    <Archive className="w-4 h-4" />
+                  <button className="bg-primary text-primary-foreground hover:bg-primary/90 flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 transition-colors">
+                    <Archive className="h-4 w-4" />
                     Return to Archive
                   </button>
                 </Link>
 
                 <Link href="/" className="block">
-                  <button className="w-full px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 transition-colors flex items-center justify-center gap-2">
-                    <Home className="w-4 h-4" />
+                  <button className="bg-secondary text-secondary-foreground hover:bg-secondary/90 flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 transition-colors">
+                    <Home className="h-4 w-4" />
                     Go to Today&apos;s Puzzle
                   </button>
                 </Link>
 
                 <button
                   onClick={() => window.location.reload()}
-                  className="w-full px-4 py-2 bg-muted text-muted-foreground rounded-md hover:bg-muted/90 transition-colors flex items-center justify-center gap-2"
+                  className="bg-muted text-muted-foreground hover:bg-muted/90 flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 transition-colors"
                 >
-                  <RotateCw className="w-4 h-4" />
+                  <RotateCw className="h-4 w-4" />
                   Try Again
                 </button>
               </div>
@@ -61,7 +57,7 @@ export function ArchiveErrorBoundary({
               {/* Development error details */}
               {process.env.NODE_ENV === "development" && (
                 <div className="mt-6 text-left">
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     Check console for detailed error information
                   </p>
                 </div>
@@ -72,7 +68,7 @@ export function ArchiveErrorBoundary({
       }
       onError={(error) => {
         // Log archive-specific error context
-        console.error("Archive Error:", {
+        logger.error("Archive Error:", {
           error: error.message,
           year,
           path: window.location.pathname,

@@ -6,7 +6,8 @@ import { NavbarButton } from "@/components/ui/NavbarButton";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { AuthButtons } from "@/components/AuthButtons";
 import { Flame, Archive, Heart } from "lucide-react";
-import { getStreakColorClasses, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { getStreakColorClasses } from "@/lib/ui/streak-styling";
 import { formatPuzzleNumber } from "@/lib/puzzleUtils";
 import SupportModal from "@/components/SupportModal";
 

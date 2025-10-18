@@ -3,6 +3,9 @@
 import { useMemo, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import { Id } from "convex/_generated/dataModel";
+import { PuzzleWithContext } from "@/types/puzzle";
+import { logger } from "@/lib/logger";
 
 /**
  * Puzzle data structure returned from Convex
@@ -17,21 +20,10 @@ interface ConvexPuzzle {
 }
 
 /**
- * Normalized puzzle data for consumption by the application
- */
-interface PuzzleData {
-  id: string;
-  targetYear: number;
-  events: string[];
-  puzzleNumber: number;
-  historicalContext?: string;
-}
-
-/**
  * Return type for the usePuzzleData hook
  */
 interface UsePuzzleDataReturn {
-  puzzle: PuzzleData | null;
+  puzzle: PuzzleWithContext | null;
   isLoading: boolean;
   error: Error | null;
 }
@@ -58,10 +50,7 @@ interface UsePuzzleDataReturn {
  * // Use with preloaded data from server
  * const { puzzle, isLoading, error } = usePuzzleData(undefined, preloadedPuzzle);
  */
-export function usePuzzleData(
-  puzzleNumber?: number,
-  initialData?: unknown,
-): UsePuzzleDataReturn {
+export function usePuzzleData(puzzleNumber?: number, initialData?: unknown): UsePuzzleDataReturn {
   // If initial data is provided, skip queries and use it directly
   const shouldSkipQuery = initialData !== undefined;
 
@@ -82,15 +71,10 @@ export function usePuzzleData(
       dailyPuzzle === null // null means query returned but no puzzle exists
     ) {
       // Trigger on-demand generation for today
-      console.warn(
-        `[usePuzzleData] No daily puzzle found, triggering on-demand generation`,
-      );
+      logger.warn(`[usePuzzleData] No daily puzzle found, triggering on-demand generation`);
 
       ensurePuzzle().catch((error) => {
-        console.error(
-          "[usePuzzleData] Failed to generate puzzle on-demand:",
-          error,
-        );
+        logger.error("[usePuzzleData] Failed to generate puzzle on-demand:", error);
       });
     }
   }, [dailyPuzzle, puzzleNumber, shouldSkipQuery, ensurePuzzle]);
@@ -129,8 +113,8 @@ export function usePuzzleData(
       const puzzleData = initialData as ConvexPuzzle;
 
       // Normalize the initial data
-      const normalizedPuzzle: PuzzleData = {
-        id: puzzleData._id,
+      const normalizedPuzzle: PuzzleWithContext = {
+        id: puzzleData._id as Id<"puzzles">,
         targetYear: puzzleData.targetYear,
         events: puzzleData.events,
         puzzleNumber: puzzleData.puzzleNumber,
@@ -168,8 +152,8 @@ export function usePuzzleData(
     }
 
     // Normalize the puzzle data
-    const normalizedPuzzle: PuzzleData = {
-      id: convexPuzzle._id,
+    const normalizedPuzzle: PuzzleWithContext = {
+      id: convexPuzzle._id as Id<"puzzles">,
       targetYear: convexPuzzle.targetYear,
       events: convexPuzzle.events,
       puzzleNumber: convexPuzzle.puzzleNumber,

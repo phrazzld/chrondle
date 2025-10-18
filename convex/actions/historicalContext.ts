@@ -14,6 +14,32 @@ interface ErrorWithStatus extends Error {
   status?: number;
 }
 
+/**
+ * Sanitizes error messages and objects to prevent API key leakage
+ * Removes OpenRouter API keys (sk-or-v1-...) from error text and stack traces
+ *
+ * @param error - Error object or string to sanitize
+ * @returns Sanitized error string safe for logging
+ */
+function sanitizeErrorForLogging(error: unknown): string {
+  const apiKeyPattern = /sk-or-v1-[a-zA-Z0-9]{32,}/g;
+  const bearerPattern = /Bearer\s+sk-or-v1-[a-zA-Z0-9]{32,}/gi;
+
+  let errorText = "";
+  if (error instanceof Error) {
+    errorText = `${error.message}\n${error.stack || ""}`;
+  } else if (typeof error === "string") {
+    errorText = error;
+  } else {
+    errorText = JSON.stringify(error);
+  }
+
+  // Replace API keys with redacted placeholder
+  return errorText
+    .replace(apiKeyPattern, "sk-or-v1-***REDACTED***")
+    .replace(bearerPattern, "Bearer sk-or-v1-***REDACTED***");
+}
+
 // Response type for OpenRouter Responses API
 interface APIResponse {
   output_text: string;
@@ -245,7 +271,7 @@ Use BC/AD dating exclusively. Aim for 175-225 words.`;
             console.error(
               `[HistoricalContext] Attempt ${attempt + 1} failed - ${errorPrefix} error: ${response.status}`,
             );
-            console.error(`[HistoricalContext] Error text: ${errorText}`);
+            console.error(`[HistoricalContext] Error text: ${sanitizeErrorForLogging(errorText)}`);
             throw error;
           }
 
@@ -288,7 +314,7 @@ Use BC/AD dating exclusively. Aim for 175-225 words.`;
           const errorWithStatus = error as ErrorWithStatus;
           console.error(
             `[HistoricalContext] Attempt ${attempt + 1}/${maxAttempts} failed for puzzle ${puzzleId}:`,
-            error,
+            sanitizeErrorForLogging(error),
           );
 
           // Check for rate limit (429) and switch to GPT-5-mini if not already using it
@@ -310,7 +336,10 @@ Use BC/AD dating exclusively. Aim for 175-225 words.`;
           // Check if we should retry this error
           if (!shouldRetry(error as Error) || attempt === maxAttempts - 1) {
             // Don't retry, or this was the last attempt
-            console.error(`[HistoricalContext] Not retrying error for puzzle ${puzzleId}:`, error);
+            console.error(
+              `[HistoricalContext] Not retrying error for puzzle ${puzzleId}:`,
+              sanitizeErrorForLogging(error),
+            );
             throw error;
           }
 
@@ -363,7 +392,7 @@ Use BC/AD dating exclusively. Aim for 175-225 words.`;
     } catch (error) {
       console.error(
         `[HistoricalContext] Failed to generate context for puzzle ${puzzleId}:`,
-        error,
+        sanitizeErrorForLogging(error),
       );
       throw error;
     }
