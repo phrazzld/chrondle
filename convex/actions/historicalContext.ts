@@ -40,6 +40,38 @@ function sanitizeErrorForLogging(error: unknown): string {
     .replace(bearerPattern, "Bearer sk-or-v1-***REDACTED***");
 }
 
+/**
+ * Creates a new Error object with sanitized message
+ * Prevents API key leakage when errors are rethrown and logged by Convex
+ *
+ * SECURITY: This function is critical for preventing API key exposure.
+ * When errors are rethrown, Convex logs them and may send them to monitoring
+ * services or clients. Sanitizing before rethrowing ensures secrets never leak.
+ *
+ * @param error - Original error object to sanitize
+ * @returns New Error with sanitized message and preserved status code
+ *
+ * @example
+ * try {
+ *   await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
+ * } catch (error) {
+ *   // ❌ BAD: throw error; // API key in error.message
+ *   // ✅ GOOD:
+ *   throw createSanitizedError(error); // API key redacted
+ * }
+ */
+function createSanitizedError(error: unknown): Error {
+  const sanitizedMessage = sanitizeErrorForLogging(error);
+  const newError = new Error(sanitizedMessage);
+
+  // Preserve HTTP status code if present (needed for retry logic)
+  if (error && typeof error === "object" && "status" in error) {
+    (newError as ErrorWithStatus).status = (error as ErrorWithStatus).status;
+  }
+
+  return newError;
+}
+
 // Response type for OpenRouter Responses API
 interface APIResponse {
   output_text: string;
@@ -272,7 +304,7 @@ Use BC/AD dating exclusively. Aim for 175-225 words.`;
               `[HistoricalContext] Attempt ${attempt + 1} failed - ${errorPrefix} error: ${response.status}`,
             );
             console.error(`[HistoricalContext] Error text: ${sanitizeErrorForLogging(errorText)}`);
-            throw error;
+            throw createSanitizedError(error);
           }
 
           // Parse Responses API response
@@ -340,7 +372,7 @@ Use BC/AD dating exclusively. Aim for 175-225 words.`;
               `[HistoricalContext] Not retrying error for puzzle ${puzzleId}:`,
               sanitizeErrorForLogging(error),
             );
-            throw error;
+            throw createSanitizedError(error);
           }
 
           // Calculate delay and sleep before next attempt
@@ -394,7 +426,7 @@ Use BC/AD dating exclusively. Aim for 175-225 words.`;
         `[HistoricalContext] Failed to generate context for puzzle ${puzzleId}:`,
         sanitizeErrorForLogging(error),
       );
-      throw error;
+      throw createSanitizedError(error);
     }
   },
 });
