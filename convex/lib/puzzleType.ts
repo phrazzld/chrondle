@@ -27,18 +27,27 @@ export type PuzzleType = { type: "daily"; date: string } | { type: "archive"; da
  * Used throughout the codebase to enforce streak update rules.
  *
  * @param puzzleDate - ISO date string (YYYY-MM-DD) from puzzle.date
+ * @param currentDate - Optional current date for comparison (defaults to UTC now)
+ *                      Pass this to prevent midnight rollover race conditions
  * @returns Discriminated union with type and date
  *
  * @example
+ * // Basic usage (race-vulnerable if called multiple times)
  * const classification = classifyPuzzle("2025-10-16");
  * if (classification.type === "daily") {
  *   // Update streak
  * } else {
  *   // Skip streak update for archive
  * }
+ *
+ * @example
+ * // Safe usage (race-free - recommended for streak updates)
+ * const today = getUTCDateString();
+ * const classification = classifyPuzzle("2025-10-16", today);
+ * // Use same 'today' for subsequent streak calculations
  */
-export function classifyPuzzle(puzzleDate: string): PuzzleType {
-  const today = getUTCDateString();
+export function classifyPuzzle(puzzleDate: string, currentDate?: string): PuzzleType {
+  const today = currentDate ?? getUTCDateString();
 
   if (puzzleDate === today) {
     return { type: "daily", date: puzzleDate };
