@@ -7,6 +7,7 @@ import { GAME_CONFIG } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
 import { assertConvexId, isConvexIdValidationError } from "@/lib/validation";
 import { useMutationWithRetry } from "@/hooks/useMutationWithRetry";
+import { logger } from "@/lib/logger";
 
 /**
  * Return type for the useGameActions hook
@@ -32,7 +33,7 @@ export interface UseGameActionsReturn {
  * // Submit a guess with optimistic update
  * const success = await submitGuess(1969);
  * if (success) {
- *   console.log("Guess submitted successfully");
+ *   logger.debug("Guess submitted successfully");
  * }
  *
  * // Reset the game (clears session only)
@@ -48,10 +49,7 @@ export function useGameActions(sources: DataSources): UseGameActionsReturn {
     maxRetries: 3,
     baseDelayMs: 1000,
     onRetry: (attempt, error) => {
-      console.error(
-        `[useGameActions] Retrying submitGuess (attempt ${attempt}/3):`,
-        error.message,
-      );
+      logger.error(`[useGameActions] Retrying submitGuess (attempt ${attempt}/3):`, error.message);
       // Optionally show a toast to the user about the retry
       if (attempt === 3 && "addToast" in toastContext) {
         toastContext.addToast({
@@ -136,18 +134,12 @@ export function useGameActions(sources: DataSources): UseGameActionsReturn {
         } catch (error) {
           // Check if it's a validation error
           if (isConvexIdValidationError(error)) {
-            console.error(
-              "Invalid ID format detected:",
-              error.id,
-              "for type:",
-              error.type,
-            );
+            logger.error("Invalid ID format detected:", error.id, "for type:", error.type);
 
             if ("addToast" in toastContext) {
               toastContext.addToast({
                 title: "Authentication Error",
-                description:
-                  "There was an issue with your user session. Please refresh the page.",
+                description: "There was an issue with your user session. Please refresh the page.",
                 variant: "destructive",
               });
             }
@@ -159,13 +151,12 @@ export function useGameActions(sources: DataSources): UseGameActionsReturn {
           // Other errors - keep the guess in session for eventual consistency
           // The guess stays in the session, allowing the user to see it
           // and it will be merged properly when the page refreshes
-          console.error("Failed to persist guess to server:", error);
+          logger.error("Failed to persist guess to server:", error);
 
           if ("addToast" in toastContext) {
             toastContext.addToast({
               title: "Connection Issue",
-              description:
-                "Your guess was saved locally but couldn't sync to the server",
+              description: "Your guess was saved locally but couldn't sync to the server",
               variant: "destructive",
             });
           }

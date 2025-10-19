@@ -1,5 +1,6 @@
 import { GameState, Puzzle } from "@/types/gameState";
 import { GAME_CONFIG } from "@/lib/constants";
+import { logger } from "@/lib/logger";
 
 /**
  * Data sources from the orthogonal hooks
@@ -30,16 +31,36 @@ export interface DataSources {
 }
 
 /**
- * Merges server guesses with session guesses
- * Server guesses take precedence as they are the source of truth
- * Session guesses are appended but duplicates are removed
- * Total is capped at MAX_GUESSES (6)
+ * Reconciles server and session guesses with priority ordering
  *
- * @param serverGuesses - Guesses from the server (persisted)
+ * Performs three critical operations:
+ * 1. **Deduplication**: Removes duplicates between server and session guesses
+ * 2. **Priority Ordering**: Server guesses come first (source of truth for persistence)
+ * 3. **Capping**: Result is capped at MAX_GUESSES (6) to enforce game rules
+ *
+ * Performance: O(n+m) linear complexity using Set for deduplication
+ * Previously O(n*m) due to .includes() in loop - now optimized for future archive mode
+ *
+ * @param serverGuesses - Guesses from the server (persisted, source of truth)
  * @param sessionGuesses - Guesses from the current session (not yet persisted)
- * @returns Merged array of guesses, capped at MAX_GUESSES
+ * @returns Reconciled array with server guesses first, session guesses appended, duplicates removed, capped at 6
+ *
+ * @example
+ * // Typical reconciliation: server has 2 guesses, session adds 1 new guess
+ * reconcileGuessesWithPriority([1960, 1970], [1965]);
+ * // [1960, 1970, 1965] - session guess appended after server guesses
+ *
+ * @example
+ * // Deduplication: session guess already exists on server
+ * reconcileGuessesWithPriority([1960, 1970], [1970, 1965]);
+ * // [1960, 1970, 1965] - duplicate 1970 removed, only 1965 added
+ *
+ * @example
+ * // Capping: result exceeds MAX_GUESSES
+ * reconcileGuessesWithPriority([1960, 1965, 1970, 1975], [1980, 1985, 1990]);
+ * // [1960, 1965, 1970, 1975, 1980, 1985] - capped at 6 guesses
  */
-export function mergeGuesses(
+export function reconcileGuessesWithPriority(
   serverGuesses: number[],
   sessionGuesses: number[],
 ): number[] {
@@ -51,10 +72,14 @@ export function mergeGuesses(
   // Start with server guesses (source of truth)
   const merged = [...serverGuesses];
 
+  // Use Set for O(1) duplicate checking instead of O(n) .includes()
+  const serverSet = new Set(serverGuesses);
+
   // Add session guesses that aren't duplicates
   for (const guess of sessionGuesses) {
-    if (!merged.includes(guess)) {
+    if (!serverSet.has(guess)) {
       merged.push(guess);
+      serverSet.add(guess); // Track added guesses to avoid duplicates within session
     }
   }
 
@@ -115,15 +140,13 @@ export function deriveGameState(sources: DataSources): GameState {
 
     // Get server guesses from progress (if user is authenticated and has progress)
     const serverGuesses =
-      auth.isAuthenticated && progress.progress
-        ? progress.progress.guesses
-        : [];
+      auth.isAuthenticated && progress.progress ? progress.progress.guesses : [];
 
     // Get session guesses
     const sessionGuesses = session.sessionGuesses;
 
     // Merge guesses (server first, then session without duplicates)
-    const allGuesses = mergeGuesses(serverGuesses, sessionGuesses);
+    const allGuesses = reconcileGuessesWithPriority(serverGuesses, sessionGuesses);
 
     // Calculate completion status
     // Complete if:
@@ -139,18 +162,14 @@ export function deriveGameState(sources: DataSources): GameState {
     const guessedCorrectly = lastGuess === puzzle.puzzle.targetYear;
     const usedAllGuesses = allGuesses.length >= GAME_CONFIG.MAX_GUESSES;
 
-    const isComplete =
-      hasServerCompletion || guessedCorrectly || usedAllGuesses;
+    const isComplete = hasServerCompletion || guessedCorrectly || usedAllGuesses;
 
     // Calculate win status
     // Won if: completed AND last guess matches target year
     const hasWon = isComplete && guessedCorrectly;
 
     // Calculate remaining guesses
-    const remainingGuesses = Math.max(
-      0,
-      GAME_CONFIG.MAX_GUESSES - allGuesses.length,
-    );
+    const remainingGuesses = Math.max(0, GAME_CONFIG.MAX_GUESSES - allGuesses.length);
 
     // Return ready state with all derived values
     return {
@@ -163,7 +182,7 @@ export function deriveGameState(sources: DataSources): GameState {
     };
   } catch (error) {
     // Log the error for debugging
-    console.error("Error deriving game state:", error);
+    logger.error("Error deriving game state:", error);
 
     // Return error state with helpful message
     return {

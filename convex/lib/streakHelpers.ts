@@ -1,6 +1,7 @@
 import { DatabaseWriter } from "../_generated/server";
 import { Id } from "../_generated/dataModel";
 import { calculateStreakUpdate, applyStreakUpdate, getUTCDateString } from "./streakCalculation";
+import { classifyPuzzle, isDailyPuzzle } from "./puzzleType";
 
 /**
  * Streak Helpers - Database Operations for User Streaks
@@ -38,14 +39,22 @@ export async function updateUserStreak(
     throw new Error("User not found");
   }
 
+  // CRITICAL: Capture UTC date ONCE to prevent midnight rollover race condition
+  // between puzzle classification and streak calculation. If midnight occurs
+  // between these calls, classification might use yesterday's date while
+  // streak calculation uses today's date, causing incorrect streak updates.
   const today = getUTCDateString();
 
   // CRITICAL: Only update streak for today's daily puzzle
   // Archive/historical puzzle plays should NOT affect daily streak
-  if (puzzleDate !== today) {
+  // Type-safe classification ensures this rule is enforced at compile time
+  // Pass 'today' to ensure classification and calculation use same date reference
+  const classification = classifyPuzzle(puzzleDate, today);
+
+  if (!isDailyPuzzle(classification)) {
     console.warn("[updateUserStreak] Skipping streak update for archive puzzle:", {
-      puzzleDate,
-      today,
+      puzzleType: classification.type,
+      puzzleDate: classification.date,
       userId,
     });
     return; // No streak update for archive puzzles

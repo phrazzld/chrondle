@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { ConfettiRef } from "@/components/magicui/confetti";
+import { logger } from "@/lib/logger";
 
 interface UseVictoryConfettiOptions {
   /** Whether the player has won the game */
@@ -100,7 +101,7 @@ export function useVictoryConfetti(
       setHasFiredConfetti(true);
       lastFireGuessCount.current = guessCount;
     } catch (error) {
-      console.error("Victory confetti error:", error);
+      logger.error("Victory confetti error:", error);
     }
   }, [confettiRef, disabled, guessCount, colors]);
 

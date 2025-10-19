@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { generateShareText, generateEmojiTimeline } from "@/lib/utils";
+import { generateShareText, generateEmojiTimeline } from "@/lib/sharing/generator";
 import { useWebShare } from "@/hooks/useWebShare";
 
 export type ShareStatus = "idle" | "success" | "error";
@@ -53,8 +53,7 @@ export function useShareGame(
 
   const shareGame = useCallback(
     async (useDetailed?: boolean) => {
-      const textToShare =
-        useDetailed || detailed ? detailedShareText : compactShareText;
+      const textToShare = useDetailed || detailed ? detailedShareText : compactShareText;
 
       // Use clipboard for consistent UX
       const success = await share(textToShare);
@@ -73,15 +72,7 @@ export function useShareGame(
         onError?.();
       }
     },
-    [
-      compactShareText,
-      detailedShareText,
-      share,
-      hasWon,
-      detailed,
-      onSuccess,
-      onError,
-    ],
+    [compactShareText, detailedShareText, share, hasWon, detailed, onSuccess, onError],
   );
 
   return {

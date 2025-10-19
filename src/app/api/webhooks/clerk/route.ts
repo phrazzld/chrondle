@@ -41,9 +41,7 @@ export async function POST(req: Request) {
   // Validate webhook secret configuration
   const webhookSecret = getEnvVar("CLERK_WEBHOOK_SECRET");
   if (!webhookSecret) {
-    logger.warn(
-      "CLERK_WEBHOOK_SECRET is not configured - webhook verification may fail",
-    );
+    logger.warn("CLERK_WEBHOOK_SECRET is not configured - webhook verification may fail");
   }
 
   // Create a new Svix instance with your webhook secret
@@ -59,7 +57,7 @@ export async function POST(req: Request) {
       "svix-signature": svix_signature,
     }) as WebhookEvent;
   } catch (err) {
-    console.error("Error verifying webhook:", err);
+    logger.error("Error verifying webhook:", err);
     return new Response("Error: Webhook verification failed", {
       status: 400,
     });
@@ -72,9 +70,7 @@ export async function POST(req: Request) {
     const { id, email_addresses, primary_email_address_id } = evt.data;
 
     // Find the primary email
-    const primaryEmail = email_addresses.find(
-      (email) => email.id === primary_email_address_id,
-    );
+    const primaryEmail = email_addresses.find((email) => email.id === primary_email_address_id);
 
     if (!primaryEmail) {
       return new Response("Error: No primary email found", {
@@ -91,7 +87,7 @@ export async function POST(req: Request) {
 
       return new Response("User synced successfully", { status: 200 });
     } catch (error) {
-      console.error("Error syncing user to Convex:", error);
+      logger.error("Error syncing user to Convex:", error);
       return new Response("Error: Failed to sync user", {
         status: 500,
       });

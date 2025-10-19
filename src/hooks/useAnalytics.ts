@@ -11,6 +11,7 @@
 import { useEffect, useRef, useCallback, useMemo } from "react";
 import { GameState, isReady } from "@/types/gameState";
 import { analytics, AnalyticsEvent } from "@/lib/analytics";
+import { logger } from "@/lib/logger";
 
 /**
  * Hook parameters
@@ -28,17 +29,8 @@ interface UseAnalyticsParams {
  * Return type for useAnalytics hook
  */
 export interface UseAnalyticsReturn {
-  trackGuess: (
-    guess: number,
-    targetYear: number,
-    guessNumber: number,
-    isCorrect: boolean,
-  ) => void;
-  trackCompletion: (
-    won: boolean,
-    guessCount: number,
-    timeSpent: number,
-  ) => void;
+  trackGuess: (guess: number, targetYear: number, guessNumber: number, isCorrect: boolean) => void;
+  trackCompletion: (won: boolean, guessCount: number, timeSpent: number) => void;
   trackHintView: (hintNumber: number) => void;
   checkDivergence: () => void;
   getAnalyticsSummary: () => Record<string, unknown>;
@@ -134,26 +126,17 @@ export function useAnalytics({
 
     // Only check if we have both session and server data
     if (sessionGuesses.length > 0 || serverGuesses.length > 0) {
-      const divergence = analytics.detectDivergence(
-        sessionGuesses,
-        serverGuesses,
-        userId,
-      );
+      const divergence = analytics.detectDivergence(sessionGuesses, serverGuesses, userId);
 
       if (divergence.hasDivergence) {
-        console.warn("[Analytics] State divergence detected:", divergence);
+        logger.warn("[Analytics] State divergence detected:", divergence);
       }
     }
   }, [sessionGuesses, serverGuesses, userId, enabled]);
 
   // Track guess submission
   const trackGuess = useCallback(
-    (
-      guess: number,
-      targetYear: number,
-      guessNumber: number,
-      isCorrect: boolean,
-    ) => {
+    (guess: number, targetYear: number, guessNumber: number, isCorrect: boolean) => {
       if (!enabled) return;
       analytics.trackGuess(guess, targetYear, guessNumber, isCorrect, userId);
     },
@@ -164,13 +147,7 @@ export function useAnalytics({
   const trackCompletion = useCallback(
     (won: boolean, guessCount: number, timeSpent: number) => {
       if (!enabled) return;
-      analytics.trackCompletion(
-        won,
-        guessCount,
-        timeSpent,
-        puzzleNumber || 0,
-        userId,
-      );
+      analytics.trackCompletion(won, guessCount, timeSpent, puzzleNumber || 0, userId);
     },
     [userId, puzzleNumber, enabled],
   );
@@ -195,11 +172,7 @@ export function useAnalytics({
   // Manual divergence check
   const checkDivergence = useCallback(() => {
     if (!enabled) return;
-    const divergence = analytics.detectDivergence(
-      sessionGuesses,
-      serverGuesses,
-      userId,
-    );
+    const divergence = analytics.detectDivergence(sessionGuesses, serverGuesses, userId);
     return divergence;
   }, [sessionGuesses, serverGuesses, userId, enabled]);
 
@@ -217,13 +190,7 @@ export function useAnalytics({
       checkDivergence,
       getAnalyticsSummary,
     }),
-    [
-      trackGuess,
-      trackCompletion,
-      trackHintView,
-      checkDivergence,
-      getAnalyticsSummary,
-    ],
+    [trackGuess, trackCompletion, trackHintView, checkDivergence, getAnalyticsSummary],
   );
 }
 

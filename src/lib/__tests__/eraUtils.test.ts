@@ -46,13 +46,13 @@ describe("eraUtils", () => {
       it("should warn and convert negative years to positive", () => {
         expect(convertToInternalYear(-776, "BC")).toBe(-776);
         expect(consoleSpy).toHaveBeenCalledWith(
-          "convertToInternalYear: Year should be positive in UI representation",
+          "[WARN] convertToInternalYear: Year should be positive in UI representation",
         );
 
         consoleSpy.mockClear();
         expect(convertToInternalYear(-100, "AD")).toBe(100);
         expect(consoleSpy).toHaveBeenCalledWith(
-          "convertToInternalYear: Year should be positive in UI representation",
+          "[WARN] convertToInternalYear: Year should be positive in UI representation",
         );
       });
     });

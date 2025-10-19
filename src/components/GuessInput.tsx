@@ -8,6 +8,7 @@ import { validateGuessInputProps } from "@/lib/propValidation";
 import type { Era } from "@/lib/eraUtils";
 import { convertToInternalYear, isValidEraYear } from "@/lib/eraUtils";
 import { ANIMATION_DURATIONS } from "@/lib/animationConstants";
+import { logger } from "@/lib/logger";
 
 interface GuessInputProps {
   onGuess: (guess: number) => void;
@@ -83,7 +84,7 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
       try {
         internalYear = convertToInternalYear(yearValue, era);
       } catch (error) {
-        console.error("Failed to convert year:", error);
+        logger.error("Failed to convert year:", error);
         onValidationError?.("Failed to process year. Please try again.");
         return;
       }

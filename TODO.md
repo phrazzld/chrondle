@@ -1,552 +1,499 @@
-# TODO: Convex Backend Architectural Refactoring
+# TODO: Technical Debt Remediation
 
-## 🎉 REFACTORING COMPLETE - October 16, 2025
+## Context
 
-**Status**: ✅ Phases 2-5 Complete | ⏳ Manual smoke tests pending
+Source: TASK.md analysis across 8 technical debt items
+Approach: Module-first decomposition prioritizing high-impact fixes
+Testing Pattern: Follow existing test conventions in `src/lib/__tests__/`
 
-**Results Achieved**:
+## Phase 1: Critical Maintainability [High Impact, Medium Effort]
 
-- ✅ God objects eliminated: 1,422 lines → 60 lines barrel files (96% reduction)
-- ✅ 11 focused modules created (average 162 lines each)
-- ✅ Zero breaking changes: Barrel file pattern maintains backward compatibility
-- ✅ 500/500 automated tests passing
-- ✅ Zero TypeScript errors
-- ✅ Deep modules: Simple interfaces (1-6 functions) hiding complex logic
-- ✅ Single responsibility: Each module owns ONE domain responsibility
-- ✅ Comprehensive documentation: convex/README.md created (500+ lines)
+### 1.1 Create Tests for enhancedFeedback.ts (314 lines, 0 tests)
 
-**Module Breakdown**:
+**Impact**: 10/10 - Enables safe refactoring of complex conditional logic
+**Effort**: 3h
 
-- puzzles/ (4 modules, 561 lines): queries, mutations, generation, context
-- plays/ (2 modules, 164 lines): queries, statistics
-- users/ (3 modules, 463 lines): queries, mutations, statistics
-- migration/ (1 module, 437 lines): anonymous data merge with validation
-- streaks/ (1 module, 108 lines): streak calculation
-- system/ (1 module, 53 lines): cron scheduling
-
-**Outstanding**:
-
-- ⏳ Manual smoke tests (browser testing required - see Phase 5)
-- 📋 Address BACKLOG items (security fixes, UX improvements)
-
----
-
-## Original Context
-
-- **Original State**: 1,422 lines of god objects across puzzles.ts (690L) and users.ts (732L)
-- **Problem**: 7 distinct responsibilities in puzzles.ts, 5 in users.ts, 80 lines of duplicated code
-- **Approach**: Extract focused modules with clear boundaries, eliminate duplication
-- **Key Pattern**: Each module owns ONE responsibility, hides implementation complexity
-- **Validation**: `pnpm type-check`, all imports auto-update via Convex codegen
-
-## Phase 1: Extract Puzzle Generation Module (Eliminate Duplication)
-
-**Goal**: DRY violation elimination first - extract shared generation logic
-
-- [x] **Create `convex/puzzles/generation.ts` with shared helper**
+- [x] Create test suite for proximity severity classification
 
   ```
-  Files: convex/puzzles/generation.ts (NEW), convex/puzzles.ts:40-80, 178-212
-  Approach: Extract `selectYearForPuzzle(ctx)` helper from duplicated code
-  Module: Single responsibility - puzzle year selection algorithm
-  Interface: async function selectYearForPuzzle(ctx: QueryCtx): Promise<{ year, events }>
-  Success: Both generateDailyPuzzle and ensureTodaysPuzzle call helper, duplicate code removed
-  Test: Existing puzzles.ts tests still pass, generation logic unchanged
+  Files: NEW src/lib/__tests__/enhancedFeedback.test.ts
+  Approach: Follow displayFormatting.test.ts pattern (describe/it structure)
+  Test Coverage: Distance thresholds (0, 5, 10, 25, 50, 100, 500, 1000+)
+  Success: All severity branches covered (perfect/excellent/good/okay/cold/frozen)
+  Time: 45min
+  Work Log:
+  - Created comprehensive test suite with 53 tests covering all functionality
+  - Tests verify proximity severity classification (perfect → frozen)
+  - Tests verify BC/AD era transitions and boundary cases
+  - Tests verify progressive improvement tracking (better/worse/same/neutral)
+  - Tests verify encouragement message generation
+  - Tests verify historical context hints
+  - Tests verify message consistency and completeness
+  - All 53 tests passing
+  ```
+
+- [x] Add tests for BC/AD era transitions and boundaries
+
+  ```
+  Files: src/lib/__tests__/enhancedFeedback.test.ts
+  Test Coverage: BC→AD transitions, era boundary edge cases (year 0, -1, 1)
+  Success: Era hint logic verified, no off-by-one errors
+  Time: 30min
+  ```
+
+- [x] Test random message selection and consistency
+
+  ```
+  Files: src/lib/__tests__/enhancedFeedback.test.ts
+  Test Coverage: Message randomization, encouragement text variations
+  Success: All message paths exercised, no undefined returns
+  Time: 30min
+  ```
+
+- [x] Test progressive improvement tracking logic
+
+  ```
+  Files: src/lib/__tests__/enhancedFeedback.test.ts
+  Test Coverage: Better/worse/same/neutral detection, distance comparison
+  Success: Improvement detection accurate across all scenarios
   Time: 45min
   ```
 
-  **Implementation Details**:
+- [x] Test overlapping threshold edge cases
+  ```
+  Files: src/lib/__tests__/enhancedFeedback.test.ts
+  Test Coverage: Boundary values (exactly 5, 10, 25, 50, 100, 500, 1000)
+  Success: No ambiguous classifications, clear threshold behavior
+  Time: 30min
+  ```
 
-  - Extract lines 40-80 from puzzles.ts (unused event query + year selection)
-  - Helper function returns `{ year: number, events: Event[], availableEvents: number }`
-  - Import helper in puzzles.ts and replace both duplicated blocks
-  - Preserve all logic: yearCounts Map, filtering 6+ events, random selection
-  - NO behavior changes - pure refactor
+### 1.2 Type-Enforce PuzzleType Business Rule
 
-- [x] **Update `generateDailyPuzzle` to use helper**
+**Impact**: 10/10 - Prevents silent bugs from comment removal
+**Effort**: 2h
+
+- [x] Create PuzzleType discriminated union in types
 
   ```
-  Files: convex/puzzles.ts:15-140
-  Approach: Replace lines 40-80 with call to selectYearForPuzzle()
-  Success: Function compiles, generates puzzles correctly
-  Test: Run generation manually with `convex run puzzles:generateDailyPuzzle`
+  Files: NEW convex/lib/puzzleType.ts
+  Approach: Discriminated union { type: 'daily' | 'archive'; date: string }
+  Success: Type compiles, clear distinction enforced at compile time
+  Module: Self-documenting business rule through types
+  Time: 30min
+  Work Log:
+  - Created convex/lib/puzzleType.ts with discriminated union
+  - Implemented classifyPuzzle() to derive type from date (single source of truth)
+  - Added isDailyPuzzle() and isArchivePuzzle() type guards
+  - Comprehensive JSDoc explaining business rule enforcement
+  - No schema change needed - classification derived from date vs. today
+  ```
+
+- [x] Refactor streak update logic to use type discrimination
+  ```
+  Files: convex/lib/streakHelpers.ts
+  Approach: Use classifyPuzzle() and isDailyPuzzle() type guard
+  Success: Early return logic preserved, type-safe, self-documenting
   Time: 15min
+  Work Log:
+  - Replaced date comparison with type-safe classification
+  - Import classifyPuzzle and isDailyPuzzle from puzzleType module
+  - Updated logging to show puzzleType in warning messages
+  - All 15 archive puzzle streak tests pass
+  - All 60 streak calculation tests pass
+  - Business rule now self-documenting through types
   ```
 
-- [x] **Update `ensureTodaysPuzzle` to use helper**
+### 1.3 Standardize Puzzle Terminology
+
+**Impact**: 9/10 - Eliminates category of type confusion bugs
+**Effort**: 3h
+
+- [x] Define canonical Puzzle interface with consistent naming
+
   ```
-  Files: convex/puzzles.ts:155-239
-  Approach: Replace lines 178-212 with call to selectYearForPuzzle()
-  Success: Function compiles, ensures puzzle correctly
-  Test: Frontend puzzle loading still works
+  Files: NEW src/types/puzzle.ts
+  Approach: Single source of truth - id: Id<"puzzles">, puzzleNumber: number, targetYear: number
+  Success: Interface compiles, removes string|Id union confusion
+  Module: Clear, non-overlapping field names
+  Time: 30min
+  Work Log:
+  - Created src/types/puzzle.ts with canonical Puzzle interface
+  - Defined id: Id<"puzzles"> (no string union confusion)
+  - Renamed "year" to "targetYear" (eliminates ambiguity)
+  - Added PuzzleWithContext for optional historicalContext
+  - Implemented type guards: hasHistoricalContext(), isValidPuzzle()
+  - Comprehensive JSDoc explaining field purposes and design rationale
+  - Type-check passes - ready for migration
+  ```
+
+- [x] Update all Puzzle references to use canonical interface
+
+  ```
+  Files: All files using Puzzle type (7 files migrated)
+  Approach: Replace puzzleId with id, year with targetYear
+  Success: Type-check passes, no union confusion
+  Time: 90min
+  Work Log:
+  - Migrated src/types/gameState.ts to import and re-export canonical Puzzle
+  - Updated src/lib/gameState.ts to use canonical Puzzle (removed legacy interface)
+  - Fixed field references: puzzle.year → puzzle.targetYear, puzzle.puzzleId → puzzle.id
+  - Updated src/lib/debugUtilities.ts field access (targetYear)
+  - Updated src/lib/puzzleData.ts to use canonical Puzzle with proper Id<"puzzles"> casting
+  - Updated src/hooks/data/usePuzzleData.ts to return PuzzleWithContext
+  - Fixed 3 test files: useChrondle.race-condition, id-validation.integration, deriveGameState.unit
+  - Added Id<"puzzles"> type casts to all test mock data
+  - Removed Progress.puzzleId string union (now only Id<"puzzles">)
+  - All 553 tests passing, type-check clean
+  ```
+
+- [x] Remove legacy string union types
+  ```
+  Files: Completed during previous migration task
+  Approach: Removed string unions from Progress interface, enforced Id<"puzzles">
+  Success: No legacy types remain, all usages migrated
+  Time: Included in previous task
+  Work Log:
+  - Progress.puzzleId changed from Id<"puzzles"> | string to Id<"puzzles"> only
+  - All Puzzle interfaces now use id: Id<"puzzles"> (no string union)
+  - Legacy gameState.ts Puzzle interface removed entirely
+  - Type-check confirms no string|Id unions remain in Puzzle types
+  ```
+
+## Phase 2: Code Quality & Organization [High Impact, Low-Medium Effort]
+
+### 2.1 Split utils.ts Dumping Ground
+
+**Impact**: 9/10 - Eliminates primary anti-pattern
+**Effort**: 3h
+
+- [x] Create `src/lib/display/formatting.ts` module
+
+  ```
+  Files: NEW src/lib/display/formatting.ts, MOVE formatYear, formatCountdown, getTimeUntilMidnight
+  Approach: Extract display formatting functions from utils.ts
+  Success: Functions moved, imports updated, tests pass
+  Module: Single responsibility (time/countdown formatting)
+  Dependencies: None (pure functions)
+  Time: 45min
+  Work Log:
+  - Created src/lib/display/formatting.ts with formatCountdown() and getTimeUntilMidnight()
+  - Removed formatYear, formatCountdown, getTimeUntilMidnight from utils.ts
+  - Updated useCountdown.ts import to use new module
+  - Updated formatYear test to import from displayFormatting.ts
+  - Note: formatYear already existed in displayFormatting.ts (comprehensive module)
+  - All 553 tests passing, type-check clean
+  ```
+
+- [x] Create `src/lib/game/proximity.ts` module
+
+  ```
+  Files: NEW src/lib/game/proximity.ts, MOVE getGuessDirectionInfo, generateWordleBoxes
+  Approach: Extract guess feedback logic from utils.ts
+  Success: Functions moved, game logic centralized
+  Module: Single responsibility (proximity feedback)
+  Time: 45min
+  Work Log:
+  - Created src/lib/game/proximity.ts with getGuessDirectionInfo() and generateWordleBoxes()
+  - Added comprehensive JSDoc with examples and threshold documentation
+  - Updated 3 import locations: archive/puzzle/[id]/page.tsx, Timeline.tsx, useScreenReaderAnnouncements.ts
+  - Updated utils.ts to import generateWordleBoxes for generateEmojiTimeline dependency
+  - Removed duplicate functions from utils.ts
+  - All 553 tests passing, type-check clean
+  ```
+
+- [x] Create `src/lib/sharing/generator.ts` module
+
+  ```
+  Files: NEW src/lib/sharing/generator.ts, MOVE generateShareText, generateEmojiTimeline
+  Approach: Extract social sharing generation
+  Success: Sharing logic isolated, clean imports
+  Module: Single responsibility (share content)
+  Dependencies: Import from game/proximity.ts
+  Time: 45min
+  Work Log:
+  - Created src/lib/sharing/generator.ts with three functions:
+    - formatClosestGuessMessage() (internal helper)
+    - generateEmojiTimeline() (public API)
+    - generateShareText() (public API with enhanced metadata)
+  - Updated import in useShareGame.ts from utils to sharing/generator
+  - Removed all three functions from utils.ts
+  - All 553 tests passing, type-check clean
+  - Social sharing generation now isolated in single-responsibility module
+  ```
+
+- [x] Create `src/lib/game/statistics.ts` module
+
+  ```
+  Files: NEW src/lib/game/statistics.ts, MOVE calculateClosestGuess
+  Approach: Extract stats calculation
+  Success: Stats logic centralized
+  Module: Single responsibility (game statistics)
+  Time: 30min
+  Work Log:
+  - Created src/lib/game/statistics.ts with calculateClosestGuess() function
+  - Added ClosestGuessResult interface for type safety
+  - Updated import in sharing/generator.ts from utils to game/statistics
+  - Removed calculateClosestGuess from utils.ts
+  - Removed unused generateWordleBoxes import from utils.ts
+  - All 553 tests passing, type-check clean
+  - Game statistics now isolated in single-responsibility module
+  ```
+
+- [x] Create `src/lib/ui/streak-styling.ts` module
+  ```
+  Files: NEW src/lib/ui/streak-styling.ts, MOVE getStreakColorClasses
+  Approach: Extract UI styling helpers
+  Success: UI styling isolated from business logic
+  Module: Single responsibility (UI styling)
   Time: 15min
+  Work Log:
+  - Created src/lib/ui/streak-styling.ts with getStreakColorClasses() function
+  - Added StreakColorClasses interface for type safety
+  - Documented progressive color tiers (0 → 1-2 → 3-6 → 7-13 → 14-29 → 30-99 → 100+)
+  - Updated import in AppHeader.tsx from utils to ui/streak-styling
+  - Removed getStreakColorClasses and interface from utils.ts
+  - All 553 tests passing, type-check clean
+  - UI styling now isolated from business logic in dedicated module
   ```
 
-## Phase 2: Split puzzles.ts God Object (7 → 7 Focused Modules)
+### 2.2 Improve Function Naming & Documentation
 
-**Goal**: Clear module boundaries, each ~100 lines with single responsibility
+**Impact**: 8/10 - Reduces developer confusion
+**Effort**: 30min
 
-- [x] **Create `convex/puzzles/queries.ts` - Puzzle retrieval**
-
-  ```
-  Files: convex/puzzles/queries.ts (NEW)
-  Extract: getDailyPuzzle, getPuzzleById, getPuzzleByNumber, getArchivePuzzles, getTotalPuzzles, getPuzzleYears
-  Module: Single responsibility - read-only puzzle access
-  Interface: 6 query functions, all return Puzzle or Puzzle[]
-  Success: All queries compile, frontend imports auto-update
-  Test: Archive page loads, daily puzzle loads, puzzle by ID works
-  Time: 1h
-  ```
-
-  **Implementation Notes**:
-
-  - Created 129-line focused module for puzzle retrieval
-  - Added re-exports in puzzles.ts for backward compatibility
-  - Reduced puzzles.ts from ~690L to 539L (-151 lines)
-  - Type checking passes, no breaking changes
-
-  **Module Design**:
-
-  - Lines: ~150 (6 queries × 25 lines avg)
-  - Dependencies: schema.ts only
-  - Exports: query functions only
-  - No side effects, pure data retrieval
-
-- [x] **Create `convex/puzzles/mutations.ts` - Game actions**
+- [x] Rename mergeGuesses to reconcileGuessesWithPriority
 
   ```
-  Files: convex/puzzles/mutations.ts (NEW)
-  Extract: submitGuess
-  Module: Single responsibility - game state mutations
-  Interface: 1 mutation function
-  Success: Guess submission works, frontend imports update
-  Test: Make guess in game, verify mutation succeeds
-  Time: 30min
+  Files:
+  - src/lib/deriveGameState.ts:45 (function definition)
+  - src/lib/deriveGameState.ts:128 (call site)
+  - src/lib/__tests__/deriveGameState.unit.test.ts:4 (import)
+  - src/lib/__tests__/deriveGameState.unit.test.ts:294+ (test suite)
+
+  Pattern: Follow JSDoc style from displayFormatting.ts with @example blocks
+
+  Approach:
+  1. Rename function from mergeGuesses → reconcileGuessesWithPriority
+  2. Update JSDoc to emphasize THREE behaviors (not just "merge"):
+     - Deduplication: Removes duplicates between server and session
+     - Priority ordering: Server guesses come first (source of truth)
+     - Capping: Result capped at MAX_GUESSES (6)
+  3. Add @example block showing typical reconciliation scenario
+  4. Add @example block showing deduplication behavior
+  5. Update all call sites and imports to use new name
+  6. Update test suite describe() block name
+  7. Run tests to verify no behavior changed
+
+  Success criteria:
+  - Function renamed in all 4 locations
+  - JSDoc has comprehensive description with 2+ examples
+  - All 22 tests in deriveGameState.unit.test.ts pass
+  - Type-check passes
+
+  Edge cases already handled:
+  - Empty arrays (both, one, or none)
+  - Duplicates within session guesses
+  - Result exceeding MAX_GUESSES
+
+  Time: 20min
+
+  Work Log:
+  - Renamed mergeGuesses → reconcileGuessesWithPriority in all 4 locations
+  - Updated JSDoc with comprehensive description emphasizing THREE behaviors
+  - Added 3 @example blocks: typical reconciliation, deduplication, capping
+  - Updated function signature and call site in deriveGameState.ts
+  - Updated import and test suite describe() in deriveGameState.unit.test.ts
+  - All 22 tests passing, type-check clean
+  - Function name now self-documenting: "reconcile" + "priority" clearly communicate intent
   ```
 
-  **Implementation Notes**:
+### 2.3 Migrate console.log to Structured Logger
 
-  - Created 239-line module with submitGuess mutation
-  - Includes helper functions (temporary until Phase 2 tasks 5-6):
-    - updatePuzzleStats → will move to plays/statistics.ts
-    - updateUserStreak → will move to streaks/mutations.ts
-  - Added re-export in puzzles.ts for backward compatibility
-  - Reduced puzzles.ts from 539L to 354L (-185 lines)
-  - Type checking passes, no breaking changes
+**Impact**: 8/10 - Clean console, structured logs
+**Effort**: 3h
 
-- [x] **Move generation to `convex/puzzles/generation.ts`**
+- [x] Configure ESLint no-console rule with logger exceptions
 
   ```
-  Files: convex/puzzles/generation.ts (already exists), move generateDailyPuzzle, ensureTodaysPuzzle
-  Extract: generateDailyPuzzle, ensureTodaysPuzzle, manualGeneratePuzzle
-  Module: Single responsibility - puzzle creation
-  Interface: 2 internal mutations + 1 public mutation
-  Success: Cron job creates puzzles, manual generation works
-  Test: Check cron execution, verify puzzle creation
-  Time: 45min
-  ```
-
-  **Implementation Notes**:
-
-  - Consolidated 3 generation functions into existing generation.ts module
-  - Module now contains 264 lines with complete generation logic
-  - Added re-exports in puzzles.ts for backward compatibility
-  - Reduced puzzles.ts from 354L to 197L (-157 lines)
-  - Type checking passes, no breaking changes
-
-- [x] **Create `convex/plays/queries.ts` - User progress tracking**
-
-  ```
-  Files: convex/plays/queries.ts (NEW)
-  Extract: getUserPlay, getUserCompletedPuzzles
-  Module: Single responsibility - read user play data
-  Interface: 2 query functions
-  Success: Frontend progress loads, archive shows completed
-  Test: Check game progress, verify archive filtering
-  Time: 30min
-  ```
-
-  **Implementation Notes**:
-
-  - Created 111-line module with 2 query functions
-  - getUserPlay: Defensive programming with null returns on errors
-  - getUserCompletedPuzzles: Archive filtering for completed puzzles
-  - Added re-export in puzzles.ts for backward compatibility
-  - Reduced puzzles.ts from 197L to 120L (-77 lines)
-  - Type checking passes, no breaking changes
-
-- [x] **Create `convex/plays/statistics.ts` - Puzzle stats**
-
-  ```
-  Files: convex/plays/statistics.ts (NEW)
-  Extract: updatePuzzleStats (from puzzles/mutations.ts)
-  Module: Single responsibility - aggregate puzzle statistics
-  Interface: Internal function updatePuzzleStats(ctx, puzzleId)
-  Success: Stats update after game completion
-  Test: Complete puzzle, verify playCount and avgGuesses update
-  Time: 45min
-  ```
-
-  **Implementation Notes**:
-
-  - Created 53-line module for statistics calculation
-  - Calculates playCount and avgGuesses from completed plays
-  - Imported into mutations.ts to maintain functionality
-  - Reduced mutations.ts from 239L to 208L (-31 lines)
-  - Type checking passes, no breaking changes
-
-- [x] **Create `convex/streaks/mutations.ts` - Streak management**
-
-  ```
-  Files: convex/streaks/mutations.ts (NEW)
-  Extract: updateUserStreak (from puzzles/mutations.ts:135-207)
-  Module: Single responsibility - user streak updates
-  Interface: Internal function updateUserStreak(ctx, userId, hasWon, puzzleDate)
-  Success: Streaks update correctly, archive puzzles don't affect streaks
-  Test: Complete daily puzzle → streak updates, complete archive → no streak change
-  Time: 45min
-  ```
-
-  **Implementation Notes**:
-
-  - Created 108-line module with updateUserStreak function
-  - Extracted from puzzles/mutations.ts (207L → 115L, -92 lines)
-  - Critical business rule: Archive puzzles (puzzleDate !== today) do NOT update streaks
-  - All tests pass, type checking clean
-
-  **Critical Business Rule**: Archive puzzles (puzzleDate !== today) do NOT update streaks
-
-  - Enforced via early return when puzzleDate !== getUTCDateString()
-  - Console warnings log skip reason for debugging
-  - Prevents historical/archive plays from affecting daily streaks
-
-- [x] **Create `convex/system/scheduling.ts` - Cron utilities**
-
-  ```
-  Files: convex/system/scheduling.ts (NEW)
-  Extract: getCronSchedule (from puzzles.ts:29-73)
-  Module: Single responsibility - system scheduling info
-  Interface: 1 query function
-  Success: Countdown timer shows correct schedule
-  Test: Check homepage countdown display
+  Files: eslint.config.mjs
+  Approach: Enable no-console, allow logger.* methods
+  Success: Lint fails on console.* usage
   Time: 15min
+  Work Log:
+  - Changed no-console rule from ["error", { "allow": ["warn", "error"] }] to "error" (disallow all console)
+  - Added exception for src/lib/logger.ts (where logger is implemented)
+  - Added exception for scripts/**/*.js, scripts/**/*.mjs (build scripts need console)
+  - Added exception for **/__tests__/**, **/*.test.ts, **/*.test.tsx (test files can use console)
+  - Verified lint now catches console usage across codebase
+  - Found ~145 console.* calls that need migration to logger
   ```
 
-  **Implementation Notes**:
-
-  - Created 53-line module for cron schedule queries
-  - Extracted from puzzles.ts (119L → 40L after all extractions)
-  - Re-exported in puzzles.ts for backward compatibility
-  - Type checking passes, no breaking changes
-
-- [x] **Create `convex/puzzles/context.ts` - Historical context**
+- [x] Migrate 145 console.\* calls to logger usage
 
   ```
-  Files: convex/puzzles/context.ts (NEW)
-  Extract: updateHistoricalContext (from puzzles.ts:76-119)
-  Module: Single responsibility - AI context generation
-  Interface: 1 internal mutation
-  Success: Context generates after puzzle creation
-  Test: Verify new puzzles have historicalContext field populated
-  Time: 30min
+  Files: 40 files across src/ (see grep results)
+  Approach: Replace console.log → logger.debug, console.error → logger.error
+  Success: All console.* calls migrated, lint passes
+  Pattern: console.log → logger.debug (development only)
+          console.error → logger.error (always logged)
+          console.warn → logger.warn
+  Time: 2h 30min
+  Work Log:
+  - Migrated 42 files (excluding src/lib/logger.ts which implements logger)
+  - Replaced ~145 console.* calls with logger.* calls
+  - Added logger imports to all affected files
+  - Migration pattern: console.log → logger.debug, console.error → logger.error, console.warn → logger.warn
+  - Fixed broken imports in useMutationWithRetry.ts
+  - Added missing logger imports to 5 files (curatedYears, statistics, propValidation, themeSupport, wdyr)
+  - Removed unused logger imports from 3 files (gameState types, puzzle types, useUserProgress)
+  - Preserved console.groupCollapsed/groupEnd in wdyr.ts for Why Did You Render debugging tool
+  - Zero no-console violations remaining (verified with lint)
+  - Type-check passes, all 553 tests pass
+  - Now using 214 logger.* calls throughout codebase for structured logging
   ```
 
-  **Implementation Notes**:
-
-  - Created 53-line module for historical context updates
-  - Extracted from puzzles.ts (119L → 40L after all extractions)
-  - Called by historicalContext action via internal.puzzles.updateHistoricalContext
-  - Re-exported in puzzles.ts for backward compatibility
-
-- [x] **Delete `convex/puzzles.ts` after migration verification** - SKIPPED (keeping as barrel file)
+- [x] Verify no secrets in logger output
   ```
-  Decision: Keep puzzles.ts as permanent barrel file for backward compatibility
-  Rationale: Deep Module principle - simple interface (api.puzzles.*) hiding complex implementation
-  Frontend: 13 files use api.puzzles.* - zero migration needed
-  Status: puzzles.ts reduced to 40-line barrel file with re-exports
-  ```
-
-## Phase 3: Split users.ts God Object (1 → 5 Focused Modules)
-
-**Goal**: Separate user CRUD, auth, migration, validation, statistics
-
-- [x] **Create `convex/users/queries.ts` - User retrieval**
-
-  ```
-  Files: convex/users/queries.ts (NEW)
-  Extract: getCurrentUser, getUserByClerkId, userExists, getUserStats
-  Module: Single responsibility - read-only user access
-  Interface: 4 query functions
-  Success: User data loads correctly, stats display
-  Test: Sign in, verify user data, check stats page
-  Time: 45min
+  Files: All migrated logger calls (214 total across 52 files)
+  Approach: Audit logger.* calls for API keys, tokens
+  Success: No sensitive data logged
+  Time: 45min (extended for security fix)
+  Work Log:
+  - Audited all 214 logger.* calls across src/ and convex/ directories
+  - Found CRITICAL vulnerability: OpenRouter API errors logged without sanitization
+  - Implemented sanitizeErrorForLogging() to redact sk-or-v1-* API keys
+  - Applied sanitization to all 4 error logging locations in historicalContext.ts
+  - Added ESLint exception for Convex actions (Node.js context)
+  - Verified safe patterns: env vars, localStorage keys, auth flags
+  - Created comprehensive audit report: docs/security/LOGGER_AUDIT_2025-10-17.md
+  - Fixes [SECURITY] HIGH - API Key Exposure in Error Messages (BACKLOG.md:22-29)
   ```
 
-  **Implementation Notes**:
+## Phase 3: Performance & Future-Proofing [Medium Impact, Low Effort]
 
-  - Created 157-line module with 4 query functions
-  - Extracted from users.ts (732L → 626L, -106 lines)
-  - getCurrentUser: Get authenticated user data
-  - getUserByClerkId: Get user by Clerk ID (webhooks/internal)
-  - userExists: Check existence with optional clerkId
-  - getUserStats: User statistics with recent play history
-  - Re-exported in users.ts for backward compatibility
-  - All tests pass, type checking clean
+### 3.1 Optimize mergeGuesses from O(n²) to O(n)
 
-- [x] **Create `convex/users/mutations.ts` - User management**
+**Impact**: 6/10 - Future-proofs for archive mode
+**Effort**: 15min
 
+- [x] Replace .includes() with Set for O(1) lookups
   ```
-  Files: convex/users/mutations.ts (NEW)
-  Extract: createUser, createUserFromWebhook, getOrCreateCurrentUser, updateUsername
-  Module: Single responsibility - user CRUD operations
-  Interface: 2 internal mutations + 2 public mutations
-  Success: Webhook creates users, username updates work
-  Test: Trigger webhook, update username, verify changes
-  Time: 1h
-  ```
-
-  **Implementation Notes**:
-
-  - Created 206-line module with 4 mutation functions
-  - Extracted from users.ts (626L → 463L, -163 lines)
-  - createUser: Internal mutation for webhook user creation
-  - createUserFromWebhook: Public webhook mutation
-  - getOrCreateCurrentUser: JIT user creation for authenticated users
-  - updateUsername: Update user display name
-  - Re-exported in users.ts for backward compatibility
-  - All tests pass, type checking clean
-
-- [x] **Create `convex/users/statistics.ts` - User stats aggregation**
-
-  ```
-  Files: convex/users/statistics.ts (NEW)
-  Extract: updateUserStats
-  Module: Single responsibility - calculate user metrics
-  Interface: Internal function updateUserStats(ctx, userId)
-  Success: Stats update after game completion
-  Test: Complete game, verify totalPlays and perfectGames increment
-  Time: 30min
+  Files: src/lib/deriveGameState.ts:42-63
+  Approach: const serverSet = new Set(serverGuesses); if (!serverSet.has(guess))
+  Success: O(n+m) linear complexity, tests pass unchanged
+  Performance: 0.5ms → 0.05ms (~10x faster), scales to 100+ guesses
+  Time: 15min
+  Work Log:
+  - Replaced .includes() with Set.has() for O(1) lookups
+  - Added serverSet.add() to track session guesses and avoid duplicates
+  - Updated JSDoc to document O(n+m) complexity
+  - All 22 deriveGameState tests pass
+  - Type-check passes
   ```
 
-  **Implementation Notes**:
+### 3.2 Remove Deprecated Functions
 
-  - Created 100-line module with updateUserStats function
-  - Extracted from users.ts (463L → 404L, -59 lines)
-  - Tracks totalPlays, perfectGames (1-guess wins), streaks
-  - Streak logic: Continues if previous was yesterday, resets on gaps/failures
-  - Re-exported in users.ts for backward compatibility
-  - All tests pass, type checking clean
+**Impact**: 6/10 - Reduces confusion, cleaner codebase
+**Effort**: 1h
 
-- [x] **Create `convex/migration/anonymous.ts` - Anonymous data merge**
+- [x] Delete getDailyYear() placeholder function
 
   ```
-  Files: convex/migration/anonymous.ts (NEW)
-  Extract: mergeAnonymousState, mergeAnonymousStreak
-  Module: Single responsibility - anonymous → authenticated migration
-  Interface: 2 mutation functions
-  Success: Anonymous data merges on sign-in
-  Test: Play anonymously, sign in, verify streak preserved
-  Time: 1.5h
+  Files: src/lib/gameState.ts:51-65
+  Approach: Remove function entirely, verify no references
+  Success: Function deleted, no broken imports
+  Time: 20min
   ```
 
-  **Implementation Notes**:
-
-  - Created 437-line module with 2 mutations + helper functions
-  - Extracted from users.ts (404L → 20L, -384 lines)
-  - mergeAnonymousState: Merges anonymous game progress to authenticated account
-  - mergeAnonymousStreak: Validates and merges anonymous streaks with server streaks
-  - Security: Comprehensive validation (date format, future dates, 90-day limit, max 365 days, consistency checks)
-  - Merge strategy: Combines consecutive streaks, otherwise keeps longer streak
-  - Helper functions: validateAnonymousStreak (6 rules), getStreakFirstDay (calculates streak start)
-  - Defensive: Doesn't break auth flow on merge failures
-  - Re-exported in users.ts for backward compatibility
-  - All tests pass, type checking clean
-
-  **Security Enhancement**: ✅ Implemented in extraction
-
-  - Comprehensive validation prevents streak manipulation
-  - 90-day window prevents old data abuse
-  - 365-day max cap prevents unrealistic streaks
-  - Date consistency checks prevent gaming the system
-  - Note: `sessionId`/rate limiting deferred (see BACKLOG for future enhancement)
-
-- [x] **Create `convex/migration/validation.ts` - Streak validation** - COMPLETED (merged into anonymous.ts)
+- [x] Delete initializePuzzle() deprecated logic
 
   ```
-  Decision: Validation logic kept in convex/migration/anonymous.ts
-  Rationale: Validation is tightly coupled to merge logic - splitting creates shallow modules
-  Implementation: validateAnonymousStreak helper function in anonymous.ts:58-144 (87 lines)
-  Security: 6 comprehensive validation rules prevent client-side manipulation
-  Test: 13 tests in convex/__tests__/mergeAnonymousStreak.test.ts cover all validation paths
-  Status: Complete - validation integrated with merge mutations
+  Files: src/lib/gameState.ts:68-105
+  Approach: Remove 30+ lines of dead code
+  Success: Dead code removed, no production impact
+  Time: 20min
+  Work Log:
+  - Removed getDailyYear() (15 lines) and initializePuzzle() (37 lines)
+  - Removed unused getPuzzleForYear import
+  - Added migration comment directing to useChrondle hook
+  - Type-check passes
   ```
 
-- [x] **Delete `convex/users.ts` after migration verification** - SKIPPED (keeping as barrel file)
+- [x] Add deprecation notes to CHANGELOG.md
   ```
-  Decision: Keep users.ts as permanent barrel file for backward compatibility
-  Rationale: Deep Module principle - simple interface (api.users.*) hiding complex implementation
-  Frontend: Multiple files use api.users.* - zero migration needed
-  Status: users.ts reduced to 20-line barrel file with re-exports
-  ```
-
-## Phase 4: Update Frontend Imports
-
-**Goal**: All frontend code uses new module paths
-
-**STATUS**: ✅ **PHASE COMPLETE - NO CHANGES NEEDED**
-
-**Implementation Notes**:
-
-- Barrel file pattern maintains backward compatibility
-- `convex/puzzles.ts` re-exports from focused modules → `api.puzzles.*` still works
-- `convex/users.ts` re-exports from focused modules → `api.users.*` still works
-- TypeScript compilation clean: `pnpm type-check` ✅
-- All 500 tests passing: `pnpm test:ci` ✅
-- Frontend imports require NO updates (Deep Module principle - simple interface hiding complex implementation)
-
-**Verification**:
-
-```bash
-# Found 13 files using api imports - all still work correctly
-grep -r "from.*convex.*generated.*api" src/
-# Examples still working:
-# - api.puzzles.getDailyPuzzle (via puzzles.ts → puzzles/queries.ts)
-# - api.users.getCurrentUser (via users.ts → users/queries.ts)
-# - api.users.mergeAnonymousStreak (via users.ts → migration/anonymous.ts)
-```
-
-- [x] **Update all `api.puzzles.*` imports** - NOT NEEDED (barrel file pattern)
-- [x] **Update all `api.users.*` imports** - NOT NEEDED (barrel file pattern)
-
-## Phase 5: Test Coverage & Validation
-
-**Goal**: Verify no regressions, all functionality preserved
-
-- [x] **Run full test suite**
-
-  ```
-  Command: pnpm test:ci
-  Success: ✅ All 500 tests pass (27 test files)
-  Coverage: No decrease - all existing tests pass
-  Time: 3.95s
+  Files: CHANGELOG.md
+  Approach: Document removed functions, migration path (use Convex)
+  Success: Clear migration guide for any external consumers
+  Time: 20min
+  Work Log:
+  - Created new CHANGELOG.md following Keep a Changelog format
+  - Documented removal of getDailyYear() and initializePuzzle()
+  - Provided migration examples using useChrondle() hook
+  - Explained rationale (Convex backend replaces static database)
   ```
 
-  **Test Results**:
+## Quality Gates
 
-  - Core game logic: 22 tests ✅
-  - Secure storage: 21 tests ✅
-  - React hooks: 39 tests ✅
-  - Archive puzzle streaks: 15 tests ✅
-  - Anonymous streak merge: 13 tests ✅
-  - Integration tests: 18 tests ✅
+**After each module/phase:**
 
-- [x] **Run type checking**
+- [ ] `pnpm type-check` passes - no type errors
+- [ ] `pnpm lint` passes - no new warnings
+- [ ] `pnpm test` passes - all tests green
+- [ ] Module has single, clear responsibility
 
-  ```
-  Command: pnpm type-check
-  Success: ✅ Zero TypeScript errors
-  Time: ~5s
-  ```
+**Before marking complete:**
 
-  **Verification**: Barrel file re-exports maintain full type safety across all modules
-
-- [ ] **Manual smoke tests** - REQUIRES USER TESTING
-
-  ```
-  Tests (user must verify in browser):
-  - [ ] Daily puzzle loads and is playable (uses api.puzzles.getDailyPuzzle → puzzles/queries.ts)
-  - [ ] Archive page displays completed puzzles (uses api.puzzles.getUserCompletedPuzzles → plays/queries.ts)
-  - [ ] Guess submission works and updates stats (uses api.puzzles.submitGuess → puzzles/mutations.ts)
-  - [ ] Streaks update correctly for daily puzzles (uses updateUserStreak in streaks/mutations.ts)
-  - [ ] Anonymous play works (localStorage + local session hooks)
-  - [ ] Sign-in merges anonymous data (uses api.users.mergeAnonymousStreak → migration/anonymous.ts)
-  - [ ] Webhook creates users (uses api.users.createUserFromWebhook → users/mutations.ts)
-  - [ ] Historical context generates for new puzzles (uses updateHistoricalContext → puzzles/context.ts)
-
-  Success: All manual tests pass
-  Time: 30min
-
-  Note: Automated tests verify 500 unit/integration test cases.
-  Manual testing confirms end-to-end user flows work in production environment.
-  ```
-
-  **Module Coverage Map**:
-
-  ```
-  puzzles/queries.ts     → Daily puzzle loading
-  puzzles/mutations.ts   → Guess submission
-  puzzles/generation.ts  → Cron job puzzle creation
-  puzzles/context.ts     → AI historical context
-  plays/queries.ts       → User play history
-  plays/statistics.ts    → Play aggregation
-  users/queries.ts       → User data retrieval
-  users/mutations.ts     → User CRUD operations
-  users/statistics.ts    → User stats updates
-  migration/anonymous.ts → Anonymous data merge
-  streaks/mutations.ts   → Streak tracking
-  system/scheduling.ts   → Countdown timer
-  ```
-
-## Design Iteration Checkpoints
-
-**After Phase 2 (puzzles.ts split)**:
-
-- Review: Are module boundaries clear? Any coupling detected?
-- Measure: Lines per module (target ~100-150), function count (target 3-6 per module)
-- Consider: Any shared patterns that should be extracted to lib/?
-
-**After Phase 3 (users.ts split)**:
-
-- Review: Is migration logic properly isolated? Security concerns addressed?
-- Measure: Test coverage for new modules
-- Consider: Documentation needs for complex migration flows?
-
-**After Phase 5 (completion)**:
-
-- [x] Document: New module structure in convex/README.md ✅
-- [x] Metrics: Total lines reduced? God objects eliminated? Duplication removed? ✅
-  - God objects: 1,422L → 60L barrel files (96% reduction)
-  - Focused modules: 11 modules created (average 162 lines)
-  - Test coverage: 500/500 tests passing
-  - Zero breaking changes
-- [ ] Next: Address other BACKLOG items (security fixes, UX improvements)
-
-## Automation Opportunities
-
-**Identified Patterns**:
-
-- Extract mutation/query → Create new file → Update imports (repeatable)
-- Could create script: `scripts/split-convex-module.ts <source> <target> <functions...>`
-- Would automate: File creation, export extraction, import updates
-
-**Not Implementing Now**: Focus on manual refactor first, automate if pattern repeats
+- [ ] All 8 TASK.md items addressed
+- [ ] All tests green with improved coverage
+- [ ] Build succeeds: `pnpm build`
+- [ ] No deprecated code in production bundle
+- [ ] Module boundaries clear and documented
 
 ## Success Criteria
 
-- [x] Zero TypeScript errors (`pnpm type-check`) ✅
-- [x] All tests pass (`pnpm test`) ✅ 500/500 tests passing
-- [ ] No functional regressions (manual smoke tests pass) ⏳ Pending user browser testing
-- [x] 1,422 lines → focused modules ✅ Achieved: 1,422L → 60L barrel files + 1,786L focused modules
-- [x] puzzles.ts (690L) → 7 modules ✅ Achieved: 4 puzzles/ + 2 plays/ + 1 system/ = 7 modules
-- [x] users.ts (732L) → 5 modules ✅ Achieved: 3 users/ + 1 migration/ + 1 streaks/ = 5 modules
-- [x] Code organization improved ✅ 10/12 modules under 150 lines (83% success rate)
-- [x] Clear module boundaries (each module has single responsibility) ✅
-- [x] Convex API auto-generates correct paths ✅ Barrel files maintain backward compatibility
+- **Test Coverage**: enhancedFeedback.ts has 100% path coverage
+- **Type Safety**: PuzzleType enforced at compile time, no runtime checks
+- **Module Value**: Each new module has Functionality > Interface Complexity
+- **Performance**: mergeGuesses O(n) linear, scales to 100+ guesses
+- **Code Quality**: Zero console.\* calls, structured logging only
+- **Maintainability**: Clear naming, documented business rules
+- **Zero Regression**: All existing functionality preserved
 
-## Estimated Total Time
+## Time Estimate
 
-- Phase 1 (Duplication): 1h 15min
-- Phase 2 (puzzles.ts split): 5h 15min
-- Phase 3 (users.ts split): 5h
-- Phase 4 (Frontend imports): 1h 45min
-- Phase 5 (Testing): 45min
-- **Total: ~14 hours** (vs. original estimate 12h, more accurate with detailed breakdown)
+**Total**: ~16h
 
-## Notes
+**Phase 1** (Critical): ~8h
 
-- **Convex Auto-Generation**: API paths auto-update, TypeScript catches all import errors
-- **No Breaking Changes**: All functions preserve exact same behavior
-- **Test Safety Net**: Existing tests validate no regressions
-- **Incremental Migration**: Can merge after each phase if needed
-- **Module Value**: Each new module has Value = Functionality - Interface Complexity > 0
-  - Example: `generation.ts` hides 80 lines of complex logic behind simple `selectYearForPuzzle()` interface
+- enhancedFeedback tests: 3h
+- PuzzleType enforcement: 2h
+- Terminology standardization: 3h
+
+**Phase 2** (Organization): ~7h
+
+- utils.ts split: 3h
+- Function naming: 30min
+- Logger migration: 3h 30min
+
+**Phase 3** (Performance): ~1h 15min
+
+- mergeGuesses optimization: 15min
+- Deprecated function removal: 1h
+
+## Execution Strategy
+
+**Recommended Order**:
+
+1. Phase 1.1 (tests) - Enables safe refactoring
+2. Phase 1.2 (PuzzleType) - Prevents bugs
+3. Phase 3.1 (O(n) optimization) - Quick win
+4. Phase 2.1 (utils.ts split) - Major cleanup
+5. Phase 2.2 (naming) - Small polish
+6. Phase 1.3 (terminology) - Large refactor
+7. Phase 2.3 (logger migration) - Tedious but valuable
+8. Phase 3.2 (deprecated removal) - Final cleanup
+
+**Parallel Opportunities**:
+
+- Phase 1.1 and Phase 3.1 can run in parallel (different files)
+- Phase 2.1 modules can be created independently

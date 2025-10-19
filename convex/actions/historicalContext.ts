@@ -14,6 +14,64 @@ interface ErrorWithStatus extends Error {
   status?: number;
 }
 
+/**
+ * Sanitizes error messages and objects to prevent API key leakage
+ * Removes OpenRouter API keys (sk-or-v1-...) from error text and stack traces
+ *
+ * @param error - Error object or string to sanitize
+ * @returns Sanitized error string safe for logging
+ */
+function sanitizeErrorForLogging(error: unknown): string {
+  const apiKeyPattern = /sk-or-v1-[a-zA-Z0-9]{32,}/g;
+  const bearerPattern = /Bearer\s+sk-or-v1-[a-zA-Z0-9]{32,}/gi;
+
+  let errorText = "";
+  if (error instanceof Error) {
+    errorText = `${error.message}\n${error.stack || ""}`;
+  } else if (typeof error === "string") {
+    errorText = error;
+  } else {
+    errorText = JSON.stringify(error);
+  }
+
+  // Replace API keys with redacted placeholder
+  return errorText
+    .replace(apiKeyPattern, "sk-or-v1-***REDACTED***")
+    .replace(bearerPattern, "Bearer sk-or-v1-***REDACTED***");
+}
+
+/**
+ * Creates a new Error object with sanitized message
+ * Prevents API key leakage when errors are rethrown and logged by Convex
+ *
+ * SECURITY: This function is critical for preventing API key exposure.
+ * When errors are rethrown, Convex logs them and may send them to monitoring
+ * services or clients. Sanitizing before rethrowing ensures secrets never leak.
+ *
+ * @param error - Original error object to sanitize
+ * @returns New Error with sanitized message and preserved status code
+ *
+ * @example
+ * try {
+ *   await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
+ * } catch (error) {
+ *   // ❌ BAD: throw error; // API key in error.message
+ *   // ✅ GOOD:
+ *   throw createSanitizedError(error); // API key redacted
+ * }
+ */
+function createSanitizedError(error: unknown): Error {
+  const sanitizedMessage = sanitizeErrorForLogging(error);
+  const newError = new Error(sanitizedMessage);
+
+  // Preserve HTTP status code if present (needed for retry logic)
+  if (error && typeof error === "object" && "status" in error) {
+    (newError as ErrorWithStatus).status = (error as ErrorWithStatus).status;
+  }
+
+  return newError;
+}
+
 // Response type for OpenRouter Responses API
 interface APIResponse {
   output_text: string;
@@ -245,8 +303,8 @@ Use BC/AD dating exclusively. Aim for 175-225 words.`;
             console.error(
               `[HistoricalContext] Attempt ${attempt + 1} failed - ${errorPrefix} error: ${response.status}`,
             );
-            console.error(`[HistoricalContext] Error text: ${errorText}`);
-            throw error;
+            console.error(`[HistoricalContext] Error text: ${sanitizeErrorForLogging(errorText)}`);
+            throw createSanitizedError(error);
           }
 
           // Parse Responses API response
@@ -288,7 +346,7 @@ Use BC/AD dating exclusively. Aim for 175-225 words.`;
           const errorWithStatus = error as ErrorWithStatus;
           console.error(
             `[HistoricalContext] Attempt ${attempt + 1}/${maxAttempts} failed for puzzle ${puzzleId}:`,
-            error,
+            sanitizeErrorForLogging(error),
           );
 
           // Check for rate limit (429) and switch to GPT-5-mini if not already using it
@@ -310,8 +368,11 @@ Use BC/AD dating exclusively. Aim for 175-225 words.`;
           // Check if we should retry this error
           if (!shouldRetry(error as Error) || attempt === maxAttempts - 1) {
             // Don't retry, or this was the last attempt
-            console.error(`[HistoricalContext] Not retrying error for puzzle ${puzzleId}:`, error);
-            throw error;
+            console.error(
+              `[HistoricalContext] Not retrying error for puzzle ${puzzleId}:`,
+              sanitizeErrorForLogging(error),
+            );
+            throw createSanitizedError(error);
           }
 
           // Calculate delay and sleep before next attempt
@@ -363,9 +424,9 @@ Use BC/AD dating exclusively. Aim for 175-225 words.`;
     } catch (error) {
       console.error(
         `[HistoricalContext] Failed to generate context for puzzle ${puzzleId}:`,
-        error,
+        sanitizeErrorForLogging(error),
       );
-      throw error;
+      throw createSanitizedError(error);
     }
   },
 });
