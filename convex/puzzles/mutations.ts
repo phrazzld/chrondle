@@ -186,7 +186,8 @@ export const submitGuess = mutation({
         }
       }
 
-      await ctx.db.insert("plays", newPlay);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await ctx.db.insert("plays", newPlay as any);
 
       // Update puzzle stats and streak
       if (isCorrect) {
