@@ -186,9 +186,9 @@
 - [x] Document animation philosophy in code comments
 - [ ] Add visual demo GIF to PR description showing before/after
 - [x] Update `CLAUDE.md` with animation patterns section
-- [ ] Add "Animation Debugging" section to docs (how to test, common issues)
+- [x] Add "Animation Debugging" section to docs (how to test, common issues)
 - [ ] Create animation timing diagram (visual flowchart)
-- [ ] Document reduced motion implementation pattern
+- [x] Document reduced motion implementation pattern
 - [ ] Add performance benchmarks to documentation
 
 ---
