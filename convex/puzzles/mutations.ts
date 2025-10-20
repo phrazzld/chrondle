@@ -1,7 +1,5 @@
 import { v } from "convex/values";
 import { mutation } from "../_generated/server";
-import { Id } from "../_generated/dataModel";
-import { getUTCDateString } from "../lib/streakCalculation";
 import { updatePuzzleStats } from "../lib/puzzleHelpers";
 import { updateUserStreak } from "../lib/streakHelpers";
 
@@ -30,11 +28,16 @@ const MAX_GUESSES = 6;
  * - Checking correctness against puzzle target year
  * - Updating puzzle statistics on completion
  * - Managing user streaks (daily puzzles only)
+ * - Processing wagers and updating bank balance
  * - Enforcing MAX_GUESSES limit
  *
  * @param puzzleId - Puzzle being played
  * @param userId - Authenticated user
  * @param guess - Year guess
+ * @param wagerAmount - Optional wager amount (0 if not wagering)
+ * @param multiplier - Optional multiplier at time of wager
+ * @param earnings - Optional earnings from wager
+ * @param newBank - Optional new bank balance after wager
  * @returns Guess result with correctness and updated state
  */
 export const submitGuess = mutation({
@@ -42,6 +45,11 @@ export const submitGuess = mutation({
     puzzleId: v.id("puzzles"),
     userId: v.id("users"),
     guess: v.number(),
+    // Optional wager fields
+    wagerAmount: v.optional(v.number()),
+    multiplier: v.optional(v.number()),
+    earnings: v.optional(v.number()),
+    newBank: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     // Get the puzzle to check the target year
@@ -67,11 +75,68 @@ export const submitGuess = mutation({
       // Add guess to existing play
       const updatedGuesses = [...existingPlay.guesses, args.guess];
 
-      await ctx.db.patch(existingPlay._id, {
+      // Update play record with guess and optional wager data
+      const playUpdate: Record<string, unknown> = {
         guesses: updatedGuesses,
         completedAt: isCorrect ? Date.now() : undefined,
         updatedAt: Date.now(),
-      });
+      };
+
+      // Add wager data if provided
+      if (args.wagerAmount !== undefined) {
+        const existingWagers = existingPlay.wagers || [];
+        const existingMultipliers = existingPlay.multipliers || [];
+        const existingEarnings = existingPlay.earnings || [];
+
+        playUpdate.wagers = [...existingWagers, args.wagerAmount];
+        playUpdate.multipliers = [...existingMultipliers, args.multiplier ?? 1];
+        playUpdate.earnings = [...existingEarnings, args.earnings ?? 0];
+
+        // Set final bank balance if game is complete
+        if (isCorrect || updatedGuesses.length >= MAX_GUESSES) {
+          playUpdate.finalBankBalance = args.newBank;
+        }
+      }
+
+      await ctx.db.patch(existingPlay._id, playUpdate);
+
+      // Update user's bank balance if wager was made
+      if (args.newBank !== undefined) {
+        const user = await ctx.db.get(args.userId);
+        if (user) {
+          const updateData: Record<string, unknown> = {
+            bank: args.newBank,
+            updatedAt: Date.now(),
+          };
+
+          // Update all-time high if new bank is higher
+          if (args.newBank > (user.allTimeHighBank ?? 1000)) {
+            updateData.allTimeHighBank = args.newBank;
+          }
+
+          // Update lifetime stats
+          if (args.earnings !== undefined && args.earnings > 0) {
+            updateData.totalPointsEarned = (user.totalPointsEarned ?? 0) + args.earnings;
+
+            // Update biggest win if this is a new record
+            if (args.earnings > (user.biggestWin ?? 0)) {
+              updateData.biggestWin = args.earnings;
+            }
+
+            // Update average win multiplier
+            const totalWins = (user.perfectGames ?? 0) + 1; // Approximate win count
+            const oldAvg = user.averageWinMultiplier ?? 0;
+            const newAvg = (oldAvg * (totalWins - 1) + (args.multiplier ?? 1)) / totalWins;
+            updateData.averageWinMultiplier = newAvg;
+          }
+
+          if (args.wagerAmount !== undefined) {
+            updateData.totalPointsWagered = (user.totalPointsWagered ?? 0) + args.wagerAmount;
+          }
+
+          await ctx.db.patch(args.userId, updateData);
+        }
+      }
 
       // Update puzzle stats and streak
       if (isCorrect) {
@@ -101,13 +166,27 @@ export const submitGuess = mutation({
       };
     } else {
       // Create new play record
-      await ctx.db.insert("plays", {
+      const newPlay: Record<string, unknown> = {
         userId: args.userId,
         puzzleId: args.puzzleId,
         guesses: [args.guess],
         completedAt: isCorrect ? Date.now() : undefined,
         updatedAt: Date.now(),
-      });
+      };
+
+      // Add wager data if provided
+      if (args.wagerAmount !== undefined) {
+        newPlay.wagers = [args.wagerAmount];
+        newPlay.multipliers = [args.multiplier ?? 1];
+        newPlay.earnings = [args.earnings ?? 0];
+
+        // Set final bank balance if game is complete on first guess
+        if (isCorrect) {
+          newPlay.finalBankBalance = args.newBank;
+        }
+      }
+
+      await ctx.db.insert("plays", newPlay);
 
       // Update puzzle stats and streak
       if (isCorrect) {
