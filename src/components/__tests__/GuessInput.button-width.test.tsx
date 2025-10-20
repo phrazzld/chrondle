@@ -30,12 +30,12 @@ describe("GuessInput Button Width Consistency", () => {
     // Button should have the animation classes during submission
     expect(button.className).toContain("animate-button-press");
 
-    // After submission animation completes (150ms), animation class should be removed
+    // After submission animation completes (300ms), animation class should be removed
     await waitFor(
       () => {
         expect(button.className).not.toContain("animate-button-press");
       },
-      { timeout: 300 },
+      { timeout: 500 }, // Increased from 300ms to 500ms to account for 300ms animation duration
     );
 
     // Verify onGuess was called with correct value
