@@ -131,6 +131,10 @@ Validate each event with at least two reputable sources; discard if dates confli
   - WRONG: "imperial capital city" → CORRECT: "Constantinople"
   - WRONG: "astronomer" → CORRECT: "Galileo"
   - WRONG: "French king" → CORRECT: "Louis XIV"
+- **CRITICAL: Order events by DECREASING difficulty** - first event should be hardest, last should be easiest
+  - Event #1: Most obscure/specialized (known to history buffs)
+  - Event #2-4: Moderate difficulty (educated general audience)
+  - Event #5-6: Easiest/most recognizable (widely known events)
 - Vary domains (politics, science, culture, tech, sports, etc.).
 - **Strive for maximum event variance.** A good year has high diversity in subjects, geography, and actors.
   - **POOR EXAMPLE**: The original events for 1431 were all about Joan of Arc. While a major figure, this lacks the variety needed for an engaging puzzle. The events were later revised to be more diverse.
@@ -143,13 +147,14 @@ Validate each event with at least two reputable sources; discard if dates confli
 **For NEW years (confirmed missing):**
 
 ```bash
+# Events ordered from hardest (obscure) to easiest (well-known)
 pnpm events add -y 1850 \
-  -e "California becomes 31st state joining United States" \
-  -e "Taiping Rebellion begins in Qing Dynasty China" \
-  -e "Millard Fillmore becomes thirteenth President after Taylor dies" \
-  -e "Compromise of 1850 attempts to settle slavery disputes" \
+  -e "Telegraph cable laid under English Channel connecting Britain France" \
   -e "Louis Napoleon stages coup establishing Second French Empire" \
-  -e "Telegraph cable laid under English Channel connecting Britain France"
+  -e "Taiping Rebellion begins in Qing Dynasty China" \
+  -e "Compromise of 1850 attempts to settle slavery disputes" \
+  -e "Millard Fillmore becomes thirteenth President after Taylor dies" \
+  -e "California becomes 31st state joining United States"
 ```
 
 **For EXISTING years (need improvement):**
@@ -252,12 +257,13 @@ pnpm events find-missing --from 1850 --to 1870
 # Research 1857 Indian Rebellion, Dred Scott decision, etc.
 
 # 3. Add the year (will succeed because it's truly missing)
+# Note: Events ordered from hardest (obscure) to easiest (well-known)
 pnpm events add -y 1857 \
-  -e "Indian Rebellion begins against British East India Company rule" \
-  -e "Dred Scott decision denies citizenship to African Americans" \
   -e "Mountain Meadows Massacre occurs in Utah Territory" \
   -e "Panic causes widespread bank failures across United States" \
   -e "Sepoy mutineers capture Delhi from British forces" \
+  -e "Indian Rebellion begins against British East India Company rule" \
+  -e "Dred Scott decision denies citizenship to African Americans" \
   -e "James Buchanan inaugurated as fifteenth President"
 
 # 4. Verify success
