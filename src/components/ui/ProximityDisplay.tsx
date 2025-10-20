@@ -3,6 +3,7 @@
 import React from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { formatYear } from "@/lib/displayFormatting";
+import { ANIMATION_DURATIONS, ANIMATION_SPRINGS } from "@/lib/animationConstants";
 
 interface ProximityDisplayProps {
   currentGuess: number;
@@ -63,30 +64,71 @@ export const ProximityDisplay: React.FC<ProximityDisplayProps> = ({
 
   return (
     <motion.div
-      initial={shouldReduceMotion ? {} : { opacity: 0, scale: 0.95 }}
-      animate={shouldReduceMotion ? {} : { opacity: 1, scale: 1 }}
-      transition={shouldReduceMotion ? {} : { duration: 0.2, ease: "easeOut" }}
-      className={`
-        flex sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg
-        bg-muted/30 border border-border/40 text-sm font-medium
-        ${className}
-      `}
+      initial={shouldReduceMotion ? {} : { opacity: 0, y: -10 }}
+      animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
+      transition={
+        shouldReduceMotion
+          ? {}
+          : {
+              duration: 0.2,
+              ease: "easeOut",
+              delay: ANIMATION_DURATIONS.PROXIMITY_DELAY / 1000, // 300ms delay
+            }
+      }
+      className={`bg-muted/30 border-border/40 flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium sm:inline-flex ${className} `}
       role="status"
       aria-live="polite"
       aria-label={accessibilityLabel}
     >
-      <span className="text-lg" role="img" aria-label="temperature indicator">
+      <motion.span
+        initial={shouldReduceMotion ? {} : { scale: 0 }}
+        animate={shouldReduceMotion ? {} : { scale: 1 }}
+        transition={
+          shouldReduceMotion
+            ? {}
+            : {
+                type: "spring",
+                ...ANIMATION_SPRINGS.BOUNCY,
+                delay: 0.4, // 400ms delay (100ms after container)
+              }
+        }
+        className="text-lg"
+        role="img"
+        aria-label="temperature indicator"
+      >
         {temperatureEmoji}
-      </span>
-      <span className="text-muted-foreground text-xs uppercase tracking-wide">
-        Last guess:
-      </span>
-      <span className="text-foreground font-semibold">
+      </motion.span>
+      <span className="text-muted-foreground text-xs tracking-wide uppercase">Last guess:</span>
+      <motion.span
+        initial={shouldReduceMotion ? {} : { opacity: 0, x: -10 }}
+        animate={shouldReduceMotion ? {} : { opacity: 1, x: 0 }}
+        transition={
+          shouldReduceMotion
+            ? {}
+            : {
+                duration: 0.2,
+                delay: 0.5, // 500ms delay (100ms after emoji)
+              }
+        }
+        className="text-foreground font-semibold"
+      >
         {formatYear(currentGuess)}
-      </span>
-      <span className="text-muted-foreground">
+      </motion.span>
+      <motion.span
+        initial={shouldReduceMotion ? {} : { opacity: 0, x: -10 }}
+        animate={shouldReduceMotion ? {} : { opacity: 1, x: 0 }}
+        transition={
+          shouldReduceMotion
+            ? {}
+            : {
+                duration: 0.2,
+                delay: 0.5, // 500ms delay (same as guess year)
+              }
+        }
+        className="text-muted-foreground"
+      >
         {temperatureText} • {direction}
-      </span>
+      </motion.span>
     </motion.div>
   );
 };
