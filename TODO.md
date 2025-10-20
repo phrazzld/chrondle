@@ -182,7 +182,7 @@
 
 ## Phase 9: Documentation & Polish
 
-- [ ] Add JSDoc comments to `animationConstants.ts` explaining each duration
+- [x] Add JSDoc comments to `animationConstants.ts` explaining each duration
 - [ ] Document animation philosophy in code comments
 - [ ] Add visual demo GIF to PR description showing before/after
 - [ ] Update `CLAUDE.md` with animation patterns section
