@@ -4,11 +4,55 @@
  * Centralized timing configuration for deliberate, premium-feeling animations.
  * All values in milliseconds unless otherwise noted.
  *
- * Design Philosophy:
- * - Animations add contemplation time organically (~1.6s total per guess)
- * - Non-blocking: visual choreography doesn't delay state updates
- * - Mobile-first: 60fps performance required
- * - Accessible: Respects prefers-reduced-motion
+ * ## Design Philosophy
+ *
+ * ### 1. Deliberate Pacing Over Speed
+ * Animations aren't just decoration—they create contemplation time. Each guess should feel
+ * weighty and considered, not rushed. The ~1.6s visual choreography gives players time to
+ * absorb feedback and think about their next move. This naturally slows down binary-search
+ * behavior and encourages engagement with historical hints.
+ *
+ * ### 2. Non-Blocking Visual Feedback
+ * All animations are purely visual—state updates happen immediately. The game is never
+ * waiting for animations to finish. This keeps the app responsive while maintaining the
+ * premium feel. Players can rapid-fire guesses if they want, but the animations encourage
+ * a more thoughtful pace.
+ *
+ * ### 3. Choreographed Sequences
+ * Animations are staggered to create a visual narrative:
+ * - Button press (300ms) - Immediate tactile feedback
+ * - Timeline update (400ms @ 100ms) - Shows guess placement
+ * - Proximity reveal (300ms @ 300ms) - Three-part staggered reveal
+ * - Hint transition (400ms @ 600ms) - Final reveal with anticipation
+ *
+ * This creates a crescendo effect where each element builds on the previous one.
+ *
+ * ### 4. Physics-Based Motion
+ * We use spring physics and custom easing curves instead of linear transitions.
+ * Springs feel natural because they simulate real-world physics. The BOUNCY preset
+ * adds playfulness, SMOOTH feels professional, GENTLE stays subtle.
+ *
+ * ### 5. Mobile-First Performance
+ * Every animation is tested for 60fps on mobile devices. We prioritize transform
+ * and opacity properties (GPU-accelerated) over layout-triggering properties.
+ * Animations gracefully degrade on slower devices.
+ *
+ * ### 6. Accessibility First
+ * All animations respect prefers-reduced-motion. When reduced motion is enabled,
+ * animations either disable completely or use instant transitions. This isn't an
+ * afterthought—it's baked into every component from the start.
+ *
+ * ### 7. Consistency Through Constants
+ * Hardcoded timing values lead to inconsistency. These centralized constants ensure
+ * the entire app feels cohesive. If we adjust timing, we adjust it once here.
+ *
+ * ## Usage Guidelines
+ *
+ * - Always divide durations by 1000 for Framer Motion (expects seconds)
+ * - Always check `useReducedMotion()` before applying animations
+ * - Prefer springs for organic motion, easings for controlled reveals
+ * - Test on actual mobile devices, not just dev tools responsive mode
+ * - Keep total animation time under 2 seconds to avoid feeling sluggish
  */
 
 // Re-export useReducedMotion for convenience
