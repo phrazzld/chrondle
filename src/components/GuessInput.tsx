@@ -7,7 +7,7 @@ import { EraToggle } from "@/components/ui/EraToggle";
 import { validateGuessInputProps } from "@/lib/propValidation";
 import type { Era } from "@/lib/eraUtils";
 import { convertToInternalYear, isValidEraYear } from "@/lib/eraUtils";
-import { ANIMATION_DURATIONS } from "@/lib/animationConstants";
+import { ANIMATION_DURATIONS, useReducedMotion } from "@/lib/animationConstants";
 import { logger } from "@/lib/logger";
 
 interface GuessInputProps {
@@ -40,6 +40,9 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
   const [era, setEra] = useState<Era>("AD");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Respect user's motion preferences
+  const shouldReduceMotion = useReducedMotion();
 
   // Consolidated focus management
   useEffect(() => {
@@ -180,8 +183,10 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
           disabled={isSubmitDisabled}
           size="lg"
           aria-label={`Submit guess (${remainingGuesses} remaining)`}
-          className={`font-accent h-14 w-full px-8 text-lg font-semibold tracking-wide transition-all duration-200 sm:h-12 sm:w-auto sm:min-w-[120px] ${
-            isSubmitting ? "animate-button-press bg-primary/90 shadow-lg" : "hover:bg-primary/90"
+          className={`font-accent hover:shadow-primary/20 h-14 w-full px-8 text-lg font-semibold tracking-wide transition-all duration-300 hover:shadow-lg sm:h-12 sm:w-auto sm:min-w-[120px] ${
+            !shouldReduceMotion ? "active:scale-95" : ""
+          } ${
+            isSubmitting ? "animate-button-press bg-primary/90 shadow-xl" : "hover:bg-primary/90"
           }`}
         >
           {buttonText}
