@@ -5,16 +5,16 @@ import { motion, useReducedMotion } from "motion/react";
 import { formatYear } from "@/lib/displayFormatting";
 import { ANIMATION_DURATIONS, ANIMATION_SPRINGS } from "@/lib/animationConstants";
 
-interface ProximityDisplayProps {
-  currentGuess: number;
-  currentDistance: number;
+interface LastGuessDisplayProps {
+  currentGuess?: number; // Optional - undefined before first guess
+  currentDistance?: number; // Optional - undefined before first guess
   targetYear: number;
   hasWon: boolean;
   guessCount: number;
   className?: string;
 }
 
-export const ProximityDisplay: React.FC<ProximityDisplayProps> = ({
+export const LastGuessDisplay: React.FC<LastGuessDisplayProps> = ({
   currentGuess,
   currentDistance,
   targetYear,
@@ -24,8 +24,8 @@ export const ProximityDisplay: React.FC<ProximityDisplayProps> = ({
 }) => {
   const shouldReduceMotion = useReducedMotion() ?? false;
 
-  // Don't show if no guesses or if game is won
-  if (guessCount === 0 || hasWon) {
+  // Don't render before first guess or if game is won
+  if (guessCount === 0 || hasWon || currentGuess === undefined || currentDistance === undefined) {
     return null;
   }
 

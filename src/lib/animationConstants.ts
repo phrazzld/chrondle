@@ -128,12 +128,42 @@ export const ANIMATION_DURATIONS = {
   PROXIMITY_DELAY: 300,
 
   /**
-   * Delay before new hint animates in (600ms after button)
-   * Used in: HintsDisplay.tsx (PastHint component)
-   * Longest delay in sequence, creating crescendo effect
-   * Ensures user processes proximity feedback before seeing new hint
+   * Delay before initial hint animates in (600ms after load)
+   * Used in: CurrentHintCard.tsx (initial entrance only)
+   * Gives time for puzzle to load and user to orient
    */
   HINT_DELAY: 600,
+
+  /**
+   * Hint feedback pulse duration (200ms)
+   * Used in: CurrentHintCard.tsx
+   * Brief border color pulse when guess is incorrect
+   * Provides immediate visual feedback before hint transition
+   */
+  HINT_FEEDBACK: 200,
+
+  /**
+   * Current hint exit delay (800ms after button)
+   * Used in: CurrentHintCard.tsx
+   * Gives time for feedback pulse (600ms) and proximity display before "demotion"
+   * Part of coordinated demotion sequence
+   */
+  HINT_EXIT_DELAY: 800,
+
+  /**
+   * Demoted hint entrance delay (1200ms after button)
+   * Used in: HintsDisplay.tsx (newest past hint only)
+   * Ensures current hint fully exits before appearing in past hints section
+   * Prevents visual duplication during transition
+   */
+  DEMOTED_HINT_DELAY: 1200,
+
+  /**
+   * New current hint entrance delay (1400ms after button)
+   * Used in: CurrentHintCard.tsx (entrance after demotion)
+   * Creates clean separation between demoted and new current hints
+   */
+  NEW_HINT_DELAY: 1400,
 
   // Copy/share feedback
   /**
@@ -192,21 +222,25 @@ export const ANIMATION_DURATIONS = {
 
   // Total expected flow - For testing and debugging
   /**
-   * Total animation choreography duration (~1.6s visual flow)
-   * Represents complete guess sequence from button press to hint reveal
+   * Total animation choreography duration (~1.8s coordinated demotion sequence)
+   * Represents complete guess sequence from button press to new hint reveal
    * Non-blocking: state updates happen immediately, animations are purely visual
    *
-   * Breakdown:
+   * Breakdown (Coordinated Demotion):
    * - Button press: 300ms
    * - Timeline marker: 400ms @ 100ms delay = 500ms total
    * - Proximity container: 300ms @ 300ms delay = 600ms total
    * - Proximity emoji: spring @ 400ms delay = ~500ms total
    * - Proximity text: slide @ 500ms delay = ~600ms total
-   * - Hint layout: 400ms (concurrent with above)
-   * - New hint: 400ms @ 600ms delay = 1000ms total
-   * Peak animation activity: ~1600ms
+   * - Current hint feedback: 200ms @ 600ms delay = 800ms total (if incorrect)
+   * - Current hint "demotes"/exits: 400ms @ 800ms delay = 1200ms total
+   * - Demoted hint enters past hints: 400ms @ 1200ms delay = 1600ms total
+   * - New current hint enters: 400ms @ 1400ms delay = 1800ms total
+   *
+   * Peak animation activity: ~1800ms
+   * Key feature: Sequential demotion prevents hint duplication
    */
-  GUESS_FLOW_TOTAL: 1600,
+  GUESS_FLOW_TOTAL: 1800,
 } as const;
 
 /**

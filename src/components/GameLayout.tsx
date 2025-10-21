@@ -1,11 +1,12 @@
 "use client";
 
 import React from "react";
+import { AnimatePresence } from "motion/react";
 import { GameInstructions } from "@/components/GameInstructions";
 import { CurrentHintCard } from "@/components/CurrentHintCard";
 import { GuessInput } from "@/components/GuessInput";
 import { Timeline } from "@/components/Timeline";
-import { ProximityDisplay } from "@/components/ui/ProximityDisplay";
+import { LastGuessDisplay } from "@/components/ui/LastGuessDisplay";
 import { HintsDisplay } from "@/components/HintsDisplay";
 import { Confetti, ConfettiRef } from "@/components/magicui/confetti";
 import { validateGameLayoutProps } from "@/lib/propValidation";
@@ -79,7 +80,6 @@ export function GameLayout(props: GameLayoutProps) {
   // Calculate currentHintIndex from gameState
   const currentHintIndex = Math.min(gameState.guesses.length, 5);
   const remainingGuesses = 6 - gameState.guesses.length;
-  const showProximity = gameState.guesses.length > 0 && !hasWon;
   const targetYear = gameState.puzzle?.year || 0;
 
   return (
@@ -90,7 +90,7 @@ export function GameLayout(props: GameLayoutProps) {
       {/* Main game content */}
       <main className="flex-1 overflow-auto px-4 py-6">
         <div className="mx-auto w-full max-w-2xl space-y-6">
-          {/* Game Instructions - Always at top */}
+          {/* Game Instructions - Header and subheading always at top */}
           <GameInstructions
             isGameComplete={isGameComplete}
             hasWon={hasWon}
@@ -103,18 +103,26 @@ export function GameLayout(props: GameLayoutProps) {
             historicalContext={gameState.puzzle?.historicalContext}
           />
 
-          {/* Current Hint Card - Above input for mobile visibility */}
-          {!isGameComplete && gameState.puzzle && (
-            <CurrentHintCard
-              event={gameState.puzzle.events[currentHintIndex] || null}
-              hintNumber={currentHintIndex + 1}
-              totalHints={gameState.puzzle.events.length}
-              isLoading={isLoading}
-              error={error}
+          {/* Last Guess Display - ALWAYS visible, reserves space even before first guess */}
+          {!isGameComplete && (
+            <LastGuessDisplay
+              currentGuess={
+                gameState.guesses.length > 0
+                  ? gameState.guesses[gameState.guesses.length - 1]
+                  : undefined
+              }
+              currentDistance={
+                gameState.guesses.length > 0
+                  ? Math.abs(gameState.guesses[gameState.guesses.length - 1] - targetYear)
+                  : undefined
+              }
+              targetYear={targetYear}
+              hasWon={hasWon}
+              guessCount={gameState.guesses.length}
             />
           )}
 
-          {/* Guess Input - Below current hint */}
+          {/* Guess Input */}
           {!isGameComplete && (
             <GuessInput
               onGuess={onGuess}
@@ -125,7 +133,7 @@ export function GameLayout(props: GameLayoutProps) {
             />
           )}
 
-          {/* Timeline - Shows after first guess */}
+          {/* Timeline */}
           <Timeline
             minYear={-2500}
             maxYear={new Date().getFullYear()}
@@ -135,17 +143,19 @@ export function GameLayout(props: GameLayoutProps) {
             hasWon={hasWon}
           />
 
-          {/* Proximity Display - Shows after first guess if not won */}
-          {showProximity && (
-            <ProximityDisplay
-              currentGuess={gameState.guesses[gameState.guesses.length - 1]}
-              currentDistance={Math.abs(
-                gameState.guesses[gameState.guesses.length - 1] - targetYear,
-              )}
-              targetYear={targetYear}
-              hasWon={hasWon}
-              guessCount={gameState.guesses.length}
-            />
+          {/* Current Hint Card - Below timeline, can change height without affecting elements above */}
+          {!isGameComplete && gameState.puzzle && (
+            <AnimatePresence mode="wait">
+              <CurrentHintCard
+                key={`current-hint-${currentHintIndex}`}
+                event={gameState.puzzle.events[currentHintIndex] || null}
+                hintNumber={currentHintIndex + 1}
+                totalHints={gameState.puzzle.events.length}
+                isLoading={isLoading}
+                error={error}
+                isInitialHint={currentHintIndex === 0}
+              />
+            </AnimatePresence>
           )}
 
           {/* Hints Display - Always at bottom */}

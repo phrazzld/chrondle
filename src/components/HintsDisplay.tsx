@@ -33,8 +33,8 @@ interface FutureHintProps {
   shouldReduceMotion?: boolean;
 }
 
-const PastHint: React.FC<PastHintProps> = React.memo(
-  ({ hintNumber, hintText, guess, targetYear, shouldReduceMotion = false }) => {
+const PastHint: React.FC<PastHintProps & { isNewest?: boolean }> = React.memo(
+  ({ hintNumber, hintText, guess, targetYear, shouldReduceMotion = false, isNewest = false }) => {
     if (
       !hintText ||
       guess === undefined ||
@@ -83,6 +83,13 @@ const PastHint: React.FC<PastHintProps> = React.memo(
       ? "bg-green-50 border-green-200/50 dark:bg-green-900/20 dark:border-green-800/50"
       : "bg-muted/10 border-muted/20";
 
+    // Coordinated delay for newest past hint to prevent duplication
+    // - Newest hint being "demoted" from current: long delay (1200ms) to wait for exit
+    // - Other hints stacking down: minimal delay (50ms) for smooth layout shifts
+    const entranceDelay = isNewest
+      ? ANIMATION_DURATIONS.DEMOTED_HINT_DELAY / 1000 // 1200ms - wait for CurrentHint to exit
+      : 0.05; // Minimal delay for smooth stacking animation
+
     return (
       <motion.div
         layout={!shouldReduceMotion}
@@ -92,7 +99,12 @@ const PastHint: React.FC<PastHintProps> = React.memo(
         transition={{
           duration: ANIMATION_DURATIONS.HINT_TRANSITION / 1000,
           ease: ANIMATION_EASINGS.ANTICIPATION,
-          delay: ANIMATION_DURATIONS.HINT_DELAY / 1000,
+          delay: entranceDelay, // Only applies to entrance animation
+          layout: {
+            duration: ANIMATION_DURATIONS.HINT_TRANSITION / 1000,
+            ease: "easeOut",
+            // No delay for layout shifts - prevents delays when hints move positions
+          },
         }}
         className={`rounded-lg border-2 px-4 py-3 ${backgroundClass} shadow-primary/5 hover:shadow-primary/10 opacity-90 shadow-md transition-all duration-200 hover:opacity-100 hover:shadow-lg`}
       >
@@ -299,27 +311,31 @@ export const HintsDisplay: React.FC<HintsDisplayProps> = React.memo((props) => {
         <LayoutGroup>
           {/* Past Hints - Stack downward in reverse chronological order */}
           <AnimatePresence>
-            {pastHints.map((hint, index) => (
-              <motion.div
-                key={`past-hint-${hint.hintNumber}`}
-                layout={!shouldReduceMotion}
-                transition={{
-                  layout: {
-                    duration: shouldReduceMotion ? 0 : ANIMATION_DURATIONS.HINT_TRANSITION / 1000,
-                    ease: "easeOut",
-                  },
-                }}
-              >
-                <PastHint
-                  hintNumber={hint.hintNumber}
-                  hintText={hint.hintText}
-                  guess={hint.guess}
-                  targetYear={targetYear}
-                  shouldReduceMotion={shouldReduceMotion ?? false}
-                />
-                {index < pastHints.length - 1 && <Separator className="mt-3" />}
-              </motion.div>
-            ))}
+            {pastHints.map((hint, index) => {
+              const isNewestHint = index === 0; // First item in reverse-chron array
+              return (
+                <motion.div
+                  key={`past-hint-${hint.hintNumber}`}
+                  layout={!shouldReduceMotion}
+                  transition={{
+                    layout: {
+                      duration: shouldReduceMotion ? 0 : ANIMATION_DURATIONS.HINT_TRANSITION / 1000,
+                      ease: "easeOut",
+                    },
+                  }}
+                >
+                  <PastHint
+                    hintNumber={hint.hintNumber}
+                    hintText={hint.hintText}
+                    guess={hint.guess}
+                    targetYear={targetYear}
+                    shouldReduceMotion={shouldReduceMotion ?? false}
+                    isNewest={isNewestHint}
+                  />
+                  {index < pastHints.length - 1 && <Separator className="mt-3" />}
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </LayoutGroup>
       </div>
