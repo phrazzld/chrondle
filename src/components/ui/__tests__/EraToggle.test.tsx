@@ -22,6 +22,7 @@ vi.mock("motion/react", () => ({
       </button>
     ),
   },
+  useReducedMotion: () => false,
 }));
 
 describe("EraToggle", () => {

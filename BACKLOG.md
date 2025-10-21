@@ -157,6 +157,81 @@ Analyzed by: 7 specialized perspectives (complexity-archaeologist, architecture-
 
 ## Product Opportunities [Consider]
 
+### [FEATURE] Confidence Wager System - ENGAGEMENT & ANTI-BINARY-SEARCH
+
+**Current State**: Players can rapidly binary-search through years without engaging with hints
+**Perspectives**: user-experience-advocate, product-visionary
+**Problem**: No friction between guesses → mechanical optimization → loss of educational value
+**Opportunity**: Add strategic decision-making before each guess
+
+**Core Mechanic**: Players wager confidence level before submitting guess
+
+**Implementation Options**:
+
+1. **Confidence Slider** (1-5 stars)
+
+   - High confidence + correct = bonus streak points/multiplier
+   - Low confidence + correct = normal points (no penalty for humility)
+   - Wrong guess = no penalty regardless (encourages boldness)
+   - Creates natural pause: "How sure am I about this?"
+
+2. **Proximity Wager** (±10yr / ±50yr / ±100yr / ±500yr)
+
+   - Tighter wager + correct = better multiplier
+   - Forces player to assess knowledge vs. guessing
+   - Strategic tension: risk/reward decision
+
+3. **Hint Trade-off**
+   - Skip next hint = 1.5x streak multiplier
+   - Use all hints = normal streak
+   - Gamifies knowledge-based play vs. brute force
+
+**Design Goals**:
+
+- Add 5-10s contemplation time per guess (natural friction)
+- Celebrate knowledge AND confidence
+- Make binary searching feel "low confidence" (self-aware guessing)
+- Reward both fast experts AND thoughtful learners
+
+**UX Considerations**:
+
+- Must feel optional/toggleable initially
+- Clear value proposition (why wager?)
+- No tutorial overload
+- Mobile-friendly input
+
+**Scoring System** (TBD):
+
+- Separate "confidence score" vs. streaks?
+- Achievement integration?
+- Leaderboard impact?
+
+**A/B Test Questions**:
+
+- Does it reduce binary search behavior?
+- Does it increase time-per-guess?
+- Does it improve learning outcomes?
+- Does it frustrate or delight players?
+
+**Implementation Complexity**:
+
+- **UI**: Medium (wager input, feedback display)
+- **Scoring**: Medium (new calculation logic)
+- **Analytics**: Low (track wager patterns)
+- **Total Effort**: 4-6 days
+
+**Validation Plan**:
+
+1. Prototype in separate branch
+2. User testing with 20-30 players
+3. A/B test: 50% control, 50% wager system
+4. Measure: time-per-guess, completion rate, satisfaction
+
+**Value**: 8/10 (addresses core engagement problem without punitive timers)
+**Risk**: Medium (could add unwanted complexity if poorly designed)
+
+---
+
 ### [FEATURE] Premium Subscription - CRITICAL REVENUE GAP
 
 **Current State**: 100% free, Bitcoin donations only (low conversion)

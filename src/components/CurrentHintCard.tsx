@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { HintText } from "@/components/ui/HintText";
+import { ANIMATION_DURATIONS } from "@/lib/animationConstants";
 
 interface CurrentHintCardProps {
   event: string | null;
@@ -11,11 +12,36 @@ interface CurrentHintCardProps {
   totalHints: number;
   isLoading: boolean;
   error: string | null;
+  isInitialHint?: boolean; // True for first hint on load, false for hints after guesses
 }
 
 export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
-  ({ event, hintNumber, totalHints, isLoading, error }) => {
+  ({ event, hintNumber, totalHints, isLoading, error, isInitialHint = false }) => {
     const shouldReduceMotion = useReducedMotion();
+
+    // State for incorrect guess feedback animation
+    const [showFeedback, setShowFeedback] = useState(false);
+    const prevHintNumber = useRef(hintNumber);
+
+    // Trigger feedback pulse when hint number changes (indicates incorrect guess)
+    useEffect(() => {
+      // If hint number increased and this isn't the initial mount
+      if (hintNumber > prevHintNumber.current && prevHintNumber.current > 0) {
+        setShowFeedback(true);
+        const timeout = setTimeout(() => {
+          setShowFeedback(false);
+        }, ANIMATION_DURATIONS.HINT_FEEDBACK);
+        return () => clearTimeout(timeout);
+      }
+      prevHintNumber.current = hintNumber;
+    }, [hintNumber]);
+
+    // Determine entrance delay based on context
+    // - Initial hint (first load): 600ms delay for dramatic reveal
+    // - Subsequent hints (after demotion): 1400ms delay for coordination
+    const entranceDelay = isInitialHint
+      ? ANIMATION_DURATIONS.HINT_DELAY / 1000
+      : ANIMATION_DURATIONS.NEW_HINT_DELAY / 1000;
 
     // Don't render if we have an error
     if (error) {
@@ -26,16 +52,24 @@ export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
 
     return (
       <motion.div
-        layout={!shouldReduceMotion}
-        layoutId={shouldReduceMotion ? undefined : "current-hint-card"}
-        initial={shouldReduceMotion ? undefined : { opacity: 0, y: -10 }}
-        animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-        exit={shouldReduceMotion ? undefined : { opacity: 0, y: -10 }}
+        key={hintNumber}
+        initial={shouldReduceMotion ? undefined : { opacity: 0 }}
+        animate={
+          shouldReduceMotion
+            ? undefined
+            : {
+                opacity: 1,
+                borderColor: showFeedback ? "rgb(239, 68, 68)" : undefined,
+              }
+        }
+        exit={shouldReduceMotion ? undefined : { opacity: 0, y: -20 }}
         transition={{
-          type: "spring",
-          stiffness: 400,
-          damping: 25,
-          opacity: { duration: 0.3 },
+          duration: ANIMATION_DURATIONS.HINT_TRANSITION / 1000,
+          delay: shouldReduceMotion ? 0 : entranceDelay,
+          borderColor: {
+            duration: ANIMATION_DURATIONS.HINT_FEEDBACK / 1000,
+            ease: "easeInOut",
+          },
         }}
         className="w-full"
       >

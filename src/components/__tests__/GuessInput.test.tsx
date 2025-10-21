@@ -29,6 +29,7 @@ vi.mock("motion/react", () => ({
       </button>
     ),
   },
+  useReducedMotion: () => false,
 }));
 
 describe("GuessInput Component Interface", () => {
@@ -115,12 +116,7 @@ describe("GuessInput Component Interface", () => {
 
   describe("Optional Props", () => {
     it("calls onValidationError for invalid year format", () => {
-      render(
-        <GuessInput
-          {...defaultProps}
-          onValidationError={mockOnValidationError}
-        />,
-      );
+      render(<GuessInput {...defaultProps} onValidationError={mockOnValidationError} />);
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
       const form = input.closest("form")!;
@@ -133,9 +129,7 @@ describe("GuessInput Component Interface", () => {
     });
 
     it("accepts className prop", () => {
-      const { container } = render(
-        <GuessInput {...defaultProps} className="custom-class" />,
-      );
+      const { container } = render(<GuessInput {...defaultProps} className="custom-class" />);
 
       const wrapper = container.firstChild as HTMLElement;
       expect(wrapper.className).toContain("custom-class");
@@ -151,12 +145,7 @@ describe("GuessInput Component Interface", () => {
 
   describe("Input Validation", () => {
     it("rejects non-numeric input", () => {
-      render(
-        <GuessInput
-          {...defaultProps}
-          onValidationError={mockOnValidationError}
-        />,
-      );
+      render(<GuessInput {...defaultProps} onValidationError={mockOnValidationError} />);
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
       const form = input.closest("form")!;
@@ -394,9 +383,7 @@ describe("GuessInput Component Interface", () => {
 
       const radioGroup = screen.getByRole("radiogroup");
       expect(radioGroup).toBeTruthy();
-      expect(radioGroup.getAttribute("aria-label")).toBe(
-        "Select era: BC or AD",
-      );
+      expect(radioGroup.getAttribute("aria-label")).toBe("Select era: BC or AD");
     });
   });
 
