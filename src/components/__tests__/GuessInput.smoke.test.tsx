@@ -22,6 +22,7 @@ vi.mock("motion/react", () => ({
       </button>
     ),
   },
+  useReducedMotion: () => false,
 }));
 
 describe("GuessInput Smoke Tests", () => {
@@ -29,13 +30,7 @@ describe("GuessInput Smoke Tests", () => {
     const mockOnGuess = vi.fn();
     const user = userEvent.setup();
 
-    render(
-      <GuessInput
-        onGuess={mockOnGuess}
-        disabled={false}
-        remainingGuesses={6}
-      />,
-    );
+    render(<GuessInput onGuess={mockOnGuess} disabled={false} remainingGuesses={6} />);
 
     // Verify input field exists and is accessible
     const input = screen.getByRole("textbox") as HTMLInputElement;
@@ -62,13 +57,7 @@ describe("GuessInput Smoke Tests", () => {
     const mockOnGuess = vi.fn();
     const user = userEvent.setup();
 
-    render(
-      <GuessInput
-        onGuess={mockOnGuess}
-        disabled={false}
-        remainingGuesses={6}
-      />,
-    );
+    render(<GuessInput onGuess={mockOnGuess} disabled={false} remainingGuesses={6} />);
 
     const input = screen.getByRole("textbox") as HTMLInputElement;
     const submitButton = screen.getByRole("button", {
@@ -94,9 +83,7 @@ describe("GuessInput Smoke Tests", () => {
   it("disables input and buttons when disabled prop is true", () => {
     const mockOnGuess = vi.fn();
 
-    render(
-      <GuessInput onGuess={mockOnGuess} disabled={true} remainingGuesses={6} />,
-    );
+    render(<GuessInput onGuess={mockOnGuess} disabled={true} remainingGuesses={6} />);
 
     const input = screen.getByRole("textbox") as HTMLInputElement;
     const submitButton = screen.getByRole("button", {
@@ -119,13 +106,7 @@ describe("GuessInput Smoke Tests", () => {
   it("shows remaining guesses indicator", () => {
     const mockOnGuess = vi.fn();
 
-    render(
-      <GuessInput
-        onGuess={mockOnGuess}
-        disabled={false}
-        remainingGuesses={3}
-      />,
-    );
+    render(<GuessInput onGuess={mockOnGuess} disabled={false} remainingGuesses={3} />);
 
     // Verify remaining guesses is displayed (check aria-label instead)
     const submitBtn = screen.getByRole("button", { name: /Submit guess/i });
@@ -139,13 +120,7 @@ describe("GuessInput Smoke Tests", () => {
     const mockOnGuess = vi.fn();
     const user = userEvent.setup();
 
-    render(
-      <GuessInput
-        onGuess={mockOnGuess}
-        disabled={false}
-        remainingGuesses={6}
-      />,
-    );
+    render(<GuessInput onGuess={mockOnGuess} disabled={false} remainingGuesses={6} />);
 
     const input = screen.getByRole("textbox") as HTMLInputElement;
     const submitButton = screen.getByRole("button", {

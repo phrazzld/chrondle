@@ -23,8 +23,24 @@ vi.mock("@/components/Timeline", () => ({
   Timeline: () => <div data-testid="timeline">Timeline</div>,
 }));
 
-vi.mock("@/components/ui/ProximityDisplay", () => ({
-  ProximityDisplay: () => <div data-testid="proximity-display">Proximity Display</div>,
+vi.mock("@/components/ui/LastGuessDisplay", () => ({
+  LastGuessDisplay: ({
+    guessCount,
+    hasWon,
+    currentGuess,
+    currentDistance,
+  }: {
+    guessCount: number;
+    hasWon: boolean;
+    currentGuess?: number;
+    currentDistance?: number;
+  }) => {
+    // Replicate actual component logic - don't render before first guess or if won
+    if (guessCount === 0 || hasWon || currentGuess === undefined || currentDistance === undefined) {
+      return null;
+    }
+    return <div data-testid="last-guess-display">Last Guess Display</div>;
+  },
 }));
 
 vi.mock("@/components/HintsDisplay", () => ({
@@ -98,17 +114,17 @@ describe("GameLayout Component Interface", () => {
       render(<GameLayout {...props} />);
       // Timeline is always rendered
       expect(screen.getByTestId("timeline")).toBeTruthy();
-      // ProximityDisplay only shows after first guess
-      expect(screen.queryByTestId("proximity-display")).toBe(null);
+      // LastGuessDisplay only shows after first guess (no placeholder)
+      expect(screen.queryByTestId("last-guess-display")).toBe(null);
     });
 
-    it("shows timeline and proximity display after first guess", () => {
+    it("shows timeline and last guess display after first guess", () => {
       const props = createDefaultProps();
       props.gameState.guesses = [1970];
 
       render(<GameLayout {...props} />);
       expect(screen.getByTestId("timeline")).toBeTruthy();
-      expect(screen.getByTestId("proximity-display")).toBeTruthy();
+      expect(screen.getByTestId("last-guess-display")).toBeTruthy();
     });
   });
 

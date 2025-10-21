@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useMemo, useState, useEffect, useRef } from "react";
+import { motion } from "motion/react";
 import { getGuessDirectionInfo } from "@/lib/game/proximity";
 import { NumberTicker } from "@/components/ui/NumberTicker";
+import { ANIMATION_SPRINGS, useReducedMotion } from "@/lib/animationConstants";
 
 interface TimelineProps {
   minYear: number;
@@ -19,6 +21,9 @@ interface GuessWithFeedback {
 }
 
 export const Timeline: React.FC<TimelineProps> = ({ minYear, maxYear, guesses, targetYear }) => {
+  // Respect user's motion preferences
+  const shouldReduceMotion = useReducedMotion();
+
   // Display range state with simple transitions
   const [currentDisplayRange, setCurrentDisplayRange] = useState<{
     min: number;
@@ -28,6 +33,10 @@ export const Timeline: React.FC<TimelineProps> = ({ minYear, maxYear, guesses, t
   // Track previous values for smooth animations
   const prevMinRef = useRef<number>(minYear);
   const prevMaxRef = useRef<number>(maxYear);
+
+  // Track previous guess count for scroll detection
+  const prevGuessCountRef = useRef<number>(guesses.length);
+  const timelineContainerRef = useRef<HTMLDivElement>(null);
 
   // Calculate valid range and valid guesses
   const { validMin, validMax, validGuesses } = useMemo(() => {
@@ -104,8 +113,21 @@ export const Timeline: React.FC<TimelineProps> = ({ minYear, maxYear, guesses, t
     }
   }, [validMin, validMax, currentDisplayRange.min, currentDisplayRange.max]);
 
+  // Smooth scroll to new guess marker when added
+  useEffect(() => {
+    if (guesses.length > prevGuessCountRef.current && timelineContainerRef.current) {
+      // New guess added - scroll into view
+      timelineContainerRef.current.scrollIntoView({
+        behavior: shouldReduceMotion ? "auto" : "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    }
+    prevGuessCountRef.current = guesses.length;
+  }, [guesses.length, shouldReduceMotion]);
+
   return (
-    <div className="mb-0 w-full">
+    <div ref={timelineContainerRef} className="mb-0 w-full">
       <div className="flex items-center justify-between gap-1 px-1 sm:gap-2">
         {/* Left bookend label */}
         <div className="min-w-0 flex-shrink-0 text-left">
@@ -197,11 +219,24 @@ export const Timeline: React.FC<TimelineProps> = ({ minYear, maxYear, guesses, t
               }
 
               return (
-                <g key={`valid-${index}-${guess.year}`}>
+                <motion.g
+                  key={`valid-${index}-${guess.year}`}
+                  initial={shouldReduceMotion ? undefined : { scale: 0, opacity: 0 }}
+                  animate={shouldReduceMotion ? undefined : { scale: 1, opacity: 1 }}
+                  transition={
+                    shouldReduceMotion
+                      ? undefined
+                      : {
+                          type: "spring",
+                          ...ANIMATION_SPRINGS.SMOOTH,
+                          delay: 0.1, // 100ms delay after button press
+                        }
+                  }
+                >
                   {!isCorrect && (
                     <circle cx={x} cy="50" r="10" fill="currentColor" className={colorClass} />
                   )}
-                </g>
+                </motion.g>
               );
             })}
         </svg>

@@ -2,6 +2,15 @@
 import { beforeEach, afterEach, beforeAll, afterAll, vi } from "vitest";
 import "@testing-library/jest-dom/vitest";
 
+// Mock motion/react for animation testing
+vi.mock("motion/react", async () => {
+  const actual = await vi.importActual("motion/react");
+  return {
+    ...actual,
+    useReducedMotion: () => false, // Default to animations enabled in tests
+  };
+});
+
 // Mock localStorage for testing
 const localStorageMock = (() => {
   let store: Record<string, string> = {};

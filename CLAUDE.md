@@ -157,6 +157,66 @@ Chrondle uses OpenRouter's **Responses API Alpha** with GPT-5 to generate concis
 - CSS variables for consistent theming
 - Mobile-first responsive design
 
+**Animation System:**
+
+Chrondle uses Framer Motion (`motion`) with a centralized animation constants system for deliberate, premium-feeling interactions that create organic pacing and discourage binary-search gameplay.
+
+Core Principles:
+
+- **Deliberate Pacing**: ~1.6s visual choreography per guess creates contemplation time
+- **Non-Blocking**: State updates immediate, animations purely visual
+- **Choreographed Sequences**: Staggered reveals create narrative flow
+- **Physics-Based**: Spring animations and custom easing curves for natural motion
+- **Mobile-First**: 60fps performance guarantee on all devices
+- **Accessibility-First**: Full `prefers-reduced-motion` support
+
+Key Files:
+
+- `src/lib/animationConstants.ts` - Centralized timing configuration
+- `src/components/GuessInput.tsx` - Button press animation (300ms)
+- `src/components/Timeline.tsx` - Marker spring animations (400ms @ 100ms delay)
+- `src/components/ui/ProximityDisplay.tsx` - Three-part staggered reveal (300-500ms)
+- `src/components/HintsDisplay.tsx` - Layout transitions with ANTICIPATION easing (400ms @ 600ms delay)
+
+Animation Choreography:
+
+```
+Button press (300ms)
+  → Timeline marker (400ms @ 100ms delay)
+    → Proximity container (300ms @ 300ms delay)
+      → Proximity emoji (spring @ 400ms delay)
+        → Proximity text (slide @ 500ms delay)
+          → Hint layout shift (400ms)
+            → New hint reveal (400ms @ 600ms delay)
+= ~1600ms total visual flow
+```
+
+Usage Pattern:
+
+```typescript
+import { ANIMATION_DURATIONS, ANIMATION_SPRINGS, ANIMATION_EASINGS, useReducedMotion } from "@/lib/animationConstants";
+
+const shouldReduceMotion = useReducedMotion();
+
+<motion.div
+  initial={shouldReduceMotion ? undefined : { opacity: 0, y: -20, scale: 0.95 }}
+  animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
+  transition={{
+    duration: ANIMATION_DURATIONS.HINT_TRANSITION / 1000, // Convert ms to seconds
+    ease: ANIMATION_EASINGS.ANTICIPATION,
+    delay: ANIMATION_DURATIONS.HINT_DELAY / 1000,
+  }}
+/>
+```
+
+Critical Rules:
+
+- **Always check `useReducedMotion()`** before applying animations
+- **Always divide durations by 1000** for Framer Motion (expects seconds)
+- **Never block state updates** with animations - visual only
+- **Test on actual mobile devices** for 60fps performance
+- **Use centralized constants** - no hardcoded timing values
+
 ### Critical Dependencies
 
 - **convex**: Real-time database and backend-as-a-service

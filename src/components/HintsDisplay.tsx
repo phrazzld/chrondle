@@ -5,13 +5,9 @@ import { formatYear } from "@/lib/displayFormatting";
 import { Separator } from "@/components/ui/Separator";
 import { Check } from "lucide-react";
 import { HintText } from "@/components/ui/HintText";
-import {
-  motion,
-  AnimatePresence,
-  LayoutGroup,
-  useReducedMotion,
-} from "motion/react";
+import { motion, AnimatePresence, LayoutGroup, useReducedMotion } from "motion/react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { ANIMATION_DURATIONS, ANIMATION_EASINGS } from "@/lib/animationConstants";
 import { validateHintsDisplayProps } from "@/lib/propValidation";
 
 interface HintsDisplayProps {
@@ -37,8 +33,8 @@ interface FutureHintProps {
   shouldReduceMotion?: boolean;
 }
 
-const PastHint: React.FC<PastHintProps> = React.memo(
-  ({ hintNumber, hintText, guess, targetYear, shouldReduceMotion = false }) => {
+const PastHint: React.FC<PastHintProps & { isNewest?: boolean }> = React.memo(
+  ({ hintNumber, hintText, guess, targetYear, shouldReduceMotion = false, isNewest = false }) => {
     if (
       !hintText ||
       guess === undefined ||
@@ -47,10 +43,10 @@ const PastHint: React.FC<PastHintProps> = React.memo(
     ) {
       return (
         <div className="py-2 opacity-50">
-          <p className="text-xs text-muted-foreground mb-1 text-left uppercase">
+          <p className="text-muted-foreground mb-1 text-left text-xs uppercase">
             Hint #{hintNumber}
           </p>
-          <p className="text-sm text-destructive text-left">[DATA MISSING]</p>
+          <p className="text-destructive text-left text-sm">[DATA MISSING]</p>
         </div>
       );
     }
@@ -87,27 +83,39 @@ const PastHint: React.FC<PastHintProps> = React.memo(
       ? "bg-green-50 border-green-200/50 dark:bg-green-900/20 dark:border-green-800/50"
       : "bg-muted/10 border-muted/20";
 
+    // Coordinated delay for newest past hint to prevent duplication
+    // - Newest hint being "demoted" from current: long delay (1200ms) to wait for exit
+    // - Other hints stacking down: minimal delay (50ms) for smooth layout shifts
+    const entranceDelay = isNewest
+      ? ANIMATION_DURATIONS.DEMOTED_HINT_DELAY / 1000 // 1200ms - wait for CurrentHint to exit
+      : 0.05; // Minimal delay for smooth stacking animation
+
     return (
       <motion.div
         layout={!shouldReduceMotion}
-        initial={shouldReduceMotion ? undefined : { opacity: 0, y: -20 }}
-        animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+        initial={shouldReduceMotion ? undefined : { opacity: 0, y: -20, scale: 0.95 }}
+        animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
         exit={shouldReduceMotion ? undefined : { opacity: 0, scale: 0.95 }}
         transition={{
-          type: "spring",
-          stiffness: 500,
-          damping: 30,
+          duration: ANIMATION_DURATIONS.HINT_TRANSITION / 1000,
+          ease: ANIMATION_EASINGS.ANTICIPATION,
+          delay: entranceDelay, // Only applies to entrance animation
+          layout: {
+            duration: ANIMATION_DURATIONS.HINT_TRANSITION / 1000,
+            ease: "easeOut",
+            // No delay for layout shifts - prevents delays when hints move positions
+          },
         }}
-        className={`py-3 px-4 rounded-lg border-2 ${backgroundClass} opacity-90 hover:opacity-100 transition-all duration-200 shadow-md shadow-primary/5 hover:shadow-lg hover:shadow-primary/10`}
+        className={`rounded-lg border-2 px-4 py-3 ${backgroundClass} shadow-primary/5 hover:shadow-primary/10 opacity-90 shadow-md transition-all duration-200 hover:opacity-100 hover:shadow-lg`}
       >
         {/* Enhanced header with proximity indicator */}
-        <div className="flex items-center gap-3 mb-2">
-          <p className="text-xs text-muted-foreground uppercase font-accent tracking-wide font-medium">
+        <div className="mb-2 flex items-center gap-3">
+          <p className="text-muted-foreground font-accent text-xs font-medium tracking-wide uppercase">
             Hint #{hintNumber}
           </p>
           <div className="flex-1" />
           <div className="flex items-center gap-2">
-            <span className="font-accent font-semibold text-foreground text-xs">
+            <span className="font-accent text-foreground text-xs font-semibold">
               {formatYear(guess)}
             </span>
             {/* Proximity indicator */}
@@ -120,8 +128,8 @@ const PastHint: React.FC<PastHintProps> = React.memo(
               {proximityEmoji}
             </span>
             {isCorrect && (
-              <div className="flex justify-center items-center text-green-600 dark:text-green-400">
-                <Check className="w-4 h-4" />
+              <div className="flex items-center justify-center text-green-600 dark:text-green-400">
+                <Check className="h-4 w-4" />
               </div>
             )}
           </div>
@@ -129,7 +137,7 @@ const PastHint: React.FC<PastHintProps> = React.memo(
 
         {/* Content section */}
         <div>
-          <div className="text-sm text-left font-body leading-relaxed text-foreground">
+          <div className="font-body text-foreground text-left text-sm leading-relaxed">
             <HintText>{hintText}</HintText>
           </div>
         </div>
@@ -145,12 +153,8 @@ const FutureHint: React.FC<FutureHintProps> = React.memo(
     return (
       <motion.div
         layout={!shouldReduceMotion}
-        initial={
-          shouldReduceMotion ? undefined : { opacity: 0, y: -10, scale: 0.98 }
-        }
-        animate={
-          shouldReduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }
-        }
+        initial={shouldReduceMotion ? undefined : { opacity: 0, y: -10, scale: 0.98 }}
+        animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
         exit={shouldReduceMotion ? undefined : { opacity: 0 }}
         transition={{
           type: "spring",
@@ -158,29 +162,22 @@ const FutureHint: React.FC<FutureHintProps> = React.memo(
           damping: 25,
           delay: 0.1,
         }}
-        className="py-3 px-4 rounded-lg border border-dashed border-muted/50 bg-muted/10 opacity-75 hover:opacity-90 transition-all duration-200 shadow-sm shadow-muted/10 hover:shadow-md hover:shadow-muted/20"
+        className="bg-muted/5 rounded-lg px-3 py-2 opacity-60"
       >
-        {/* Enhanced header for unused hints */}
-        <div className="flex items-center gap-3 mb-2">
-          <div className="flex items-center gap-2">
-            <span className="text-lg" role="img" aria-label="unused hint">
-              💡
-            </span>
-            <p className="text-xs text-muted-foreground uppercase font-accent tracking-wide font-medium">
-              Hint #{hintNumber}
-            </p>
-          </div>
+        {/* Header for unused hints */}
+        <div className="mb-2 flex items-center gap-3">
+          <p className="text-muted-foreground font-accent text-xs font-medium tracking-wide uppercase">
+            Hint #{hintNumber}
+          </p>
           <div className="flex-1" />
-          <div className="flex items-center">
-            <span className="text-xs text-muted-foreground/70 uppercase tracking-wider font-medium">
-              Unused
-            </span>
-          </div>
+          <span className="text-muted-foreground/50 text-[10px] font-medium tracking-wider uppercase">
+            Unused
+          </span>
         </div>
 
         {/* Content section */}
         <div className="pl-2">
-          <div className="text-sm text-muted-foreground text-left font-body leading-relaxed">
+          <div className="text-muted-foreground font-body text-left text-sm leading-relaxed">
             <HintText>{hintText || "No hint available"}</HintText>
           </div>
         </div>
@@ -236,14 +233,7 @@ export const HintsDisplay: React.FC<HintsDisplayProps> = React.memo((props) => {
   // Validate props in development
   validateHintsDisplayProps(props);
 
-  const {
-    events,
-    guesses,
-    targetYear,
-    isGameComplete = false,
-    error,
-    className = "",
-  } = props;
+  const { events, guesses, targetYear, isGameComplete = false, error, className = "" } = props;
   const containerRef = useRef<HTMLDivElement>(null);
   const prevGuessCount = useRef(guesses.length);
   const shouldReduceMotion = useReducedMotion();
@@ -266,18 +256,14 @@ export const HintsDisplay: React.FC<HintsDisplayProps> = React.memo((props) => {
   if (error) {
     return (
       <div
-        className={`${className} p-6 text-center bg-destructive/5 border border-destructive/50 rounded-lg`}
+        className={`${className} bg-destructive/5 border-destructive/50 rounded-lg border p-6 text-center`}
       >
         <div className="mb-3">
-          <div className="w-12 h-12 bg-destructive/20 rounded-full flex items-center justify-center mx-auto mb-3">
+          <div className="bg-destructive/20 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full">
             <span className="text-destructive text-xl">⚠️</span>
           </div>
-          <h3 className="text-xl font-bold mb-2 text-destructive">
-            Unable to Load Puzzle
-          </h3>
-          <p className="text-muted-foreground">
-            Please refresh the page to try again.
-          </p>
+          <h3 className="text-destructive mb-2 text-xl font-bold">Unable to Load Puzzle</h3>
+          <p className="text-muted-foreground">Please refresh the page to try again.</p>
         </div>
       </div>
     );
@@ -318,21 +304,31 @@ export const HintsDisplay: React.FC<HintsDisplayProps> = React.memo((props) => {
         <LayoutGroup>
           {/* Past Hints - Stack downward in reverse chronological order */}
           <AnimatePresence>
-            {pastHints.map((hint, index) => (
-              <motion.div
-                key={`past-hint-${hint.hintNumber}`}
-                layout={!shouldReduceMotion}
-              >
-                <PastHint
-                  hintNumber={hint.hintNumber}
-                  hintText={hint.hintText}
-                  guess={hint.guess}
-                  targetYear={targetYear}
-                  shouldReduceMotion={shouldReduceMotion ?? false}
-                />
-                {index < pastHints.length - 1 && <Separator className="mt-3" />}
-              </motion.div>
-            ))}
+            {pastHints.map((hint, index) => {
+              const isNewestHint = index === 0; // First item in reverse-chron array
+              return (
+                <motion.div
+                  key={`past-hint-${hint.hintNumber}`}
+                  layout={!shouldReduceMotion}
+                  transition={{
+                    layout: {
+                      duration: shouldReduceMotion ? 0 : ANIMATION_DURATIONS.HINT_TRANSITION / 1000,
+                      ease: "easeOut",
+                    },
+                  }}
+                >
+                  <PastHint
+                    hintNumber={hint.hintNumber}
+                    hintText={hint.hintText}
+                    guess={hint.guess}
+                    targetYear={targetYear}
+                    shouldReduceMotion={shouldReduceMotion ?? false}
+                    isNewest={isNewestHint}
+                  />
+                  {index < pastHints.length - 1 && <Separator className="mt-3" />}
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </LayoutGroup>
       </div>
@@ -343,22 +339,12 @@ export const HintsDisplay: React.FC<HintsDisplayProps> = React.memo((props) => {
           initial={shouldReduceMotion ? {} : { opacity: 0, y: 20 }}
           animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
           transition={shouldReduceMotion ? {} : { delay: 0.5, duration: 0.4 }}
-          className="mt-6 pt-4 border-t border-muted/40"
+          className="border-muted/40 mt-6 border-t pt-4"
         >
-          {/* Enhanced header for revealed hints */}
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-xl" role="img" aria-label="revealed hints">
-              ✨
-            </span>
-            <div>
-              <p className="text-sm font-medium text-foreground">
-                Unused Hints Revealed
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {futureHints.length} hint{futureHints.length === 1 ? "" : "s"}{" "}
-                you didn&apos;t need
-              </p>
-            </div>
+          {/* Header for unused hints */}
+          <div className="mb-3 opacity-60">
+            <p className="text-muted-foreground text-xs font-medium">Additional hints</p>
+            <p className="text-muted-foreground/70 text-[10px]">Not needed to solve</p>
           </div>
 
           <div className="space-y-3">
@@ -366,16 +352,8 @@ export const HintsDisplay: React.FC<HintsDisplayProps> = React.memo((props) => {
               {futureHints.map((hint, index) => (
                 <motion.div
                   key={`future-hint-${hint.hintNumber}`}
-                  initial={
-                    shouldReduceMotion
-                      ? undefined
-                      : { opacity: 0, y: -10, scale: 0.98 }
-                  }
-                  animate={
-                    shouldReduceMotion
-                      ? undefined
-                      : { opacity: 1, y: 0, scale: 1 }
-                  }
+                  initial={shouldReduceMotion ? undefined : { opacity: 0, y: -10, scale: 0.98 }}
+                  animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
                   transition={{
                     delay: 0.7 + index * 0.15, // Staggered reveal after header
                     type: "spring",
