@@ -162,24 +162,17 @@ const FutureHint: React.FC<FutureHintProps> = React.memo(
           damping: 25,
           delay: 0.1,
         }}
-        className="border-muted/50 bg-muted/10 shadow-muted/10 hover:shadow-muted/20 rounded-lg border border-dashed px-4 py-3 opacity-75 shadow-sm transition-all duration-200 hover:opacity-90 hover:shadow-md"
+        className="bg-muted/5 rounded-lg px-3 py-2 opacity-60"
       >
-        {/* Enhanced header for unused hints */}
+        {/* Header for unused hints */}
         <div className="mb-2 flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-lg" role="img" aria-label="unused hint">
-              💡
-            </span>
-            <p className="text-muted-foreground font-accent text-xs font-medium tracking-wide uppercase">
-              Hint #{hintNumber}
-            </p>
-          </div>
+          <p className="text-muted-foreground font-accent text-xs font-medium tracking-wide uppercase">
+            Hint #{hintNumber}
+          </p>
           <div className="flex-1" />
-          <div className="flex items-center">
-            <span className="text-muted-foreground/70 text-xs font-medium tracking-wider uppercase">
-              Unused
-            </span>
-          </div>
+          <span className="text-muted-foreground/50 text-[10px] font-medium tracking-wider uppercase">
+            Unused
+          </span>
         </div>
 
         {/* Content section */}
@@ -348,17 +341,10 @@ export const HintsDisplay: React.FC<HintsDisplayProps> = React.memo((props) => {
           transition={shouldReduceMotion ? {} : { delay: 0.5, duration: 0.4 }}
           className="border-muted/40 mt-6 border-t pt-4"
         >
-          {/* Enhanced header for revealed hints */}
-          <div className="mb-4 flex items-center gap-3">
-            <span className="text-xl" role="img" aria-label="revealed hints">
-              ✨
-            </span>
-            <div>
-              <p className="text-foreground text-sm font-medium">Unused Hints Revealed</p>
-              <p className="text-muted-foreground text-xs">
-                {futureHints.length} hint{futureHints.length === 1 ? "" : "s"} you didn&apos;t need
-              </p>
-            </div>
+          {/* Header for unused hints */}
+          <div className="mb-3 opacity-60">
+            <p className="text-muted-foreground text-xs font-medium">Additional hints</p>
+            <p className="text-muted-foreground/70 text-[10px]">Not needed to solve</p>
           </div>
 
           <div className="space-y-3">

@@ -27,9 +27,7 @@ vi.mock("motion/react", () => ({
       <span {...props}>{children}</span>
     ),
   },
-  AnimatePresence: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  ),
+  AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   LayoutGroup: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   useReducedMotion: () => false,
 }));
@@ -88,7 +86,7 @@ describe("HintsDisplay Component Interface", () => {
       expect(screen.getByText(props.events[1])).toBeTruthy();
       expect(screen.getByText(props.events[2])).toBeTruthy();
       // Future hints section header appears
-      expect(screen.getByText(/Unused Hints Revealed/i)).toBeTruthy();
+      expect(screen.getByText(/Additional hints/i)).toBeTruthy();
     });
 
     it("handles empty guesses array (no past hints)", () => {
@@ -105,9 +103,7 @@ describe("HintsDisplay Component Interface", () => {
   describe("Optional Props", () => {
     it("accepts className prop", () => {
       const props = createDefaultProps();
-      const { container } = render(
-        <HintsDisplay {...props} className="custom-class" />,
-      );
+      const { container } = render(<HintsDisplay {...props} className="custom-class" />);
 
       const wrapper = container.firstChild as HTMLElement;
       expect(wrapper.className).toContain("custom-class");
