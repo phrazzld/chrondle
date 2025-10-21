@@ -4,6 +4,7 @@ import React from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { HintText } from "@/components/ui/HintText";
+import { ANIMATION_DURATIONS, ANIMATION_EASINGS } from "@/lib/animationConstants";
 
 interface CurrentHintCardProps {
   event: string | null;
@@ -26,16 +27,14 @@ export const CurrentHintCard: React.FC<CurrentHintCardProps> = React.memo(
 
     return (
       <motion.div
-        layout={!shouldReduceMotion}
-        layoutId={shouldReduceMotion ? undefined : "current-hint-card"}
-        initial={shouldReduceMotion ? undefined : { opacity: 0, y: -10 }}
-        animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-        exit={shouldReduceMotion ? undefined : { opacity: 0, y: -10 }}
+        key={hintNumber}
+        initial={shouldReduceMotion ? undefined : { opacity: 0, y: -20, scale: 0.95 }}
+        animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
+        exit={shouldReduceMotion ? undefined : { opacity: 0, y: -20, scale: 0.95 }}
         transition={{
-          type: "spring",
-          stiffness: 400,
-          damping: 25,
-          opacity: { duration: 0.3 },
+          duration: ANIMATION_DURATIONS.HINT_TRANSITION / 1000,
+          ease: ANIMATION_EASINGS.ANTICIPATION,
+          delay: ANIMATION_DURATIONS.HINT_DELAY / 1000,
         }}
         className="w-full"
       >
