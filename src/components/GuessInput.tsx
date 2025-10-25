@@ -4,14 +4,16 @@ import React, { useState, useCallback, FormEvent, useRef, useEffect, KeyboardEve
 import { isValidYear } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { EraToggle } from "@/components/ui/EraToggle";
+import { ConfidenceSelector } from "@/components/ui/ConfidenceSelector";
 import { validateGuessInputProps } from "@/lib/propValidation";
 import type { Era } from "@/lib/eraUtils";
 import { convertToInternalYear, isValidEraYear } from "@/lib/eraUtils";
 import { ANIMATION_DURATIONS, useReducedMotion } from "@/lib/animationConstants";
+import type { ConfidenceLevel } from "@/types/confidence";
 import { logger } from "@/lib/logger";
 
 interface GuessInputProps {
-  onGuess: (guess: number) => void;
+  onGuess: (guess: number, confidence: ConfidenceLevel) => void;
   disabled: boolean;
   remainingGuesses: number;
   onValidationError?: (message: string) => void;
@@ -40,6 +42,9 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
   const [era, setEra] = useState<Era>("AD");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Confidence state (defaults to "confident")
+  const [confidence, setConfidence] = useState<ConfidenceLevel>("confident");
 
   // Respect user's motion preferences
   const shouldReduceMotion = useReducedMotion();
@@ -101,10 +106,11 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
       // Trigger animation immediately for instant feedback
       setIsSubmitting(true);
 
-      // Make the guess with the internal year format
-      onGuess(internalYear);
+      // Make the guess with the internal year format and confidence level
+      onGuess(internalYear, confidence);
       setYear("");
       // Keep the era as-is for user convenience (don't reset to default)
+      // Keep confidence as-is (player might want same level for next guess)
 
       // Explicitly refocus the input to keep keyboard open on mobile
       inputRef.current?.focus();
@@ -114,7 +120,7 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
         setIsSubmitting(false);
       }, ANIMATION_DURATIONS.BUTTON_PRESS);
     },
-    [year, era, onGuess, onValidationError, isSubmitting],
+    [year, era, onGuess, onValidationError, isSubmitting, confidence],
   );
 
   const getButtonText = (
@@ -134,7 +140,10 @@ export const GuessInput: React.FC<GuessInputProps> = (props) => {
   const isSubmitDisabled = disabled || remainingGuesses <= 0;
 
   return (
-    <div className={`${className} mb-0`}>
+    <div className={`${className} mb-0 space-y-4`}>
+      {/* Confidence Selector - Choose confidence level */}
+      <ConfidenceSelector value={confidence} onChange={setConfidence} disabled={disabled} />
+
       <form
         onSubmit={handleSubmit}
         className="mb-0 flex flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-2"

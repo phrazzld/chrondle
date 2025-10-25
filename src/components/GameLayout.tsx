@@ -7,9 +7,11 @@ import { CurrentHintCard } from "@/components/CurrentHintCard";
 import { GuessInput } from "@/components/GuessInput";
 import { Timeline } from "@/components/Timeline";
 import { LastGuessDisplay } from "@/components/ui/LastGuessDisplay";
+import { PuzzleScore } from "@/components/ui/PuzzleScore";
 import { HintsDisplay } from "@/components/HintsDisplay";
 import { Confetti, ConfettiRef } from "@/components/magicui/confetti";
 import { validateGameLayoutProps } from "@/lib/propValidation";
+import type { ConfidenceLevel } from "@/types/confidence";
 
 export interface GameLayoutProps {
   // Core game state
@@ -29,7 +31,7 @@ export interface GameLayoutProps {
   error: string | null;
 
   // Actions
-  onGuess: (year: number) => void;
+  onGuess: (year: number, confidence: ConfidenceLevel) => void;
 
   // Optional header content (nav controls for archive, settings for homepage)
   headerContent?: React.ReactNode;
@@ -56,6 +58,12 @@ export interface GameLayoutProps {
 
   // Archive indicator
   isArchive?: boolean;
+
+  // Current puzzle score
+  currentScore?: number;
+
+  // Whether puzzle solved with no wrong guesses
+  isPerfect?: boolean;
 }
 
 export function GameLayout(props: GameLayoutProps) {
@@ -75,6 +83,8 @@ export function GameLayout(props: GameLayoutProps) {
     confettiRef,
     countdown,
     isArchive = false,
+    currentScore = 0,
+    isPerfect = false,
   } = props;
 
   // Calculate currentHintIndex from gameState
@@ -90,6 +100,9 @@ export function GameLayout(props: GameLayoutProps) {
       {/* Main game content */}
       <main className="flex-1 overflow-auto px-4 py-6">
         <div className="mx-auto w-full max-w-2xl space-y-6">
+          {/* Puzzle Score - Shows current/final score */}
+          <PuzzleScore score={currentScore} isComplete={isGameComplete} isPerfect={isPerfect} />
+
           {/* Game Instructions - Header and subheading always at top */}
           <GameInstructions
             isGameComplete={isGameComplete}

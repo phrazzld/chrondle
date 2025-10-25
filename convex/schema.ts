@@ -33,10 +33,10 @@ export default defineSchema({
     userId: v.id("users"),
     puzzleId: v.id("puzzles"),
     guesses: v.array(v.number()), // [1945, 1939, 1941] - just years
-    wagers: v.optional(v.array(v.number())), // [100, 200, 150] - points wagered per guess
-    multipliers: v.optional(v.array(v.number())), // [6, 5, 4] - multiplier at time of each guess
-    earnings: v.optional(v.array(v.number())), // [600, -100, 600] - points earned/lost per guess
-    finalBankBalance: v.optional(v.number()), // Bank balance after completing puzzle
+    confidenceLevels: v.optional(v.array(v.string())), // ["confident", "bold", "cautious"] - confidence per guess
+    wrongGuessConfidences: v.optional(v.array(v.string())), // ["bold", "cautious"] - confidence for wrong guesses only
+    finalScore: v.optional(v.number()), // Final puzzle score (0-600 range)
+    isPerfect: v.optional(v.boolean()), // True if solved with no wrong guesses
     completedAt: v.optional(v.number()), // null = in progress, timestamp = done
     updatedAt: v.number(), // Last guess timestamp
   })
@@ -53,14 +53,11 @@ export default defineSchema({
     longestStreak: v.number(),
     lastCompletedDate: v.optional(v.string()), // ISO date (YYYY-MM-DD) of last puzzle completion
     totalPlays: v.number(),
-    perfectGames: v.number(), // Guessed in 1 try
-    // Wager system fields
-    bank: v.optional(v.number()), // Current points balance (default: 1000)
-    allTimeHighBank: v.optional(v.number()), // Max bank ever achieved
-    totalPointsEarned: v.optional(v.number()), // Lifetime earnings
-    totalPointsWagered: v.optional(v.number()), // Lifetime wagers
-    biggestWin: v.optional(v.number()), // Largest single puzzle score
-    averageWinMultiplier: v.optional(v.number()), // Avg multiplier when winning
+    perfectGames: v.number(), // Solved with no wrong guesses
+    // Confidence scoring fields
+    totalScore: v.optional(v.number()), // Lifetime score accumulation
+    highestPuzzleScore: v.optional(v.number()), // Best single puzzle score (max 600)
+    averageScore: v.optional(v.number()), // Average score across all completed puzzles
     updatedAt: v.number(), // For streak updates
   }).index("by_clerk", ["clerkId"]),
 });

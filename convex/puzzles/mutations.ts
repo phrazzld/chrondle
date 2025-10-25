@@ -28,16 +28,13 @@ const MAX_GUESSES = 6;
  * - Checking correctness against puzzle target year
  * - Updating puzzle statistics on completion
  * - Managing user streaks (daily puzzles only)
- * - Processing wagers and updating bank balance
+ * - Tracking confidence levels and calculating scores
  * - Enforcing MAX_GUESSES limit
  *
  * @param puzzleId - Puzzle being played
  * @param userId - Authenticated user
  * @param guess - Year guess
- * @param wagerAmount - Optional wager amount (0 if not wagering)
- * @param multiplier - Optional multiplier at time of wager
- * @param earnings - Optional earnings from wager
- * @param newBank - Optional new bank balance after wager
+ * @param confidence - Optional confidence level ("cautious" | "confident" | "bold")
  * @returns Guess result with correctness and updated state
  */
 export const submitGuess = mutation({
@@ -45,11 +42,8 @@ export const submitGuess = mutation({
     puzzleId: v.id("puzzles"),
     userId: v.id("users"),
     guess: v.number(),
-    // Optional wager fields
-    wagerAmount: v.optional(v.number()),
-    multiplier: v.optional(v.number()),
-    earnings: v.optional(v.number()),
-    newBank: v.optional(v.number()),
+    // Optional confidence field
+    confidence: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     // Get the puzzle to check the target year
@@ -75,63 +69,82 @@ export const submitGuess = mutation({
       // Add guess to existing play
       const updatedGuesses = [...existingPlay.guesses, args.guess];
 
-      // Update play record with guess and optional wager data
+      // Update play record with guess and optional confidence data
       const playUpdate: Record<string, unknown> = {
         guesses: updatedGuesses,
         completedAt: isCorrect ? Date.now() : undefined,
         updatedAt: Date.now(),
       };
 
-      // Add wager data if provided
-      if (args.wagerAmount !== undefined) {
-        const existingWagers = existingPlay.wagers || [];
-        const existingMultipliers = existingPlay.multipliers || [];
-        const existingEarnings = existingPlay.earnings || [];
+      // Track confidence levels if provided
+      if (args.confidence !== undefined) {
+        const existingConfidences = existingPlay.confidenceLevels || [];
+        playUpdate.confidenceLevels = [...existingConfidences, args.confidence];
 
-        playUpdate.wagers = [...existingWagers, args.wagerAmount];
-        playUpdate.multipliers = [...existingMultipliers, args.multiplier ?? 1];
-        playUpdate.earnings = [...existingEarnings, args.earnings ?? 0];
+        // Track wrong guess confidences separately
+        if (!isCorrect) {
+          const existingWrongGuesses = existingPlay.wrongGuessConfidences || [];
+          playUpdate.wrongGuessConfidences = [...existingWrongGuesses, args.confidence];
+        }
 
-        // Set final bank balance if game is complete
+        // Calculate final score if game is complete
         if (isCorrect || updatedGuesses.length >= MAX_GUESSES) {
-          playUpdate.finalBankBalance = args.newBank;
+          const wrongGuesses = playUpdate.wrongGuessConfidences as string[];
+          const solvedAtHintIndex = updatedGuesses.length - 1;
+
+          // Calculate score using confidence scoring logic with risk/reward system
+          const BASE_SCORES = [600, 500, 400, 300, 200, 100];
+          const PENALTIES = { cautious: 25, confident: 50, bold: 100 };
+          const BONUSES = { cautious: 0, confident: 50, bold: 100 };
+
+          const baseScore = BASE_SCORES[Math.min(solvedAtHintIndex, 5)];
+
+          // Calculate total penalties from wrong guesses
+          const totalPenalties = wrongGuesses.reduce((sum, conf) => {
+            return sum + (PENALTIES[conf as keyof typeof PENALTIES] || 0);
+          }, 0);
+
+          // Calculate bonus from correct guess confidence (only if won)
+          const correctGuessBonus = isCorrect
+            ? BONUSES[args.confidence as keyof typeof BONUSES] || 0
+            : 0;
+
+          // Final score: base + bonus - penalties, floored at 0
+          playUpdate.finalScore = Math.max(0, baseScore + correctGuessBonus - totalPenalties);
+          playUpdate.isPerfect = wrongGuesses.length === 0 && isCorrect;
         }
       }
 
       await ctx.db.patch(existingPlay._id, playUpdate);
 
-      // Update user's bank balance if wager was made
-      if (args.newBank !== undefined) {
+      // Update user scoring stats if puzzle is complete
+      if (
+        (isCorrect || updatedGuesses.length >= MAX_GUESSES) &&
+        playUpdate.finalScore !== undefined
+      ) {
         const user = await ctx.db.get(args.userId);
         if (user) {
+          const finalScore = playUpdate.finalScore as number;
           const updateData: Record<string, unknown> = {
-            bank: args.newBank,
             updatedAt: Date.now(),
           };
 
-          // Update all-time high if new bank is higher
-          if (args.newBank > (user.allTimeHighBank ?? 1000)) {
-            updateData.allTimeHighBank = args.newBank;
+          // Update total score (lifetime accumulation)
+          updateData.totalScore = (user.totalScore ?? 0) + finalScore;
+
+          // Update highest puzzle score if this is a new record
+          if (finalScore > (user.highestPuzzleScore ?? 0)) {
+            updateData.highestPuzzleScore = finalScore;
           }
 
-          // Update lifetime stats
-          if (args.earnings !== undefined && args.earnings > 0) {
-            updateData.totalPointsEarned = (user.totalPointsEarned ?? 0) + args.earnings;
-
-            // Update biggest win if this is a new record
-            if (args.earnings > (user.biggestWin ?? 0)) {
-              updateData.biggestWin = args.earnings;
-            }
-
-            // Update average win multiplier
-            const totalWins = (user.perfectGames ?? 0) + 1; // Approximate win count
-            const oldAvg = user.averageWinMultiplier ?? 0;
-            const newAvg = (oldAvg * (totalWins - 1) + (args.multiplier ?? 1)) / totalWins;
-            updateData.averageWinMultiplier = newAvg;
-          }
-
-          if (args.wagerAmount !== undefined) {
-            updateData.totalPointsWagered = (user.totalPointsWagered ?? 0) + args.wagerAmount;
+          // Update average score (only for completed puzzles)
+          const totalCompletedPlays = user.totalPlays ?? 0;
+          if (totalCompletedPlays > 0) {
+            const oldTotal = (user.averageScore ?? 0) * totalCompletedPlays;
+            const newAvg = (oldTotal + finalScore) / (totalCompletedPlays + 1);
+            updateData.averageScore = newAvg;
+          } else {
+            updateData.averageScore = finalScore;
           }
 
           await ctx.db.patch(args.userId, updateData);
@@ -174,20 +187,63 @@ export const submitGuess = mutation({
         updatedAt: Date.now(),
       };
 
-      // Add wager data if provided
-      if (args.wagerAmount !== undefined) {
-        newPlay.wagers = [args.wagerAmount];
-        newPlay.multipliers = [args.multiplier ?? 1];
-        newPlay.earnings = [args.earnings ?? 0];
+      // Add confidence data if provided
+      if (args.confidence !== undefined) {
+        newPlay.confidenceLevels = [args.confidence];
 
-        // Set final bank balance if game is complete on first guess
+        // Track wrong guess confidence
+        if (!isCorrect) {
+          newPlay.wrongGuessConfidences = [args.confidence];
+        } else {
+          newPlay.wrongGuessConfidences = [];
+        }
+
+        // Set final score if game is complete on first guess (perfect game)
         if (isCorrect) {
-          newPlay.finalBankBalance = args.newBank;
+          const BASE_SCORES = [600, 500, 400, 300, 200, 100];
+          const BONUSES = { cautious: 0, confident: 50, bold: 100 };
+
+          const baseScore = BASE_SCORES[0]; // First hint = 600 points
+          const bonus = BONUSES[args.confidence as keyof typeof BONUSES] || 0;
+
+          newPlay.finalScore = baseScore + bonus; // Base + bonus for confidence
+          newPlay.isPerfect = true;
         }
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await ctx.db.insert("plays", newPlay as any);
+
+      // Update user scoring stats if game is complete on first guess
+      if (isCorrect && newPlay.finalScore !== undefined) {
+        const user = await ctx.db.get(args.userId);
+        if (user) {
+          const finalScore = newPlay.finalScore as number;
+          const updateData: Record<string, unknown> = {
+            updatedAt: Date.now(),
+          };
+
+          // Update total score
+          updateData.totalScore = (user.totalScore ?? 0) + finalScore;
+
+          // Update highest puzzle score
+          if (finalScore > (user.highestPuzzleScore ?? 0)) {
+            updateData.highestPuzzleScore = finalScore;
+          }
+
+          // Update average score
+          const totalCompletedPlays = user.totalPlays ?? 0;
+          if (totalCompletedPlays > 0) {
+            const oldTotal = (user.averageScore ?? 0) * totalCompletedPlays;
+            const newAvg = (oldTotal + finalScore) / (totalCompletedPlays + 1);
+            updateData.averageScore = newAvg;
+          } else {
+            updateData.averageScore = finalScore;
+          }
+
+          await ctx.db.patch(args.userId, updateData);
+        }
+      }
 
       // Update puzzle stats and streak
       if (isCorrect) {
