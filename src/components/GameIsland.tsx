@@ -19,6 +19,8 @@ import { useChrondle } from "@/hooks/useChrondle";
 import { isReady } from "@/types/gameState";
 import { useStreak } from "@/hooks/useStreak";
 import { useCountdown } from "@/hooks/useCountdown";
+import type { ConfidenceLevel } from "@/types/confidence";
+import { getPotentialScore } from "@/lib/confidenceScoring";
 import { useVictoryConfetti } from "@/hooks/useVictoryConfetti";
 import { useScreenReaderAnnouncements } from "@/hooks/useScreenReaderAnnouncements";
 import { logger } from "@/lib/logger";
@@ -131,8 +133,47 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
   const { streakData, updateStreak, hasNewAchievement, newAchievement, clearNewAchievement } =
     useStreak();
 
+  // Confidence tracking for wrong guesses (used for scoring)
+  const [wrongGuessConfidences, setWrongGuessConfidences] = useState<ConfidenceLevel[]>([]);
+
   // Countdown for next puzzle
   const countdown = useCountdown();
+
+  // Calculate current potential score (using "confident" as baseline)
+  const currentScore = useMemo(() => {
+    const currentHintIndex = Math.min(gameLogic.gameState.guesses.length, 5);
+    // Show potential score with "confident" level as baseline
+    // Actual score will vary based on user's confidence selection
+    return getPotentialScore(currentHintIndex, wrongGuessConfidences, "confident");
+  }, [gameLogic.gameState.guesses.length, wrongGuessConfidences]);
+
+  // Check if game is perfect (no wrong guesses)
+  const isPerfect = wrongGuessConfidences.length === 0 && gameLogic.hasWon;
+
+  // Wrapper for makeGuess that tracks confidence levels
+  const handleMakeGuess = useCallback(
+    (year: number, confidence: ConfidenceLevel) => {
+      // Check if this will be a wrong guess
+      const targetYear = gameLogic.gameState.puzzle?.year;
+      const isWrong = targetYear !== undefined && year !== targetYear;
+
+      // Track wrong guess confidence for scoring
+      if (isWrong) {
+        setWrongGuessConfidences((prev) => [...prev, confidence]);
+      }
+
+      // Pass to chrondle hook (will need to update signature later)
+      gameLogic.makeGuess(year);
+    },
+    [gameLogic],
+  );
+
+  // Reset confidence tracking when game resets
+  useEffect(() => {
+    if (!gameLogic.isGameComplete && gameLogic.gameState.guesses.length === 0) {
+      setWrongGuessConfidences([]);
+    }
+  }, [gameLogic.isGameComplete, gameLogic.gameState.guesses.length]);
 
   // UI state
   const [, setValidationError] = useState("");
@@ -260,10 +301,12 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
               hasWon={gameLogic.hasWon}
               isLoading={gameLogic.isLoading}
               error={gameLogic.error}
-              onGuess={gameLogic.makeGuess}
+              onGuess={handleMakeGuess}
               countdown={countdown}
               confettiRef={confettiRef}
               onValidationError={setValidationError}
+              currentScore={currentScore}
+              isPerfect={isPerfect}
             />
           )}
         </main>

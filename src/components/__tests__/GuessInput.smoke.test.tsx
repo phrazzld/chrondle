@@ -74,9 +74,9 @@ describe("GuessInput Smoke Tests", () => {
     // Submit the form
     await user.click(submitButton);
 
-    // Verify the callback was called with the correct value (negative for BC)
+    // Verify the callback was called with the correct value (negative for BC) and default confidence
     await waitFor(() => {
-      expect(mockOnGuess).toHaveBeenCalledWith(-776);
+      expect(mockOnGuess).toHaveBeenCalledWith(-776, "confident");
     });
   });
 

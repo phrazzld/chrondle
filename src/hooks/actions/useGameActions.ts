@@ -8,12 +8,13 @@ import { useToast } from "@/hooks/use-toast";
 import { assertConvexId, isConvexIdValidationError } from "@/lib/validation";
 import { useMutationWithRetry } from "@/hooks/useMutationWithRetry";
 import { logger } from "@/lib/logger";
+import type { Id } from "../../../convex/_generated/dataModel";
 
 /**
  * Return type for the useGameActions hook
  */
 export interface UseGameActionsReturn {
-  submitGuess: (guess: number) => Promise<boolean>;
+  submitGuess: (guess: number, confidence?: "cautious" | "confident" | "bold") => Promise<boolean>;
   resetGame: () => void;
   isSubmitting: boolean;
 }
@@ -65,9 +66,12 @@ export function useGameActions(sources: DataSources): UseGameActionsReturn {
    * Submit a guess with optimistic updates
    * Adds to session immediately for instant feedback
    * Persists to server if authenticated
+   *
+   * @param guess - The year guess (internal format: negative for BC)
+   * @param confidence - Optional confidence level ("cautious" | "confident" | "bold")
    */
   const submitGuess = useCallback(
-    async (guess: number): Promise<boolean> => {
+    async (guess: number, confidence?: "cautious" | "confident" | "bold"): Promise<boolean> => {
       // Validate inputs
       if (!puzzle.puzzle) {
         if ("addToast" in toastContext) {
@@ -123,11 +127,24 @@ export function useGameActions(sources: DataSources): UseGameActionsReturn {
           const validPuzzleId = assertConvexId(puzzle.puzzle.id, "puzzles");
           const validUserId = assertConvexId(auth.userId, "users");
 
-          await submitGuessMutation({
+          // Include confidence parameter if provided
+          const mutationParams: {
+            puzzleId: Id<"puzzles">;
+            userId: Id<"users">;
+            guess: number;
+            confidence?: string;
+          } = {
             puzzleId: validPuzzleId,
             userId: validUserId,
             guess,
-          });
+          };
+
+          // Add confidence data if provided
+          if (confidence) {
+            mutationParams.confidence = confidence;
+          }
+
+          await submitGuessMutation(mutationParams);
 
           // Success - guess is already in session from optimistic update
           return true;
