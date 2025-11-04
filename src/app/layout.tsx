@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
@@ -50,6 +51,7 @@ export default function RootLayout({
       <body className="antialiased">
         <Providers>{children}</Providers>
         <Toaster />
+        <Analytics />
       </body>
     </html>
   );

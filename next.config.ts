@@ -57,7 +57,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob: https://img.clerk.com https://www.gravatar.com", // Clerk avatar CDN and Gravatar fallback
               "font-src 'self' data: https://fonts.gstatic.com", // Required for Google Fonts
               "worker-src 'self' blob:", // Required for Clerk and canvas-confetti web workers
-              "connect-src 'self' wss://fleet-goldfish-183.convex.cloud https://fleet-goldfish-183.convex.cloud https://openrouter.ai https://query.wikidata.org https://api.wikimedia.org https://healthy-doe-23.clerk.accounts.dev https://clerk.chrondle.app https://clerk-telemetry.com", // Convex production URL
+              "connect-src 'self' wss://fleet-goldfish-183.convex.cloud https://fleet-goldfish-183.convex.cloud https://openrouter.ai https://query.wikidata.org https://api.wikimedia.org https://healthy-doe-23.clerk.accounts.dev https://clerk.chrondle.app https://clerk-telemetry.com https://telemetry.vercel.com https://insights.vercel.com", // Convex production URL
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
@@ -76,13 +76,9 @@ const nextConfig: NextConfig = {
           // Control browser features and APIs
           {
             key: "Permissions-Policy",
-            value: [
-              "camera=()",
-              "microphone=()",
-              "geolocation=()",
-              "payment=()",
-              "usb=()",
-            ].join(", "),
+            value: ["camera=()", "microphone=()", "geolocation=()", "payment=()", "usb=()"].join(
+              ", ",
+            ),
           },
         ],
       },
