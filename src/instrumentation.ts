@@ -24,7 +24,7 @@ export const onRequestError = (error: unknown, request: Request, context: Reques
     stack: error instanceof Error ? error.stack : undefined,
     request: {
       url: request.url,
-      method: request instanceof Request ? request.method : "UNKNOWN",
+      method: request.method,
     },
     context,
   };

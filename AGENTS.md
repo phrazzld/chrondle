@@ -19,7 +19,7 @@
 - Stack: TypeScript + React 19 + Next 15; design deep modules that hide implementation and expose intention.
 - Prettier (`pnpm format`) enforces 2-space indent, double quotes, trailing commas, and Tailwind class sorting via `prettier-plugin-tailwindcss`.
 - ESLint (`next lint`) covers a11y, hooks, Convex-specific rules; resolve all warnings before PR.
-- Components use PascalCase (`GameControls.tsx`), hooks camelCase with `use` prefix, tests adopt feature-based `.test.tsx` suffixes; avoid grab-bag `Util` files—co-locate helpers within domain folders.
+- Components use PascalCase (`GameControls.tsx`), hooks camelCase with `use` prefix, tests adopt feature-based `.test.tsx` suffixes; avoid grab-bag `Util` files—colocate helpers within domain folders.
 
 ## Testing Guidelines
 
@@ -39,4 +39,4 @@
 
 - Copy `.env.example` to `.env.local`; never commit secrets; document new variables inside the template.
 - Convex + Clerk integration requires valid keys—use `pnpm verify:convex`, `pnpm verify:auth`, or `pnpm verify:auth:prod` before deployment.
-- Run `pnpm pre-push` locally to catch schema drift, missing env vars, and type regressions prior to sharing branches.
+- Run `pnpm pre-push` locally to catch schema drift, missing env vars, and type regressions before sharing branches.
