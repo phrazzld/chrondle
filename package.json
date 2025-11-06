@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.32.1",
+    "@opentelemetry/api": "^1.9.0",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-progress": "^1.1.7",
@@ -57,6 +58,8 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-switch": "^1.2.5",
     "@types/canvas-confetti": "^1.9.0",
+    "@vercel/analytics": "^1.5.0",
+    "@vercel/otel": "^2.1.0",
     "bitcoin-address-validation": "^3.0.0",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.1",
