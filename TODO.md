@@ -220,7 +220,7 @@ Work Log:
 
 ---
 
-- [ ] **Task 2.2: Implement submitRange Mutation**
+- [x] **Task 2.2: Implement submitRange Mutation**
 
 ```
 Files:
@@ -267,6 +267,13 @@ Dependencies:
   - Task 1.1 (scoring.ts must exist for import)
   - Task 2.1 (schema must have ranges field)
 Time: 60min
+```
+
+```
+Work Log:
+- Added Convex migration helpers plus range-aware queries so both legacy `guesses[]` and new `ranges[]` read paths normalize to the same structure.
+- Implemented `submitRange` mutation with authoritative scoring, totalScore accumulation, attempt limits, and streak/stat updates; also hardened `submitGuess` and puzzle stats against optional `guesses`.
+- `npx convex dev --once` still fails in this sandbox because it tries to reach `o1192621.ingest.sentry.io`; `pnpm lint` also fails attempting to download `@next/swc` from `registry.npmjs.org`. Re-run both once network access is available to regenerate Convex types and lint with SWC.
 ```
 
 ---

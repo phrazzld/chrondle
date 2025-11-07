@@ -1,4 +1,4 @@
-import { HintCount, ScoreResult } from "@/types/range";
+import { HintCount, ScoreResult } from "../types/range";
 
 export const SCORING_CONSTANTS = {
   S: 100,
