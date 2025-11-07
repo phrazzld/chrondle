@@ -22,6 +22,7 @@ import type * as migrations_migrateEvents from "../migrations/migrateEvents.js";
 import type * as migrations_regenerateHistoricalContextGPT5 from "../migrations/regenerateHistoricalContextGPT5.js";
 import type * as orderPuzzles_generation from "../orderPuzzles/generation.js";
 import type * as orderPuzzles_mutations from "../orderPuzzles/mutations.js";
+import type * as orderPuzzles_queries from "../orderPuzzles/queries.js";
 import type * as orderPuzzles from "../orderPuzzles.js";
 import type * as plays_queries from "../plays/queries.js";
 import type * as puzzles_context from "../puzzles/context.js";
@@ -57,6 +58,7 @@ declare const fullApi: ApiFromModules<{
   "migrations/regenerateHistoricalContextGPT5": typeof migrations_regenerateHistoricalContextGPT5;
   "orderPuzzles/generation": typeof orderPuzzles_generation;
   "orderPuzzles/mutations": typeof orderPuzzles_mutations;
+  "orderPuzzles/queries": typeof orderPuzzles_queries;
   orderPuzzles: typeof orderPuzzles;
   "plays/queries": typeof plays_queries;
   "puzzles/context": typeof puzzles_context;

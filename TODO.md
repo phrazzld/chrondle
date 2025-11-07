@@ -90,7 +90,7 @@
   - Log generation metrics (span, retry count)
   ```
 
-- [ ] **Implement Order puzzle queries (getDaily, getByNumber)**
+- [x] **Implement Order puzzle queries (getDaily, getByNumber)**
 
   ```
   Files: convex/orderPuzzles/queries.ts (new file)
