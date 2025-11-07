@@ -132,7 +132,7 @@ Work Log:
 
 ---
 
-- [ ] **Task 1.3: Implement useHints Hook**
+- [x] **Task 1.3: Implement useHints Hook**
 
 ```
 Files:
@@ -376,6 +376,12 @@ Test Strategy:
 Dependencies:
   - src/lib/eraUtils.ts (formatYear)
 Time: 30min
+```
+
+```
+Work Log:
+- Added `useHints` hook encapsulating hint generation, sequential reveal enforcement, and multiplier tracking; exposes actions + state per DESIGN blueprint.
+- Covered hook behavior with renderHook-based tests (initial state, sequential progression, idempotency, reset, targetYear changes). Vitest still blocked by missing `@rollup/rollup-darwin-x64`; rerun `pnpm test -- src/hooks/__tests__/useHints.test.tsx` once the native dependency is available.
 ```
 
 ---
