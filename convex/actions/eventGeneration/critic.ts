@@ -1,0 +1,276 @@
+"use node";
+
+import { v } from "convex/values";
+import { internalAction } from "../../_generated/server";
+import { createLLMClient, type LLMClient, type TokenUsage } from "../../lib/llmClient";
+import { hasLeakage, hasProperNoun, isValidWordCount } from "../../lib/eventValidation";
+import type { CandidateEvent, CritiqueResult } from "./schemas";
+import { CritiqueResultSchema, parseEra, type Era } from "./schemas";
+import { CandidateEventValue } from "./values";
+
+const CRITIC_SYSTEM_PROMPT = `You are ChronBot Critic, a precision editor scoring historical event clues.
+
+SCORING CRITERIA (0-1 scale):
+- factual: Is this event real and accurately dated?
+- leak_risk: Could this clue reveal the year? (0=no risk, 1=obvious giveaway)
+- ambiguity: Could this event be confused with adjacent years?
+- guessability: Does this help players infer the year? (0=useless, 1=perfect hint)
+- diversity: Does this add domain/geo variety to the set?
+
+PASS THRESHOLDS:
+- factual ≥0.75
+- leak_risk ≤0.15
+- ambiguity ≤0.25
+- guessability ≥0.4
+
+For failing events, provide:
+- issues: List of specific problems
+- rewrite_hints: Concrete improvement suggestions
+
+OUTPUT: Valid JSON with scores, pass/fail, issues, and hints.`;
+
+const SCORE_THRESHOLDS = {
+  factual: 0.75,
+  leak_risk: 0.15,
+  ambiguity: 0.25,
+  guessability: 0.4,
+} as const;
+
+const MAX_DOMAIN_OCCURRENCE = 3;
+
+let cachedCriticClient: LLMClient | null = null;
+
+function getCriticClient(): LLMClient {
+  if (!cachedCriticClient) {
+    cachedCriticClient = createLLMClient({
+      temperature: 0.2,
+      maxOutputTokens: 2000,
+    });
+  }
+  return cachedCriticClient;
+}
+
+export interface CriticActionResult {
+  results: CritiqueResult[];
+  llm: {
+    requestId: string;
+    model: string;
+    usage: TokenUsage;
+  };
+  deterministicFailures: number;
+}
+
+interface CriticParams {
+  year: number;
+  era: Era;
+  candidates: CandidateEvent[];
+  llmClient?: LLMClient;
+}
+
+export const critiqueCandidates = internalAction({
+  args: {
+    year: v.number(),
+    era: v.string(),
+    candidates: v.array(CandidateEventValue),
+  },
+  handler: async (_ctx, args): Promise<CriticActionResult> => {
+    const era = parseEra(args.era);
+    return critiqueCandidatesForYear({
+      year: args.year,
+      era,
+      candidates: args.candidates as CandidateEvent[],
+    });
+  },
+});
+
+export async function critiqueCandidatesForYear(params: CriticParams): Promise<CriticActionResult> {
+  const { year, era, candidates } = params;
+  if (!candidates.length) {
+    return {
+      results: [],
+      llm: {
+        requestId: "",
+        model: "",
+        usage: { inputTokens: 0, outputTokens: 0, reasoningTokens: 0, totalTokens: 0 },
+      },
+      deterministicFailures: 0,
+    };
+  }
+
+  const deterministic = runDeterministicChecks(candidates);
+  const llmClient = params.llmClient ?? getCriticClient();
+  const response = await llmClient.generate({
+    prompt: {
+      system: CRITIC_SYSTEM_PROMPT,
+      user: buildCriticUserPrompt(year, era, candidates),
+    },
+    schema: zodArrayForCount(candidates.length),
+    metadata: {
+      stage: "critic",
+      year,
+      era,
+    },
+  });
+
+  const llmResults = ensureArrayLength(response.data, candidates.length);
+  const merged = candidates.map((candidate, index) =>
+    mergeCritiques(candidate, llmResults[index], deterministic[index]),
+  );
+
+  const deterministicFailures = deterministic.filter((item) => item.issues.length > 0).length;
+
+  return {
+    results: merged,
+    llm: {
+      requestId: response.requestId,
+      model: response.model,
+      usage: response.usage,
+    },
+    deterministicFailures,
+  };
+}
+
+function buildCriticUserPrompt(year: number, era: Era, candidates: CandidateEvent[]): string {
+  const payload = JSON.stringify(candidates, null, 2);
+  return `Target year: ${Math.abs(year)} (${era})
+
+Evaluate these candidate events for quality and year-leakage.
+
+Candidates:
+${payload}
+
+Return JSON array with critique for each event.`;
+}
+
+interface DeterministicCheckResult {
+  issues: string[];
+  rewriteHints: string[];
+}
+
+function runDeterministicChecks(candidates: CandidateEvent[]): DeterministicCheckResult[] {
+  const domainCounts = candidates.reduce<Record<string, number>>((acc, candidate) => {
+    acc[candidate.domain] = (acc[candidate.domain] || 0) + 1;
+    return acc;
+  }, {});
+
+  const highDomainUsage = new Set(
+    Object.entries(domainCounts)
+      .filter(([, count]) => count > MAX_DOMAIN_OCCURRENCE)
+      .map(([domain]) => domain),
+  );
+
+  return candidates.map((candidate) => {
+    const issues: string[] = [];
+    const rewriteHints: string[] = [];
+
+    if (
+      candidate.leak_flags.has_digits ||
+      candidate.leak_flags.has_century_terms ||
+      candidate.leak_flags.has_spelled_year ||
+      hasLeakage(candidate.event_text)
+    ) {
+      issues.push("Contains year leakage (numbers, century terms, or BCE/CE references)");
+      rewriteHints.push("Remove numbers ≥10, century references, and BCE/CE terms");
+    }
+
+    if (!isValidWordCount(candidate.event_text, 20)) {
+      issues.push("Exceeds 20-word limit");
+      rewriteHints.push("Condense clue to 20 words or fewer");
+    }
+
+    if (!hasProperNoun(candidate.event_text)) {
+      issues.push("Missing proper noun to anchor the clue");
+      rewriteHints.push("Add a specific person, place, or institution");
+    }
+
+    if (highDomainUsage.has(candidate.domain)) {
+      issues.push("Too many events from this domain in the set");
+      rewriteHints.push("Switch to a different domain to improve diversity");
+    }
+
+    return { issues, rewriteHints };
+  });
+}
+
+function mergeCritiques(
+  candidate: CandidateEvent,
+  llmResult: CritiqueResult,
+  deterministic: DeterministicCheckResult,
+): CritiqueResult {
+  const threshold = enforceScoreThresholds(llmResult.scores);
+  const combinedIssues = dedupeStrings([
+    ...deterministic.issues,
+    ...threshold.issues,
+    ...llmResult.issues,
+  ]);
+  const combinedHints = dedupeStrings([
+    ...deterministic.rewriteHints,
+    ...threshold.hints,
+    ...llmResult.rewrite_hints,
+  ]);
+
+  const passed = llmResult.passed && deterministic.issues.length === 0 && !threshold.failed;
+
+  return {
+    ...llmResult,
+    event: candidate,
+    passed,
+    issues: combinedIssues,
+    rewrite_hints: combinedHints,
+  };
+}
+
+interface ThresholdResult {
+  issues: string[];
+  hints: string[];
+  failed: boolean;
+}
+
+function enforceScoreThresholds(scores: CritiqueResult["scores"]): ThresholdResult {
+  const issues: string[] = [];
+  const hints: string[] = [];
+  let failed = false;
+
+  if (scores.factual < SCORE_THRESHOLDS.factual) {
+    failed = true;
+    issues.push("Factual score below 0.75");
+    hints.push("Verify the event date or choose a more verifiable clue");
+  }
+  if (scores.leak_risk > SCORE_THRESHOLDS.leak_risk) {
+    failed = true;
+    issues.push("Leak risk above 0.15");
+    hints.push("Remove wording that directly reveals the year");
+  }
+  if (scores.ambiguity > SCORE_THRESHOLDS.ambiguity) {
+    failed = true;
+    issues.push("Ambiguity above 0.25");
+    hints.push("Anchor the clue with details unique to the target year");
+  }
+  if (scores.guessability < SCORE_THRESHOLDS.guessability) {
+    failed = true;
+    issues.push("Guessability below 0.4");
+    hints.push("Highlight why this year stands out compared to nearby years");
+  }
+
+  return { issues, hints, failed };
+}
+
+function dedupeStrings(values: string[]): string[] {
+  return Array.from(new Set(values.filter(Boolean)));
+}
+
+function ensureArrayLength(results: CritiqueResult[], count: number): CritiqueResult[] {
+  if (results.length === count) {
+    return results;
+  }
+  if (results.length < count) {
+    throw new Error(
+      `Critic LLM returned ${results.length} results but ${count} candidates were provided`,
+    );
+  }
+  return results.slice(0, count);
+}
+
+function zodArrayForCount(count: number) {
+  return CritiqueResultSchema.array().length(count);
+}

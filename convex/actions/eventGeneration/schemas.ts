@@ -39,3 +39,26 @@ export const GeneratorOutputSchema = z.object({
 
 export type CandidateEvent = z.infer<typeof CandidateEventSchema>;
 export type GeneratorOutput = z.infer<typeof GeneratorOutputSchema>;
+
+export const CritiqueScoreSchema = z.object({
+  factual: z.number().min(0).max(1),
+  leak_risk: z.number().min(0).max(1),
+  ambiguity: z.number().min(0).max(1),
+  guessability: z.number().min(0).max(1),
+  diversity: z.number().min(0).max(1),
+});
+
+export const CritiqueResultSchema = z.object({
+  event: CandidateEventSchema,
+  passed: z.boolean(),
+  scores: CritiqueScoreSchema,
+  issues: z.array(z.string()),
+  rewrite_hints: z.array(z.string()),
+});
+
+export type CritiqueResult = z.infer<typeof CritiqueResultSchema>;
+
+export function parseEra(value: string): Era {
+  const normalized = value.trim().toUpperCase();
+  return EraSchema.parse(normalized);
+}

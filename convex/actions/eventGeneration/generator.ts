@@ -4,7 +4,7 @@ import { v } from "convex/values";
 import { internalAction } from "../../_generated/server";
 import { createLLMClient, type LLMClient, type TokenUsage } from "../../lib/llmClient";
 import type { CandidateEvent } from "./schemas";
-import { EraSchema, GeneratorOutputSchema, type Era } from "./schemas";
+import { GeneratorOutputSchema, parseEra, type Era } from "./schemas";
 
 const GENERATOR_SYSTEM_PROMPT = `You are ChronBot Generator, a historian-puzzlemaker creating historical event clues for a guessing game.
 
@@ -65,7 +65,7 @@ export const generateCandidates = internalAction({
     era: v.string(),
   },
   handler: async (_ctx, args): Promise<GeneratorActionResult> => {
-    const era = normalizeEra(args.era);
+    const era = parseEra(args.era);
     return generateCandidatesForYear({ year: args.year, era });
   },
 });
@@ -144,15 +144,6 @@ function sanitizeCandidateEvent(candidate: CandidateEvent): CandidateEvent {
 
 function normalizeWhitespace(value: string): string {
   return value.replace(/\s+/g, " ").trim();
-}
-
-function normalizeEra(value: string): Era {
-  const upper = value.trim().toUpperCase();
-  try {
-    return EraSchema.parse(upper);
-  } catch {
-    throw new Error(`Invalid era value: ${value}`);
-  }
 }
 
 function getDigitCount(year: number): number {
