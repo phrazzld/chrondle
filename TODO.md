@@ -309,7 +309,7 @@ Work Log:
 
 ---
 
-- [ ] **Task 3.2: Implement RangeSlider Component**
+- [x] **Task 3.2: Implement RangeSlider Component**
 
 ```
 
@@ -357,6 +357,10 @@ Dependencies:
 - Task 3.1 (Radix Slider package)
   Time: 45min
 
+```
+Work Log:
+- Built `RangeSlider` on top of Radix Slider with enforced thumb spacing, accessible labels, and controlled change/commit callbacks; exported `RangeSliderValue` for reuse.
+- Added mocked-Radix Vitest coverage for render + change flows (`pnpm test -- src/components/game/__tests__/RangeSlider.test.tsx`).
 ```
 
 ---
@@ -910,7 +914,7 @@ Success Criteria:
 Dependencies: None
 Time: 20min
 
-````
+```
 
 ---
 
@@ -1005,4 +1009,4 @@ These go in BACKLOG.md or issue tracker, NOT TODO.md.
 
 ```bash
 git checkout -b feature/chrondle-range
-````
+```
