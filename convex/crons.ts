@@ -12,4 +12,11 @@ crons.daily(
   {}, // No args needed - will use today's date
 );
 
+crons.daily(
+  "generate daily Order puzzle at UTC midnight",
+  { hourUTC: 0, minuteUTC: 0 },
+  internal.orderPuzzles.generateDailyOrderPuzzle,
+  {},
+);
+
 export default crons;

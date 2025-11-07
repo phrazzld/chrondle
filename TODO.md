@@ -71,7 +71,7 @@
   - Deterministic PRNG from seed (date hash)
   ```
 
-- [ ] **Create daily Order puzzle generation cron job**
+- [x] **Create daily Order puzzle generation cron job**
 
   ```
   Files: convex/crons.ts (add Order job), convex/orderPuzzles/mutations.ts (new file)
