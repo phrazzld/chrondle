@@ -83,7 +83,7 @@ Work Log:
 
 ---
 
-- [ ] **Task 1.2: Implement Hint Generation Module**
+- [x] **Task 1.2: Implement Hint Generation Module**
 
 ```
 Files:
@@ -122,6 +122,12 @@ Test Strategy:
 Dependencies:
   - src/lib/eraUtils.ts (formatYear function)
 Time: 30min
+```
+
+```
+Work Log:
+- Added `generateHints` module that classifies era buckets and builds ±25/±10 ranges using the shared formatter + scoring multipliers; exported shared `RangeHint` typing.
+- Covered hint generation with Vitest (era buckets, bracket widths, multipliers, BC formatting, invalid input). Same Rollup native binary issue as Task 1.1 prevents Vitest from starting in this sandbox; once `@rollup/rollup-darwin-x64` is available, re-run `pnpm test -- src/lib/__tests__/hintGeneration.test.ts`.
 ```
 
 ---

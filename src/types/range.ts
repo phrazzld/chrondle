@@ -16,3 +16,9 @@ export interface ScoreResult {
   baseScore: number;
   width: number;
 }
+
+export interface RangeHint {
+  level: 1 | 2 | 3;
+  content: string;
+  multiplier: number;
+}
