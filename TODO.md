@@ -178,7 +178,7 @@ Time: 40min
 
 These tasks modify the database layer and must be done sequentially.
 
-- [ ] **Task 2.1: Extend Convex Schema for Ranges**
+- [x] **Task 2.1: Extend Convex Schema for Ranges**
 
 ```
 Files:
@@ -210,6 +210,12 @@ Test Strategy:
 
 Dependencies: None (additive schema change)
 Time: 15min
+```
+
+```
+Work Log:
+- Added optional `ranges[]` objects and `totalScore` to `plays` while keeping legacy `guesses[]` optional for soft migration; matches DESIGN schema notes.
+- `npx convex dev --once` currently fails locally because the CLI tries to phone home to `o1192621.ingest.sentry.io`, which is unreachable in this sandbox (`getaddrinfo ENOTFOUND`). Re-run once network access is available to regenerate Convex types.
 ```
 
 ---
