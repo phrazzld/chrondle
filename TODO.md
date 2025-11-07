@@ -52,7 +52,7 @@
   - No "targetYear" field (avoid Classic naming confusion per TASK.md risk mitigation)
   ```
 
-- [ ] **Implement event selection algorithm with spread constraint**
+- [x] **Implement event selection algorithm with spread constraint**
 
   ```
   Files: convex/orderPuzzles/generation.ts (new file)
