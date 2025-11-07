@@ -282,7 +282,7 @@ Work Log:
 
 These tasks build the frontend components and can be parallelized.
 
-- [ ] **Task 3.1: Install Radix Slider Dependency**
+- [x] **Task 3.1: Install Radix Slider Dependency**
 
 ```
 Files:
@@ -303,50 +303,60 @@ Dependencies: None
 Time: 5min
 ```
 
+```
+Work Log:
+- Installed `@radix-ui/react-slider@^1.3.6` via `pnpm add` so upcoming range components can build on the official Radix primitive; lockfile updated accordingly.
+
 ---
 
 - [ ] **Task 3.2: Implement RangeSlider Component**
 
 ```
+
 Files:
-  - src/components/game/RangeSlider.tsx (NEW)
-  - src/components/game/__tests__/RangeSlider.test.tsx (NEW)
+
+- src/components/game/RangeSlider.tsx (NEW)
+- src/components/game/**tests**/RangeSlider.test.tsx (NEW)
 
 Architecture:
-  Radix UI wrapper (DESIGN.md "Module: RangeInput")
-  Hides Radix complexity, provides Chrondle-specific interface
+Radix UI wrapper (DESIGN.md "Module: RangeInput")
+Hides Radix complexity, provides Chrondle-specific interface
 
 Implementation:
-  1. Wrap Radix Slider primitive:
-     - Two thumbs (minStepsBetweenThumbs={1})
-     - Props: min, max, value: [number, number], onChange, onCommit
-     - Accessibility: aria-label on each thumb
-  2. Styling:
-     - Track: bg-muted, 2px height
-     - Range: bg-primary
-     - Thumbs: 24px circle, shadow-lg, focus ring
-  3. Keyboard support (Radix provides):
-     - Arrow keys: move handle
-     - Page Up/Down: jump 10 years
-     - Home/End: min/max bounds
+
+1. Wrap Radix Slider primitive:
+   - Two thumbs (minStepsBetweenThumbs={1})
+   - Props: min, max, value: [number, number], onChange, onCommit
+   - Accessibility: aria-label on each thumb
+2. Styling:
+   - Track: bg-muted, 2px height
+   - Range: bg-primary
+   - Thumbs: 24px circle, shadow-lg, focus ring
+3. Keyboard support (Radix provides):
+   - Arrow keys: move handle
+   - Page Up/Down: jump 10 years
+   - Home/End: min/max bounds
 
 Success Criteria:
-  ✓ Renders two draggable thumbs
-  ✓ onChange fires with [start, end] on drag
-  ✓ onCommit fires on release
-  ✓ Thumbs can't overlap (minStepsBetweenThumbs enforced)
-  ✓ Keyboard navigation works
-  ✓ Accessibility: screen reader announces "Start year" / "End year"
+✓ Renders two draggable thumbs
+✓ onChange fires with [start, end] on drag
+✓ onCommit fires on release
+✓ Thumbs can't overlap (minStepsBetweenThumbs enforced)
+✓ Keyboard navigation works
+✓ Accessibility: screen reader announces "Start year" / "End year"
 
 Test Strategy:
-  - Render test (two thumbs visible)
-  - Interaction test (fireEvent drag, check onChange called)
-  - Keyboard test (fireEvent.keyDown arrow keys)
-  - Follow pattern: src/components/__tests__/GuessInput.test.tsx
+
+- Render test (two thumbs visible)
+- Interaction test (fireEvent drag, check onChange called)
+- Keyboard test (fireEvent.keyDown arrow keys)
+- Follow pattern: src/components/**tests**/GuessInput.test.tsx
 
 Dependencies:
-  - Task 3.1 (Radix Slider package)
-Time: 45min
+
+- Task 3.1 (Radix Slider package)
+  Time: 45min
+
 ```
 
 ---
@@ -354,47 +364,56 @@ Time: 45min
 - [ ] **Task 3.3: Implement RangePreview Component**
 
 ```
+
 Files:
-  - src/components/game/RangePreview.tsx (NEW)
-  - src/components/game/__tests__/RangePreview.test.tsx (NEW)
+
+- src/components/game/RangePreview.tsx (NEW)
+- src/components/game/**tests**/RangePreview.test.tsx (NEW)
 
 Architecture:
-  Display component (DESIGN.md "Module: RangeInput")
-  Shows width, predicted score, current multiplier
+Display component (DESIGN.md "Module: RangeInput")
+Shows width, predicted score, current multiplier
 
 Implementation:
-  1. Props: start, end, width, predictedScore, multiplier
-  2. Layout:
-     - Year display: "1965 AD - 1975 AD" (use formatYear from eraUtils)
-     - Width badge: "11 years"
-     - Score preview: "~430 points" (with multiplier shown)
-     - Multiplier indicator: "0.85×" (color-coded)
-  3. Styling:
-     - Use Card component (src/components/ui/Card.tsx pattern)
-     - Badge component for width
-     - Color-coded multiplier (green=1.0, yellow=0.85, orange=0.70, red=0.50)
+
+1. Props: start, end, width, predictedScore, multiplier
+2. Layout:
+   - Year display: "1965 AD - 1975 AD" (use formatYear from eraUtils)
+   - Width badge: "11 years"
+   - Score preview: "~430 points" (with multiplier shown)
+   - Multiplier indicator: "0.85×" (color-coded)
+3. Styling:
+   - Use Card component (src/components/ui/Card.tsx pattern)
+   - Badge component for width
+   - Color-coded multiplier (green=1.0, yellow=0.85, orange=0.70, red=0.50)
 
 Success Criteria:
-  ✓ Displays BC/AD years correctly
-  ✓ Width calculation matches (end - start + 1)
-  ✓ Score updates when predictedScore prop changes
-  ✓ Multiplier color matches hint level
-  ✓ Accessible: ARIA labels for score/multiplier
+✓ Displays BC/AD years correctly
+✓ Width calculation matches (end - start + 1)
+✓ Score updates when predictedScore prop changes
+✓ Multiplier color matches hint level
+✓ Accessible: ARIA labels for score/multiplier
 
 Test Strategy:
-  - Snapshot test for layout
-  - BC year formatting test
-  - Follow pattern: src/components/__tests__/CurrentHintCard.test.tsx
+
+- Snapshot test for layout
+- BC year formatting test
+- Follow pattern: src/components/**tests**/CurrentHintCard.test.tsx
 
 Dependencies:
-  - src/lib/eraUtils.ts (formatYear)
-Time: 30min
+
+- src/lib/eraUtils.ts (formatYear)
+  Time: 30min
+
 ```
 
 ```
+
 Work Log:
+
 - Added `useHints` hook encapsulating hint generation, sequential reveal enforcement, and multiplier tracking; exposes actions + state per DESIGN blueprint.
 - Covered hook behavior with renderHook-based tests (initial state, sequential progression, idempotency, reset, targetYear changes). Vitest still blocked by missing `@rollup/rollup-darwin-x64`; rerun `pnpm test -- src/hooks/__tests__/useHints.test.tsx` once the native dependency is available.
+
 ```
 
 ---
@@ -402,45 +421,51 @@ Work Log:
 - [ ] **Task 3.4: Implement HintLadder Component**
 
 ```
+
 Files:
-  - src/components/game/HintLadder.tsx (NEW)
-  - src/components/game/__tests__/HintLadder.test.tsx (NEW)
+
+- src/components/game/HintLadder.tsx (NEW)
+- src/components/game/**tests**/HintLadder.test.tsx (NEW)
 
 Architecture:
-  Interactive hint UI (DESIGN.md "Module: Hints")
-  Shows 3-tier ladder with progressive reveal
+Interactive hint UI (DESIGN.md "Module: Hints")
+Shows 3-tier ladder with progressive reveal
 
 Implementation:
-  1. Props: hints, hintsUsed, onHintTaken, currentMultiplier
-  2. Render 3 buttons (one per hint level):
-     - Level 1-3 labels with multiplier (e.g., "Hint 1 (0.85×)")
-     - Show content if revealed (hints[i].revealed)
-     - "Take hint to reveal" placeholder if not revealed
-     - Disabled states:
-       - isUsed: already taken (grayed out, show content)
-       - isNext: can be taken (highlighted, clickable)
-       - isFuture: can't skip (disabled, dimmed)
-  3. Styling:
-     - Use Button component (src/components/ui/button.tsx)
-     - Stack vertically with gap
-     - Visual hierarchy (H1→H2→H3 with increasing emphasis)
+
+1. Props: hints, hintsUsed, onHintTaken, currentMultiplier
+2. Render 3 buttons (one per hint level):
+   - Level 1-3 labels with multiplier (e.g., "Hint 1 (0.85×)")
+   - Show content if revealed (hints[i].revealed)
+   - "Take hint to reveal" placeholder if not revealed
+   - Disabled states:
+     - isUsed: already taken (grayed out, show content)
+     - isNext: can be taken (highlighted, clickable)
+     - isFuture: can't skip (disabled, dimmed)
+3. Styling:
+   - Use Button component (src/components/ui/button.tsx)
+   - Stack vertically with gap
+   - Visual hierarchy (H1→H2→H3 with increasing emphasis)
 
 Success Criteria:
-  ✓ Shows 3 hint buttons
-  ✓ Can only take hints sequentially (H1 → H2 → H3)
-  ✓ Taken hints show content, future hints show placeholder
-  ✓ onClick fires onHintTaken(level)
-  ✓ Current multiplier displayed prominently
+✓ Shows 3 hint buttons
+✓ Can only take hints sequentially (H1 → H2 → H3)
+✓ Taken hints show content, future hints show placeholder
+✓ onClick fires onHintTaken(level)
+✓ Current multiplier displayed prominently
 
 Test Strategy:
-  - Render test (3 buttons)
-  - Click test (sequential enforcement)
-  - Disabled state test (can't skip)
-  - Follow pattern: src/components/__tests__/HintsDisplay.test.tsx
+
+- Render test (3 buttons)
+- Click test (sequential enforcement)
+- Disabled state test (can't skip)
+- Follow pattern: src/components/**tests**/HintsDisplay.test.tsx
 
 Dependencies:
-  - src/lib/hintGeneration.ts (Hint type)
-Time: 40min
+
+- src/lib/hintGeneration.ts (Hint type)
+  Time: 40min
+
 ```
 
 ---
@@ -448,55 +473,61 @@ Time: 40min
 - [ ] **Task 3.5: Implement RangeInput Composite Component**
 
 ```
+
 Files:
-  - src/components/game/RangeInput.tsx (NEW)
-  - src/components/game/__tests__/RangeInput.integration.test.tsx (NEW)
+
+- src/components/game/RangeInput.tsx (NEW)
+- src/components/game/**tests**/RangeInput.integration.test.tsx (NEW)
 
 Architecture:
-  Composite component (DESIGN.md "Module: RangeInput")
-  Composes RangeSlider + RangePreview + HintLadder + commit logic
+Composite component (DESIGN.md "Module: RangeInput")
+Composes RangeSlider + RangePreview + HintLadder + commit logic
 
 Reference: DESIGN.md "Appendix: Complete RangeInput Component"
 
 Implementation:
-  1. State management:
-     - useState for range: [number, number]
-     - useHints hook for hint state
-     - useDebouncedValue for score calculation (150ms debounce)
-  2. Composition:
-     - HintLadder (top): shows hints, onHintTaken updates hintsUsed
-     - RangeSlider (middle): onChange updates range state
-     - RangePreview (below slider): shows width, score preview, multiplier
-     - Button (bottom): "Commit Range" (disabled if width > 200)
-  3. Score preview:
-     - Calculate on every range change (debounced)
-     - Pass targetYear only for client preview (never reveals answer)
-     - Update predictedScore state
-  4. Commit flow:
-     - Call onCommit({ start, end, hintsUsed })
-     - Reset range to full width
-     - Reset hints
+
+1. State management:
+   - useState for range: [number, number]
+   - useHints hook for hint state
+   - useDebouncedValue for score calculation (150ms debounce)
+2. Composition:
+   - HintLadder (top): shows hints, onHintTaken updates hintsUsed
+   - RangeSlider (middle): onChange updates range state
+   - RangePreview (below slider): shows width, score preview, multiplier
+   - Button (bottom): "Commit Range" (disabled if width > 200)
+3. Score preview:
+   - Calculate on every range change (debounced)
+   - Pass targetYear only for client preview (never reveals answer)
+   - Update predictedScore state
+4. Commit flow:
+   - Call onCommit({ start, end, hintsUsed })
+   - Reset range to full width
+   - Reset hints
 
 Success Criteria:
-  ✓ Full user flow works: drag slider → take hint → see score update → commit
-  ✓ Score preview updates (debounced, no lag)
-  ✓ Hint multiplier affects score preview
-  ✓ Commit button disabled if width > 200
-  ✓ BC/AD years display correctly
-  ✓ Resets after commit
+✓ Full user flow works: drag slider → take hint → see score update → commit
+✓ Score preview updates (debounced, no lag)
+✓ Hint multiplier affects score preview
+✓ Commit button disabled if width > 200
+✓ BC/AD years display correctly
+✓ Resets after commit
 
 Test Strategy:
-  - Integration test (full flow)
-  - Follow pattern: src/components/__tests__/GuessInput.test.tsx
-  - Mock onCommit prop, verify data structure
+
+- Integration test (full flow)
+- Follow pattern: src/components/**tests**/GuessInput.test.tsx
+- Mock onCommit prop, verify data structure
 
 Dependencies:
-  - Task 3.2 (RangeSlider)
-  - Task 3.3 (RangePreview)
-  - Task 3.4 (HintLadder)
-  - Task 1.3 (useHints hook)
-  - Task 1.1 (scoreRange)
-Time: 60min
+
+- Task 3.2 (RangeSlider)
+- Task 3.3 (RangePreview)
+- Task 3.4 (HintLadder)
+- Task 1.3 (useHints hook)
+- Task 1.1 (scoreRange)
+  Time: 60min
+
 ```
 
 ---
@@ -506,57 +537,63 @@ Time: 60min
 - [ ] **Task 4.1: Rewrite Timeline as RangeTimeline**
 
 ```
+
 Files:
-  - src/components/Timeline.tsx (DELETE)
-  - src/components/RangeTimeline.tsx (NEW)
-  - src/components/__tests__/RangeTimeline.test.tsx (NEW)
+
+- src/components/Timeline.tsx (DELETE)
+- src/components/RangeTimeline.tsx (NEW)
+- src/components/**tests**/RangeTimeline.test.tsx (NEW)
 
 Architecture:
-  SVG visualization (DESIGN.md "Module: Timeline")
-  Horizontal bars replace point markers
+SVG visualization (DESIGN.md "Module: Timeline")
+Horizontal bars replace point markers
 
 Pseudocode: DESIGN.md section "Algorithm: Timeline Range Visualization"
 
 Implementation:
-  1. SVG setup:
-     - ViewBox: 800×200
-     - Timeline axis: horizontal line at y=100
-     - Year markers: -5000 to current year
-  2. Range bars:
-     - Each range: rect element
-     - X position: yearToX = (year - min) / (max - min) * 800
-     - Width: yearToX(end) - yearToX(start)
-     - Y position: stack vertically (20 + idx * 25)
-     - Color: contained ? "green" : "red"
-     - Opacity: 0.6
-     - Score label: text centered on bar
-  3. Answer marker (shown after completion):
-     - Vertical dashed line at yearToX(targetYear)
-     - Gold color (#ffd700)
-     - Full height (0 to 200)
-  4. Animations:
-     - Framer Motion layout prop for bar positioning
-     - Respect prefers-reduced-motion (useReducedMotion hook)
+
+1. SVG setup:
+   - ViewBox: 800×200
+   - Timeline axis: horizontal line at y=100
+   - Year markers: -5000 to current year
+2. Range bars:
+   - Each range: rect element
+   - X position: yearToX = (year - min) / (max - min) \* 800
+   - Width: yearToX(end) - yearToX(start)
+   - Y position: stack vertically (20 + idx \* 25)
+   - Color: contained ? "green" : "red"
+   - Opacity: 0.6
+   - Score label: text centered on bar
+3. Answer marker (shown after completion):
+   - Vertical dashed line at yearToX(targetYear)
+   - Gold color (#ffd700)
+   - Full height (0 to 200)
+4. Animations:
+   - Framer Motion layout prop for bar positioning
+   - Respect prefers-reduced-motion (useReducedMotion hook)
 
 Success Criteria:
-  ✓ Renders SVG with timeline axis
-  ✓ Shows range bars (green if contained, red if missed)
-  ✓ Stacks ranges vertically (no overlap)
-  ✓ Answer marker appears only after game complete
-  ✓ BC years render correctly (negative X positions)
-  ✓ Smooth animations (60fps)
-  ✓ Reduced motion mode disables animations
+✓ Renders SVG with timeline axis
+✓ Shows range bars (green if contained, red if missed)
+✓ Stacks ranges vertically (no overlap)
+✓ Answer marker appears only after game complete
+✓ BC years render correctly (negative X positions)
+✓ Smooth animations (60fps)
+✓ Reduced motion mode disables animations
 
 Test Strategy:
-  - Render test (SVG elements present)
-  - Data test (3 ranges → 3 rect elements)
-  - Color test (contained=true → green fill)
-  - Follow pattern: src/components/__tests__/GameLayout.test.tsx
+
+- Render test (SVG elements present)
+- Data test (3 ranges → 3 rect elements)
+- Color test (contained=true → green fill)
+- Follow pattern: src/components/**tests**/GameLayout.test.tsx
 
 Dependencies:
-  - src/lib/animationConstants.ts (useReducedMotion)
-  - motion (already installed)
-Time: 60min
+
+- src/lib/animationConstants.ts (useReducedMotion)
+- motion (already installed)
+  Time: 60min
+
 ```
 
 ---
@@ -566,46 +603,52 @@ Time: 60min
 - [ ] **Task 5.1: Update deriveGameState for Ranges**
 
 ```
+
 Files:
-  - src/lib/deriveGameState.ts (MODIFY)
-  - src/lib/__tests__/deriveGameState.unit.test.ts (MODIFY)
-  - src/types/gameState.ts (MODIFY)
+
+- src/lib/deriveGameState.ts (MODIFY)
+- src/lib/**tests**/deriveGameState.unit.test.ts (MODIFY)
+- src/types/gameState.ts (MODIFY)
 
 Architecture:
-  Pure functional state derivation (DESIGN.md "Module: State Management")
-  Add ranges[] support, keep backward compat
+Pure functional state derivation (DESIGN.md "Module: State Management")
+Add ranges[] support, keep backward compat
 
 Implementation:
-  1. Update GameState type:
-     - Add: ranges: RangeGuess[]
-     - Add: totalScore: number
-     - Keep: guesses: number[] (for legacy data)
-     - Add: remainingAttempts: number (6 - ranges.length)
-  2. Update deriveGameState():
-     - Extract ranges from progress or session
-     - Calculate totalScore: ranges.reduce((sum, r) => sum + r.score, 0)
-     - Determine completion: hasWon || ranges.length >= 6
-     - Calculate remainingAttempts
-  3. Backward compat:
-     - If progress has guesses but not ranges, treat as legacy
-     - Don't break existing game state for single-year mode
+
+1. Update GameState type:
+   - Add: ranges: RangeGuess[]
+   - Add: totalScore: number
+   - Keep: guesses: number[] (for legacy data)
+   - Add: remainingAttempts: number (6 - ranges.length)
+2. Update deriveGameState():
+   - Extract ranges from progress or session
+   - Calculate totalScore: ranges.reduce((sum, r) => sum + r.score, 0)
+   - Determine completion: hasWon || ranges.length >= 6
+   - Calculate remainingAttempts
+3. Backward compat:
+   - If progress has guesses but not ranges, treat as legacy
+   - Don't break existing game state for single-year mode
 
 Success Criteria:
-  ✓ GameState has ranges and totalScore fields
-  ✓ deriveGameState handles ranges[] data
-  ✓ totalScore calculated correctly
-  ✓ remainingAttempts = 6 - ranges.length
-  ✓ isComplete when ranges.length >= 6 or score > 0
-  ✓ Legacy guesses[] data still works (doesn't crash)
+✓ GameState has ranges and totalScore fields
+✓ deriveGameState handles ranges[] data
+✓ totalScore calculated correctly
+✓ remainingAttempts = 6 - ranges.length
+✓ isComplete when ranges.length >= 6 or score > 0
+✓ Legacy guesses[] data still works (doesn't crash)
 
 Test Strategy:
-  - Update existing tests in deriveGameState.unit.test.ts
-  - Add range-specific test cases
-  - Test legacy data handling
+
+- Update existing tests in deriveGameState.unit.test.ts
+- Add range-specific test cases
+- Test legacy data handling
 
 Dependencies:
-  - Task 1.1 (RangeGuess type)
-Time: 45min
+
+- Task 1.1 (RangeGuess type)
+  Time: 45min
+
 ```
 
 ---
@@ -613,39 +656,45 @@ Time: 45min
 - [ ] **Task 5.2: Rename useChrondle to useRangeGame**
 
 ```
+
 Files:
-  - src/hooks/useChrondle.ts → src/hooks/useRangeGame.ts (RENAME + MODIFY)
-  - src/hooks/__tests__/useChrondle.race-condition.test.tsx → useRangeGame.test.tsx (RENAME)
+
+- src/hooks/useChrondle.ts → src/hooks/useRangeGame.ts (RENAME + MODIFY)
+- src/hooks/**tests**/useChrondle.race-condition.test.tsx → useRangeGame.test.tsx (RENAME)
 
 Architecture:
-  Hook composition (DESIGN.md "Module: State Management")
-  Same pattern as useChrondle, new return type
+Hook composition (DESIGN.md "Module: State Management")
+Same pattern as useChrondle, new return type
 
 Implementation:
-  1. Rename file and export:
-     - useChrondle → useRangeGame
-     - UseChronldeReturn → UseRangeGameReturn
-  2. No internal changes needed yet (pure rename)
-  3. Update imports across codebase:
-     - src/app/page.tsx
-     - Any other files importing useChrondle
-  4. Update tests to match new name
+
+1. Rename file and export:
+   - useChrondle → useRangeGame
+   - UseChronldeReturn → UseRangeGameReturn
+2. No internal changes needed yet (pure rename)
+3. Update imports across codebase:
+   - src/app/page.tsx
+   - Any other files importing useChrondle
+4. Update tests to match new name
 
 Success Criteria:
-  ✓ File renamed: useRangeGame.ts exists
-  ✓ Export renamed: useRangeGame function exported
-  ✓ Tests pass with new name
-  ✓ No references to useChrondle remain (grep confirms)
-  ✓ Type-check passes: pnpm type-check
+✓ File renamed: useRangeGame.ts exists
+✓ Export renamed: useRangeGame function exported
+✓ Tests pass with new name
+✓ No references to useChrondle remain (grep confirms)
+✓ Type-check passes: pnpm type-check
 
 Test Strategy:
-  - Rename test file
-  - Update test imports
-  - Verify all tests still pass (no logic changes)
+
+- Rename test file
+- Update test imports
+- Verify all tests still pass (no logic changes)
 
 Dependencies:
-  - Task 5.1 (GameState updated)
-Time: 20min
+
+- Task 5.1 (GameState updated)
+  Time: 20min
+
 ```
 
 ---
@@ -653,41 +702,47 @@ Time: 20min
 - [ ] **Task 5.3: Implement useGameActions for Ranges**
 
 ```
+
 Files:
-  - src/hooks/actions/useGameActions.ts (MODIFY)
-  - src/hooks/actions/__tests__/useGameActions.test.ts (NEW)
+
+- src/hooks/actions/useGameActions.ts (MODIFY)
+- src/hooks/actions/**tests**/useGameActions.test.ts (NEW)
 
 Architecture:
-  Action handlers (DESIGN.md "Core Algorithm: Range Submission Flow")
-  Add submitRange action alongside submitGuess
+Action handlers (DESIGN.md "Core Algorithm: Range Submission Flow")
+Add submitRange action alongside submitGuess
 
 Implementation:
-  1. Add submitRange action:
-     - Call convex submitRange mutation
-     - Optimistic update: add predicted range to local state
-     - Server reconciliation: update with authoritative score
-     - Error handling: rollback optimistic update on failure
-  2. Keep submitGuess for backward compat (legacy data)
-  3. Update return type:
-     - Add: submitRange: (range: RangeInput) => Promise<void>
-     - Keep: submitGuess (for archive puzzles)
+
+1. Add submitRange action:
+   - Call convex submitRange mutation
+   - Optimistic update: add predicted range to local state
+   - Server reconciliation: update with authoritative score
+   - Error handling: rollback optimistic update on failure
+2. Keep submitGuess for backward compat (legacy data)
+3. Update return type:
+   - Add: submitRange: (range: RangeInput) => Promise<void>
+   - Keep: submitGuess (for archive puzzles)
 
 Success Criteria:
-  ✓ submitRange mutation called with correct args
-  ✓ Optimistic update shows immediately
-  ✓ Server score reconciles client prediction
-  ✓ Error handling works (rollback on failure)
-  ✓ isSubmitting state prevents double-submit
+✓ submitRange mutation called with correct args
+✓ Optimistic update shows immediately
+✓ Server score reconciles client prediction
+✓ Error handling works (rollback on failure)
+✓ isSubmitting state prevents double-submit
 
 Test Strategy:
-  - Mock Convex mutation
-  - Test optimistic update
-  - Test reconciliation (predicted ≠ actual score)
-  - Test error rollback
+
+- Mock Convex mutation
+- Test optimistic update
+- Test reconciliation (predicted ≠ actual score)
+- Test error rollback
 
 Dependencies:
-  - Task 2.2 (submitRange mutation exists)
-Time: 50min
+
+- Task 2.2 (submitRange mutation exists)
+  Time: 50min
+
 ```
 
 ---
@@ -697,40 +752,46 @@ Time: 50min
 - [ ] **Task 6.1: Wire Up RangeInput in Main Game**
 
 ```
+
 Files:
-  - src/app/page.tsx (MODIFY)
+
+- src/app/page.tsx (MODIFY)
 
 Architecture:
-  Main game flow (DESIGN.md "Data Flow")
-  Replace GuessInput with RangeInput
+Main game flow (DESIGN.md "Data Flow")
+Replace GuessInput with RangeInput
 
 Implementation:
-  1. Replace GuessInput import with RangeInput
-  2. Update component usage:
-     - Change onGuess prop to onCommit
-     - Pass targetYear for score preview (only during play, hide after complete)
-     - Pass disabled={gameState.isComplete}
-  3. Remove proximity feedback display (LastGuessDisplay)
-  4. Replace Timeline with RangeTimeline
-  5. Update GameComplete modal to show ranges instead of guesses
+
+1. Replace GuessInput import with RangeInput
+2. Update component usage:
+   - Change onGuess prop to onCommit
+   - Pass targetYear for score preview (only during play, hide after complete)
+   - Pass disabled={gameState.isComplete}
+3. Remove proximity feedback display (LastGuessDisplay)
+4. Replace Timeline with RangeTimeline
+5. Update GameComplete modal to show ranges instead of guesses
 
 Success Criteria:
-  ✓ Page compiles (no TypeScript errors)
-  ✓ Range input renders
-  ✓ Can commit range and see it in timeline
-  ✓ Score updates in UI
-  ✓ Game completes after 6 attempts or win
-  ✓ No references to GuessInput or LastGuessDisplay
+✓ Page compiles (no TypeScript errors)
+✓ Range input renders
+✓ Can commit range and see it in timeline
+✓ Score updates in UI
+✓ Game completes after 6 attempts or win
+✓ No references to GuessInput or LastGuessDisplay
 
 Test Strategy:
-  - E2E test (full game flow)
-  - Manual testing (dev environment)
+
+- E2E test (full game flow)
+- Manual testing (dev environment)
 
 Dependencies:
-  - Task 3.5 (RangeInput)
-  - Task 4.1 (RangeTimeline)
-  - Task 5.3 (submitRange action)
-Time: 40min
+
+- Task 3.5 (RangeInput)
+- Task 4.1 (RangeTimeline)
+- Task 5.3 (submitRange action)
+  Time: 40min
+
 ```
 
 ---
@@ -738,40 +799,46 @@ Time: 40min
 - [ ] **Task 6.2: Update GameComplete Modal for Ranges**
 
 ```
+
 Files:
-  - src/components/modals/GameComplete.tsx (MODIFY - if exists)
-  - src/components/ui/ShareCard.tsx (MODIFY)
+
+- src/components/modals/GameComplete.tsx (MODIFY - if exists)
+- src/components/ui/ShareCard.tsx (MODIFY)
 
 Architecture:
-  Results display (DESIGN.md "Data Flow")
-  Show ranges instead of single guesses
+Results display (DESIGN.md "Data Flow")
+Show ranges instead of single guesses
 
 Implementation:
-  1. Update props to accept ranges[] instead of guesses[]
-  2. Display:
-     - Each range as bar (mini-timeline preview)
-     - Score per range
-     - Total score prominently
-     - "X/6 contained" summary
-  3. Share card:
-     - Visualize ranges as horizontal bars (no spoilers)
-     - Show scores without revealing target year
-     - Include hint indicators (H0, H1, H2, H3)
+
+1. Update props to accept ranges[] instead of guesses[]
+2. Display:
+   - Each range as bar (mini-timeline preview)
+   - Score per range
+   - Total score prominently
+   - "X/6 contained" summary
+3. Share card:
+   - Visualize ranges as horizontal bars (no spoilers)
+   - Show scores without revealing target year
+   - Include hint indicators (H0, H1, H2, H3)
 
 Success Criteria:
-  ✓ Displays all ranges with scores
-  ✓ Total score shown
-  ✓ Share card generates correctly
-  ✓ No target year revealed in share card
-  ✓ Hint indicators visible
+✓ Displays all ranges with scores
+✓ Total score shown
+✓ Share card generates correctly
+✓ No target year revealed in share card
+✓ Hint indicators visible
 
 Test Strategy:
-  - Snapshot test (share card appearance)
-  - Mock data test (3 ranges → correct display)
+
+- Snapshot test (share card appearance)
+- Mock data test (3 ranges → correct display)
 
 Dependencies:
-  - Task 4.1 (RangeTimeline component for preview)
-Time: 45min
+
+- Task 4.1 (RangeTimeline component for preview)
+  Time: 45min
+
 ```
 
 ---
@@ -781,34 +848,39 @@ Time: 45min
 - [ ] **Task 7.1: Delete Obsolete Components**
 
 ```
+
 Files:
-  - src/components/GuessInput.tsx (DELETE)
-  - src/components/ui/LastGuessDisplay.tsx (DELETE)
-  - src/lib/game/proximity.ts (DELETE)
-  - src/lib/enhancedFeedback.ts (DELETE)
-  - Associated test files (DELETE)
+
+- src/components/GuessInput.tsx (DELETE)
+- src/components/ui/LastGuessDisplay.tsx (DELETE)
+- src/lib/game/proximity.ts (DELETE)
+- src/lib/enhancedFeedback.ts (DELETE)
+- Associated test files (DELETE)
 
 Rationale:
-  Range IS Chrondle - no proximity feedback, no single-year input
+Range IS Chrondle - no proximity feedback, no single-year input
 
 Implementation:
-  1. Verify no imports remain:
-     grep -r "GuessInput" src/ (should be empty except RangeInput)
-     grep -r "LastGuessDisplay" src/ (should be empty)
-     grep -r "proximity" src/ (should be empty)
-  2. Delete files
-  3. Remove tests
-  4. Update .gitignore if needed
+
+1. Verify no imports remain:
+   grep -r "GuessInput" src/ (should be empty except RangeInput)
+   grep -r "LastGuessDisplay" src/ (should be empty)
+   grep -r "proximity" src/ (should be empty)
+2. Delete files
+3. Remove tests
+4. Update .gitignore if needed
 
 Success Criteria:
-  ✓ Files deleted
-  ✓ No import errors: pnpm type-check
-  ✓ Tests pass: pnpm test
-  ✓ Git shows deletions: git status
+✓ Files deleted
+✓ No import errors: pnpm type-check
+✓ Tests pass: pnpm test
+✓ Git shows deletions: git status
 
 Dependencies:
-  - Task 6.1 (RangeInput fully integrated)
-Time: 15min
+
+- Task 6.1 (RangeInput fully integrated)
+  Time: 15min
+
 ```
 
 ---
@@ -816,25 +888,29 @@ Time: 15min
 - [ ] **Task 7.2: Add Migration Documentation**
 
 ```
+
 Files:
-  - convex/lib/MIGRATION.md (NEW)
+
+- convex/lib/MIGRATION.md (NEW)
 
 Content:
-  Document the 30-day migration plan:
-  - Phase 1 (Days 1-7): Both fields coexist
-  - Phase 2 (Days 8-30): Monitor usage, verify no guesses[] dependencies
-  - Phase 3 (Day 30+): Run migration script, drop guesses field
-  - Rollback plan if issues arise
+Document the 30-day migration plan:
+
+- Phase 1 (Days 1-7): Both fields coexist
+- Phase 2 (Days 8-30): Monitor usage, verify no guesses[] dependencies
+- Phase 3 (Day 30+): Run migration script, drop guesses field
+- Rollback plan if issues arise
 
 Success Criteria:
-  ✓ MIGRATION.md exists
-  ✓ Covers all 3 phases
-  ✓ Includes queries to check migration status
-  ✓ Rollback plan documented
+✓ MIGRATION.md exists
+✓ Covers all 3 phases
+✓ Includes queries to check migration status
+✓ Rollback plan documented
 
 Dependencies: None
 Time: 20min
-```
+
+````
 
 ---
 
@@ -929,4 +1005,4 @@ These go in BACKLOG.md or issue tracker, NOT TODO.md.
 
 ```bash
 git checkout -b feature/chrondle-range
-```
+````
