@@ -215,7 +215,7 @@ scripts/
 
 ### 2.3 Integration Testing
 
-- [~] **Create end-to-end integration test**
+- [x] **Create end-to-end integration test**
   ```
   Files: convex/__tests__/eventGeneration.test.ts [NEW]
   Pattern: Follow existing Convex test structure (archivePuzzleStreak.test.ts)
@@ -236,7 +236,7 @@ scripts/
 
 ### 3.1 Work Selector
 
-- [ ] **Implement year selection logic**
+- [~] **Implement year selection logic**
   ```
   Files: convex/lib/workSelector.ts [NEW]
   Pattern: Pure functions or internalAction if needs DB queries
