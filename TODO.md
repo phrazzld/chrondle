@@ -128,7 +128,7 @@
   - Export all types for use in hooks and components
   ```
 
-- [~] **Implement deriveOrderGameState pure function**
+- [x] **Implement deriveOrderGameState pure function**
 
   ```
   Files: src/lib/deriveOrderGameState.ts (new file)
@@ -170,7 +170,7 @@
 
 ### 1.3 Routing & Navigation
 
-- [ ] **Implement smart homepage with cookie-based mode routing**
+- [x] **Implement smart homepage with cookie-based mode routing**
 
   ```
   Files: app/page.tsx (modify existing)

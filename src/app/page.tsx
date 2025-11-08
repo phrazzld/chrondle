@@ -1,14 +1,23 @@
-// Server Component - No "use client" directive
-// This component fetches puzzle data server-side and passes it to the client island
+import { cookies, headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { GamesGallery } from "@/components/GamesGallery";
 
-import { preloadQuery } from "convex/nextjs";
-import { api } from "../../convex/_generated/api";
-import { GameIsland } from "@/components/GameIsland";
+const BOT_USER_AGENT = /bot|crawl|spider|slurp|duckduckgo|baiduspider|bingpreview|yandex/i;
+const MODE_COOKIE = "chrondle_mode";
 
-export default async function ChronldePage() {
-  // Preload puzzle data server-side (no auth needed for the daily puzzle)
-  // This eliminates the loading-puzzle state completely
-  const preloadedPuzzle = await preloadQuery(api.puzzles.getDailyPuzzle);
+export default function SmartHomepage() {
+  const cookieStore = cookies();
+  const mode = cookieStore.get(MODE_COOKIE)?.value;
+  const userAgent = headers().get("user-agent") ?? "";
+  const isBot = BOT_USER_AGENT.test(userAgent);
 
-  return <GameIsland preloadedPuzzle={preloadedPuzzle} />;
+  if (!isBot && mode === "classic") {
+    redirect("/classic");
+  }
+
+  if (!isBot && mode === "order") {
+    redirect("/order");
+  }
+
+  return <GamesGallery />;
 }
