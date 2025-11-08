@@ -2,6 +2,7 @@
 
 import { v } from "convex/values";
 import { internalAction } from "../../_generated/server";
+import { internal } from "../../_generated/api";
 import type { TokenUsage } from "../../lib/llmClient";
 import { generateCandidatesForYear } from "./generator";
 import { critiqueCandidatesForYear } from "./critic";
@@ -19,8 +20,35 @@ export const generateYearEvents = internalAction({
   args: {
     year: v.number(),
   },
-  handler: async (_ctx, args) => {
-    return runGenerationPipeline(args.year);
+  handler: async (ctx, args) => {
+    const result = await runGenerationPipeline(args.year);
+
+    const era = deriveEra(args.year);
+
+    await ctx.runMutation(internal.generationLogs.logGenerationAttempt, {
+      year: args.year,
+      era,
+      status: result.status,
+      attempt_count: result.metadata.attempts,
+      events_generated: result.status === "success" ? result.events.length : 0,
+      token_usage: {
+        input: result.usage.total.inputTokens,
+        output: result.usage.total.outputTokens,
+        total: result.usage.total.totalTokens,
+      },
+      cost_usd: result.usage.total.costUsd,
+      error_message: result.status === "failed" ? result.reason : undefined,
+    });
+
+    if (result.status === "success") {
+      const payload = result.events.map((event) => event.event_text);
+      await ctx.runMutation(internal.events.importYearEvents, {
+        year: args.year,
+        events: payload,
+      });
+    }
+
+    return result;
   },
 });
 

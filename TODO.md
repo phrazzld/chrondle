@@ -199,7 +199,7 @@ scripts/
 
 ### 2.2 Event Persistence Action
 
-- [ ] **Implement action to persist generated events**
+- [~] **Implement action to persist generated events**
   ```
   Files: convex/actions/eventGeneration/orchestrator.ts [MODIFY]
   Pattern: Call internal mutation from action (historicalContext.ts lines 430-445)
