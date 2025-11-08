@@ -437,7 +437,7 @@
 
 ### 3.2 Animations & Polish
 
-- [ ] **Integrate drag-drop animations with existing animation constants**
+- [x] **Integrate drag-drop animations with existing animation constants**
 
   ```
   Files: src/components/order/DraggableEventCard.tsx (modify), src/lib/animationConstants.ts (add Order constants)
