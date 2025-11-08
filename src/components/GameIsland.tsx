@@ -15,7 +15,7 @@ import {
 } from "react";
 import { usePreloadedQuery, Preloaded } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { useChrondle } from "@/hooks/useChrondle";
+import { useRangeGame } from "@/hooks/useRangeGame";
 import { isReady } from "@/types/gameState";
 import { useStreak } from "@/hooks/useStreak";
 import { useCountdown } from "@/hooks/useCountdown";
@@ -59,7 +59,7 @@ export function GameIsland({ preloadedPuzzle }: GameIslandProps) {
 
   // Use the Chrondle hook with preloaded puzzle data
   // This eliminates the loading state for puzzle data
-  const chrondle = useChrondle(undefined, puzzle);
+  const chrondle = useRangeGame(undefined, puzzle);
 
   // Defer non-critical state values for better performance
   const deferredGameState = useDeferredValue(chrondle.gameState);

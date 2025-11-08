@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, use } from "react";
 import Link from "next/link";
 import { fetchTotalPuzzles } from "@/lib/puzzleData";
-import { useChrondle } from "@/hooks/useChrondle";
+import { useRangeGame } from "@/hooks/useRangeGame";
 import { isReady } from "@/types/gameState";
 import { GameLayout } from "@/components/GameLayout";
 import { AppHeader } from "@/components/AppHeader";
@@ -64,7 +64,7 @@ function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps): React.ReactEle
   const puzzleNumber = validation.valid && validation.id ? validation.id : 0;
 
   // Use game state for archive puzzle with puzzle number
-  const chrondle = useChrondle(puzzleNumber > 0 ? puzzleNumber : undefined);
+  const chrondle = useRangeGame(puzzleNumber > 0 ? puzzleNumber : undefined);
 
   // Adapt to old interface
   const gameState = isReady(chrondle.gameState)

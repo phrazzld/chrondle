@@ -675,7 +675,7 @@ Work Log:
 
 ---
 
-- [ ] **Task 5.2: Rename useChrondle to useRangeGame**
+- [~] **Task 5.2: Rename useChrondle to useRangeGame**
 
 ```
 
