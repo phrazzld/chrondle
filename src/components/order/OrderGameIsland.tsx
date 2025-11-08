@@ -1,9 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { Preloaded, usePreloadedQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useOrderGame } from "@/hooks/useOrderGame";
 import type { OrderEvent, OrderHint, OrderScore } from "@/types/orderGameState";
+import { OrderReveal } from "@/components/order/OrderReveal";
+import { copyOrderShareCardToClipboard, type OrderShareResult } from "@/lib/order/shareCard";
 import { logger } from "@/lib/logger";
 
 interface OrderGameIslandProps {
@@ -13,6 +16,7 @@ interface OrderGameIslandProps {
 export function OrderGameIsland({ preloadedPuzzle }: OrderGameIslandProps) {
   const puzzle = usePreloadedQuery(preloadedPuzzle);
   const { gameState, reorderEvents, takeHint, commitOrdering } = useOrderGame(undefined, puzzle);
+  const [shareFeedback, setShareFeedback] = useState<string | null>(null);
 
   if (gameState.status === "loading-puzzle") {
     return renderShell("Loading Order puzzle…");
@@ -27,40 +31,40 @@ export function OrderGameIsland({ preloadedPuzzle }: OrderGameIslandProps) {
   }
 
   if (gameState.status === "completed") {
+    const handleShare = async () => {
+      try {
+        const results: OrderShareResult[] = gameState.correctOrder.map((id, idx) =>
+          gameState.finalOrder[idx] === id ? "correct" : "incorrect",
+        );
+
+        await copyOrderShareCardToClipboard({
+          dateLabel: gameState.puzzle.date,
+          puzzleNumber: gameState.puzzle.puzzleNumber,
+          results,
+          score: gameState.score,
+        });
+
+        setShareFeedback("Image copied to clipboard!");
+      } catch (error) {
+        logger.error("Failed to generate Order share card", error);
+        setShareFeedback("Share failed. Try again.");
+      }
+    };
+
     return (
-      <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-8 px-6 py-16">
-        <header>
-          <p className="text-muted-foreground text-sm tracking-wide uppercase">Order Mode</p>
-          <h1 className="text-foreground text-3xl font-semibold">
-            Puzzle #{gameState.puzzle.puzzleNumber}
-          </h1>
-          <p className="text-muted-foreground">Completed – great work!</p>
-        </header>
-        <section className="border-border bg-card rounded-2xl border p-6 shadow-sm">
-          <h2 className="text-foreground text-lg font-semibold">Final Order</h2>
-          <ol className="mt-4 space-y-3 text-left">
-            {gameState.finalOrder.map((eventId, index) => {
-              const event = gameState.puzzle.events.find((evt) => evt.id === eventId);
-              return (
-                <li key={eventId} className="border-border rounded-xl border px-3 py-2">
-                  <p className="text-muted-foreground text-sm font-medium">{index + 1}</p>
-                  <p className="text-foreground text-base font-semibold">{event?.text}</p>
-                  <p className="text-muted-foreground text-sm">{event?.year}</p>
-                </li>
-              );
-            })}
-          </ol>
-        </section>
-        <section className="border-border bg-card rounded-2xl border p-6 shadow-sm">
-          <h2 className="text-foreground text-lg font-semibold">Score</h2>
-          <p className="text-foreground mt-2 text-2xl font-semibold">
-            {gameState.score.totalScore}
+      <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 px-6 py-16">
+        <OrderReveal
+          events={gameState.puzzle.events}
+          finalOrder={gameState.finalOrder}
+          correctOrder={gameState.correctOrder}
+          score={gameState.score}
+          onShare={handleShare}
+        />
+        {shareFeedback && (
+          <p className="text-muted-foreground text-center text-sm" role="status">
+            {shareFeedback}
           </p>
-          <p className="text-muted-foreground text-sm">
-            {gameState.score.correctPairs}/{gameState.score.totalPairs} pairs correct · Multiplier{" "}
-            {gameState.score.hintMultiplier.toFixed(2)}×
-          </p>
-        </section>
+        )}
       </main>
     );
   }

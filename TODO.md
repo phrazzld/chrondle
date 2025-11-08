@@ -349,7 +349,7 @@
   - Test edge cases: perfect order (15/15), reversed (0/15), partial (8/15)
   ```
 
-- [~] **Create server-side scoring mutation with validation**
+- [x] **Create server-side scoring mutation with validation**
 
   ```
   Files: convex/orderPuzzles/mutations.ts (add submitOrderPlay mutation)
