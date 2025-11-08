@@ -110,7 +110,7 @@
 
 ### 1.2 Type System & State Derivation
 
-- [ ] **Define OrderGameState discriminated union types**
+- [x] **Define OrderGameState discriminated union types**
 
   ```
   Files: src/types/orderGameState.ts (new file)
