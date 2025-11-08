@@ -289,7 +289,7 @@
 
 ### 2.2 Hint System
 
-- [ ] **Implement hint generation functions (Anchor, Relative, Bracket)**
+- [~] **Implement hint generation functions (Anchor, Relative, Bracket)**
 
   ```
   Files: src/lib/order/hints.ts (new file)
