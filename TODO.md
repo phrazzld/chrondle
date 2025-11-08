@@ -545,7 +545,7 @@ Work Log:
 
 ## Phase 4: Timeline Visualization
 
-- [ ] **Task 4.1: Rewrite Timeline as RangeTimeline**
+- [x] **Task 4.1: Rewrite Timeline as RangeTimeline**
 
 ```
 
@@ -605,6 +605,10 @@ Dependencies:
 - motion (already installed)
   Time: 60min
 
+```
+Work Log:
+- Replaced the legacy point-based `Timeline` with `RangeTimeline`, an SVG bar visualization that animates range attempts, clamps coordinates, respects reduced motion, and highlights the answer marker post-game.
+- Added focused tests for RangeTimeline plus updated `GameLayout` to feed range data (currently derived from guesses) and adjusted its tests to mock the new component.
 ```
 
 ---
@@ -921,7 +925,7 @@ Success Criteria:
 Dependencies: None
 Time: 20min
 
-````
+```
 
 ---
 
@@ -1016,4 +1020,4 @@ These go in BACKLOG.md or issue tracker, NOT TODO.md.
 
 ```bash
 git checkout -b feature/chrondle-range
-````
+```

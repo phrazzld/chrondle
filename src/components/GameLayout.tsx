@@ -1,11 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { AnimatePresence } from "motion/react";
 import { GameInstructions } from "@/components/GameInstructions";
 import { CurrentHintCard } from "@/components/CurrentHintCard";
 import { GuessInput } from "@/components/GuessInput";
-import { Timeline } from "@/components/Timeline";
+import { RangeTimeline, RangeTimelineRange } from "@/components/game/RangeTimeline";
 import { LastGuessDisplay } from "@/components/ui/LastGuessDisplay";
 import { HintsDisplay } from "@/components/HintsDisplay";
 import { Confetti, ConfettiRef } from "@/components/magicui/confetti";
@@ -80,7 +80,21 @@ export function GameLayout(props: GameLayoutProps) {
   // Calculate currentHintIndex from gameState
   const currentHintIndex = Math.min(gameState.guesses.length, 5);
   const remainingGuesses = 6 - gameState.guesses.length;
-  const targetYear = gameState.puzzle?.year || 0;
+  const targetYear = gameState.puzzle?.year ?? 0;
+
+  const timelineRanges = useMemo<RangeTimelineRange[]>(() => {
+    if (!gameState.guesses || gameState.guesses.length === 0) {
+      return [];
+    }
+
+    return gameState.guesses.map((guess) => ({
+      start: guess,
+      end: guess,
+      score: 0,
+      contained: gameState.puzzle ? guess === gameState.puzzle.year : false,
+      hintsUsed: 0,
+    }));
+  }, [gameState.guesses, gameState.puzzle]);
 
   return (
     <div className="bg-background flex flex-1 flex-col">
@@ -134,13 +148,12 @@ export function GameLayout(props: GameLayoutProps) {
           )}
 
           {/* Timeline */}
-          <Timeline
-            minYear={-2500}
+          <RangeTimeline
+            ranges={timelineRanges}
+            targetYear={gameState.puzzle?.year ?? null}
+            minYear={-5000}
             maxYear={new Date().getFullYear()}
-            guesses={gameState.guesses}
-            targetYear={targetYear}
-            isGameComplete={isGameComplete}
-            hasWon={hasWon}
+            isComplete={isGameComplete}
           />
 
           {/* Current Hint Card - Below timeline, can change height without affecting elements above */}

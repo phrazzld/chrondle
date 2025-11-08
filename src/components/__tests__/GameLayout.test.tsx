@@ -19,8 +19,8 @@ vi.mock("@/components/GuessInput", () => ({
   ),
 }));
 
-vi.mock("@/components/Timeline", () => ({
-  Timeline: () => <div data-testid="timeline">Timeline</div>,
+vi.mock("@/components/game/RangeTimeline", () => ({
+  RangeTimeline: () => <div data-testid="timeline">Timeline</div>,
 }));
 
 vi.mock("@/components/ui/LastGuessDisplay", () => ({
