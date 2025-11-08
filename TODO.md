@@ -340,7 +340,7 @@ scripts/
 
 ### 4.2 Monitoring & Alerts
 
-- [~] **Implement alert system**
+- [x] **Implement alert system**
 
   ```
   Files: convex/lib/alerts.ts [NEW]
@@ -356,7 +356,7 @@ scripts/
   Time: 2hrs
   ```
 
-- [ ] **Create monitoring queries for dashboard**
+- [x] **Create monitoring queries for dashboard**
   ```
   Files: convex/generationLogs.ts [MODIFY - add queries]
   Queries: See TASK.md lines 987-1064

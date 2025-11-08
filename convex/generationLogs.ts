@@ -92,6 +92,39 @@ export const getEventPoolHealth = query({
   },
 });
 
+export const getLast7DaysCosts = query({
+  args: {
+    days: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const days = Math.max(1, Math.min(args.days ?? 7, 30));
+    const buckets: Array<{
+      date: string;
+      totalCost: number;
+      eventsGenerated: number;
+      successRate: number;
+    }> = [];
+
+    for (let offset = days - 1; offset >= 0; offset -= 1) {
+      const { start, end, isoDate } = deriveDayRange(undefined, -offset);
+      const logs = await ctx.db
+        .query("generation_logs")
+        .withIndex("by_timestamp", (q) => q.gte("timestamp", start).lt("timestamp", end))
+        .collect();
+
+      const summary = summarizeGenerationLogs(logs);
+      buckets.push({
+        date: isoDate,
+        totalCost: summary.totalCost,
+        eventsGenerated: summary.eventsGenerated,
+        successRate: summary.totalYears === 0 ? 0 : summary.successfulYears / summary.totalYears,
+      });
+    }
+
+    return buckets;
+  },
+});
+
 export function summarizeGenerationLogs(
   logs: ReadonlyArray<Doc<"generation_logs">>,
 ): DailyGenerationStats {
@@ -154,13 +187,16 @@ export function calculateEventPoolHealth(events: ReadonlyArray<Doc<"events">>): 
   };
 }
 
-function deriveDayRange(dateInput?: string) {
+function deriveDayRange(dateInput?: string, offsetDays = 0) {
   const date = dateInput ? new Date(`${dateInput}T00:00:00.000Z`) : new Date();
+  if (!dateInput && offsetDays !== 0) {
+    date.setUTCDate(date.getUTCDate() + offsetDays);
+  }
   if (Number.isNaN(date.getTime())) {
     throw new Error(`Invalid date provided: ${dateInput}`);
   }
 
   const start = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
   const end = start + 24 * 60 * 60 * 1000;
-  return { start, end };
+  return { start, end, isoDate: date.toISOString().slice(0, 10) };
 }
