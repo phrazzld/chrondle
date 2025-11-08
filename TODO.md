@@ -330,7 +330,7 @@
 
 ### 2.3 Scoring System
 
-- [ ] **Implement pairwise correctness scoring algorithm**
+- [~] **Implement pairwise correctness scoring algorithm**
 
   ```
   Files: src/lib/order/scoring.ts (new file)
