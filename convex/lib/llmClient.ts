@@ -72,6 +72,10 @@ export interface LLMClientOptions {
   sleepFn?: (ms: number) => Promise<void>;
   logger?: Pick<typeof console, "log" | "error">;
   pricing?: Record<string, TokenPricing>;
+  circuitBreaker?: {
+    failureThreshold?: number;
+    cooldownMs?: number;
+  };
 }
 
 export interface LLMClient {
@@ -93,6 +97,10 @@ interface ResolvedOptions {
   sleepFn: (ms: number) => Promise<void>;
   logger: Pick<typeof console, "log" | "error">;
   pricing?: Record<string, TokenPricing>;
+  circuitBreaker: {
+    failureThreshold: number;
+    cooldownMs: number;
+  };
 }
 
 interface ChatCompletionResponse {
@@ -143,6 +151,10 @@ function resolveOptions(options: LLMClientOptions = {}): ResolvedOptions {
     sleepFn: options.sleepFn ?? defaultSleep,
     logger: options.logger ?? console,
     pricing: options.pricing,
+    circuitBreaker: {
+      failureThreshold: options.circuitBreaker?.failureThreshold ?? 5,
+      cooldownMs: options.circuitBreaker?.cooldownMs ?? 5 * 60 * 1000,
+    },
   };
 }
 
@@ -310,6 +322,9 @@ function createRequestId(): string {
 }
 
 class OpenRouterLLMClient implements LLMClient {
+  private consecutiveFailures = 0;
+  private circuitOpenedAt: number | null = null;
+
   constructor(private readonly options: ResolvedOptions) {}
 
   async generate<T>(
@@ -319,6 +334,10 @@ class OpenRouterLLMClient implements LLMClient {
     const normalized = this.normalizeArgs(prompt, schema);
     const requestId = (normalized.metadata?.requestId as string | undefined) ?? createRequestId();
     const logSuffix = flattenMetadata({ ...normalized.metadata, requestId });
+
+    if (this.isCircuitOpen()) {
+      throw new Error("LLM circuit breaker open - skipping request");
+    }
     let attempt = 0;
     let modelIndex = this.resolveInitialModelIndex(normalized.preferredModel);
     let lastError: Error | null = null;
@@ -378,6 +397,8 @@ class OpenRouterLLMClient implements LLMClient {
           `[LLMClient] ${requestId} success via ${modelFromResponse}${logSuffix} tokens=${usage.totalTokens}`,
         );
 
+        this.resetCircuitBreaker();
+
         return {
           data,
           rawText,
@@ -404,6 +425,8 @@ class OpenRouterLLMClient implements LLMClient {
         if (!shouldRetry(errorWithStatus) || isFinalAttempt) {
           throw sanitizedError;
         }
+
+        this.recordFailure();
 
         const delay = calculateBackoffDelay(
           attempt,
@@ -446,6 +469,36 @@ class OpenRouterLLMClient implements LLMClient {
 
     const index = this.options.modelPriority.indexOf(preferredModel);
     return index === -1 ? 0 : index;
+  }
+
+  private isCircuitOpen(): boolean {
+    if (this.circuitOpenedAt === null) {
+      return false;
+    }
+
+    const elapsed = Date.now() - this.circuitOpenedAt;
+    if (elapsed >= this.options.circuitBreaker.cooldownMs) {
+      this.circuitOpenedAt = null;
+      this.consecutiveFailures = 0;
+      return false;
+    }
+
+    return true;
+  }
+
+  private recordFailure(): void {
+    this.consecutiveFailures += 1;
+    if (this.consecutiveFailures >= this.options.circuitBreaker.failureThreshold) {
+      this.circuitOpenedAt = Date.now();
+      this.options.logger.error(
+        `[LLMClient] Circuit opened after ${this.consecutiveFailures} consecutive failures`,
+      );
+    }
+  }
+
+  private resetCircuitBreaker(): void {
+    this.consecutiveFailures = 0;
+    this.circuitOpenedAt = null;
   }
 }
 

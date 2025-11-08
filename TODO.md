@@ -282,7 +282,7 @@ scripts/
 
 ### 3.3 Batch Orchestrator
 
-- [ ] **Implement daily batch generation coordinator**
+- [x] **Implement daily batch generation coordinator**
   ```
   Files: convex/actions/eventGeneration/orchestrator.ts [MODIFY - add new export]
   Function:
@@ -307,7 +307,7 @@ scripts/
 
 ### 4.1 Error Handling & Circuit Breaker
 
-- [ ] **Implement circuit breaker for API failures**
+- [~] **Implement circuit breaker for API failures**
 
   ```
   Files: convex/lib/llmClient.ts [MODIFY]
