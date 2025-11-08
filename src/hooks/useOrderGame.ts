@@ -25,7 +25,7 @@ export function useOrderGame(puzzleNumber?: number, initialPuzzle?: unknown): Us
     [puzzle.puzzle?.events],
   );
 
-  const session = useOrderSession(puzzle.puzzle?.id ?? null, baselineOrder);
+  const session = useOrderSession(puzzle.puzzle?.id ?? null, baselineOrder, auth.isAuthenticated);
 
   const dataSources: OrderDataSources = useMemo(
     () => ({
