@@ -246,7 +246,7 @@
   Command: pnpm add @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities
   ```
 
-- [ ] **Create DraggableEventCard component with dnd-kit integration**
+- [~] **Create DraggableEventCard component with dnd-kit integration**
 
   ```
   Files: src/components/order/DraggableEventCard.tsx (new file)
