@@ -463,7 +463,7 @@ scripts/
   Identify expensive years (high retry counts)
   ```
 
-- [ ] **Script: Quality audit sampler**
+- [x] **Script: Quality audit sampler**
   ```
   Random sample 10 events/week for manual review
   Check: leakage, factual accuracy, proper nouns
