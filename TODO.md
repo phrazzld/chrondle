@@ -396,7 +396,7 @@
 
 ### 3.1 Reveal Screen
 
-- [ ] **Create OrderReveal component with simple list layout**
+- [x] **Create OrderReveal component with simple list layout**
 
   ```
   Files: src/components/order/OrderReveal.tsx (new file)
