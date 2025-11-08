@@ -6,6 +6,7 @@ import { createLLMClient, type LLMClient, type TokenUsage } from "../../lib/llmC
 import type { CandidateEvent, CritiqueResult } from "./schemas";
 import { CandidateEventSchema, parseEra, type Era } from "./schemas";
 import { CandidateEventValue } from "./values";
+import { logStageError, logStageSuccess } from "../../lib/logging";
 
 const REVISER_SYSTEM_PROMPT = `You are ChronBot Reviser. Rewrite ONLY failing events using critic feedback.
 
@@ -83,18 +84,30 @@ export async function reviseCandidatesForYear(params: ReviserParams): Promise<Re
   }
 
   const client = params.llmClient ?? getReviserClient();
-  const response = await client.generate({
-    prompt: {
-      system: REVISER_SYSTEM_PROMPT,
-      user: buildReviserUserPrompt(year, era, failing),
-    },
-    schema: CandidateEventSchema.array().length(failing.length),
-    metadata: {
-      stage: "reviser",
-      year,
-      era,
-      failingCount: failing.length,
-    },
+  let response;
+  try {
+    response = await client.generate({
+      prompt: {
+        system: REVISER_SYSTEM_PROMPT,
+        user: buildReviserUserPrompt(year, era, failing),
+      },
+      schema: CandidateEventSchema.array().length(failing.length),
+      metadata: {
+        stage: "reviser",
+        year,
+        era,
+        failingCount: failing.length,
+      },
+    });
+  } catch (error) {
+    logStageError("Reviser", error, { year, era, failingCount: failing.length });
+    throw error;
+  }
+
+  logStageSuccess("Reviser", "LLM call succeeded", {
+    requestId: response.requestId,
+    tokens: response.usage.totalTokens,
+    year,
   });
 
   const rewrites = response.data.map(sanitizeEventRewrite);

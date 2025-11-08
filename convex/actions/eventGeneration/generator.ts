@@ -5,6 +5,7 @@ import { internalAction } from "../../_generated/server";
 import { createLLMClient, type LLMClient, type TokenUsage } from "../../lib/llmClient";
 import type { CandidateEvent } from "./schemas";
 import { GeneratorOutputSchema, parseEra, type Era } from "./schemas";
+import { logStageError, logStageSuccess } from "../../lib/logging";
 
 const GENERATOR_SYSTEM_PROMPT = `You are ChronBot Generator, a historian-puzzlemaker creating historical event clues for a guessing game.
 
@@ -102,6 +103,13 @@ export async function generateCandidatesForYear(
     response.requestId,
   );
 
+  logStageSuccess("Generator", "LLM call succeeded", {
+    requestId: response.requestId,
+    model: response.model,
+    tokens: response.usage.totalTokens,
+    year,
+  });
+
   const candidates = response.data.candidates.map(sanitizeCandidateEvent);
 
   return {
@@ -162,7 +170,11 @@ function warnIfYearMismatch(
     return;
   }
 
-  console.warn(
-    `[Generator] LLM year mismatch for ${requestId}: expected ${requestedYear} ${requestedEra}, got ${llmYear} ${llmEra}`,
-  );
+  logStageError("Generator", new Error("LLM year mismatch"), {
+    requestId,
+    expectedYear: requestedYear,
+    expectedEra: requestedEra,
+    llmYear,
+    llmEra,
+  });
 }

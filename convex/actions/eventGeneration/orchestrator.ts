@@ -10,6 +10,7 @@ import type { CritiqueResult } from "./schemas";
 import { reviseCandidatesForYear } from "./reviser";
 import type { CandidateEvent, Era } from "./schemas";
 import { chooseWorkYears } from "../../lib/workSelector";
+import { logStageError, logStageSuccess } from "../../lib/logging";
 
 const MAX_TOTAL_ATTEMPTS = 4;
 const MAX_CRITIC_CYCLES = 2;
@@ -37,6 +38,7 @@ export const generateDailyBatch = internalAction({
         const result = await executeYearGeneration(ctx, year);
         results.push({ year, result });
       } catch (error) {
+        logStageError("Orchestrator", error, { year });
         results.push({
           year,
           result: {
@@ -288,6 +290,11 @@ function addUsage(target: TokenUsageTotals, usage: TokenUsage): void {
 async function executeYearGeneration(ctx: ActionCtx, year: number): Promise<YearGenerationResult> {
   const result = await runGenerationPipeline(year);
   const era = deriveEra(year);
+
+  logStageSuccess("Orchestrator", `Pipeline completed for ${year}`, {
+    status: result.status,
+    attempts: result.metadata.attempts,
+  });
 
   await ctx.runMutation(internal.generationLogs.logGenerationAttempt, {
     year,

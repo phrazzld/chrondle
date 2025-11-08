@@ -7,6 +7,7 @@ import { hasLeakage, hasProperNoun, isValidWordCount } from "../../lib/eventVali
 import type { CandidateEvent, CritiqueResult } from "./schemas";
 import { CritiqueResultSchema, parseEra, type Era } from "./schemas";
 import { CandidateEventValue } from "./values";
+import { logStageError, logStageSuccess } from "../../lib/logging";
 
 const CRITIC_SYSTEM_PROMPT = `You are ChronBot Critic, a precision editor scoring historical event clues.
 
@@ -99,17 +100,29 @@ export async function critiqueCandidatesForYear(params: CriticParams): Promise<C
 
   const deterministic = runDeterministicChecks(candidates);
   const llmClient = params.llmClient ?? getCriticClient();
-  const response = await llmClient.generate({
-    prompt: {
-      system: CRITIC_SYSTEM_PROMPT,
-      user: buildCriticUserPrompt(year, era, candidates),
-    },
-    schema: zodArrayForCount(candidates.length),
-    metadata: {
-      stage: "critic",
-      year,
-      era,
-    },
+  let response;
+  try {
+    response = await llmClient.generate({
+      prompt: {
+        system: CRITIC_SYSTEM_PROMPT,
+        user: buildCriticUserPrompt(year, era, candidates),
+      },
+      schema: zodArrayForCount(candidates.length),
+      metadata: {
+        stage: "critic",
+        year,
+        era,
+      },
+    });
+  } catch (error) {
+    logStageError("Critic", error, { year, era, candidateCount: candidates.length });
+    throw error;
+  }
+
+  logStageSuccess("Critic", "LLM call succeeded", {
+    requestId: response.requestId,
+    tokens: response.usage.totalTokens,
+    year,
   });
 
   const llmResults = ensureArrayLength(response.data, candidates.length);

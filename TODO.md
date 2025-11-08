@@ -307,7 +307,7 @@ scripts/
 
 ### 4.1 Error Handling & Circuit Breaker
 
-- [~] **Implement circuit breaker for API failures**
+- [x] **Implement circuit breaker for API failures**
 
   ```
   Files: convex/lib/llmClient.ts [MODIFY]
@@ -323,7 +323,7 @@ scripts/
   Time: 2hrs
   ```
 
-- [ ] **Add comprehensive error logging**
+- [~] **Add comprehensive error logging**
   ```
   Files: All action files [MODIFY]
   Pattern: Follow historicalContext.ts sanitization (lines 24-63)
