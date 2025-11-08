@@ -615,7 +615,7 @@ Work Log:
 
 ## Phase 5: State Management Integration
 
-- [ ] **Task 5.1: Update deriveGameState for Ranges**
+- [x] **Task 5.1: Update deriveGameState for Ranges**
 
 ```
 
@@ -663,6 +663,13 @@ Dependencies:
 
 - Task 1.1 (RangeGuess type)
   Time: 45min
+
+```
+
+Work Log:
+
+- Extended `GameState`/derive logic to carry new `ranges`, `totalScore`, and `remainingAttempts` fields with backwards-compatible fallbacks when only guesses exist.
+- Updated progress fetching + derivation tests to cover range data, completion logic, and legacy conversions (`pnpm test -- src/lib/__tests__/deriveGameState.unit.test.ts`).
 
 ```
 
@@ -925,7 +932,7 @@ Success Criteria:
 Dependencies: None
 Time: 20min
 
-```
+````
 
 ---
 
@@ -1020,4 +1027,4 @@ These go in BACKLOG.md or issue tracker, NOT TODO.md.
 
 ```bash
 git checkout -b feature/chrondle-range
-```
+````
