@@ -199,7 +199,7 @@ scripts/
 
 ### 2.2 Event Persistence Action
 
-- [~] **Implement action to persist generated events**
+- [x] **Implement action to persist generated events**
   ```
   Files: convex/actions/eventGeneration/orchestrator.ts [MODIFY]
   Pattern: Call internal mutation from action (historicalContext.ts lines 430-445)
@@ -215,7 +215,7 @@ scripts/
 
 ### 2.3 Integration Testing
 
-- [ ] **Create end-to-end integration test**
+- [~] **Create end-to-end integration test**
   ```
   Files: convex/__tests__/eventGeneration.test.ts [NEW]
   Pattern: Follow existing Convex test structure (archivePuzzleStreak.test.ts)
