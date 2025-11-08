@@ -1,0 +1,248 @@
+"use node";
+
+import { v } from "convex/values";
+import { internalAction } from "../../_generated/server";
+import type { TokenUsage } from "../../lib/llmClient";
+import { generateCandidatesForYear } from "./generator";
+import { critiqueCandidatesForYear } from "./critic";
+import type { CritiqueResult } from "./schemas";
+import { reviseCandidatesForYear } from "./reviser";
+import type { CandidateEvent, Era } from "./schemas";
+
+const MAX_TOTAL_ATTEMPTS = 4;
+const MAX_CRITIC_CYCLES = 2;
+const MIN_REQUIRED_EVENTS = 6;
+const MAX_SELECTED_EVENTS = 10;
+const MAX_DOMAIN_DUPLICATES = 3;
+
+export const generateYearEvents = internalAction({
+  args: {
+    year: v.number(),
+  },
+  handler: async (_ctx, args) => {
+    return runGenerationPipeline(args.year);
+  },
+});
+
+export interface TokenUsageTotals {
+  inputTokens: number;
+  outputTokens: number;
+  reasoningTokens: number;
+  totalTokens: number;
+  costUsd: number;
+}
+
+export interface UsageSummary {
+  generator: TokenUsageTotals;
+  critic: TokenUsageTotals;
+  reviser: TokenUsageTotals;
+  total: TokenUsageTotals;
+}
+
+export interface PipelineMetadata {
+  attempts: number;
+  criticCycles: number;
+  revisions: number;
+  deterministicFailures: number;
+}
+
+export type FailureReason = "insufficient_quality";
+
+export type YearGenerationResult =
+  | {
+      status: "success";
+      events: CandidateEvent[];
+      metadata: PipelineMetadata & {
+        selectedCount: number;
+      };
+      usage: UsageSummary;
+    }
+  | {
+      status: "failed";
+      reason: FailureReason;
+      metadata: PipelineMetadata;
+      usage: UsageSummary;
+    };
+
+interface PipelineDeps {
+  generator: typeof generateCandidatesForYear;
+  critic: typeof critiqueCandidatesForYear;
+  reviser: typeof reviseCandidatesForYear;
+}
+
+const defaultDeps: PipelineDeps = {
+  generator: generateCandidatesForYear,
+  critic: critiqueCandidatesForYear,
+  reviser: reviseCandidatesForYear,
+};
+
+export async function runGenerationPipeline(
+  year: number,
+  deps: PipelineDeps = defaultDeps,
+): Promise<YearGenerationResult> {
+  const era = deriveEra(year);
+  const usage = createUsageSummary();
+  let attempts = 0;
+  let totalCycles = 0;
+  let totalRevisions = 0;
+  let totalDeterministicFailures = 0;
+
+  while (attempts < MAX_TOTAL_ATTEMPTS) {
+    attempts += 1;
+
+    const generation = await deps.generator({ year, era });
+    recordUsage(usage.generator, usage.total, generation.llm.usage);
+
+    let candidates = generation.candidates;
+    let cycles = 0;
+
+    while (cycles < MAX_CRITIC_CYCLES) {
+      cycles += 1;
+      totalCycles += 1;
+
+      const critique = await deps.critic({ year, era, candidates });
+      recordUsage(usage.critic, usage.total, critique.llm.usage);
+      totalDeterministicFailures += critique.deterministicFailures;
+
+      const passingResults = critique.results.filter((result) => result.passed);
+
+      if (passingResults.length >= MIN_REQUIRED_EVENTS) {
+        const selected = selectTopEvents(critique.results);
+        if (selected.length >= MIN_REQUIRED_EVENTS) {
+          return {
+            status: "success",
+            events: selected,
+            metadata: {
+              attempts,
+              criticCycles: totalCycles,
+              revisions: totalRevisions,
+              deterministicFailures: totalDeterministicFailures,
+              selectedCount: selected.length,
+            },
+            usage,
+          };
+        }
+      }
+
+      const failingResults = critique.results.filter((result) => !result.passed);
+      if (!failingResults.length || cycles >= MAX_CRITIC_CYCLES) {
+        break;
+      }
+
+      const revision = await deps.reviser({ failing: failingResults, year, era });
+      recordUsage(usage.reviser, usage.total, revision.llm.usage);
+      totalRevisions += 1;
+
+      candidates = rebuildCandidateSet(critique.results, revision.rewrites);
+    }
+  }
+
+  return {
+    status: "failed",
+    reason: "insufficient_quality",
+    metadata: {
+      attempts,
+      criticCycles: totalCycles,
+      revisions: totalRevisions,
+      deterministicFailures: totalDeterministicFailures,
+    },
+    usage,
+  };
+}
+
+function deriveEra(year: number): Era {
+  return year <= 0 ? "BCE" : "CE";
+}
+
+function rebuildCandidateSet(
+  results: CritiqueResult[],
+  rewrites: CandidateEvent[],
+): CandidateEvent[] {
+  let rewriteIndex = 0;
+  return results.map((result) => {
+    if (result.passed) {
+      return result.event;
+    }
+    const rewrite = rewrites[rewriteIndex];
+    rewriteIndex += 1;
+    return rewrite ?? result.event;
+  });
+}
+
+function selectTopEvents(results: CritiqueResult[]): CandidateEvent[] {
+  const passed = results.filter((result) => result.passed);
+  const sorted = [...passed].sort((a, b) => {
+    const leakDiff = a.scores.leak_risk - b.scores.leak_risk;
+    const guessDiff = b.scores.guessability - a.scores.guessability;
+    if (Math.abs(guessDiff) > 0.0001) {
+      return guessDiff;
+    }
+    const factualDiff = b.scores.factual - a.scores.factual;
+    if (Math.abs(factualDiff) > 0.0001) {
+      return factualDiff;
+    }
+    return leakDiff;
+  });
+
+  const selected: CandidateEvent[] = [];
+  const domainCounts = new Map<string, number>();
+  const overflow: CandidateEvent[] = [];
+
+  for (const result of sorted) {
+    const domain = result.event.domain;
+    const count = domainCounts.get(domain) ?? 0;
+    if (count < MAX_DOMAIN_DUPLICATES || selected.length < MIN_REQUIRED_EVENTS) {
+      selected.push(result.event);
+      domainCounts.set(domain, count + 1);
+    } else if (overflow.length < MAX_SELECTED_EVENTS) {
+      overflow.push(result.event);
+    }
+    if (selected.length === MAX_SELECTED_EVENTS) {
+      break;
+    }
+  }
+
+  let fillIndex = 0;
+  while (selected.length < MIN_REQUIRED_EVENTS && fillIndex < overflow.length) {
+    selected.push(overflow[fillIndex]);
+    fillIndex += 1;
+  }
+
+  return selected.slice(0, Math.min(MAX_SELECTED_EVENTS, selected.length));
+}
+
+function createUsageSummary(): UsageSummary {
+  return {
+    generator: emptyUsageTotals(),
+    critic: emptyUsageTotals(),
+    reviser: emptyUsageTotals(),
+    total: emptyUsageTotals(),
+  };
+}
+
+function emptyUsageTotals(): TokenUsageTotals {
+  return {
+    inputTokens: 0,
+    outputTokens: 0,
+    reasoningTokens: 0,
+    totalTokens: 0,
+    costUsd: 0,
+  };
+}
+
+function recordUsage(
+  stageTotals: TokenUsageTotals,
+  overall: TokenUsageTotals,
+  usage: TokenUsage,
+): void {
+  addUsage(stageTotals, usage);
+  addUsage(overall, usage);
+}
+
+function addUsage(target: TokenUsageTotals, usage: TokenUsage): void {
+  target.inputTokens += usage.inputTokens;
+  target.outputTokens += usage.outputTokens;
+  target.reasoningTokens += usage.reasoningTokens;
+  target.totalTokens += usage.totalTokens;
+  target.costUsd += usage.costUsd ?? 0;
+}
