@@ -180,7 +180,7 @@ scripts/
 
 ### 2.1 Generation Logs Infrastructure
 
-- [ ] **Implement generation logs mutations and queries**
+- [x] **Implement generation logs mutations and queries**
   ```
   Files: convex/generationLogs.ts [NEW]
   Pattern: Follow existing mutation/query patterns (events.ts, puzzles/queries.ts)
