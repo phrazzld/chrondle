@@ -416,7 +416,7 @@
   - Respect prefers-reduced-motion
   ```
 
-- [~] **Implement share card generation for Order mode**
+- [x] **Implement share card generation for Order mode**
 
   ```
   Files: src/lib/order/shareCard.ts (new file)
