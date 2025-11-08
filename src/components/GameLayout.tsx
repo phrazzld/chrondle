@@ -4,12 +4,13 @@ import React, { useMemo } from "react";
 import { AnimatePresence } from "motion/react";
 import { GameInstructions } from "@/components/GameInstructions";
 import { CurrentHintCard } from "@/components/CurrentHintCard";
-import { GuessInput } from "@/components/GuessInput";
-import { RangeTimeline, RangeTimelineRange } from "@/components/game/RangeTimeline";
-import { LastGuessDisplay } from "@/components/ui/LastGuessDisplay";
+import { RangeTimeline, type RangeTimelineRange } from "@/components/game/RangeTimeline";
+import { RangeInput } from "@/components/game/RangeInput";
 import { HintsDisplay } from "@/components/HintsDisplay";
 import { Confetti, ConfettiRef } from "@/components/magicui/confetti";
+import { GameComplete } from "@/components/modals/GameComplete";
 import { validateGameLayoutProps } from "@/lib/propValidation";
+import type { RangeGuess } from "@/types/range";
 
 export interface GameLayoutProps {
   // Core game state
@@ -21,7 +22,9 @@ export interface GameLayoutProps {
       historicalContext?: string;
     } | null;
     guesses: number[];
+    ranges: RangeGuess[];
     isGameOver: boolean;
+    totalScore: number;
   };
   isGameComplete: boolean;
   hasWon: boolean;
@@ -29,7 +32,11 @@ export interface GameLayoutProps {
   error: string | null;
 
   // Actions
-  onGuess: (year: number) => void;
+  onRangeCommit: (range: {
+    start: number;
+    end: number;
+    hintsUsed: number;
+  }) => void | Promise<boolean>;
 
   // Optional header content (nav controls for archive, settings for homepage)
   headerContent?: React.ReactNode;
@@ -56,6 +63,7 @@ export interface GameLayoutProps {
 
   // Archive indicator
   isArchive?: boolean;
+  remainingAttempts: number;
 }
 
 export function GameLayout(props: GameLayoutProps) {
@@ -68,33 +76,35 @@ export function GameLayout(props: GameLayoutProps) {
     hasWon,
     isLoading,
     error,
-    onGuess,
+    onRangeCommit,
     headerContent,
     footerContent,
-    onValidationError,
     confettiRef,
     countdown,
     isArchive = false,
+    remainingAttempts,
   } = props;
 
   // Calculate currentHintIndex from gameState
   const currentHintIndex = Math.min(gameState.guesses.length, 5);
-  const remainingGuesses = 6 - gameState.guesses.length;
   const targetYear = gameState.puzzle?.year ?? 0;
+  const totalScore = gameState.totalScore ?? 0;
+  const puzzleNumber = gameState.puzzle?.puzzleNumber;
 
   const timelineRanges = useMemo<RangeTimelineRange[]>(() => {
-    if (!gameState.guesses || gameState.guesses.length === 0) {
+    if (!gameState.ranges || gameState.ranges.length === 0) {
       return [];
     }
 
-    return gameState.guesses.map((guess) => ({
-      start: guess,
-      end: guess,
-      score: 0,
-      contained: gameState.puzzle ? guess === gameState.puzzle.year : false,
-      hintsUsed: 0,
+    return gameState.ranges.map((range, index) => ({
+      start: range.start,
+      end: range.end,
+      score: range.score,
+      contained: range.score > 0,
+      hintsUsed: range.hintsUsed,
+      timestamp: range.timestamp ?? index,
     }));
-  }, [gameState.guesses, gameState.puzzle]);
+  }, [gameState.ranges]);
 
   return (
     <div className="bg-background flex flex-1 flex-col">
@@ -109,43 +119,22 @@ export function GameLayout(props: GameLayoutProps) {
             isGameComplete={isGameComplete}
             hasWon={hasWon}
             targetYear={targetYear}
-            guesses={gameState.guesses}
             timeString={countdown?.timeString}
             isArchive={isArchive}
-            puzzleEvents={gameState.puzzle?.events || []}
-            puzzleNumber={gameState.puzzle?.puzzleNumber}
             historicalContext={gameState.puzzle?.historicalContext}
           />
 
-          {/* Last Guess Display - ALWAYS visible, reserves space even before first guess */}
-          {!isGameComplete && (
-            <LastGuessDisplay
-              currentGuess={
-                gameState.guesses.length > 0
-                  ? gameState.guesses[gameState.guesses.length - 1]
-                  : undefined
-              }
-              currentDistance={
-                gameState.guesses.length > 0
-                  ? Math.abs(gameState.guesses[gameState.guesses.length - 1] - targetYear)
-                  : undefined
-              }
-              targetYear={targetYear}
-              hasWon={hasWon}
-              guessCount={gameState.guesses.length}
-            />
-          )}
-
-          {/* Guess Input */}
-          {!isGameComplete && (
-            <GuessInput
-              onGuess={onGuess}
-              disabled={isGameComplete || isLoading}
-              isLoading={isLoading}
-              remainingGuesses={remainingGuesses}
-              onValidationError={onValidationError}
-            />
-          )}
+          <RangeInput
+            targetYear={targetYear}
+            minYear={-5000}
+            maxYear={new Date().getFullYear()}
+            onCommit={onRangeCommit}
+            disabled={isGameComplete || isLoading}
+            className="mt-2"
+          />
+          <p className="text-muted-foreground text-center text-xs">
+            {remainingAttempts} attempt{remainingAttempts === 1 ? "" : "s"} remaining
+          </p>
 
           {/* Timeline */}
           <RangeTimeline
@@ -155,6 +144,15 @@ export function GameLayout(props: GameLayoutProps) {
             maxYear={new Date().getFullYear()}
             isComplete={isGameComplete}
           />
+
+          {isGameComplete && (
+            <GameComplete
+              ranges={gameState.ranges}
+              totalScore={totalScore}
+              hasWon={hasWon}
+              puzzleNumber={puzzleNumber}
+            />
+          )}
 
           {/* Current Hint Card - Below timeline, can change height without affecting elements above */}
           {!isGameComplete && gameState.puzzle && (

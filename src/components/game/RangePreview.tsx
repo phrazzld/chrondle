@@ -18,7 +18,7 @@ export function RangePreview({
   predictedScore,
   multiplier,
   className,
-}: RangePreviewProps): JSX.Element {
+}: RangePreviewProps) {
   return (
     <div className={cn("border-border bg-card rounded-lg border p-4 text-sm shadow-sm", className)}>
       <div className="text-muted-foreground flex justify-between">

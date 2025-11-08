@@ -4,6 +4,7 @@ import { describe, expect, it, beforeEach, vi } from "vitest";
 import { useGameActions } from "../useGameActions";
 import type { DataSources } from "@/lib/deriveGameState";
 import type { RangeGuess } from "@/types/range";
+import type { Id } from "convex/_generated/dataModel";
 
 vi.mock("@/hooks/use-toast", () => ({
   useToast: () => ({ addToast: vi.fn() }),
@@ -17,7 +18,7 @@ vi.mock("@/hooks/useMutationWithRetry", () => ({
 }));
 
 const createDataSources = (): DataSources => {
-  const puzzleId = "a".repeat(32);
+  const puzzleId = "a".repeat(32) as Id<"puzzles">;
   const userId = "b".repeat(32);
   const ranges: RangeGuess[] = [];
   return {
@@ -26,6 +27,7 @@ const createDataSources = (): DataSources => {
         id: puzzleId,
         targetYear: 1969,
         events: [],
+        puzzleNumber: 1,
       },
       isLoading: false,
       error: null,

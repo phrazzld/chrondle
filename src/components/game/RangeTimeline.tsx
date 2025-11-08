@@ -48,7 +48,7 @@ export function RangeTimeline({
   maxYear = new Date().getFullYear(),
   isComplete,
   className,
-}: RangeTimelineProps): JSX.Element {
+}: RangeTimelineProps) {
   const shouldReduceMotion = useReducedMotion();
 
   const visualRanges = useMemo(() => {
@@ -122,7 +122,7 @@ export function RangeTimeline({
             <motion.g
               key={range.key}
               layout={!shouldReduceMotion}
-              transition={shouldReduceMotion ? undefined : ANIMATION_SPRINGS.default}
+              transition={shouldReduceMotion ? undefined : ANIMATION_SPRINGS.SMOOTH}
             >
               <rect
                 data-testid="range-bar"

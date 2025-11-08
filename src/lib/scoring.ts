@@ -23,12 +23,14 @@ function validateInputs(
   tolerance: number,
   hintsUsed: HintCount,
 ): void {
-  [
+  const numericArgs: Array<[number, string]> = [
     [start, "start"],
     [end, "end"],
     [answer, "answer"],
     [tolerance, "tolerance"],
-  ].forEach(([value, label]) => {
+  ];
+
+  numericArgs.forEach(([value, label]) => {
     assertFinite(value, label);
   });
 

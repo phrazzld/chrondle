@@ -40,7 +40,7 @@ export function RangeInput({
   maxYear = new Date().getFullYear(),
   disabled = false,
   className,
-}: RangeInputProps): JSX.Element {
+}: RangeInputProps) {
   const defaultRange = useMemo(() => createDefaultRange(minYear, maxYear), [minYear, maxYear]);
 
   const [range, setRange] = useState<RangeSliderValue>(defaultRange);

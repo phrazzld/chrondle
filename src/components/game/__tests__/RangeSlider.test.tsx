@@ -2,7 +2,12 @@ import React from "react";
 import { act, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-type MockSliderProps = { children?: React.ReactNode } & Record<string, unknown>;
+type SliderHandlers = {
+  onValueChange?: (value: RangeSliderValue) => void;
+  onValueCommit?: (value: RangeSliderValue) => void;
+};
+
+type MockSliderProps = { children?: React.ReactNode } & SliderHandlers & Record<string, unknown>;
 
 vi.mock("@radix-ui/react-slider", () => {
   const rootPropsRef: { current: MockSliderProps | null } = { current: null };

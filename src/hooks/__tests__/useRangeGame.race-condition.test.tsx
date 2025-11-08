@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useRangeGame } from "../useRangeGame";
 import { Id } from "convex/_generated/dataModel";
+import type { RangeGuess } from "@/types/range";
 
 // Mock all dependencies
 vi.mock("../data/usePuzzleData", () => ({
@@ -40,16 +41,37 @@ describe("useRangeGame Race Condition Tests", () => {
 
   const mockSession = {
     sessionGuesses: [],
+    sessionRanges: [],
     addGuess: vi.fn(),
     clearGuesses: vi.fn(),
     markComplete: vi.fn(),
+    addRange: vi.fn(),
+    replaceLastRange: vi.fn(),
+    removeLastRange: vi.fn(),
+    clearRanges: vi.fn(),
   };
 
   const mockActions = {
     submitGuess: vi.fn(),
+    submitRange: vi.fn(),
     resetGame: vi.fn(),
     isSubmitting: false,
   };
+
+  const createProgressData = (
+    overrides?: Partial<{
+      guesses: number[];
+      ranges: RangeGuess[];
+      totalScore: number;
+      completedAt: number | null;
+    }>,
+  ) => ({
+    guesses: [],
+    ranges: [],
+    totalScore: 0,
+    completedAt: null,
+    ...(overrides || {}),
+  });
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -98,10 +120,10 @@ describe("useRangeGame Race Condition Tests", () => {
 
       // Step 3: Progress loads with completed puzzle
       vi.mocked(useUserProgress).mockReturnValue({
-        progress: {
+        progress: createProgressData({
           guesses: [1950, 1960, 1969],
           completedAt: Date.now(),
-        },
+        }),
         isLoading: false,
       });
 
@@ -158,10 +180,10 @@ describe("useRangeGame Race Condition Tests", () => {
 
       // Progress loads
       vi.mocked(useUserProgress).mockReturnValue({
-        progress: {
+        progress: createProgressData({
           guesses: [1969],
           completedAt: Date.now(),
-        },
+        }),
         isLoading: false,
       });
 
@@ -228,9 +250,14 @@ describe("useRangeGame Race Condition Tests", () => {
       // Start with session guesses (anonymous)
       const sessionWithGuesses = {
         sessionGuesses: [1950, 1960],
+        sessionRanges: [],
         addGuess: vi.fn(),
         clearGuesses: vi.fn(),
         markComplete: vi.fn(),
+        addRange: vi.fn(),
+        replaceLastRange: vi.fn(),
+        removeLastRange: vi.fn(),
+        clearRanges: vi.fn(),
       };
       vi.mocked(useLocalSession).mockReturnValue(sessionWithGuesses);
 
@@ -264,10 +291,10 @@ describe("useRangeGame Race Condition Tests", () => {
         isLoading: false,
       });
       vi.mocked(useUserProgress).mockReturnValue({
-        progress: {
+        progress: createProgressData({
           guesses: [1940], // Different server guesses
           completedAt: null,
-        },
+        }),
         isLoading: false,
       });
 
@@ -324,17 +351,22 @@ describe("useRangeGame Race Condition Tests", () => {
           isLoading: false,
         },
         progress: {
-          progress: {
+          progress: createProgressData({
             guesses: [1969],
             completedAt: Date.now(),
-          },
+          }),
           isLoading: false,
         },
         session: {
           sessionGuesses: [],
+          sessionRanges: [],
           addGuess: vi.fn(),
           clearGuesses: vi.fn(),
           markComplete: vi.fn(),
+          addRange: vi.fn(),
+          replaceLastRange: vi.fn(),
+          removeLastRange: vi.fn(),
+          clearRanges: vi.fn(),
         },
       };
 
@@ -362,10 +394,10 @@ describe("useRangeGame Race Condition Tests", () => {
   });
 
   describe("All Possible Load Orders with Completed Progress", () => {
-    const completedProgress = {
+    const completedProgress = createProgressData({
       guesses: [1950, 1960, 1969],
       completedAt: Date.now(),
-    };
+    });
 
     const testLoadOrder = (name: string, loadOrder: string[]) => {
       it(`should handle ${name} order`, () => {

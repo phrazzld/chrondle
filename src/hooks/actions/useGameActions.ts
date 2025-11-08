@@ -64,6 +64,21 @@ export function useGameActions(sources: DataSources): UseGameActionsReturn {
     },
   });
 
+  const submitRangeMutation = useMutationWithRetry(api.puzzles.submitRange, {
+    maxRetries: 3,
+    baseDelayMs: 1000,
+    onRetry: (attempt, error) => {
+      logger.error(`[useGameActions] Retrying submitRange (attempt ${attempt}/3):`, error.message);
+      if (attempt === 3 && "addToast" in toastContext) {
+        toastContext.addToast({
+          title: "Connection issues",
+          description: "Having trouble connecting to the server. Retrying...",
+          variant: "default",
+        });
+      }
+    },
+  });
+
   /**
    * Submit a guess with optimistic updates
    * Adds to session immediately for instant feedback
@@ -270,6 +285,7 @@ export function useGameActions(sources: DataSources): UseGameActionsReturn {
           session.replaceLastRange?.({
             ...optimisticRange,
             ...result.range,
+            hintsUsed: result.range.hintsUsed as HintCount,
           });
         }
 

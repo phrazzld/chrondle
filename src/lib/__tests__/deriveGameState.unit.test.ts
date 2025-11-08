@@ -6,6 +6,7 @@ import {
 } from "../deriveGameState";
 import { GAME_CONFIG } from "../constants";
 import { Id } from "convex/_generated/dataModel";
+import type { HintCount } from "@/types/range";
 
 describe("deriveGameState", () => {
   // Helper to create default data sources
@@ -31,8 +32,13 @@ describe("deriveGameState", () => {
     },
     session: {
       sessionGuesses: [],
+      sessionRanges: [],
       addGuess: () => {},
       clearGuesses: () => {},
+      addRange: () => {},
+      replaceLastRange: () => {},
+      removeLastRange: () => {},
+      clearRanges: () => {},
     },
     ...overrides,
   });
@@ -258,8 +264,8 @@ describe("deriveGameState", () => {
 
     it("should include range data and total score when provided", () => {
       const ranges = [
-        { start: 1900, end: 1910, score: 300, hintsUsed: 1, timestamp: 1 },
-        { start: 1950, end: 1960, score: 200, hintsUsed: 2, timestamp: 2 },
+        { start: 1900, end: 1910, score: 300, hintsUsed: 1 as HintCount, timestamp: 1 },
+        { start: 1950, end: 1960, score: 200, hintsUsed: 2 as HintCount, timestamp: 2 },
       ];
       const sources = createDataSources({
         progress: {
@@ -287,7 +293,7 @@ describe("deriveGameState", () => {
         start: 1800 + index,
         end: 1800 + index,
         score: 0,
-        hintsUsed: 0,
+        hintsUsed: 0 as HintCount,
         timestamp: index,
       }));
 

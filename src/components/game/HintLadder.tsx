@@ -1,12 +1,12 @@
 import React from "react";
 
-import { Hint } from "@/types/range";
+import type { RangeHint } from "@/types/range";
 import { cn } from "@/lib/utils";
 
 export interface HintLadderProps {
-  hints: (Hint & { revealed: boolean })[];
+  hints: (RangeHint & { revealed: boolean })[];
   hintsUsed: 0 | 1 | 2 | 3;
-  onHintTaken: (level: Hint["level"]) => void;
+  onHintTaken: (level: RangeHint["level"]) => void;
   currentMultiplier: number;
   className?: string;
 }
@@ -17,7 +17,7 @@ export function HintLadder({
   onHintTaken,
   currentMultiplier,
   className,
-}: HintLadderProps): JSX.Element {
+}: HintLadderProps) {
   return (
     <div
       className={cn("border-border bg-card space-y-3 rounded-lg border p-4 shadow-sm", className)}

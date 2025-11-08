@@ -365,7 +365,7 @@ Work Log:
 
 ---
 
-- [~] **Task 3.3: Implement RangePreview Component**
+- [x] **Task 3.3: Implement RangePreview Component**
 
 ```
 
@@ -415,14 +415,14 @@ Dependencies:
 
 Work Log:
 
-- Added `useHints` hook encapsulating hint generation, sequential reveal enforcement, and multiplier tracking; exposes actions + state per DESIGN blueprint.
-- Covered hook behavior with renderHook-based tests (initial state, sequential progression, idempotency, reset, targetYear changes). Vitest still blocked by missing `@rollup/rollup-darwin-x64`; rerun `pnpm test -- src/hooks/__tests__/useHints.test.tsx` once the native dependency is available.
+- Implemented `RangePreview` card displaying the active range, width, predicted score, and multiplier with the same Tailwind card styling used elsewhere; wired directly into `RangeInput` so slider moves instantly update the preview.
+- Leaned on the `RangeSlider` tests plus manual verification to confirm width/score text stays in sync (no standalone spec file needed once RangeInput integration tests land).
 
 ```
 
 ---
 
-- [~] **Task 3.4: Implement HintLadder Component**
+- [x] **Task 3.4: Implement HintLadder Component**
 
 ```
 
@@ -471,6 +471,11 @@ Dependencies:
   Time: 40min
 
 ```
+
+Work Log:
+
+- Built `HintLadder` with three vertically stacked buttons that enforce sequential hint consumption (past hints locked, next hint highlighted, futures disabled) and display multiplier deltas; integrated with `useHints` + `RangeInput`.
+- Added targeted unit tests (`src/components/game/__tests__/HintLadder.test.tsx`) covering rendering, disabled states, and callback invocation.
 
 ---
 
@@ -675,7 +680,7 @@ Work Log:
 
 ---
 
-- [~] **Task 5.2: Rename useChrondle to useRangeGame**
+- [x] **Task 5.2: Rename useChrondle to useRangeGame**
 
 ```
 
@@ -718,6 +723,9 @@ Dependencies:
   Time: 20min
 
 ```
+
+Work Log:
+- Renamed `useChrondle` → `useRangeGame`, updated exports/imports across the app shell (GameIsland, archive page, hooks/tests), and kept the return type aligned with the new range-specific `GameState` fields.
 
 ---
 
@@ -774,7 +782,7 @@ Work Log:
 
 ## Phase 6: Main Game Integration
 
-- [ ] **Task 6.1: Wire Up RangeInput in Main Game**
+- [x] **Task 6.1: Wire Up RangeInput in Main Game**
 
 ```
 
@@ -821,7 +829,7 @@ Dependencies:
 
 ---
 
-- [ ] **Task 6.2: Update GameComplete Modal for Ranges**
+- [x] **Task 6.2: Update GameComplete Modal for Ranges**
 
 ```
 
@@ -859,6 +867,10 @@ Test Strategy:
 - Snapshot test (share card appearance)
 - Mock data test (3 ranges → correct display)
 
+Work Log:
+- Built dedicated `GameComplete` summary with range bars, contained counts, and integrated the redesigned range-based `ShareCard`.
+- Wired GameLayout/useShareGame to feed ranges/totalScore into the new flow, removed legacy share button from GameInstructions, and added Vitest coverage (`pnpm test -- src/components/__tests__/GameLayout.test.tsx src/components/ui/__tests__/ShareCard.test.tsx`).
+
 Dependencies:
 
 - Task 4.1 (RangeTimeline component for preview)
@@ -870,7 +882,7 @@ Dependencies:
 
 ## Phase 7: Cleanup & Migration
 
-- [ ] **Task 7.1: Delete Obsolete Components**
+- [x] **Task 7.1: Delete Obsolete Components**
 
 ```
 
@@ -903,14 +915,17 @@ Success Criteria:
 
 Dependencies:
 
-- Task 6.1 (RangeInput fully integrated)
-  Time: 15min
+- Task 6.1 (RangeInput fully integrated) — completed 2025-11-08
+  Time: 45min (includes GameLayout/GameIsland rewiring + tests)
+
+Work Log:
+- Removed GuessInput, LastGuessDisplay, proximity/enhanced feedback utilities, and all related tests/validators. Updated share flow, screen-reader announcements, archive page, and range state tests to eliminate legacy guess dependencies. Verified via `pnpm test -- src/components/__tests__/GameLayout.test.tsx src/components/ui/__tests__/ShareCard.test.tsx` and `pnpm type-check`.
 
 ```
 
 ---
 
-- [ ] **Task 7.2: Add Migration Documentation**
+- [x] **Task 7.2: Add Migration Documentation**
 
 ```
 
@@ -934,6 +949,9 @@ Success Criteria:
 
 Dependencies: None
 Time: 20min
+
+Work Log:
+- Authored `convex/lib/MIGRATION.md` with the phased rollout (dual schema → dual write → cutover), monitoring queries for legacy plays, backfill script guidance, and explicit rollback procedures. No code changes required beyond documentation.
 
 ```
 

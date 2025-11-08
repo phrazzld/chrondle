@@ -3,9 +3,9 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { HintLadder } from "../HintLadder";
-import type { Hint } from "@/types/range";
+import type { RangeHint } from "@/types/range";
 
-const baseHints: (Hint & { revealed: boolean })[] = [
+const baseHints: (RangeHint & { revealed: boolean })[] = [
   { level: 1, content: "After 1900", multiplier: 0.85, revealed: true },
   { level: 2, content: "Between 1940-1990", multiplier: 0.7, revealed: false },
   { level: 3, content: "Between 1958-1980", multiplier: 0.5, revealed: false },
