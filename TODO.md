@@ -236,7 +236,7 @@ scripts/
 
 ### 3.1 Work Selector
 
-- [~] **Implement year selection logic**
+- [x] **Implement year selection logic**
   ```
   Files: convex/lib/workSelector.ts [NEW]
   Pattern: Pure functions or internalAction if needs DB queries
@@ -261,7 +261,7 @@ scripts/
 
 ### 3.2 Scheduled Cron Job
 
-- [ ] **Add daily event generation cron**
+- [x] **Add daily event generation cron**
   ```
   Files: convex/crons.ts [MODIFY]
   Lines: Add after existing puzzle generation cron

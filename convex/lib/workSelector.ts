@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { internalAction } from "../_generated/server";
+import { internalAction, type ActionCtx } from "../_generated/server";
 import { internal } from "../_generated/api";
 import type { Doc } from "../_generated/dataModel";
 import { hasProperNoun, hasLeakage } from "./eventValidation";
@@ -26,37 +26,42 @@ interface YearCandidate {
 const ERA_BUCKETS = ["ancient", "medieval", "modern"] as const;
 export type EraBucket = (typeof ERA_BUCKETS)[number];
 
+export async function chooseWorkYears(
+  ctx: ActionCtx,
+  count: number,
+): Promise<{ years: number[]; sourceBreakdown: YearCandidateSource[] }> {
+  const requestedCount = Math.max(1, Math.min(count, 5));
+  const stats = (await ctx.runQuery(internal.events.getAllYearsWithStats, {})) as YearStats[];
+  const statsMap = new Map(stats.map((stat) => [stat.year, stat]));
+
+  const missingCandidates = computeMissingYearCandidates(statsMap);
+  const lowQualityCandidates = await computeLowQualityCandidates(ctx, stats);
+  const missingSet = new Set(missingCandidates.map((c) => c.year));
+  const lowQualitySet = new Set(lowQualityCandidates.map((c) => c.year));
+
+  const fallbackPool = createFallbackCandidates(stats, missingSet, lowQualitySet);
+
+  const prioritized = prioritizeCandidates([
+    ...missingCandidates,
+    ...lowQualityCandidates,
+    ...fallbackPool,
+  ]);
+
+  const years = pickBalancedYears(prioritized, requestedCount);
+
+  return {
+    years,
+    sourceBreakdown: years.map((year) =>
+      missingSet.has(year) ? "missing" : lowQualitySet.has(year) ? "low_quality" : "fallback",
+    ),
+  };
+}
+
 export const selectWorkYears = internalAction({
   args: {
     count: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
-    const requestedCount = Math.max(1, Math.min(args.count ?? 3, 5));
-    const stats = (await ctx.runQuery(internal.events.getAllYearsWithStats, {})) as YearStats[];
-    const statsMap = new Map(stats.map((stat) => [stat.year, stat]));
-
-    const missingCandidates = computeMissingYearCandidates(statsMap);
-    const lowQualityCandidates = await computeLowQualityCandidates(ctx, stats);
-    const missingSet = new Set(missingCandidates.map((c) => c.year));
-    const lowQualitySet = new Set(lowQualityCandidates.map((c) => c.year));
-
-    const fallbackPool = createFallbackCandidates(stats, missingSet, lowQualitySet);
-
-    const prioritized = prioritizeCandidates([
-      ...missingCandidates,
-      ...lowQualityCandidates,
-      ...fallbackPool,
-    ]);
-
-    const years = pickBalancedYears(prioritized, requestedCount);
-
-    return {
-      years,
-      sourceBreakdown: years.map((year) =>
-        missingSet.has(year) ? "missing" : lowQualitySet.has(year) ? "low_quality" : "fallback",
-      ),
-    };
-  },
+  handler: async (ctx, args) => chooseWorkYears(ctx, args.count ?? 3),
 });
 
 function computeMissingYearCandidates(stats: Map<number, YearStats>): YearCandidate[] {
@@ -70,7 +75,7 @@ function computeMissingYearCandidates(stats: Map<number, YearStats>): YearCandid
 }
 
 async function computeLowQualityCandidates(
-  ctx: Parameters<typeof selectWorkYears.handler>[0],
+  ctx: ActionCtx,
   stats: YearStats[],
 ): Promise<YearCandidate[]> {
   const interestingYears = stats

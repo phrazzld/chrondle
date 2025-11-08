@@ -1,7 +1,7 @@
 "use node";
 
 import { v } from "convex/values";
-import { internalAction } from "../../_generated/server";
+import { internalAction, type ActionCtx } from "../../_generated/server";
 import { internal } from "../../_generated/api";
 import type { TokenUsage } from "../../lib/llmClient";
 import { generateCandidatesForYear } from "./generator";
@@ -9,6 +9,7 @@ import { critiqueCandidatesForYear } from "./critic";
 import type { CritiqueResult } from "./schemas";
 import { reviseCandidatesForYear } from "./reviser";
 import type { CandidateEvent, Era } from "./schemas";
+import { chooseWorkYears } from "../../lib/workSelector";
 
 const MAX_TOTAL_ATTEMPTS = 4;
 const MAX_CRITIC_CYCLES = 2;
@@ -20,35 +21,44 @@ export const generateYearEvents = internalAction({
   args: {
     year: v.number(),
   },
+  handler: async (ctx, args) => executeYearGeneration(ctx, args.year),
+});
+
+export const generateDailyBatch = internalAction({
+  args: {
+    targetCount: v.optional(v.number()),
+  },
   handler: async (ctx, args) => {
-    const result = await runGenerationPipeline(args.year);
+    const { years } = await chooseWorkYears(ctx, args.targetCount ?? 3);
+    const results = [] as Array<{ year: number; result: YearGenerationResult }>;
 
-    const era = deriveEra(args.year);
-
-    await ctx.runMutation(internal.generationLogs.logGenerationAttempt, {
-      year: args.year,
-      era,
-      status: result.status,
-      attempt_count: result.metadata.attempts,
-      events_generated: result.status === "success" ? result.events.length : 0,
-      token_usage: {
-        input: result.usage.total.inputTokens,
-        output: result.usage.total.outputTokens,
-        total: result.usage.total.totalTokens,
-      },
-      cost_usd: result.usage.total.costUsd,
-      error_message: result.status === "failed" ? result.reason : undefined,
-    });
-
-    if (result.status === "success") {
-      const payload = result.events.map((event) => event.event_text);
-      await ctx.runMutation(internal.events.importYearEvents, {
-        year: args.year,
-        events: payload,
-      });
+    for (const year of years) {
+      try {
+        const result = await executeYearGeneration(ctx, year);
+        results.push({ year, result });
+      } catch (error) {
+        results.push({
+          year,
+          result: {
+            status: "failed",
+            reason: "insufficient_quality",
+            metadata: {
+              attempts: 0,
+              criticCycles: 0,
+              revisions: 0,
+              deterministicFailures: 0,
+            },
+            usage: createUsageSummary(),
+          },
+        });
+      }
     }
 
-    return result;
+    return {
+      attemptedYears: results.map((entry) => entry.year),
+      successes: results.filter((entry) => entry.result.status === "success").length,
+      failures: results.filter((entry) => entry.result.status === "failed").length,
+    };
   },
 });
 
@@ -273,4 +283,34 @@ function addUsage(target: TokenUsageTotals, usage: TokenUsage): void {
   target.reasoningTokens += usage.reasoningTokens;
   target.totalTokens += usage.totalTokens;
   target.costUsd += usage.costUsd ?? 0;
+}
+
+async function executeYearGeneration(ctx: ActionCtx, year: number): Promise<YearGenerationResult> {
+  const result = await runGenerationPipeline(year);
+  const era = deriveEra(year);
+
+  await ctx.runMutation(internal.generationLogs.logGenerationAttempt, {
+    year,
+    era,
+    status: result.status,
+    attempt_count: result.metadata.attempts,
+    events_generated: result.status === "success" ? result.events.length : 0,
+    token_usage: {
+      input: result.usage.total.inputTokens,
+      output: result.usage.total.outputTokens,
+      total: result.usage.total.totalTokens,
+    },
+    cost_usd: result.usage.total.costUsd,
+    error_message: result.status === "failed" ? result.reason : undefined,
+  });
+
+  if (result.status === "success") {
+    const payload = result.events.map((event) => event.event_text);
+    await ctx.runMutation(internal.events.importYearEvents, {
+      year,
+      events: payload,
+    });
+  }
+
+  return result;
 }
