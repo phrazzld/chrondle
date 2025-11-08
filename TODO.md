@@ -330,7 +330,7 @@
 
 ### 2.3 Scoring System
 
-- [~] **Implement pairwise correctness scoring algorithm**
+- [x] **Implement pairwise correctness scoring algorithm**
 
   ```
   Files: src/lib/order/scoring.ts (new file)
@@ -349,7 +349,7 @@
   - Test edge cases: perfect order (15/15), reversed (0/15), partial (8/15)
   ```
 
-- [ ] **Create server-side scoring mutation with validation**
+- [~] **Create server-side scoring mutation with validation**
 
   ```
   Files: convex/orderPuzzles/mutations.ts (add submitOrderPlay mutation)

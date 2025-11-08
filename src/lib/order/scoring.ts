@@ -1,4 +1,4 @@
-import type { OrderEvent, OrderScore } from "@/types/orderGameState";
+import type { OrderEvent, OrderScore } from "../../types/orderGameState";
 
 const HINT_MULTIPLIERS = [1, 0.85, 0.7, 0.5];
 

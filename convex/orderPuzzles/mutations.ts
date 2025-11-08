@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { internalMutation, mutation } from "../_generated/server";
 import type { Doc } from "../_generated/dataModel";
 import type { MutationCtx } from "../_generated/server";
+import { scoreOrderSubmission } from "../../src/lib/order/scoring";
 import {
   type OrderEventCandidate,
   type SelectionConfig,
@@ -49,6 +50,76 @@ export const generateDailyOrderPuzzle = internalMutation({
  */
 export const ensureTodaysOrderPuzzle = mutation({
   handler: async (ctx): Promise<GenerationResult> => generateOrderPuzzleForDate(ctx),
+});
+
+/**
+ * Validates a player's submission, recalculates the score server-side,
+ * and persists the play for authenticated users.
+ */
+export const submitOrderPlay = mutation({
+  args: {
+    puzzleId: v.id("orderPuzzles"),
+    userId: v.id("users"),
+    ordering: v.array(v.string()),
+    hints: v.array(v.string()),
+    clientScore: v.object({
+      totalScore: v.number(),
+      correctPairs: v.number(),
+      totalPairs: v.number(),
+      hintMultiplier: v.number(),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Authentication required");
+    }
+
+    const user = await ctx.db.get(args.userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    if (user.clerkId !== identity.subject) {
+      throw new Error("Forbidden");
+    }
+
+    const puzzle = await ctx.db.get(args.puzzleId);
+    if (!puzzle) {
+      throw new Error("Order puzzle not found");
+    }
+
+    const verifiedScore = scoreOrderSubmission(args.ordering, puzzle.events, args.hints.length);
+    if (Math.abs(verifiedScore.totalScore - args.clientScore.totalScore) > 1) {
+      throw new Error("Score verification failed");
+    }
+
+    const existingPlay = await ctx.db
+      .query("orderPlays")
+      .withIndex("by_user_puzzle", (q) => q.eq("userId", args.userId).eq("puzzleId", args.puzzleId))
+      .first();
+
+    const payload = {
+      ordering: args.ordering,
+      hints: args.hints,
+      completedAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+
+    if (existingPlay) {
+      await ctx.db.patch(existingPlay._id, payload);
+    } else {
+      await ctx.db.insert("orderPlays", {
+        userId: args.userId,
+        puzzleId: args.puzzleId,
+        ...payload,
+      });
+    }
+
+    return {
+      status: "recorded",
+      score: verifiedScore,
+    };
+  },
 });
 
 async function generateOrderPuzzleForDate(
