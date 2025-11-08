@@ -233,7 +233,7 @@
 
 ### 2.1 Drag-and-Drop System
 
-- [ ] **Install and configure dnd-kit dependencies**
+- [x] **Install and configure dnd-kit dependencies**
 
   ```
   Files: package.json, pnpm-lock.yaml
