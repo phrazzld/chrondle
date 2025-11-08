@@ -128,7 +128,7 @@
   - Export all types for use in hooks and components
   ```
 
-- [ ] **Implement deriveOrderGameState pure function**
+- [~] **Implement deriveOrderGameState pure function**
 
   ```
   Files: src/lib/deriveOrderGameState.ts (new file)
