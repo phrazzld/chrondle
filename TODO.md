@@ -190,7 +190,7 @@
   - Set cookie on mode selection (365 day expiry)
   ```
 
-- [ ] **Create Order game page with server preload**
+- [x] **Create Order game page with server preload**
 
   ```
   Files: app/order/page.tsx (new file)
