@@ -372,7 +372,7 @@ scripts/
 
 ### 4.3 Testing & Validation
 
-- [ ] **Implement golden file tests**
+- [~] **Implement golden file tests**
 
   ```
   Files: convex/lib/__tests__/eventValidation.unit.test.ts [NEW]
