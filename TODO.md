@@ -456,7 +456,7 @@
   - Respect prefers-reduced-motion (instant position changes)
   ```
 
-- [ ] **Add reveal stagger animation with spring physics**
+- [~] **Add reveal stagger animation with spring physics**
 
   ```
   Files: src/components/order/OrderReveal.tsx (modify)

@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { motion, useReducedMotion } from "motion/react";
+import { ANIMATION_DURATIONS } from "@/lib/animationConstants";
 import type { OrderEvent, OrderScore } from "../../types/orderGameState";
 
 interface OrderRevealProps {
@@ -28,7 +29,14 @@ export function OrderReveal({
   }, [correctOrder]);
 
   return (
-    <section className="border-border bg-card space-y-6 rounded-2xl border p-6 shadow-sm">
+    <motion.section
+      className="border-border bg-card space-y-6 rounded-2xl border p-6 shadow-sm"
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 18 }}
+      animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      transition={{
+        duration: ANIMATION_DURATIONS.HINT_TRANSITION / 1000,
+      }}
+    >
       <header className="flex flex-wrap items-start justify-between gap-4 text-left">
         <div>
           <p className="text-muted-foreground text-sm tracking-wide uppercase">Final Score</p>
@@ -54,7 +62,23 @@ export function OrderReveal({
         highlighted in red.
       </p>
 
-      <ol className="space-y-3">
+      <motion.ol
+        className="space-y-3"
+        initial={false}
+        animate={prefersReducedMotion ? "static" : "reveal"}
+        variants={
+          prefersReducedMotion
+            ? undefined
+            : {
+                reveal: {
+                  transition: {
+                    staggerChildren: 0.1,
+                    delayChildren: ANIMATION_DURATIONS.PROXIMITY_DELAY / 1000,
+                  },
+                },
+              }
+        }
+      >
         {correctOrder.map((eventId, index) => {
           const event = eventMap.get(eventId);
           if (!event) return null;
@@ -66,9 +90,22 @@ export function OrderReveal({
             <motion.li
               key={eventId}
               layout
-              initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-              animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-              transition={{ delay: prefersReducedMotion ? 0 : index * 0.08 }}
+              initial={prefersReducedMotion ? undefined : { opacity: 0, y: 14 }}
+              variants={
+                prefersReducedMotion
+                  ? undefined
+                  : {
+                      reveal: {
+                        opacity: 1,
+                        y: 0,
+                        transition: {
+                          type: "spring",
+                          damping: 18,
+                          stiffness: 220,
+                        },
+                      },
+                    }
+              }
               className={[
                 "border-border rounded-2xl border px-4 py-3 text-left shadow-sm",
                 wasCorrect ? "bg-background" : "bg-destructive/10 border-destructive",
@@ -89,7 +126,7 @@ export function OrderReveal({
             </motion.li>
           );
         })}
-      </ol>
-    </section>
+      </motion.ol>
+    </motion.section>
   );
 }
