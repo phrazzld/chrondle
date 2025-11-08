@@ -407,7 +407,7 @@ scripts/
 
 ### 4.4 Documentation
 
-- [ ] **Write pipeline architecture doc**
+- [x] **Write pipeline architecture doc**
   ```
   Files: docs/EVENT_GENERATION_PIPELINE.md [NEW]
   Content:
