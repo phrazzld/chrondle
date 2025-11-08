@@ -11,6 +11,7 @@ import { reviseCandidatesForYear } from "./reviser";
 import type { CandidateEvent, Era } from "./schemas";
 import { chooseWorkYears } from "../../lib/workSelector";
 import { logStageError, logStageSuccess } from "../../lib/logging";
+import { runAlertChecks } from "../../lib/alerts";
 
 const MAX_TOTAL_ATTEMPTS = 4;
 const MAX_CRITIC_CYCLES = 2;
@@ -55,6 +56,8 @@ export const generateDailyBatch = internalAction({
         });
       }
     }
+
+    await runAlertChecks(ctx);
 
     return {
       attemptedYears: results.map((entry) => entry.year),

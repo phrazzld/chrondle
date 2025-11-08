@@ -323,7 +323,7 @@ scripts/
   Time: 2hrs
   ```
 
-- [~] **Add comprehensive error logging**
+- [x] **Add comprehensive error logging**
   ```
   Files: All action files [MODIFY]
   Pattern: Follow historicalContext.ts sanitization (lines 24-63)
@@ -340,7 +340,7 @@ scripts/
 
 ### 4.2 Monitoring & Alerts
 
-- [ ] **Implement alert system**
+- [~] **Implement alert system**
 
   ```
   Files: convex/lib/alerts.ts [NEW]
