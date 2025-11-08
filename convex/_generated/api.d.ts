@@ -20,6 +20,8 @@ import type * as migration_anonymous from "../migration/anonymous.js";
 import type * as migrations_generateMissingContext from "../migrations/generateMissingContext.js";
 import type * as migrations_migrateEvents from "../migrations/migrateEvents.js";
 import type * as migrations_regenerateHistoricalContextGPT5 from "../migrations/regenerateHistoricalContextGPT5.js";
+import type * as orderPlays_queries from "../orderPlays/queries.js";
+import type * as orderPlays from "../orderPlays.js";
 import type * as orderPuzzles_generation from "../orderPuzzles/generation.js";
 import type * as orderPuzzles_mutations from "../orderPuzzles/mutations.js";
 import type * as orderPuzzles_queries from "../orderPuzzles/queries.js";
@@ -56,6 +58,8 @@ declare const fullApi: ApiFromModules<{
   "migrations/generateMissingContext": typeof migrations_generateMissingContext;
   "migrations/migrateEvents": typeof migrations_migrateEvents;
   "migrations/regenerateHistoricalContextGPT5": typeof migrations_regenerateHistoricalContextGPT5;
+  "orderPlays/queries": typeof orderPlays_queries;
+  orderPlays: typeof orderPlays;
   "orderPuzzles/generation": typeof orderPuzzles_generation;
   "orderPuzzles/mutations": typeof orderPuzzles_mutations;
   "orderPuzzles/queries": typeof orderPuzzles_queries;

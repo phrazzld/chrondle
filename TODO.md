@@ -148,7 +148,7 @@
   - Edge case: anonymous user completion (no server persistence)
   ```
 
-- [ ] **Create useOrderGame composition hook**
+- [x] **Create useOrderGame composition hook**
 
   ```
   Files: src/hooks/useOrderGame.ts (new file)
