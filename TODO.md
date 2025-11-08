@@ -246,7 +246,7 @@
   Command: pnpm add @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities
   ```
 
-- [~] **Create DraggableEventCard component with dnd-kit integration**
+- [x] **Create DraggableEventCard component with dnd-kit integration**
 
   ```
   Files: src/components/order/DraggableEventCard.tsx (new file)
@@ -267,7 +267,7 @@
   - Touch optimization: proper touch targets (56px minimum)
   ```
 
-- [ ] **Implement OrderEventList with SortableContext**
+- [x] **Implement OrderEventList with SortableContext**
 
   ```
   Files: src/components/order/OrderEventList.tsx (new file)
