@@ -449,14 +449,14 @@ scripts/
 
 ## Automation Opportunities
 
-- [~] **Script: Bulk test multiple years**
+- [x] **Script: Bulk test multiple years**
 
   ```
   Create script to test pipeline on 10 years in parallel
   Verify consistency and catch edge cases
   ```
 
-- [ ] **Script: Cost analysis**
+- [x] **Script: Cost analysis**
 
   ```
   Analyze generation_logs to project monthly costs
