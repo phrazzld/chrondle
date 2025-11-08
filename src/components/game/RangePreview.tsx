@@ -2,7 +2,7 @@ import React from "react";
 
 import { cn } from "@/lib/utils";
 
-interface RangePreviewProps {
+export interface RangePreviewProps {
   start: number;
   end: number;
   width: number;

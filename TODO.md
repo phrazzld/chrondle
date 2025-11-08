@@ -474,7 +474,7 @@ Dependencies:
 
 ---
 
-- [ ] **Task 3.5: Implement RangeInput Composite Component**
+- [x] **Task 3.5: Implement RangeInput Composite Component**
 
 ```
 
@@ -531,6 +531,13 @@ Dependencies:
 - Task 1.3 (useHints hook)
 - Task 1.1 (scoreRange)
   Time: 60min
+
+```
+
+Work Log:
+
+- Implemented `RangeInput` wiring HintLadder, RangeSlider, and RangePreview with debounced score previews, width validation, and hint resets on commit.
+- Added mocked-child integration tests covering slider updates, width guard, and commit/reset flows (`pnpm test -- src/components/game/__tests__/RangeInput.integration.test.tsx`).
 
 ```
 
@@ -914,7 +921,7 @@ Success Criteria:
 Dependencies: None
 Time: 20min
 
-```
+````
 
 ---
 
@@ -1009,4 +1016,4 @@ These go in BACKLOG.md or issue tracker, NOT TODO.md.
 
 ```bash
 git checkout -b feature/chrondle-range
-```
+````
