@@ -372,7 +372,7 @@ scripts/
 
 ### 4.3 Testing & Validation
 
-- [~] **Implement golden file tests**
+- [x] **Implement golden file tests**
 
   ```
   Files: convex/lib/__tests__/eventValidation.unit.test.ts [NEW]
@@ -389,7 +389,7 @@ scripts/
   Time: 2hrs
   ```
 
-- [ ] **Create manual testing script**
+- [~] **Create manual testing script**
   ```
   Files: scripts/test-event-generation.ts [NEW]
   Pattern: Follow test-responses-api.ts structure
