@@ -721,7 +721,7 @@ Dependencies:
 
 ---
 
-- [ ] **Task 5.3: Implement useGameActions for Ranges**
+- [x] **Task 5.3: Implement useGameActions for Ranges**
 
 ```
 
@@ -765,6 +765,9 @@ Dependencies:
 - Task 2.2 (submitRange mutation exists)
   Time: 50min
 
+```
+Work Log:
+- Added range-aware session helpers plus a new `submitRange` action in `useGameActions` with optimistic add, server reconciliation, rollback on failure, and accompanying Vitest coverage (`pnpm test -- src/hooks/actions/__tests__/useGameActions.test.ts`).
 ```
 
 ---
@@ -932,7 +935,7 @@ Success Criteria:
 Dependencies: None
 Time: 20min
 
-````
+```
 
 ---
 
@@ -1027,4 +1030,4 @@ These go in BACKLOG.md or issue tracker, NOT TODO.md.
 
 ```bash
 git checkout -b feature/chrondle-range
-````
+```

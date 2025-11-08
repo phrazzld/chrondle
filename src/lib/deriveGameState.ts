@@ -31,6 +31,11 @@ export interface DataSources {
     sessionRanges?: RangeGuess[];
     addGuess: (n: number) => void;
     clearGuesses: () => void;
+    addRange?: (range: RangeGuess) => void;
+    replaceLastRange?: (range: RangeGuess) => void;
+    removeLastRange?: () => void;
+    clearRanges?: () => void;
+    markComplete?: (hasWon: boolean) => void;
   };
 }
 
