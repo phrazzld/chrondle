@@ -389,7 +389,7 @@ scripts/
   Time: 2hrs
   ```
 
-- [~] **Create manual testing script**
+- [x] **Create manual testing script**
   ```
   Files: scripts/test-event-generation.ts [NEW]
   Pattern: Follow test-responses-api.ts structure
@@ -449,7 +449,7 @@ scripts/
 
 ## Automation Opportunities
 
-- [ ] **Script: Bulk test multiple years**
+- [~] **Script: Bulk test multiple years**
 
   ```
   Create script to test pipeline on 10 years in parallel
