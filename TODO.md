@@ -208,7 +208,7 @@
   - Add mode switcher in header
   ```
 
-- [ ] **Create games gallery component for first-time visitors**
+- [x] **Create games gallery component for first-time visitors**
 
   ```
   Files: src/components/GamesGallery.tsx (new file)
