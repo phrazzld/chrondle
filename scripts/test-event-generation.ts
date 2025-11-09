@@ -57,8 +57,8 @@ program.action(async (options) => {
 
   for (const year of years) {
     console.log(`\n=== Year ${year} ===`);
-    // @ts-expect-error - ConvexHttpClient doesn't support internal actions (needs wrapper action)
     const result = await client.action(
+      // @ts-expect-error - ConvexHttpClient doesn't support internal actions (needs wrapper action)
       internal.actions.eventGeneration.orchestrator.generateYearEvents,
       {
         year,

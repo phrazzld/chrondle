@@ -56,8 +56,8 @@ program.action(async (options) => {
 
   const summaries = await Promise.all(
     years.map(async (year) => {
-      // @ts-expect-error - ConvexHttpClient doesn't support internal actions (needs wrapper action)
       const result = await client.action(
+        // @ts-expect-error - ConvexHttpClient doesn't support internal actions (needs wrapper action)
         internal.actions.eventGeneration.orchestrator.generateYearEvents,
         {
           year,
