@@ -1,6 +1,7 @@
 #!/usr/bin/env tsx
 
 /* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Command } from "commander";
 import { ConvexHttpClient } from "convex/browser";
@@ -49,7 +50,9 @@ program.action(async (options) => {
   const client = await getClient();
 
   const stats = await client.query(api.events.getAllYearsWithStats, {});
-  const candidateYears = options.year ? [Number(options.year)] : stats.map((stat) => stat.year);
+  const candidateYears = options.year
+    ? [Number(options.year)]
+    : stats.map((stat: any) => stat.year);
 
   if (!candidateYears.length) {
     console.error("No years available to sample.");
@@ -63,7 +66,7 @@ program.action(async (options) => {
     attempts += 1;
     const year = candidateYears[Math.floor(Math.random() * candidateYears.length)];
     const events = await client.query(api.events.getYearEvents, { year });
-    const filtered = options.unusedOnly ? events.filter((event) => !event.puzzleId) : events;
+    const filtered = options.unusedOnly ? events.filter((event: any) => !event.puzzleId) : events;
     if (!filtered.length) continue;
     const event = filtered[Math.floor(Math.random() * filtered.length)];
     const issues: string[] = [];

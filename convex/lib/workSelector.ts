@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { internalAction, type ActionCtx } from "../_generated/server";
-import { internal } from "../_generated/api";
+import { api } from "../_generated/api";
 import type { Doc } from "../_generated/dataModel";
 import { hasProperNoun, hasLeakage } from "./eventValidation";
 
@@ -31,7 +31,7 @@ export async function chooseWorkYears(
   count: number,
 ): Promise<{ years: number[]; sourceBreakdown: YearCandidateSource[] }> {
   const requestedCount = Math.max(1, Math.min(count, 5));
-  const stats = (await ctx.runQuery(internal.events.getAllYearsWithStats, {})) as YearStats[];
+  const stats = (await ctx.runQuery(api.events.getAllYearsWithStats, {})) as YearStats[];
   const statsMap = new Map(stats.map((stat) => [stat.year, stat]));
 
   const missingCandidates = computeMissingYearCandidates(statsMap);
@@ -86,7 +86,7 @@ async function computeLowQualityCandidates(
   const candidates: YearCandidate[] = [];
 
   for (const stat of interestingYears) {
-    const events = (await ctx.runQuery(internal.events.getYearEvents, {
+    const events = (await ctx.runQuery(api.events.getYearEvents, {
       year: stat.year,
     })) as ReadonlyArray<Doc<"events">>;
     if (!events.length) continue;

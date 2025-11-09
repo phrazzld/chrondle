@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalMutation, internalQuery, query } from "./_generated/server";
 import type { Doc } from "./_generated/dataModel";
 
 export type GenerationStatus = "success" | "failed" | "skipped";
@@ -25,7 +25,7 @@ export interface EventPoolHealth {
   };
 }
 
-export const logGenerationAttempt = mutation({
+export const logGenerationAttempt = internalMutation({
   args: {
     year: v.number(),
     era: v.string(),
@@ -53,7 +53,7 @@ export const logGenerationAttempt = mutation({
   },
 });
 
-export const getDailyGenerationStats = query({
+export const getDailyGenerationStats = internalQuery({
   args: {
     date: v.optional(v.string()),
   },
@@ -69,7 +69,7 @@ export const getDailyGenerationStats = query({
   },
 });
 
-export const getFailedYears = query({
+export const getFailedYears = internalQuery({
   args: {
     limit: v.optional(v.number()),
   },
@@ -85,13 +85,14 @@ export const getFailedYears = query({
   },
 });
 
-export const getEventPoolHealth = query({
+export const getEventPoolHealth = internalQuery({
   handler: async (ctx): Promise<EventPoolHealth> => {
     const events = await ctx.db.query("events").collect();
     return calculateEventPoolHealth(events);
   },
 });
 
+// Public for cost analysis scripts
 export const getLast7DaysCosts = query({
   args: {
     days: v.optional(v.number()),

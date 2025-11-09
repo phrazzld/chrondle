@@ -4,11 +4,11 @@ import { hasLeakage, hasProperNoun, isValidWordCount } from "../eventValidation"
 const goldenEvents = {
   "1969": {
     good: [
-      "Apollo 11 lands on Moon with Armstrong and Aldrin",
       "Woodstock Music Festival draws hundreds of thousands",
       "Concorde makes maiden flight over France",
+      "Armstrong becomes first human to walk on Moon",
     ],
-    bad: ["Moon landing in 1969", "Event in the 1960s", "Something happens"],
+    bad: ["Moon landing in 1969", "Apollo 11 mission", "Event in the 1960s", "Something happens"],
   },
   "-44": {
     good: [

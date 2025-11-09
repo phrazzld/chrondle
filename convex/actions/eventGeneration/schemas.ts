@@ -1,3 +1,5 @@
+"use node";
+
 import { z } from "zod";
 
 export const EraSchema = z.enum(["BCE", "CE"]);
@@ -13,6 +15,8 @@ export const CandidateDomainSchema = z.enum([
   "war",
   "religion",
 ]);
+
+export type CandidateDomain = z.infer<typeof CandidateDomainSchema>;
 
 export const CandidateEventSchema = z.object({
   canonical_title: z.string().min(3),

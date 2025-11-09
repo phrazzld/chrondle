@@ -1,10 +1,11 @@
 #!/usr/bin/env tsx
 
 /* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Command } from "commander";
 import { ConvexHttpClient } from "convex/browser";
-import { api, internal } from "../convex/_generated/api.js";
+import { internal } from "../convex/_generated/api.js";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
@@ -45,7 +46,8 @@ program.action(async (options) => {
   if (options.year) {
     years.push(Number(options.year));
   } else {
-    const selector = await client.action(internal.actions.eventGeneration.selectWorkYears, {
+    // @ts-expect-error - ConvexHttpClient doesn't support internal actions (needs wrapper action)
+    const selector = await client.action(internal.lib.workSelector.selectWorkYears, {
       count,
     });
     years.push(...selector.years);
@@ -55,15 +57,19 @@ program.action(async (options) => {
 
   for (const year of years) {
     console.log(`\n=== Year ${year} ===`);
-    const result = await client.action(internal.actions.eventGeneration.generateYearEvents, {
-      year,
-    });
+    // @ts-expect-error - ConvexHttpClient doesn't support internal actions (needs wrapper action)
+    const result = await client.action(
+      internal.actions.eventGeneration.orchestrator.generateYearEvents,
+      {
+        year,
+      },
+    );
 
     if (result.status === "success") {
       console.log(
         `✅ ${result.events.length} events generated (attempts: ${result.metadata.attempts})`,
       );
-      result.events.forEach((event, index) => {
+      result.events.forEach((event: any, index: number) => {
         console.log(`  ${index + 1}. ${event.event_text} [${event.domain}]`);
       });
 

@@ -68,7 +68,9 @@ describe("critiqueCandidatesForYear", () => {
     });
 
     expect(result.results[0].passed).toBe(false);
-    expect(result.results[0].issues).toContain("Contains year leakage");
+    expect(result.results[0].issues).toContain(
+      "Contains year leakage (numbers, century terms, or BCE/CE references)",
+    );
   });
 
   it("enforces score thresholds from LLM output", async () => {

@@ -1,6 +1,7 @@
 #!/usr/bin/env tsx
 
 /* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Command } from "commander";
 import { ConvexHttpClient } from "convex/browser";
@@ -44,7 +45,8 @@ program.action(async (options) => {
     years = options.years.split(",").map((year: string) => Number(year.trim()));
   } else {
     const count = Number(options.count) || 3;
-    const selector = await client.action(internal.actions.eventGeneration.selectWorkYears, {
+    // @ts-expect-error - ConvexHttpClient doesn't support internal actions (needs wrapper action)
+    const selector = await client.action(internal.lib.workSelector.selectWorkYears, {
       count,
     });
     years = selector.years;
@@ -54,13 +56,17 @@ program.action(async (options) => {
 
   const summaries = await Promise.all(
     years.map(async (year) => {
-      const result = await client.action(internal.actions.eventGeneration.generateYearEvents, {
-        year,
-      });
+      // @ts-expect-error - ConvexHttpClient doesn't support internal actions (needs wrapper action)
+      const result = await client.action(
+        internal.actions.eventGeneration.orchestrator.generateYearEvents,
+        {
+          year,
+        },
+      );
 
       if (options.verbose && result.status === "success") {
         console.log(`\nYear ${year}`);
-        result.events.forEach((event, index) => {
+        result.events.forEach((event: any, index: number) => {
           console.log(`  ${index + 1}. ${event.event_text}`);
         });
       }

@@ -1,6 +1,7 @@
 #!/usr/bin/env tsx
 
 /* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Command } from "commander";
 import { ConvexHttpClient } from "convex/browser";
@@ -42,8 +43,8 @@ program.action(async (options) => {
 
   const buckets = await client.query(api.generationLogs.getLast7DaysCosts, { days });
 
-  const totalCost = buckets.reduce((sum, bucket) => sum + bucket.totalCost, 0);
-  const totalEvents = buckets.reduce((sum, bucket) => sum + bucket.eventsGenerated, 0);
+  const totalCost = buckets.reduce((sum: number, bucket: any) => sum + bucket.totalCost, 0);
+  const totalEvents = buckets.reduce((sum: number, bucket: any) => sum + bucket.eventsGenerated, 0);
   const averageCost = buckets.length ? totalCost / buckets.length : 0;
 
   if (options.json) {
@@ -63,7 +64,7 @@ program.action(async (options) => {
   } else {
     console.log(`Cost analysis for last ${days} days`);
     console.log("-----------------------------------");
-    buckets.forEach((bucket) => {
+    buckets.forEach((bucket: any) => {
       const warn = alertThreshold && bucket.totalCost >= alertThreshold ? " ⚠️" : "";
       console.log(
         `${bucket.date}: $${bucket.totalCost.toFixed(2)} (${bucket.eventsGenerated} events, ${Math.round(bucket.successRate * 100)}% pass)${warn}`,
@@ -76,7 +77,7 @@ program.action(async (options) => {
   }
 
   if (alertThreshold) {
-    const breaches = buckets.filter((bucket) => bucket.totalCost >= alertThreshold);
+    const breaches = buckets.filter((bucket: any) => bucket.totalCost >= alertThreshold);
     if (breaches.length) {
       console.warn(
         `⚠️ ${breaches.length} day(s) exceeded the $${alertThreshold.toFixed(2)} threshold.`,

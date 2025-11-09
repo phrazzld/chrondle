@@ -117,7 +117,7 @@ describe("llmClient", () => {
 
     const fetchMock = vi
       .fn()
-      .mockResolvedValueOnce(rateLimitResponse as Response)
+      .mockResolvedValueOnce(rateLimitResponse as unknown as Response)
       .mockResolvedValueOnce({
         ok: true,
         status: 200,

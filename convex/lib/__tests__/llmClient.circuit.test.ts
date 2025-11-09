@@ -9,8 +9,8 @@ describe("LLM circuit breaker", () => {
   it("opens circuit after consecutive failures and recovers after cooldown", async () => {
     const fetchMock = vi
       .fn()
-      .mockRejectedValue(new Error("network failed"))
-      .mockRejectedValue(new Error("network failed"))
+      .mockRejectedValueOnce(new Error("network failed"))
+      .mockRejectedValueOnce(new Error("network failed"))
       .mockResolvedValueOnce({
         ok: true,
         status: 200,

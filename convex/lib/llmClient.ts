@@ -423,6 +423,7 @@ class OpenRouterLLMClient implements LLMClient {
 
         const isFinalAttempt = attempt === this.options.maxAttempts - 1;
         if (!shouldRetry(errorWithStatus) || isFinalAttempt) {
+          this.recordFailure();
           throw sanitizedError;
         }
 

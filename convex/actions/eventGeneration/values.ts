@@ -1,3 +1,5 @@
+"use node";
+
 import { v } from "convex/values";
 
 export const CandidateEventValue = v.object({
