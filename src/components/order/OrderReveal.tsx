@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { ANIMATION_DURATIONS } from "@/lib/animationConstants";
+import { ANIMATION_DURATIONS, ANIMATION_SPRINGS, msToSeconds } from "@/lib/animationConstants";
 import type { OrderEvent, OrderScore } from "../../types/orderGameState";
 
 interface OrderRevealProps {
@@ -22,11 +22,18 @@ export function OrderReveal({
 }: OrderRevealProps) {
   const prefersReducedMotion = useReducedMotion();
   const eventMap = useMemo(() => new Map(events.map((event) => [event.id, event])), [events]);
-  const correctIndex = useMemo(() => {
-    const map = new Map<string, number>();
-    correctOrder.forEach((id, idx) => map.set(id, idx));
-    return map;
-  }, [correctOrder]);
+
+  const listVariants = prefersReducedMotion
+    ? undefined
+    : {
+        hidden: {},
+        reveal: {
+          transition: {
+            staggerChildren: 0.12,
+            delayChildren: msToSeconds(ANIMATION_DURATIONS.PROXIMITY_DELAY),
+          },
+        },
+      };
 
   return (
     <motion.section
@@ -37,7 +44,19 @@ export function OrderReveal({
         duration: ANIMATION_DURATIONS.HINT_TRANSITION / 1000,
       }}
     >
-      <header className="flex flex-wrap items-start justify-between gap-4 text-left">
+      <motion.header
+        className="flex flex-wrap items-start justify-between gap-4 text-left"
+        initial={prefersReducedMotion ? undefined : { opacity: 0, y: 12 }}
+        animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+        transition={
+          prefersReducedMotion
+            ? undefined
+            : {
+                type: "spring",
+                ...ANIMATION_SPRINGS.GENTLE,
+              }
+        }
+      >
         <div>
           <p className="text-muted-foreground text-sm tracking-wide uppercase">Final Score</p>
           <p className="text-foreground text-3xl font-semibold">{score.totalScore}</p>
@@ -47,15 +66,26 @@ export function OrderReveal({
           </p>
         </div>
         {onShare && (
-          <button
+          <motion.button
             type="button"
             onClick={onShare}
-            className="border-border text-foreground hover:bg-muted rounded-full border px-4 py-2 text-sm font-medium transition"
+            className="border-border text-foreground hover:bg-muted rounded-full border px-4 py-2 text-sm font-medium transition focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+            initial={prefersReducedMotion ? undefined : { opacity: 0, scale: 0.95 }}
+            animate={prefersReducedMotion ? undefined : { opacity: 1, scale: 1 }}
+            transition={
+              prefersReducedMotion
+                ? undefined
+                : {
+                    type: "spring",
+                    ...ANIMATION_SPRINGS.SMOOTH,
+                    delay: msToSeconds(ANIMATION_DURATIONS.PROXIMITY_DELAY) / 2,
+                  }
+            }
           >
             Share Result
-          </button>
+          </motion.button>
         )}
-      </header>
+      </motion.header>
 
       <p className="text-muted-foreground text-sm">
         Events below are sorted chronologically. Misordered entries from your submission are
@@ -64,20 +94,9 @@ export function OrderReveal({
 
       <motion.ol
         className="space-y-3"
-        initial={false}
-        animate={prefersReducedMotion ? "static" : "reveal"}
-        variants={
-          prefersReducedMotion
-            ? undefined
-            : {
-                reveal: {
-                  transition: {
-                    staggerChildren: 0.1,
-                    delayChildren: ANIMATION_DURATIONS.PROXIMITY_DELAY / 1000,
-                  },
-                },
-              }
-        }
+        initial={prefersReducedMotion ? undefined : "hidden"}
+        animate={prefersReducedMotion ? undefined : "reveal"}
+        variants={listVariants}
       >
         {correctOrder.map((eventId, index) => {
           const event = eventMap.get(eventId);
@@ -89,21 +108,21 @@ export function OrderReveal({
           return (
             <motion.li
               key={eventId}
-              layout
-              initial={prefersReducedMotion ? undefined : { opacity: 0, y: 14 }}
+              layout={!prefersReducedMotion}
+              custom={index}
               variants={
                 prefersReducedMotion
                   ? undefined
                   : {
-                      reveal: {
+                      hidden: { opacity: 0, y: 18 },
+                      reveal: () => ({
                         opacity: 1,
                         y: 0,
                         transition: {
                           type: "spring",
-                          damping: 18,
-                          stiffness: 220,
+                          ...ANIMATION_SPRINGS.SMOOTH,
                         },
-                      },
+                      }),
                     }
               }
               className={[
