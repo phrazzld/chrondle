@@ -308,7 +308,7 @@
   - Handle edge cases: all correct (no misordered pairs), BC/AD transitions
   ```
 
-- [~] **Create HintDisplay component with expandable UI**
+- [x] **Create HintDisplay component with expandable UI**
 
   ```
   Files: src/components/order/HintDisplay.tsx (new file)

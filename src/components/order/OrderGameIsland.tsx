@@ -1,17 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Preloaded, usePreloadedQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useOrderGame } from "@/hooks/useOrderGame";
-import type { OrderEvent, OrderHint, OrderScore } from "@/types/orderGameState";
+import type { OrderEvent, OrderHint, OrderPuzzle, OrderScore } from "@/types/orderGameState";
+import { HintDisplay } from "@/components/order/HintDisplay";
 import { OrderReveal } from "@/components/order/OrderReveal";
+import { generateAnchorHint, generateBracketHint, generateRelativeHint } from "@/lib/order/hints";
 import { copyOrderShareCardToClipboard, type OrderShareResult } from "@/lib/order/shareCard";
 import { logger } from "@/lib/logger";
 
 interface OrderGameIslandProps {
   preloadedPuzzle: Preloaded<typeof api.orderPuzzles.getDailyOrderPuzzle>;
 }
+
+type HintType = OrderHint["type"];
+
+const HINT_MULTIPLIERS = [1, 0.85, 0.7, 0.5];
 
 export function OrderGameIsland({ preloadedPuzzle }: OrderGameIslandProps) {
   const puzzle = usePreloadedQuery(preloadedPuzzle);
@@ -69,106 +75,18 @@ export function OrderGameIsland({ preloadedPuzzle }: OrderGameIslandProps) {
     );
   }
 
-  const { currentOrder, puzzle: currentPuzzle, hints, moves } = gameState;
-
-  const handleCommit = () => {
-    const score = calculateScore(currentOrder, currentPuzzle.events, hints.length);
-    commitOrdering(score).catch((error) => logger.error("Failed to commit ordering", error));
-  };
-
-  const handleHint = () => {
-    if (!currentPuzzle.events.length) return;
-    takeHint({
-      type: "anchor",
-      eventId: currentPuzzle.events[0].id,
-      position: 0,
-    });
-  };
-
   return (
-    <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-6 py-16">
-      <header className="text-center">
-        <p className="text-muted-foreground text-sm tracking-wide uppercase">Order Mode</p>
-        <h1 className="text-foreground text-3xl font-semibold">
-          Puzzle #{currentPuzzle.puzzleNumber}
-        </h1>
-        <p className="text-muted-foreground">{currentPuzzle.date}</p>
-      </header>
-
-      <section className="border-border bg-card rounded-2xl border p-6 shadow-sm">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <p className="text-muted-foreground text-sm">Moves</p>
-            <p className="text-foreground text-2xl font-semibold">{moves}</p>
-          </div>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={handleHint}
-              className="border-border text-foreground hover:bg-muted rounded-full border px-3 py-1 text-sm font-medium"
-            >
-              Take Anchor Hint
-            </button>
-            <button
-              type="button"
-              onClick={handleCommit}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-4 py-2 text-sm font-medium"
-            >
-              Commit Ordering
-            </button>
-          </div>
-        </div>
-        <ol className="space-y-4">
-          {currentOrder.map((eventId, index) => {
-            const event = currentPuzzle.events.find((evt) => evt.id === eventId);
-            if (!event) return null;
-            return (
-              <li
-                key={eventId}
-                className="border-border bg-background flex items-center justify-between rounded-2xl border px-4 py-3 text-left shadow-sm"
-              >
-                <div>
-                  <p className="text-muted-foreground text-xs tracking-wide uppercase">
-                    #{index + 1}
-                  </p>
-                  <p className="text-foreground text-base font-semibold">{event.text}</p>
-                  <p className="text-muted-foreground text-sm">{event.year}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => reorderEvents(index, index - 1)}
-                    disabled={index === 0}
-                    className="border-border text-foreground hover:bg-muted rounded-full border px-3 py-1 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    ↑
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => reorderEvents(index, index + 1)}
-                    disabled={index === currentOrder.length - 1}
-                    className="border-border text-foreground hover:bg-muted rounded-full border px-3 py-1 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    ↓
-                  </button>
-                </div>
-              </li>
-            );
-          })}
-        </ol>
-      </section>
-
-      {!!hints.length && (
-        <section className="border-border bg-muted/40 rounded-2xl border border-dashed p-4 text-left">
-          <p className="text-foreground text-sm font-semibold">Hints Used</p>
-          <ul className="text-muted-foreground mt-2 list-disc pl-4 text-sm">
-            {hints.map((hint, idx) => (
-              <li key={idx}>{describeHint(hint)}</li>
-            ))}
-          </ul>
-        </section>
-      )}
-    </main>
+    <ReadyOrderGame
+      puzzle={gameState.puzzle}
+      currentOrder={gameState.currentOrder}
+      hints={gameState.hints}
+      moves={gameState.moves}
+      reorderEvents={reorderEvents}
+      takeHint={takeHint}
+      onCommit={(score) =>
+        commitOrdering(score).catch((error) => logger.error("Failed to commit ordering", error))
+      }
+    />
   );
 }
 
@@ -180,19 +98,172 @@ function renderShell(message: string) {
   );
 }
 
-function describeHint(hint: OrderHint) {
-  switch (hint.type) {
-    case "anchor":
-      return `Anchor: ${hint.eventId} locked in position ${hint.position + 1}`;
-    case "relative":
-      return `Relative: ${hint.earlierEventId} occurs before ${hint.laterEventId}`;
-    case "bracket":
-      return `Bracket: ${hint.eventId} happened between ${hint.yearRange[0]} and ${hint.yearRange[1]}`;
-    case "bracket":
-      return `Bracket: ${hint.eventId} happened between ${hint.yearRange[0]} and ${hint.yearRange[1]}`;
-    default:
-      return "Hint applied";
-  }
+interface ReadyOrderGameProps {
+  puzzle: OrderPuzzle;
+  currentOrder: string[];
+  hints: OrderHint[];
+  moves: number;
+  reorderEvents: (fromIndex: number, toIndex: number) => void;
+  takeHint: (hint: OrderHint) => void;
+  onCommit: (score: OrderScore) => void;
+}
+
+function ReadyOrderGame({
+  puzzle,
+  currentOrder,
+  hints,
+  moves,
+  reorderEvents,
+  takeHint,
+  onCommit,
+}: ReadyOrderGameProps) {
+  const [pendingHintType, setPendingHintType] = useState<HintType | null>(null);
+  const [hintError, setHintError] = useState<string | null>(null);
+
+  const correctOrder = useMemo(
+    () =>
+      [...puzzle.events]
+        .sort((a, b) => a.year - b.year || a.id.localeCompare(b.id))
+        .map((event) => event.id),
+    [puzzle.events],
+  );
+
+  const puzzleSeed = useMemo(() => hashHintContext([puzzle.seed]), [puzzle.seed]);
+
+  const multiplier = useMemo(
+    () => HINT_MULTIPLIERS[Math.min(hints.length, HINT_MULTIPLIERS.length - 1)],
+    [hints.length],
+  );
+
+  const disabledHintTypes: Partial<Record<HintType, boolean>> = useMemo(
+    () => ({
+      anchor: hints.some((hint) => hint.type === "anchor"),
+      relative: hints.some((hint) => hint.type === "relative"),
+      bracket: hints.some((hint) => hint.type === "bracket"),
+    }),
+    [hints],
+  );
+
+  const requestHint = useCallback(
+    (type: HintType) => {
+      if (pendingHintType || disabledHintTypes[type]) {
+        return;
+      }
+
+      setPendingHintType(type);
+      setHintError(null);
+
+      try {
+        const hint = createHintForType(type, {
+          currentOrder,
+          events: puzzle.events,
+          hints,
+          correctOrder,
+          puzzleSeed,
+        });
+        takeHint(hint);
+      } catch (error) {
+        logger.error("Failed to generate Order hint", error);
+        setHintError("Unable to generate hint. Adjust your ordering and try again.");
+      } finally {
+        setPendingHintType(null);
+      }
+    },
+    [
+      pendingHintType,
+      disabledHintTypes,
+      currentOrder,
+      puzzle.events,
+      hints,
+      correctOrder,
+      puzzleSeed,
+      takeHint,
+    ],
+  );
+
+  const handleCommit = useCallback(() => {
+    const score = calculateScore(currentOrder, puzzle.events, hints.length);
+    onCommit(score);
+  }, [currentOrder, puzzle.events, hints.length, onCommit]);
+
+  return (
+    <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-6 py-16">
+      <header className="text-center">
+        <p className="text-muted-foreground text-sm tracking-wide uppercase">Order Mode</p>
+        <h1 className="text-foreground text-3xl font-semibold">Puzzle #{puzzle.puzzleNumber}</h1>
+        <p className="text-muted-foreground">{puzzle.date}</p>
+      </header>
+
+      <div className="flex flex-col gap-6 lg:flex-row-reverse">
+        <HintDisplay
+          className="w-full lg:w-[360px]"
+          events={puzzle.events}
+          hints={hints}
+          multiplier={multiplier}
+          onRequestHint={requestHint}
+          disabledTypes={disabledHintTypes}
+          pendingType={pendingHintType}
+          error={hintError ?? undefined}
+        />
+
+        <section className="border-border bg-card rounded-2xl border p-6 shadow-sm lg:flex-1">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-muted-foreground text-sm">Moves</p>
+              <p className="text-foreground text-2xl font-semibold">{moves}</p>
+            </div>
+            <button
+              type="button"
+              onClick={handleCommit}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6 py-2 text-sm font-semibold"
+            >
+              Commit Ordering
+            </button>
+          </div>
+          <ol className="space-y-4">
+            {currentOrder.map((eventId, index) => {
+              const event = puzzle.events.find((evt) => evt.id === eventId);
+              if (!event) return null;
+              return (
+                <li
+                  key={eventId}
+                  className="border-border bg-background flex items-center justify-between rounded-2xl border px-4 py-3 text-left shadow-sm"
+                >
+                  <div>
+                    <p className="text-muted-foreground text-xs tracking-wide uppercase">
+                      #{index + 1}
+                    </p>
+                    <p className="text-foreground text-base font-semibold">{event.text}</p>
+                    <p className="text-muted-foreground text-sm">{event.year}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => reorderEvents(index, index - 1)}
+                      disabled={index === 0}
+                      className="border-border text-foreground hover:bg-muted rounded-full border px-3 py-1 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-40"
+                      aria-label={`Move ${event.text} up`}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => reorderEvents(index, index + 1)}
+                      disabled={index === currentOrder.length - 1}
+                      className="border-border text-foreground hover:bg-muted rounded-full border px-3 py-1 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-40"
+                      aria-label={`Move ${event.text} down`}
+                    >
+                      ↓
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      </div>
+    </main>
+  );
 }
 
 function calculateScore(ordering: string[], events: OrderEvent[], hintCount: number): OrderScore {
@@ -212,12 +283,112 @@ function calculateScore(ordering: string[], events: OrderEvent[], hintCount: num
     }
   }
 
-  const multipliers = [1, 0.85, 0.7, 0.5];
-  const hintMultiplier = multipliers[Math.min(hintCount, multipliers.length - 1)];
+  const hintMultiplier = HINT_MULTIPLIERS[Math.min(hintCount, HINT_MULTIPLIERS.length - 1)];
   return {
     totalScore: Math.round(correctPairs * 2 * hintMultiplier),
     correctPairs,
     totalPairs,
     hintMultiplier,
   };
+}
+
+function createHintForType(
+  type: HintType,
+  context: {
+    currentOrder: string[];
+    events: OrderEvent[];
+    hints: OrderHint[];
+    correctOrder: string[];
+    puzzleSeed: number;
+  },
+): OrderHint {
+  const { currentOrder, events, hints, correctOrder, puzzleSeed } = context;
+  if (!events.length) {
+    throw new Error("Cannot generate hints without events.");
+  }
+
+  const stateSeed = hashHintContext([puzzleSeed, type, currentOrder.join("-"), hints.length]);
+
+  switch (type) {
+    case "anchor": {
+      const excludeEventIds = hints
+        .filter((hint) => hint.type === "anchor")
+        .map((hint) => hint.eventId);
+      return generateAnchorHint(currentOrder, correctOrder, {
+        seed: stateSeed,
+        excludeEventIds,
+      });
+    }
+    case "relative": {
+      const excludePairs = hints
+        .filter((hint) => hint.type === "relative")
+        .map((hint) => ({
+          earlierEventId: hint.earlierEventId,
+          laterEventId: hint.laterEventId,
+        }));
+      return generateRelativeHint(currentOrder, events, {
+        seed: stateSeed,
+        excludePairs,
+      });
+    }
+    case "bracket": {
+      const event = selectBracketEvent(currentOrder, events, hints, stateSeed);
+      return generateBracketHint(event);
+    }
+    default: {
+      const exhaustiveCheck: never = type;
+      throw new Error(`Unsupported hint type: ${exhaustiveCheck}`);
+    }
+  }
+}
+
+function selectBracketEvent(
+  currentOrder: string[],
+  events: OrderEvent[],
+  hints: OrderHint[],
+  seed: number,
+): OrderEvent {
+  if (!events.length) {
+    throw new Error("No events available for bracket hint.");
+  }
+
+  const bracketedIds = new Set(
+    hints.filter((hint) => hint.type === "bracket").map((hint) => hint.eventId),
+  );
+  const chronological = [...events].sort((a, b) => a.year - b.year || a.id.localeCompare(b.id));
+  const orderIndex = new Map(currentOrder.map((id, index) => [id, index]));
+
+  const candidatePool = chronological
+    .filter((event) => !bracketedIds.has(event.id))
+    .map((event, correctIndex) => ({
+      event,
+      displacement: Math.abs((orderIndex.get(event.id) ?? correctIndex) - correctIndex),
+    }));
+
+  const pool = candidatePool.length
+    ? candidatePool
+    : chronological.map((event, correctIndex) => ({
+        event,
+        displacement: Math.abs((orderIndex.get(event.id) ?? correctIndex) - correctIndex),
+      }));
+
+  const maxDisplacement = Math.max(...pool.map((item) => item.displacement));
+  const topCandidates = pool.filter((item) => item.displacement === maxDisplacement);
+  const normalizedSeed = Math.abs(seed);
+  const index = topCandidates.length > 1 ? normalizedSeed % topCandidates.length : 0;
+  return topCandidates[Math.max(0, index)].event;
+}
+
+function hashHintContext(parts: Array<string | number>): number {
+  let hash = 0x811c9dc5;
+  for (const part of parts) {
+    const chunk = String(part);
+    for (let i = 0; i < chunk.length; i++) {
+      hash ^= chunk.charCodeAt(i);
+      hash = Math.imul(hash, 0x01000193);
+    }
+    hash ^= chunk.length;
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return hash >>> 0;
 }
