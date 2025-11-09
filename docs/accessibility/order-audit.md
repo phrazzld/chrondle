@@ -16,14 +16,14 @@
 
 ## Findings & Status
 
-| #   | Area                  | Issue                                                                       | Status                                                                                                    |
-| --- | --------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| A1  | Drag handle           | Lacked explicit label/description for screen readers.                       | ✅ Already labeled `aria-label="Drag handle"`; verified focusable button.                                 |
-| A2  | Move buttons          | No mention of target event in accessible name.                              | ⚠️ Mitigated via template literal `aria-label` referencing event text (still needs manual SR validation). |
-| A3  | Live announcements    | `OrderEventList` announces reorder results via sr-only paragraph.           | ✅ Verified text updates; recommend hooking into `aria-live="polite"` (already set).                      |
-| A4  | HintDisplay accordion | Uses Radix (ARIA-compliant); confirm focus traps during manual SR run.      | ⚠️ Requires future VoiceOver verification.                                                                |
-| A5  | Share feedback        | Added `role="status"` text for copy success/failure.                        | ✅ Manual inspection.                                                                                     |
-| A6  | Color contrast        | OrderReveal misordered state uses `bg-destructive/10`; contrast borderline. | ⚠️ Needs Lighthouse measurement; potential to darken background (#fee2e2) in follow-up.                   |
+| #   | Area                  | Issue                                                                       | Status                                                                               |
+| --- | --------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| A1  | Drag handle           | Lacked explicit label/description for screen readers.                       | ✅ Already labeled `aria-label="Drag handle"`; verified focusable button.            |
+| A2  | Move buttons          | No mention of target event in accessible name.                              | ✅ `aria-label` now announces target event + resulting position.                     |
+| A3  | Live announcements    | `OrderEventList` announces reorder results via sr-only paragraph.           | ✅ Verified text updates; recommend hooking into `aria-live="polite"` (already set). |
+| A4  | HintDisplay accordion | Uses Radix (ARIA-compliant); confirm focus traps during manual SR run.      | ⚠️ Requires future VoiceOver verification.                                           |
+| A5  | Share feedback        | Added `role="status"` text for copy success/failure.                        | ✅ Manual inspection.                                                                |
+| A6  | Color contrast        | OrderReveal misordered state uses `bg-destructive/10`; contrast borderline. | ✅ Strengthened misordered styling (deeper bg, high-contrast text/border).           |
 
 ## Keyboard Walkthrough Notes
 

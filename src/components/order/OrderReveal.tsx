@@ -127,7 +127,9 @@ export function OrderReveal({
               }
               className={[
                 "border-border rounded-2xl border px-4 py-3 text-left shadow-sm",
-                wasCorrect ? "bg-background" : "bg-destructive/10 border-destructive",
+                wasCorrect
+                  ? "bg-background"
+                  : "border-destructive text-destructive dark:text-destructive-foreground bg-destructive/20 dark:bg-destructive/35",
               ].join(" ")}
             >
               <div className="flex items-center justify-between">

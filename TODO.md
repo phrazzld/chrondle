@@ -495,7 +495,7 @@
   - Common fixes: missing ARIA labels, focus order, contrast violations
   ```
 
-- [ ] **Fix accessibility violations from audit**
+- [x] **Fix accessibility violations from audit**
 
   ```
   Files: Multiple components (based on audit findings)

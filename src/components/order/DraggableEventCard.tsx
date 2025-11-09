@@ -83,7 +83,7 @@ export function DraggableEventCard({
           onClick={onMoveUp}
           disabled={isLocked}
           className="border-border text-foreground hover:bg-muted rounded-full border px-3 py-1 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-40"
-          aria-label={`Move ${event.text} up`}
+          aria-label={`Move ${event.text} to position ${index}`}
         >
           ↑
         </button>
@@ -92,7 +92,7 @@ export function DraggableEventCard({
           onClick={onMoveDown}
           disabled={isLocked}
           className="border-border text-foreground hover:bg-muted rounded-full border px-3 py-1 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-40"
-          aria-label={`Move ${event.text} down`}
+          aria-label={`Move ${event.text} to position ${index + 2}`}
         >
           ↓
         </button>
