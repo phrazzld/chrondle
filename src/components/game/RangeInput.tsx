@@ -5,10 +5,10 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EraToggle } from "@/components/ui/EraToggle";
-import { RangePreview } from "./RangePreview";
 import { SCORING_CONSTANTS } from "@/lib/scoring";
 import { GAME_CONFIG } from "@/lib/constants";
 import { convertToInternalYear, convertFromInternalYear, type Era } from "@/lib/eraUtils";
+import { formatYearWithOptions } from "@/lib/displayFormatting";
 import { cn } from "@/lib/utils";
 
 interface RangeInputProps {
@@ -18,8 +18,10 @@ interface RangeInputProps {
   disabled?: boolean;
   className?: string;
   hintsUsed?: number; // Number of historical events revealed (0-6)
-  currentMultiplier?: number; // Current score multiplier based on hints
   isOneGuessMode?: boolean; // Display "Submit Final Guess - ONE TRY" text
+  // Controlled component props
+  value?: [number, number]; // External range state (controlled mode)
+  onChange?: (range: [number, number]) => void; // Range change callback
 }
 
 /**
@@ -37,12 +39,31 @@ export function RangeInput({
   disabled = false,
   className,
   hintsUsed = 0,
-  currentMultiplier = 1.0,
+  value,
+  onChange,
 }: RangeInputProps) {
   const defaultRange = useMemo(() => createFullTimelineRange(minYear, maxYear), [minYear, maxYear]);
 
-  // Internal year representation (negative = BC)
-  const [range, setRange] = useState<[number, number]>(defaultRange);
+  // Check if controlled
+  const isControlled = value !== undefined && onChange !== undefined;
+
+  // Internal year representation (negative = BC) - only used when uncontrolled
+  const [internalRange, setInternalRange] = useState<[number, number]>(defaultRange);
+
+  // Use external state if controlled, internal state if uncontrolled
+  const range = isControlled ? value : internalRange;
+
+  // Internal setter that respects controlled/uncontrolled mode
+  const updateRange = useCallback(
+    (newRange: [number, number]) => {
+      if (isControlled) {
+        onChange?.(newRange);
+      } else {
+        setInternalRange(newRange);
+      }
+    },
+    [isControlled, onChange],
+  );
 
   // Track if user has modified the range from default
   const [hasBeenModified, setHasBeenModified] = useState(false);
@@ -72,18 +93,20 @@ export function RangeInput({
 
   // Reset to default when bounds change
   useEffect(() => {
-    setRange(defaultRange);
+    if (!isControlled) {
+      setInternalRange(defaultRange);
+    }
     setHasBeenModified(false);
-  }, [defaultRange]);
+  }, [defaultRange, isControlled]);
 
   const width = range[1] - range[0] + 1;
   const rangeTooWide = width > SCORING_CONSTANTS.W_MAX;
   const commitDisabled = disabled || rangeTooWide || !hasBeenModified;
 
   const resetRange = useCallback(() => {
-    setRange(createFullTimelineRange(minYear, maxYear));
+    updateRange(createFullTimelineRange(minYear, maxYear));
     setHasBeenModified(false);
-  }, [minYear, maxYear]);
+  }, [minYear, maxYear, updateRange]);
 
   const handleStartInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setStartInput(e.target.value);
@@ -100,7 +123,7 @@ export function RangeInput({
     if (!Number.isNaN(parsed)) {
       const internalYear = convertToInternalYear(parsed, era);
       if (internalYear >= minYear && internalYear <= maxYear) {
-        setRange([internalYear, Math.max(internalYear, range[1])]);
+        updateRange([internalYear, Math.max(internalYear, range[1])]);
         setHasBeenModified(true);
       }
     }
@@ -113,7 +136,7 @@ export function RangeInput({
     if (!Number.isNaN(parsed)) {
       const internalYear = convertToInternalYear(parsed, era);
       if (internalYear >= minYear && internalYear <= maxYear) {
-        setRange([Math.min(range[0], internalYear), internalYear]);
+        updateRange([Math.min(range[0], internalYear), internalYear]);
         setHasBeenModified(true);
       }
     }
@@ -124,7 +147,7 @@ export function RangeInput({
     if (!Number.isNaN(parsed) && parsed > 0) {
       const internalYear = convertToInternalYear(parsed, startEra);
       if (internalYear >= minYear && internalYear <= maxYear) {
-        setRange([internalYear, Math.max(internalYear, range[1])]);
+        updateRange([internalYear, Math.max(internalYear, range[1])]);
         setHasBeenModified(true);
       } else {
         // Reset to current valid value
@@ -144,7 +167,7 @@ export function RangeInput({
     if (!Number.isNaN(parsed) && parsed > 0) {
       const internalYear = convertToInternalYear(parsed, endEra);
       if (internalYear >= minYear && internalYear <= maxYear) {
-        setRange([Math.min(range[0], internalYear), internalYear]);
+        updateRange([Math.min(range[0], internalYear), internalYear]);
         setHasBeenModified(true);
       } else {
         // Reset to current valid value
@@ -173,22 +196,22 @@ export function RangeInput({
 
   return (
     <div className={cn("space-y-4", className)}>
-      {/* Section Header */}
-      <div className="border-b pb-2">
+      {/* Section Header with Range Summary */}
+      <div className="flex items-baseline justify-between border-b pb-1.5">
         <h3 className="text-foreground text-sm font-semibold">Your Guess</h3>
+        <span className="text-muted-foreground text-xs">
+          {formatYearWithOptions(range[0])} – {formatYearWithOptions(range[1])}
+        </span>
       </div>
 
-      {/* Range Inputs - Responsive: stacked on mobile, side-by-side on desktop */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-3">
-        {/* Start Year Input with Era Toggle */}
-        <div className="flex flex-1 items-center gap-2">
-          <div className="flex-1">
-            <label
-              htmlFor="start-year"
-              className="text-muted-foreground mb-1 block text-xs font-medium"
-            >
-              From
-            </label>
+      {/* Range Inputs - Responsive: stacked on mobile, inline on desktop */}
+      <div className="space-y-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          {/* "Between" label */}
+          <span className="text-muted-foreground text-sm font-medium">Between</span>
+
+          {/* Start Year Input with Era Toggle */}
+          <div className="flex items-center gap-2">
             <Input
               id="start-year"
               type="text"
@@ -201,8 +224,6 @@ export function RangeInput({
               className="text-center"
               aria-label="Start year"
             />
-          </div>
-          <div className="mt-5">
             <EraToggle
               value={startEra}
               onChange={handleStartEraChange}
@@ -210,22 +231,12 @@ export function RangeInput({
               size="default"
             />
           </div>
-        </div>
 
-        {/* Separator - visible only on desktop */}
-        <div className="text-muted-foreground hidden items-end pb-2 text-sm font-medium sm:flex">
-          to
-        </div>
+          {/* "and" separator */}
+          <span className="text-muted-foreground text-sm font-medium">and</span>
 
-        {/* End Year Input with Era Toggle */}
-        <div className="flex flex-1 items-center gap-2">
-          <div className="flex-1">
-            <label
-              htmlFor="end-year"
-              className="text-muted-foreground mb-1 block text-xs font-medium"
-            >
-              To
-            </label>
+          {/* End Year Input with Era Toggle */}
+          <div className="flex items-center gap-2">
             <Input
               id="end-year"
               type="text"
@@ -238,8 +249,6 @@ export function RangeInput({
               className="text-center"
               aria-label="End year"
             />
-          </div>
-          <div className="mt-5">
             <EraToggle
               value={endEra}
               onChange={handleEndEraChange}
@@ -250,16 +259,7 @@ export function RangeInput({
         </div>
       </div>
 
-      {/* Range Preview - Subtle inline info */}
-      <RangePreview start={range[0]} end={range[1]} width={width} multiplier={currentMultiplier} />
-
       {/* Validation Messages */}
-      {rangeTooWide && (
-        <p className="text-destructive text-xs">
-          Range must be {SCORING_CONSTANTS.W_MAX} years or narrower.
-        </p>
-      )}
-
       {!hasBeenModified && !disabled && (
         <p className="text-muted-foreground text-xs">Adjust the range to enable submission</p>
       )}

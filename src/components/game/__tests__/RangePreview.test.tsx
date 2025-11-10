@@ -9,7 +9,7 @@ describe("RangePreview", () => {
     start: 1900,
     end: 1950,
     width: 51,
-    multiplier: 0.7,
+    hintsUsed: 2, // 70 points max (2 hints revealed)
   };
 
   it("shows range boundaries with BC/AD formatting", () => {
@@ -39,7 +39,7 @@ describe("RangePreview", () => {
       start: -500,
       end: -400,
       width: 101,
-      multiplier: 1.0,
+      hintsUsed: 0, // 100 points max (no hints)
     };
     render(<RangePreview {...bcProps} />);
     // Should format as BC

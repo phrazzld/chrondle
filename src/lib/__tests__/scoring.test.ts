@@ -4,11 +4,13 @@ import { SCORING_CONSTANTS, scoreRange, scoreRangeDetailed } from "../scoring";
 
 describe("scoreRange", () => {
   it("awards the maximum score for a perfect one-year range", () => {
-    expect(scoreRange(1969, 1969, 1969)).toBe(697);
+    // New system: 100 points for 1-year range, 0 hints
+    expect(scoreRange(1969, 1969, 1969)).toBe(100);
   });
 
-  it("applies the correct hint multiplier (H2 → 0.7)", () => {
-    expect(scoreRange(1969, 1969, 1969, 0, 2)).toBe(488);
+  it("applies the correct hint deduction (2 hints → 70pts max)", () => {
+    // New system: 70 points max for 1-year range, 2 hints revealed
+    expect(scoreRange(1969, 1969, 1969, 0, 2)).toBe(70);
   });
 
   it("returns zero when the answer falls outside the range", () => {
@@ -60,11 +62,13 @@ describe("scoreRangeDetailed", () => {
     expect(result).toMatchObject({
       contained: true,
       width: 1,
-      score: 697,
+      score: 100, // New system: 100 points for 1-year range, 0 hints
     });
 
-    const expectedBase =
-      SCORING_CONSTANTS.S * Math.log2((SCORING_CONSTANTS.W_MAX + 1) / (result.width + 1));
+    // baseScore should equal the unrounded score value
+    const maxScore = SCORING_CONSTANTS.MAX_SCORES_BY_HINTS[0]; // 100
+    const widthFactor = (SCORING_CONSTANTS.W_MAX - result.width + 1) / SCORING_CONSTANTS.W_MAX; // 250/250 = 1.0
+    const expectedBase = maxScore * widthFactor; // 100 * 1.0 = 100
 
     expect(result.baseScore).toBeCloseTo(expectedBase, 6);
   });

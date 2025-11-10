@@ -1,19 +1,9 @@
 import React from "react";
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
 import { RangeInput } from "../RangeInput";
-import type { RangePreviewProps } from "../RangePreview";
 import { GAME_CONFIG } from "@/lib/constants";
-
-let latestRangePreviewProps: RangePreviewProps | null = null;
-
-vi.mock("../RangePreview", () => ({
-  RangePreview: (props: RangePreviewProps) => {
-    latestRangePreviewProps = props;
-    return <div data-testid="range-preview" />;
-  },
-}));
 
 // Mock EraToggle to simplify testing
 vi.mock("@/components/ui/EraToggle", () => ({
@@ -41,7 +31,6 @@ describe("RangeInput", () => {
     );
 
   beforeEach(() => {
-    latestRangePreviewProps = null;
     vi.useFakeTimers();
   });
 
@@ -54,9 +43,13 @@ describe("RangeInput", () => {
     it("defaults to full timeline range (3000 BC - 2025 AD)", () => {
       renderRangeInput();
 
-      expect(latestRangePreviewProps?.start).toBe(GAME_CONFIG.MIN_YEAR); // -3000
-      expect(latestRangePreviewProps?.end).toBe(GAME_CONFIG.MAX_YEAR); // 2025
-      expect(latestRangePreviewProps?.width).toBeGreaterThan(250);
+      // Should display default years in inputs
+      const startInput = screen.getByLabelText(/start year/i);
+      const endInput = screen.getByLabelText(/end year/i);
+
+      // Default start is 3000 BC, end is 2025 AD
+      expect(startInput).toHaveValue("3000");
+      expect(endInput).toHaveValue(String(new Date().getFullYear()));
     });
 
     it("disables submit button until range is modified", () => {
@@ -85,31 +78,40 @@ describe("RangeInput", () => {
       renderRangeInput();
 
       const commitButton = screen.getByRole("button", { name: /submit range/i });
+      const startInput = screen.getByLabelText(/start year/i);
+      const endInput = screen.getByLabelText(/end year/i);
+
       expect(commitButton).toBeDisabled();
 
-      // First, change the start year to something that will be valid in both eras
-      const startInput = screen.getByLabelText(/from/i);
-      fireEvent.change(startInput, { target: { value: "1000" } });
+      // Set to a valid narrow range: 1900-1950 AD (51 years)
+      // Toggle start to AD first
+      const startAdToggle = screen.getByTestId("toggle-ad-BC");
+      fireEvent.click(startAdToggle);
+
+      fireEvent.change(startInput, { target: { value: "1900" } });
       fireEvent.blur(startInput);
 
-      act(() => {
-        vi.advanceTimersByTime(100);
-      });
-
-      // Store the initial start value (1000 BC = -1000)
-      const initialStart = latestRangePreviewProps?.start;
-
-      // Toggle from BC to AD
-      const toggleButton = screen.getByTestId("toggle-ad-BC");
-      fireEvent.click(toggleButton);
+      fireEvent.change(endInput, { target: { value: "1950" } });
+      fireEvent.blur(endInput);
 
       act(() => {
         vi.advanceTimersByTime(100);
       });
 
-      // Start should change from -1000 (1000 BC) to 1000 (1000 AD)
-      expect(latestRangePreviewProps?.start).not.toBe(initialStart);
-      expect(latestRangePreviewProps?.start).toBe(1000);
+      // After changing to valid narrow range, button should be enabled
+      expect(commitButton).toBeEnabled();
+
+      // Toggle start from AD back to BC - this creates invalid range (1900 BC is before 1950 AD but too wide)
+      // Both toggles now show AD, so both have toggle-bc-AD buttons - get the first one (start)
+      const bcButtons = screen.getAllByTestId("toggle-bc-AD");
+      fireEvent.click(bcButtons[0]); // Click the start toggle's BC button
+
+      act(() => {
+        vi.advanceTimersByTime(100);
+      });
+
+      // Button should be disabled (range now too wide: 1900 BC to 1950 AD = 3851 years)
+      expect(commitButton).toBeDisabled();
     });
   });
 
@@ -117,8 +119,10 @@ describe("RangeInput", () => {
     it("accepts positive year values", () => {
       renderRangeInput();
 
-      const startInput = screen.getByLabelText(/from/i);
+      const startInput = screen.getByLabelText(/start year/i);
 
+      // Toggle to AD and change input
+      fireEvent.click(screen.getAllByText("AD")[0]);
       fireEvent.change(startInput, { target: { value: "1900" } });
       fireEvent.blur(startInput);
 
@@ -126,17 +130,67 @@ describe("RangeInput", () => {
         vi.advanceTimersByTime(100);
       });
 
-      // Start year should update (1900 AD = 1900 internal, assuming AD era)
-      expect(latestRangePreviewProps?.start).toBeDefined();
+      // Input should accept and display the value
+      expect(startInput).toHaveValue("1900");
     });
 
     it("enables submit after modifying year input", () => {
       renderRangeInput();
 
-      const startInput = screen.getByLabelText(/from/i);
-      const endInput = screen.getByLabelText(/to/i);
+      const startInput = screen.getByLabelText(/start year/i);
+      const endInput = screen.getByLabelText(/end year/i);
 
-      // Set to valid narrow range
+      // Initial state: button should be disabled (range not modified)
+      const commitButton = screen.getByRole("button", { name: /submit range/i });
+      expect(commitButton).toBeDisabled();
+
+      // Change start to 1900 AD (toggle era first since default is BC)
+      const startAdToggle = screen.getByTestId("toggle-ad-BC");
+      fireEvent.click(startAdToggle); // Toggle start year from BC to AD
+      fireEvent.change(startInput, { target: { value: "1900" } });
+      fireEvent.blur(startInput);
+
+      // Change end to 1950 AD (already AD by default)
+      fireEvent.change(endInput, { target: { value: "1950" } });
+      fireEvent.blur(endInput);
+
+      act(() => {
+        vi.advanceTimersByTime(100);
+      });
+
+      // After modifying to valid range (51 years), button should be enabled
+      expect(commitButton).toBeEnabled();
+    });
+  });
+
+  describe("Controlled Mode", () => {
+    const ControlledWrapper = () => {
+      const [range, setRange] = React.useState<[number, number]>([
+        GAME_CONFIG.MIN_YEAR,
+        GAME_CONFIG.MAX_YEAR,
+      ]);
+
+      return (
+        <RangeInput
+          onCommit={vi.fn()}
+          minYear={GAME_CONFIG.MIN_YEAR}
+          maxYear={GAME_CONFIG.MAX_YEAR}
+          value={range}
+          onChange={setRange}
+        />
+      );
+    };
+
+    it("allows editing without resetting to defaults", async () => {
+      render(<ControlledWrapper />);
+
+      const startInput = screen.getByLabelText(/start year/i);
+      const endInput = screen.getByLabelText(/end year/i);
+
+      // Toggle start to AD so a modern year is valid
+      const startAdToggle = screen.getByTestId("toggle-ad-BC");
+      fireEvent.click(startAdToggle);
+
       fireEvent.change(startInput, { target: { value: "1900" } });
       fireEvent.blur(startInput);
 
@@ -147,15 +201,11 @@ describe("RangeInput", () => {
         vi.advanceTimersByTime(100);
       });
 
-      // Check if range is within limits
-      const width = latestRangePreviewProps?.width ?? 0;
-      const commitButton = screen.getByRole("button", { name: /submit range/i });
+      expect(startInput).toHaveValue("1900");
+      expect(endInput).toHaveValue("1950");
 
-      if (width <= 250) {
-        expect(commitButton).toBeEnabled();
-      } else {
-        expect(commitButton).toBeDisabled();
-      }
+      const commitButton = screen.getByRole("button", { name: /submit range/i });
+      expect(commitButton).toBeEnabled();
     });
   });
 
@@ -163,38 +213,46 @@ describe("RangeInput", () => {
     it("prevents committing when the range exceeds 250 years", () => {
       renderRangeInput();
 
-      const startInput = screen.getByLabelText(/from/i);
-      const endInput = screen.getByLabelText(/to/i);
+      const startInput = screen.getByLabelText(/start year/i);
+      const endInput = screen.getByLabelText(/end year/i);
 
-      // Set to range > 250 years (e.g., 1800-2100 = 301 years)
-      fireEvent.change(startInput, { target: { value: "1800" } });
+      // Set to range > 250 years within bounds (e.g., 1700 BC - 100 BC = 1601 years)
+      // Start defaults to BC, so just change the values
+      fireEvent.change(startInput, { target: { value: "1700" } });
       fireEvent.blur(startInput);
 
-      fireEvent.change(endInput, { target: { value: "2100" } });
+      fireEvent.change(endInput, { target: { value: "100" } });
+      // Toggle end to BC to get BC-BC range
+      fireEvent.click(screen.getByTestId("toggle-bc-AD"));
       fireEvent.blur(endInput);
 
       act(() => {
         vi.advanceTimersByTime(100);
       });
 
-      const width = latestRangePreviewProps?.width ?? 0;
-      if (width > 250) {
-        const commitButton = screen.getByRole("button", { name: /submit range/i });
-        expect(commitButton).toBeDisabled();
-        expect(screen.getByText(/range must be 250 years or narrower/i)).toBeInTheDocument();
-      }
+      // Button should be disabled when range exceeds 250 years
+      const commitButton = screen.getByRole("button", { name: /submit range/i });
+      expect(commitButton).toBeDisabled();
     });
   });
 
   describe("Commit Functionality", () => {
-    it("commits the current range and resets state", async () => {
+    it("commits the current range and resets state", () => {
       const handleCommit = vi.fn();
       renderRangeInput({ onCommit: handleCommit });
 
-      const startInput = screen.getByLabelText(/from/i);
-      const endInput = screen.getByLabelText(/to/i);
+      const startInput = screen.getByLabelText(/start year/i);
+      const endInput = screen.getByLabelText(/end year/i);
+      const commitButton = screen.getByRole("button", { name: /submit range/i });
+
+      // Initially button is disabled (default range, not modified)
+      expect(commitButton).toBeDisabled();
 
       // Set valid range: 1900-1950 AD (51 years)
+      // Toggle start to AD first (default is BC)
+      const startAdToggle = screen.getByTestId("toggle-ad-BC");
+      fireEvent.click(startAdToggle);
+
       fireEvent.change(startInput, { target: { value: "1900" } });
       fireEvent.blur(startInput);
 
@@ -205,38 +263,46 @@ describe("RangeInput", () => {
         vi.advanceTimersByTime(100);
       });
 
-      const commitButton = screen.getByRole("button", { name: /submit range/i });
+      // After modification, button should be enabled
+      expect(commitButton).toBeEnabled();
 
-      // Should be enabled if range is valid
-      const width = latestRangePreviewProps?.width ?? 0;
-      if (width <= 250) {
-        expect(commitButton).toBeEnabled();
+      // Click commit
+      act(() => {
+        fireEvent.click(commitButton);
+      });
 
-        act(() => {
-          fireEvent.click(commitButton);
-        });
+      act(() => {
+        vi.runOnlyPendingTimers();
+      });
 
-        act(() => {
-          vi.runOnlyPendingTimers();
-        });
+      // Should have called the handler
+      expect(handleCommit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          start: 1900,
+          end: 1950,
+        }),
+      );
 
-        expect(handleCommit).toHaveBeenCalled();
+      // After commit, advance timers for state updates
+      act(() => {
+        vi.advanceTimersByTime(200);
+      });
 
-        // Should reset to disabled state
-        await waitFor(() => {
-          expect(commitButton).toBeDisabled();
-        });
-      }
+      // Should reset to disabled state (range reset to default, hasBeenModified = false)
+      expect(commitButton).toBeDisabled();
     });
 
     it("passes hintsUsed to commit handler", () => {
       const handleCommit = vi.fn();
       renderRangeInput({ onCommit: handleCommit, hintsUsed: 2 });
 
-      const startInput = screen.getByLabelText(/from/i);
-      const endInput = screen.getByLabelText(/to/i);
+      const startInput = screen.getByLabelText(/start year/i);
+      const endInput = screen.getByLabelText(/end year/i);
 
-      // Set valid narrow range
+      // Set valid narrow range (1900-1920 AD = 21 years)
+      // Toggle start to AD first
+      const startAdToggle = screen.getByTestId("toggle-ad-BC");
+      fireEvent.click(startAdToggle);
       fireEvent.change(startInput, { target: { value: "1900" } });
       fireEvent.blur(startInput);
 
@@ -247,20 +313,20 @@ describe("RangeInput", () => {
         vi.advanceTimersByTime(100);
       });
 
-      const width = latestRangePreviewProps?.width ?? 0;
-      if (width <= 250) {
-        const commitButton = screen.getByRole("button", { name: /submit range/i });
+      const commitButton = screen.getByRole("button", { name: /submit range/i });
 
-        act(() => {
-          fireEvent.click(commitButton);
-        });
+      // After modification, button should be enabled
+      expect(commitButton).toBeEnabled();
 
-        act(() => {
-          vi.runOnlyPendingTimers();
-        });
+      act(() => {
+        fireEvent.click(commitButton);
+      });
 
-        expect(handleCommit).toHaveBeenCalledWith(expect.objectContaining({ hintsUsed: 2 }));
-      }
+      act(() => {
+        vi.runOnlyPendingTimers();
+      });
+
+      expect(handleCommit).toHaveBeenCalledWith(expect.objectContaining({ hintsUsed: 2 }));
     });
   });
 });

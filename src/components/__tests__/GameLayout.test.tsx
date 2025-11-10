@@ -14,17 +14,50 @@ vi.mock("@/components/game/RangeInput", () => ({
   RangeInput: ({
     disabled,
     onCommit,
+    value,
+    onChange,
   }: {
     disabled: boolean;
     onCommit: (payload: { start: number; end: number; hintsUsed: number }) => void;
+    value?: [number, number];
+    onChange?: (range: [number, number]) => void;
+    minYear?: number;
+    maxYear?: number;
+    className?: string;
+    hintsUsed?: number;
+    isOneGuessMode?: boolean;
   }) => (
-    <button
-      data-testid="range-input"
-      data-disabled={String(disabled)}
-      onClick={() => onCommit({ start: 1900, end: 1950, hintsUsed: 0 })}
-    >
-      Range Input
-    </button>
+    <div data-testid="range-input-container">
+      <input
+        aria-label="Start year"
+        disabled={disabled}
+        value={value?.[0] ?? 0}
+        onChange={(e) => {
+          const newValue = parseInt(e.target.value);
+          if (onChange && value) {
+            onChange([newValue, value[1]]);
+          }
+        }}
+      />
+      <input
+        aria-label="End year"
+        disabled={disabled}
+        value={value?.[1] ?? 0}
+        onChange={(e) => {
+          const newValue = parseInt(e.target.value);
+          if (onChange && value) {
+            onChange([value[0], newValue]);
+          }
+        }}
+      />
+      <button
+        data-testid="range-input"
+        data-disabled={String(disabled)}
+        onClick={() => onCommit({ start: 1900, end: 1950, hintsUsed: 0 })}
+      >
+        Range Input
+      </button>
+    </div>
   ),
 }));
 
@@ -93,27 +126,35 @@ describe("GameLayout", () => {
       props.gameState.puzzle = null;
 
       render(<GameLayout {...props} />);
-      expect(screen.getByTestId("range-input")).toBeTruthy();
+      // RangeInput should still be present (check for input fields)
+      expect(screen.getByLabelText(/start year/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/end year/i)).toBeInTheDocument();
     });
   });
 
   describe("range input behavior", () => {
-    it("disables input when game complete", () => {
+    it("hides range input when game complete", () => {
       const props = createDefaultProps();
       props.isGameComplete = true;
 
       render(<GameLayout {...props} />);
 
-      expect(screen.getByTestId("range-input").getAttribute("data-disabled")).toBe("true");
+      // RangeInput should not be rendered when game is complete
+      expect(screen.queryByLabelText(/start year/i)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/end year/i)).not.toBeInTheDocument();
     });
 
-    it("disables input while loading", () => {
+    it("disables inputs while loading", () => {
       const props = createDefaultProps();
       props.isLoading = true;
 
       render(<GameLayout {...props} />);
 
-      expect(screen.getByTestId("range-input").getAttribute("data-disabled")).toBe("true");
+      // Input fields should be disabled when loading
+      const startInput = screen.getByLabelText(/start year/i);
+      const endInput = screen.getByLabelText(/end year/i);
+      expect(startInput).toBeDisabled();
+      expect(endInput).toBeDisabled();
     });
 
     it("invokes commit callback", () => {

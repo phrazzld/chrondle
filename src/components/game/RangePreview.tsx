@@ -8,22 +8,22 @@ export interface RangePreviewProps {
   start: number;
   end: number;
   width: number;
-  multiplier: number;
+  hintsUsed: number;
   className?: string;
 }
 
-export function RangePreview({ start, end, width, multiplier, className }: RangePreviewProps) {
-  // Calculate max possible score with current multiplier and range width
+export function RangePreview({ start, end, width, hintsUsed, className }: RangePreviewProps) {
+  // Calculate max possible score with flat deduction system
   // Clamp to 0 to prevent negative scores when range exceeds W_MAX
   const maxPossibleScore = useMemo(() => {
-    const baseScore = SCORING_CONSTANTS.S * Math.log2((SCORING_CONSTANTS.W_MAX + 1) / (width + 1));
-    return Math.max(0, Math.floor(baseScore * multiplier));
-  }, [width, multiplier]);
+    const maxScoreForHints = SCORING_CONSTANTS.MAX_SCORES_BY_HINTS[hintsUsed];
+    const widthFactor = (SCORING_CONSTANTS.W_MAX - width + 1) / SCORING_CONSTANTS.W_MAX;
+    return Math.max(0, Math.floor(maxScoreForHints * widthFactor));
+  }, [width, hintsUsed]);
 
   // Calculate theoretical best (narrowest range, no hints)
   const theoreticalMax = useMemo(() => {
-    const maxBaseScore = SCORING_CONSTANTS.S * Math.log2((SCORING_CONSTANTS.W_MAX + 1) / 2);
-    return Math.floor(maxBaseScore);
+    return SCORING_CONSTANTS.MAX_SCORES_BY_HINTS[0]; // 100 points for 0 hints, 1-year range
   }, []);
 
   // Format years for display

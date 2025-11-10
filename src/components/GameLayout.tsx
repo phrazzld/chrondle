@@ -4,10 +4,10 @@ import React, { useState, useEffect } from "react";
 import { GameInstructions } from "@/components/GameInstructions";
 import { RangeInput } from "@/components/game/RangeInput";
 import { HintRevealButtons } from "@/components/game/HintRevealButtons";
+import { ScoreDisplay } from "@/components/game/ScoreDisplay";
 import { Confetti, ConfettiRef } from "@/components/magicui/confetti";
 import { GameComplete } from "@/components/modals/GameComplete";
 import { validateGameLayoutProps } from "@/lib/propValidation";
-import { SCORING_CONSTANTS } from "@/lib/scoring";
 import type { RangeGuess } from "@/types/range";
 
 export interface GameLayoutProps {
@@ -85,23 +85,34 @@ export function GameLayout(props: GameLayoutProps) {
   // Starts at 0 (first hint is free and always shown)
   const [hintsRevealed, setHintsRevealed] = useState(0);
 
-  // Reset hints when game completes or puzzle changes
+  // Local state for range input (lifted from RangeInput for header score display)
+  const minYear = -5000;
+  const maxYear = new Date().getFullYear();
+  const [range, setRange] = useState<[number, number]>([minYear, maxYear]);
+
+  // Calculate width from range for score display
+  const width = range[1] - range[0] + 1;
+
+  // Reset hints and range when game completes or puzzle changes
   useEffect(() => {
     setHintsRevealed(0);
-  }, [gameState.puzzle?.year, isGameComplete]);
+    setRange([minYear, maxYear]); // Reset to full timeline
+  }, [gameState.puzzle?.year, isGameComplete, minYear, maxYear]);
 
   const targetYear = gameState.puzzle?.year ?? 0;
   const totalScore = gameState.totalScore ?? 0;
   const puzzleNumber = gameState.puzzle?.puzzleNumber;
-
-  // Current multiplier based on hints revealed
-  const currentMultiplier = SCORING_CONSTANTS.HINT_MULTIPLIERS[hintsRevealed];
 
   // Handler for revealing hints
   const handleRevealHint = (hintIndex: number) => {
     // hintIndex is 0-based (0-5 for hints 2-6)
     // hintsRevealed should become hintIndex + 1
     setHintsRevealed(hintIndex + 1);
+  };
+
+  // Handler for range changes from RangeInput
+  const handleRangeChange = (newRange: [number, number]) => {
+    setRange(newRange);
   };
 
   return (
@@ -112,15 +123,33 @@ export function GameLayout(props: GameLayoutProps) {
       {/* Main game content */}
       <main className="flex-1 overflow-auto px-4 py-6">
         <div className="mx-auto w-full max-w-2xl space-y-8">
-          {/* Game Instructions - Header and subheading always at top */}
-          <GameInstructions
-            isGameComplete={isGameComplete}
-            hasWon={hasWon}
-            targetYear={targetYear}
-            timeString={countdown?.timeString}
-            isArchive={isArchive}
-            historicalContext={gameState.puzzle?.historicalContext}
-          />
+          {/* Active Game: Header with Score in Upper Right */}
+          {!isGameComplete && (
+            <div className="flex flex-row items-start justify-between gap-2 sm:gap-4">
+              {/* Left: Game Instructions */}
+              <GameInstructions isGameComplete={false} hasWon={false} isArchive={isArchive} />
+
+              {/* Right: Compact Score Display */}
+              <ScoreDisplay
+                variant="compact"
+                width={width}
+                hintsUsed={hintsRevealed}
+                className="flex-shrink-0"
+              />
+            </div>
+          )}
+
+          {/* Completed Game: Full-width Instructions */}
+          {isGameComplete && (
+            <GameInstructions
+              isGameComplete={isGameComplete}
+              hasWon={hasWon}
+              targetYear={targetYear}
+              timeString={countdown?.timeString}
+              isArchive={isArchive}
+              historicalContext={gameState.puzzle?.historicalContext}
+            />
+          )}
 
           {/* Historical Events Hints - Manual reveal system (shown first for better flow) */}
           {!isGameComplete && gameState.puzzle && (
@@ -133,16 +162,19 @@ export function GameLayout(props: GameLayoutProps) {
           )}
 
           {/* Range Input - After hints so user can adjust based on information */}
-          <RangeInput
-            minYear={-5000}
-            maxYear={new Date().getFullYear()}
-            onCommit={onRangeCommit}
-            disabled={isGameComplete || isLoading}
-            className=""
-            hintsUsed={hintsRevealed}
-            currentMultiplier={currentMultiplier}
-            isOneGuessMode={true}
-          />
+          {!isGameComplete && (
+            <RangeInput
+              minYear={minYear}
+              maxYear={maxYear}
+              onCommit={onRangeCommit}
+              disabled={isLoading}
+              className=""
+              hintsUsed={hintsRevealed}
+              isOneGuessMode={true}
+              value={range}
+              onChange={handleRangeChange}
+            />
+          )}
 
           {/* Game Complete Summary */}
           {isGameComplete && (

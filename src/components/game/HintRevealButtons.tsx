@@ -11,17 +11,12 @@ interface HintRevealButtonsProps {
   className?: string;
 }
 
-function getPointLoss(hintsRevealed: number): number {
-  // Calculate theoretical max score (width = 1, narrowest possible)
-  const theoreticalMax = SCORING_CONSTANTS.S * Math.log2((SCORING_CONSTANTS.W_MAX + 1) / 2);
-
-  const currentMultiplier = SCORING_CONSTANTS.HINT_MULTIPLIERS[hintsRevealed];
-  const nextMultiplier = SCORING_CONSTANTS.HINT_MULTIPLIERS[hintsRevealed + 1];
-
-  const currentMax = Math.floor(theoreticalMax * currentMultiplier);
-  const nextMax = Math.floor(theoreticalMax * nextMultiplier);
-
-  return currentMax - nextMax;
+function getHintCost(hintsRevealed: number): number {
+  // Return flat cost for the next hint (hintsRevealed is 0-5, cost is for next hint)
+  if (hintsRevealed >= SCORING_CONSTANTS.HINT_COSTS.length) {
+    return 0; // No more hints available
+  }
+  return SCORING_CONSTANTS.HINT_COSTS[hintsRevealed];
 }
 
 function ClueProgressDots({ total, revealed }: { total: number; revealed: number }) {
@@ -60,6 +55,9 @@ export function HintRevealButtons({
   // Additional revealed clues
   const revealedClues = events.slice(1, hintsRevealed + 1);
 
+  // Get flat cost for next clue
+  const hintCost = getHintCost(hintsRevealed);
+
   return (
     <div className={cn("space-y-4", className)}>
       {/* The Puzzle Event - Hero Display */}
@@ -84,23 +82,31 @@ export function HintRevealButtons({
         </div>
       )}
 
-      {/* Progress Dots */}
-      <ClueProgressDots total={totalClues} revealed={hintsRevealed + 1} />
-
-      {/* Show Next Clue Button - Only if more clues available */}
+      {/* Clue Reveal Section - Only if more clues available */}
       {hasMoreClues && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onRevealHint(hintsRevealed)}
-          disabled={disabled}
-          className="w-full justify-between"
-        >
-          <span>Show Next Clue</span>
-          <span className="text-destructive text-xs font-medium">
-            -{getPointLoss(hintsRevealed)}
-          </span>
-        </Button>
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-medium">Want Another Clue?</span>
+            <ClueProgressDots total={totalClues} revealed={hintsRevealed + 1} />
+          </div>
+
+          <p className="text-muted-foreground mb-3 text-xs">
+            Revealing clue #{hintsRevealed + 2} costs{" "}
+            <span className="font-semibold text-amber-600 dark:text-amber-500">
+              {hintCost} points
+            </span>
+          </p>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onRevealHint(hintsRevealed)}
+            disabled={disabled}
+            className="w-full border-amber-500/50 hover:bg-amber-500/10"
+          >
+            Reveal Clue
+          </Button>
+        </div>
       )}
     </div>
   );

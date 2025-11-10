@@ -1,14 +1,16 @@
 import { HintCount, ScoreResult } from "../types/range";
 
 export const SCORING_CONSTANTS = {
-  S: 100,
   W_MAX: 250,
-  // Extended multipliers for 6 historical events (0-6 hints revealed)
-  // 0 hints = 100%, 1 = 85%, 2 = 70%, 3 = 50%, 4 = 40%, 5 = 30%, 6 = 20%
-  HINT_MULTIPLIERS: [1.0, 0.85, 0.7, 0.5, 0.4, 0.3, 0.2] as const,
+  // Flat deduction scoring: max possible score at each hint level (0-6 hints)
+  // Costs: 0 hints=100pts, -15pts, -15pts, -15pts, -10pts, -10pts, -10pts
+  // Cumulative max scores: [100, 85, 70, 55, 45, 35, 25]
+  MAX_SCORES_BY_HINTS: [100, 85, 70, 55, 45, 35, 25] as const,
+  // Individual hint costs for display purposes
+  HINT_COSTS: [15, 15, 15, 10, 10, 10] as const,
 } as const;
 
-const { HINT_MULTIPLIERS } = SCORING_CONSTANTS;
+const { MAX_SCORES_BY_HINTS } = SCORING_CONSTANTS;
 
 const HINT_LEVELS = new Set<HintCount>([0, 1, 2, 3, 4, 5, 6]);
 
@@ -61,6 +63,12 @@ function calculateWidth(start: number, end: number): number {
 
 /**
  * Detailed score calculation with containment metadata.
+ *
+ * Scoring system:
+ * - Base: 100 points maximum (for 1-year range, 0 hints)
+ * - Width penalty: Linear scale from 100pts (1-year) to ~0pts (250-year)
+ * - Hint costs: Flat deductions of 15, 15, 15, 10, 10, 10 points
+ * - Final: max_score_for_hints * width_factor, rounded down
  */
 export function scoreRangeDetailed(
   start: number,
@@ -85,10 +93,14 @@ export function scoreRangeDetailed(
     };
   }
 
-  const baseScore = SCORING_CONSTANTS.S * Math.log2((SCORING_CONSTANTS.W_MAX + 1) / (width + 1));
-
-  const multiplier = HINT_MULTIPLIERS[hintsUsed];
-  const score = Math.floor(baseScore * multiplier);
+  // New flat deduction scoring system:
+  // 1. Get max possible score based on hints used
+  // 2. Scale by range width (narrower = better)
+  // 3. Round down to integer
+  const maxScoreForHints = MAX_SCORES_BY_HINTS[hintsUsed];
+  const widthFactor = (SCORING_CONSTANTS.W_MAX - width + 1) / SCORING_CONSTANTS.W_MAX;
+  const baseScore = maxScoreForHints * widthFactor;
+  const score = Math.floor(baseScore);
 
   return {
     score,
