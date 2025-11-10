@@ -15,12 +15,8 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { Button } from "@/components/ui/button";
+import { setModePreferenceCookie, type ModeKey } from "@/lib/modePreference";
 import { cn } from "@/lib/utils";
-
-const MODE_COOKIE = "chrondle_mode";
-const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
-
-type ModeKey = "classic" | "order";
 
 type ModeCardConfig = {
   key: ModeKey;
@@ -66,14 +62,6 @@ const MODE_CARDS: ModeCardConfig[] = [
     badge: "New",
   },
 ];
-
-function setModePreferenceCookie(mode: ModeKey) {
-  if (typeof document === "undefined") {
-    return;
-  }
-
-  document.cookie = `${MODE_COOKIE}=${mode}; max-age=${ONE_YEAR_SECONDS}; path=/; SameSite=Lax`;
-}
 
 type ModeCardProps = {
   config: ModeCardConfig;

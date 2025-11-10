@@ -515,7 +515,7 @@
 
 ### 3.4 Cross-Mode Integration
 
-- [ ] **Add mode switcher to Classic header**
+- [x] **Add mode switcher to Classic header**
 
   ```
   Files: src/components/GameHeader.tsx or similar (modify existing)

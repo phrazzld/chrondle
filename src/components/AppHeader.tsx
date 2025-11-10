@@ -2,14 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { NavbarButton } from "@/components/ui/NavbarButton";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { AuthButtons } from "@/components/AuthButtons";
 import { Flame, Archive, Heart } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { getStreakColorClasses } from "@/lib/ui/streak-styling";
-import { formatPuzzleNumber } from "@/lib/puzzleUtils";
+
+import { AuthButtons } from "@/components/AuthButtons";
 import SupportModal from "@/components/SupportModal";
+import { ModeSwitcher } from "@/components/ModeSwitcher";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { NavbarButton } from "@/components/ui/NavbarButton";
+import { formatPuzzleNumber } from "@/lib/puzzleUtils";
+import { getStreakColorClasses } from "@/lib/ui/streak-styling";
+import { cn } from "@/lib/utils";
 
 // Constants
 const HEARTBEAT_DELAY_MS = 2000;
@@ -92,6 +94,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                   </span>
                 </div>
               )}
+
+              {/* Mode Switcher */}
+              <ModeSwitcher />
 
               {/* Archive Button */}
               <NavbarButton
