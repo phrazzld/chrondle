@@ -5,12 +5,10 @@ import { GamesGallery } from "@/components/GamesGallery";
 const BOT_USER_AGENT = /bot|crawl|spider|slurp|duckduckgo|baiduspider|bingpreview|yandex/i;
 const MODE_COOKIE = "chrondle_mode";
 
-export default async function SmartHomepage() {
-  const cookieStore = await cookies();
+export default function SmartHomepage() {
+  const cookieStore = cookies();
   const mode = cookieStore.get(MODE_COOKIE)?.value;
-
-  const headerStore = await headers();
-  const userAgent = headerStore.get("user-agent") ?? "";
+  const userAgent = headers().get("user-agent") ?? "";
   const isBot = BOT_USER_AGENT.test(userAgent);
 
   if (!isBot && mode === "classic") {
