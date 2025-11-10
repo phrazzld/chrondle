@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { internalAction, type ActionCtx } from "../_generated/server";
+import { action, internalAction, type ActionCtx } from "../_generated/server";
 import { api } from "../_generated/api";
 import type { Doc } from "../_generated/dataModel";
 import { hasProperNoun, hasLeakage } from "./eventValidation";
@@ -58,6 +58,17 @@ export async function chooseWorkYears(
 }
 
 export const selectWorkYears = internalAction({
+  args: {
+    count: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => chooseWorkYears(ctx, args.count ?? 3),
+});
+
+/**
+ * Public wrapper for testing and admin scripts.
+ * Calls the same internal logic as selectWorkYears.
+ */
+export const testSelectWorkYears = action({
   args: {
     count: v.optional(v.number()),
   },

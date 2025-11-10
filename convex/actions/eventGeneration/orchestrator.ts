@@ -1,7 +1,7 @@
 "use node";
 
 import { v } from "convex/values";
-import { internalAction, type ActionCtx } from "../../_generated/server";
+import { action, internalAction, type ActionCtx } from "../../_generated/server";
 import { internal } from "../../_generated/api";
 import type { TokenUsage } from "../../lib/llmClient";
 import { generateCandidatesForYear } from "./generator";
@@ -20,6 +20,17 @@ const MAX_SELECTED_EVENTS = 10;
 const MAX_DOMAIN_DUPLICATES = 3;
 
 export const generateYearEvents = internalAction({
+  args: {
+    year: v.number(),
+  },
+  handler: async (ctx, args) => executeYearGeneration(ctx, args.year),
+});
+
+/**
+ * Public wrapper for testing and admin scripts.
+ * Calls the same internal logic as generateYearEvents.
+ */
+export const testGenerateYearEvents = action({
   args: {
     year: v.number(),
   },

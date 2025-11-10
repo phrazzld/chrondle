@@ -5,7 +5,7 @@
 
 import { Command } from "commander";
 import { ConvexHttpClient } from "convex/browser";
-import { internal } from "../convex/_generated/api.js";
+import { api } from "../convex/_generated/api.js";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
@@ -45,8 +45,7 @@ program.action(async (options) => {
     years = options.years.split(",").map((year: string) => Number(year.trim()));
   } else {
     const count = Number(options.count) || 3;
-    // @ts-expect-error - ConvexHttpClient doesn't support internal actions (needs wrapper action)
-    const selector = await client.action(internal.lib.workSelector.selectWorkYears, {
+    const selector = await client.action(api.lib.workSelector.testSelectWorkYears, {
       count,
     });
     years = selector.years;
@@ -57,8 +56,7 @@ program.action(async (options) => {
   const summaries = await Promise.all(
     years.map(async (year) => {
       const result = await client.action(
-        // @ts-expect-error - ConvexHttpClient doesn't support internal actions (needs wrapper action)
-        internal.actions.eventGeneration.orchestrator.generateYearEvents,
+        api.actions.eventGeneration.orchestrator.testGenerateYearEvents,
         {
           year,
         },

@@ -24,11 +24,11 @@ PASS THRESHOLDS:
 - ambiguity ≤0.25
 - guessability ≥0.4
 
-For failing events, provide:
-- issues: List of specific problems
-- rewrite_hints: Concrete improvement suggestions
+For failing events, provide BRIEF:
+- issues: 1-2 words each (e.g., "year leak", "factual error")
+- rewrite_hints: 3-5 words each (e.g., "remove century term", "add geographic context")
 
-OUTPUT: Valid JSON with scores, pass/fail, issues, and hints.`;
+BE CONCISE. Keep arrays short.`;
 
 const SCORE_THRESHOLDS = {
   factual: 0.75,
@@ -152,7 +152,18 @@ Evaluate these candidate events for quality and year-leakage.
 Candidates:
 ${payload}
 
-Return JSON array with critique for each event.`;
+Return JSON array with ${candidates.length} critique objects. BE CONCISE - use SHORT strings in issues/hints (1-5 words max each).
+
+Format:
+[
+  {
+    "event": <copy the candidate event object>,
+    "passed": true,
+    "scores": { "factual": 0.9, "leak_risk": 0.1, "ambiguity": 0.2, "guessability": 0.7, "diversity": 0.8 },
+    "issues": [], // Empty if passed, else ["brief issue", ...]
+    "rewrite_hints": [] // Empty if passed, else ["brief hint", ...]
+  }
+]`;
 }
 
 interface DeterministicCheckResult {

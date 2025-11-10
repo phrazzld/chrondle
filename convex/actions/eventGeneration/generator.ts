@@ -126,6 +126,8 @@ export async function generateCandidatesForYear(
 function buildGeneratorUserPrompt(year: number, era: Era): string {
   const absoluteYear = Math.abs(year);
   const yearLabel = era === "BCE" ? absoluteYear : year;
+  const digitCount = Math.min(4, Math.max(1, getDigitCount(year)));
+
   return `Target year: ${yearLabel} (${era})
 
 Generate 12-18 historical events that occurred in ${yearLabel} ${era}.
@@ -134,11 +136,33 @@ Requirements:
 - All events from ${yearLabel} exactly
 - Present tense, ≤20 words
 - No year leakage (no numbers ≥10, no century terms)
-- Domain diversity (politics, science, culture, sports, etc.)
+- Domain diversity (mix across all categories)
 - Geographic diversity (multiple regions)
 - Difficulty range: mix of obscure (1-2) and recognizable (4-5)
 
-Return JSON matching CandidateEventSchema.`;
+Return JSON in this EXACT format:
+{
+  "year": {
+    "value": ${year},
+    "era": "${era}",
+    "digits": ${digitCount}
+  },
+  "candidates": [
+    {
+      "canonical_title": "Brief title",
+      "event_text": "Present tense description under 20 words",
+      "domain": "politics", // MUST be EXACTLY one of: "politics", "science", "culture", "tech", "sports", "economy", "war", "religion"
+      "geo": "Geographic region or country",
+      "difficulty_guess": 3, // Integer from 1 to 5
+      "confidence": 0.8, // Float from 0.0 to 1.0
+      "leak_flags": {
+        "has_digits": false,
+        "has_century_terms": false,
+        "has_spelled_year": false
+      }
+    }
+  ]
+}`;
 }
 
 function sanitizeCandidateEvent(candidate: CandidateEvent): CandidateEvent {

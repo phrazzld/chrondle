@@ -144,7 +144,7 @@ function resolveOptions(options: LLMClientOptions = {}): ResolvedOptions {
         : DEFAULT_MODEL_PRIORITY,
     maxAttempts: options.maxAttempts ?? 3,
     temperature: options.temperature ?? 0.2,
-    maxOutputTokens: options.maxOutputTokens ?? 2_000,
+    maxOutputTokens: options.maxOutputTokens ?? 16_000, // Increased for critic stage (12-18 events * critiques)
     backoffBaseMs: options.backoffBaseMs ?? 1_000,
     maxBackoffMs: options.maxBackoffMs ?? 15_000,
     jitterRatio: options.jitterRatio ?? 0.25,
@@ -190,13 +190,19 @@ function extractTextFromResponse(response: ChatCompletionResponse): string {
   }
 
   const choice = response.choices?.[0];
-  if (choice?.message?.content) {
-    const { content } = choice.message;
-    if (typeof content === "string") {
-      return content;
-    }
-    if (Array.isArray(content)) {
-      return content.map((part) => part?.text ?? "").join("");
+  if (choice?.message) {
+    const { content } = choice.message as {
+      content?: string | Array<{ text?: string }>;
+    };
+
+    // Standard content field (contains actual output after reasoning)
+    if (content) {
+      if (typeof content === "string") {
+        return content;
+      }
+      if (Array.isArray(content)) {
+        return content.map((part) => part?.text ?? "").join("");
+      }
     }
   }
 
@@ -350,22 +356,31 @@ class OpenRouterLLMClient implements LLMClient {
       );
 
       try {
+        // Reasoning models (gpt-5, o1, o3) don't work with response_format
+        const isReasoningModel =
+          model.includes("gpt-5") || model.includes("/o1") || model.includes("/o3");
+        const requestBody: Record<string, unknown> = {
+          model,
+          temperature: normalized.temperature ?? this.options.temperature,
+          max_tokens: normalized.maxOutputTokens ?? this.options.maxOutputTokens,
+          messages: [
+            { role: "system", content: normalized.prompt.system },
+            { role: "user", content: normalized.prompt.user },
+          ],
+        };
+
+        // Only add response_format for non-reasoning models
+        if (!isReasoningModel) {
+          requestBody.response_format = { type: "json_object" };
+        }
+
         const response = await fetch(this.options.baseUrl, {
           method: "POST",
           headers: {
             ...this.options.headers,
             Authorization: `Bearer ${this.options.apiKey}`,
           },
-          body: JSON.stringify({
-            model,
-            temperature: normalized.temperature ?? this.options.temperature,
-            max_tokens: normalized.maxOutputTokens ?? this.options.maxOutputTokens,
-            response_format: { type: "json_object" },
-            messages: [
-              { role: "system", content: normalized.prompt.system },
-              { role: "user", content: normalized.prompt.user },
-            ],
-          }),
+          body: JSON.stringify(requestBody),
         });
 
         if (!response.ok) {
@@ -382,6 +397,11 @@ class OpenRouterLLMClient implements LLMClient {
 
         const payload = (await response.json()) as ChatCompletionResponse;
         const rawText = extractTextFromResponse(payload);
+        const finishReason =
+          (payload.choices?.[0] as { finish_reason?: string })?.finish_reason ?? "unknown";
+        this.options.logger.log(
+          `[LLMClient] ${requestId} rawText length=${rawText.length} chars, finish_reason=${finishReason}, preview: ${rawText.substring(0, 150)}...`,
+        );
         const parsed = extractJsonPayload(rawText);
         const data = normalized.schema.parse(parsed);
         const modelFromResponse = payload.model ?? model;
