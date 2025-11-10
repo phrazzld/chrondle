@@ -20,7 +20,7 @@ export type CandidateDomain = z.infer<typeof CandidateDomainSchema>;
 
 export const CandidateEventSchema = z.object({
   canonical_title: z.string().min(3),
-  event_text: z.string().min(3).max(100),
+  event_text: z.string().min(3).max(200), // ≤20 words ~= ≤200 chars
   domain: CandidateDomainSchema,
   geo: z.string().min(2),
   difficulty_guess: z.number().min(1).max(5),

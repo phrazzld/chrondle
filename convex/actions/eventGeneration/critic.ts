@@ -2,7 +2,11 @@
 
 import { v } from "convex/values";
 import { internalAction } from "../../_generated/server";
-import { createLLMClient, type LLMClient, type TokenUsage } from "../../lib/llmClient";
+import {
+  createResponsesClient,
+  type ResponsesClient,
+  type TokenUsage,
+} from "../../lib/responsesClient";
 import { hasLeakage, hasProperNoun, isValidWordCount } from "../../lib/eventValidation";
 import type { CandidateEvent, CritiqueResult } from "./schemas";
 import { CritiqueResultSchema, parseEra, type Era } from "./schemas";
@@ -39,13 +43,26 @@ const SCORE_THRESHOLDS = {
 
 const MAX_DOMAIN_OCCURRENCE = 3;
 
-let cachedCriticClient: LLMClient | null = null;
+let cachedCriticClient: ResponsesClient | null = null;
 
-function getCriticClient(): LLMClient {
+function getCriticClient(): ResponsesClient {
   if (!cachedCriticClient) {
-    cachedCriticClient = createLLMClient({
+    cachedCriticClient = createResponsesClient({
       temperature: 0.2,
-      maxOutputTokens: 2000,
+      maxOutputTokens: 32_000, // Generous for critique arrays
+      reasoning: {
+        effort: "low", // Simple scoring doesn't need deep reasoning
+      },
+      text: {
+        verbosity: "low", // Concise but complete critiques
+      },
+      pricing: {
+        "openai/gpt-5-mini": {
+          inputCostPer1K: 0.15,
+          outputCostPer1K: 0.6,
+          reasoningCostPer1K: 0.15,
+        },
+      },
     });
   }
   return cachedCriticClient;
@@ -65,7 +82,7 @@ interface CriticParams {
   year: number;
   era: Era;
   candidates: CandidateEvent[];
-  llmClient?: LLMClient;
+  llmClient?: ResponsesClient;
 }
 
 export const critiqueCandidates = internalAction({
@@ -108,6 +125,7 @@ export async function critiqueCandidatesForYear(params: CriticParams): Promise<C
         user: buildCriticUserPrompt(year, era, candidates),
       },
       schema: zodArrayForCount(candidates.length),
+      jsonFormat: "array", // Allow array at root level
       metadata: {
         stage: "critic",
         year,
@@ -152,18 +170,28 @@ Evaluate these candidate events for quality and year-leakage.
 Candidates:
 ${payload}
 
-Return JSON array with ${candidates.length} critique objects. BE CONCISE - use SHORT strings in issues/hints (1-5 words max each).
+CRITICAL: Your response MUST be a valid JSON array starting with [ and ending with ].
+Return EXACTLY ${candidates.length} critique objects in this EXACT format:
 
-Format:
 [
   {
-    "event": <copy the candidate event object>,
+    "event": {
+      "canonical_title": "...",
+      "event_text": "...",
+      "domain": "...",
+      "geo": "...",
+      "difficulty_guess": 3,
+      "confidence": 0.8,
+      "leak_flags": { "has_digits": false, "has_century_terms": false, "has_spelled_year": false }
+    },
     "passed": true,
     "scores": { "factual": 0.9, "leak_risk": 0.1, "ambiguity": 0.2, "guessability": 0.7, "diversity": 0.8 },
-    "issues": [], // Empty if passed, else ["brief issue", ...]
-    "rewrite_hints": [] // Empty if passed, else ["brief hint", ...]
+    "issues": [],
+    "rewrite_hints": []
   }
-]`;
+]
+
+BE CONCISE: issues/hints max 1-5 words each.`;
 }
 
 interface DeterministicCheckResult {

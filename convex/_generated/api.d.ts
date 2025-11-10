@@ -26,6 +26,7 @@ import type * as lib_llmClient from "../lib/llmClient.js";
 import type * as lib_logging from "../lib/logging.js";
 import type * as lib_puzzleHelpers from "../lib/puzzleHelpers.js";
 import type * as lib_puzzleType from "../lib/puzzleType.js";
+import type * as lib_responsesClient from "../lib/responsesClient.js";
 import type * as lib_streakCalculation from "../lib/streakCalculation.js";
 import type * as lib_streakHelpers from "../lib/streakHelpers.js";
 import type * as lib_workSelector from "../lib/workSelector.js";
@@ -71,6 +72,7 @@ declare const fullApi: ApiFromModules<{
   "lib/logging": typeof lib_logging;
   "lib/puzzleHelpers": typeof lib_puzzleHelpers;
   "lib/puzzleType": typeof lib_puzzleType;
+  "lib/responsesClient": typeof lib_responsesClient;
   "lib/streakCalculation": typeof lib_streakCalculation;
   "lib/streakHelpers": typeof lib_streakHelpers;
   "lib/workSelector": typeof lib_workSelector;

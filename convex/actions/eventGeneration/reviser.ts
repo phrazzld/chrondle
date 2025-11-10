@@ -2,7 +2,11 @@
 
 import { v } from "convex/values";
 import { internalAction } from "../../_generated/server";
-import { createLLMClient, type LLMClient, type TokenUsage } from "../../lib/llmClient";
+import {
+  createResponsesClient,
+  type ResponsesClient,
+  type TokenUsage,
+} from "../../lib/responsesClient";
 import type { CandidateEvent, CritiqueResult } from "./schemas";
 import { CandidateEventSchema, parseEra, type Era } from "./schemas";
 import { CandidateEventValue } from "./values";
@@ -24,13 +28,26 @@ REWRITING STRATEGIES:
 
 OUTPUT: Valid JSON with rewritten events.`;
 
-let cachedReviserClient: LLMClient | null = null;
+let cachedReviserClient: ResponsesClient | null = null;
 
-function getReviserClient(): LLMClient {
+function getReviserClient(): ResponsesClient {
   if (!cachedReviserClient) {
-    cachedReviserClient = createLLMClient({
+    cachedReviserClient = createResponsesClient({
       temperature: 0.6,
-      maxOutputTokens: 1500,
+      maxOutputTokens: 16_000, // Sufficient for rewrites
+      reasoning: {
+        effort: "medium", // Quality rewrites need reasoning
+      },
+      text: {
+        verbosity: "medium", // Natural rewrites
+      },
+      pricing: {
+        "openai/gpt-5-mini": {
+          inputCostPer1K: 0.15,
+          outputCostPer1K: 0.6,
+          reasoningCostPer1K: 0.15,
+        },
+      },
     });
   }
   return cachedReviserClient;
@@ -49,7 +66,7 @@ interface ReviserParams {
   failing: CritiqueResult[];
   year: number;
   era: Era;
-  llmClient?: LLMClient;
+  llmClient?: ResponsesClient;
 }
 
 export const reviseCandidates = internalAction({
@@ -92,6 +109,7 @@ export async function reviseCandidatesForYear(params: ReviserParams): Promise<Re
         user: buildReviserUserPrompt(year, era, failing),
       },
       schema: CandidateEventSchema.array().length(failing.length),
+      jsonFormat: "array", // Allow array at root level
       metadata: {
         stage: "reviser",
         year,
@@ -142,7 +160,25 @@ Rewrite these failing events using the critic's hints.
 Failing events:
 ${payload}
 
-Return JSON array with improved event_text for each.`;
+CRITICAL: Your response MUST be a valid JSON array starting with [ and ending with ].
+Return EXACTLY ${failing.length} rewritten events in this EXACT format.
+
+IMPORTANT: domain MUST be EXACTLY one of these lowercase values:
+"politics", "science", "culture", "tech", "sports", "economy", "war", "religion"
+
+[
+  {
+    "canonical_title": "Brief title",
+    "event_text": "Improved clue text",
+    "domain": "politics",
+    "geo": "Geographic location",
+    "difficulty_guess": 3,
+    "confidence": 0.8,
+    "leak_flags": { "has_digits": false, "has_century_terms": false, "has_spelled_year": false }
+  }
+]
+
+Copy the domain from the original event unless changing it improves diversity.`;
 }
 
 function sanitizeEventRewrite(event: CandidateEvent): CandidateEvent {
@@ -150,6 +186,7 @@ function sanitizeEventRewrite(event: CandidateEvent): CandidateEvent {
     ...event,
     canonical_title: event.canonical_title.trim(),
     event_text: event.event_text.replace(/\s+/g, " ").trim(),
+    domain: event.domain.toLowerCase() as CandidateEvent["domain"], // Ensure lowercase
     geo: event.geo.trim(),
   };
 }

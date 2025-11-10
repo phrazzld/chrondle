@@ -2,7 +2,11 @@
 
 import { v } from "convex/values";
 import { internalAction } from "../../_generated/server";
-import { createLLMClient, type LLMClient, type TokenUsage } from "../../lib/llmClient";
+import {
+  createResponsesClient,
+  type ResponsesClient,
+  type TokenUsage,
+} from "../../lib/responsesClient";
 import type { CandidateEvent } from "./schemas";
 import { GeneratorOutputSchema, parseEra, type Era } from "./schemas";
 import { logStageError, logStageSuccess } from "../../lib/logging";
@@ -26,13 +30,26 @@ SPECIAL HANDLING FOR ANCIENT YEARS (1-3 digits):
 - Avoid era terms: "late Republic" acceptable, "1st century BCE" forbidden
 - Use dynasties, rulers, cultural movements without date indicators`;
 
-let cachedGeneratorClient: LLMClient | null = null;
+let cachedGeneratorClient: ResponsesClient | null = null;
 
-function getGeneratorClient(): LLMClient {
+function getGeneratorClient(): ResponsesClient {
   if (!cachedGeneratorClient) {
-    cachedGeneratorClient = createLLMClient({
+    cachedGeneratorClient = createResponsesClient({
       temperature: 0.8,
-      maxOutputTokens: 1800,
+      maxOutputTokens: 32_000, // Generous for 12-18 events
+      reasoning: {
+        effort: "medium", // Quality reasoning for historical accuracy
+      },
+      text: {
+        verbosity: "medium", // Natural, detailed JSON output
+      },
+      pricing: {
+        "openai/gpt-5-mini": {
+          inputCostPer1K: 0.15,
+          outputCostPer1K: 0.6,
+          reasoningCostPer1K: 0.15,
+        },
+      },
     });
   }
   return cachedGeneratorClient;
@@ -57,7 +74,7 @@ export interface GeneratorActionResult {
 interface GenerateCandidatesParams {
   year: number;
   era: Era;
-  llmClient?: LLMClient;
+  llmClient?: ResponsesClient;
 }
 
 export const generateCandidates = internalAction({
