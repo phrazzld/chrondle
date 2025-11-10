@@ -207,10 +207,20 @@ export function deriveGameState(sources: DataSources): GameState {
     const hasWinningRange = truncatedRanges.some((range) => range.score > 0);
     const usedAllAttempts = remainingAttempts === 0;
 
+    // ONE GUESS MODE: Game ends after first range submission (win or loss)
+    const hasSubmittedRange = truncatedRanges.length > 0 && truncatedRanges[0].score !== undefined;
+
     const isComplete =
-      hasServerCompletion || guessedCorrectly || hasWinningRange || usedAllAttempts;
+      hasServerCompletion || guessedCorrectly || hasSubmittedRange || usedAllAttempts;
 
     const hasWon = hasWinningRange || (isComplete && guessedCorrectly);
+
+    // Calculate hintsRevealed: maximum hintsUsed from all ranges (0-6)
+    // Hints stay revealed once shown, so we track the highest level reached
+    const hintsRevealed = truncatedRanges.reduce(
+      (max, range) => Math.max(max, range.hintsUsed ?? 0),
+      0,
+    );
 
     // Return ready state with all derived values
     return {
@@ -223,6 +233,7 @@ export function deriveGameState(sources: DataSources): GameState {
       hasWon,
       remainingGuesses,
       remainingAttempts,
+      hintsRevealed,
     };
   } catch (error) {
     // Log the error for debugging

@@ -28,20 +28,8 @@ vi.mock("@/components/game/RangeInput", () => ({
   ),
 }));
 
-vi.mock("@/components/game/RangeTimeline", () => ({
-  RangeTimeline: ({ ranges }: { ranges: unknown[] }) => (
-    <div data-testid="timeline" data-range-count={ranges.length}>
-      Timeline
-    </div>
-  ),
-}));
-
-vi.mock("@/components/HintsDisplay", () => ({
-  HintsDisplay: () => <div data-testid="hints-display">Hints Display</div>,
-}));
-
-vi.mock("@/components/CurrentHintCard", () => ({
-  CurrentHintCard: () => <div data-testid="current-hint">Current Hint</div>,
+vi.mock("@/components/game/HintRevealButtons", () => ({
+  HintRevealButtons: () => <div data-testid="hint-reveal-buttons">Hint Reveal Buttons</div>,
 }));
 
 vi.mock("@/components/modals/GameComplete", () => ({
@@ -90,8 +78,7 @@ describe("GameLayout", () => {
 
       expect(screen.getByTestId("game-instructions")).toBeTruthy();
       expect(screen.getByTestId("range-input")).toBeTruthy();
-      expect(screen.getByTestId("timeline")).toBeTruthy();
-      expect(screen.getByTestId("hints-display")).toBeTruthy();
+      expect(screen.getByTestId("hint-reveal-buttons")).toBeTruthy();
     });
 
     it("validates props", () => {
@@ -127,27 +114,6 @@ describe("GameLayout", () => {
       render(<GameLayout {...props} />);
 
       expect(screen.getByTestId("range-input").getAttribute("data-disabled")).toBe("true");
-    });
-
-    it("passes ranges to timeline", () => {
-      const props = createDefaultProps();
-      props.gameState.ranges = [
-        { start: 1900, end: 1950, hintsUsed: 0, score: 25, timestamp: 1 },
-        { start: 1800, end: 1850, hintsUsed: 1, score: 15, timestamp: 2 },
-      ];
-
-      render(<GameLayout {...props} />);
-
-      expect(screen.getByTestId("timeline").getAttribute("data-range-count")).toBe("2");
-    });
-
-    it("shows remaining attempts", () => {
-      const props = createDefaultProps();
-      props.remainingAttempts = 1;
-
-      render(<GameLayout {...props} />);
-
-      expect(screen.getByText("1 attempt remaining")).toBeTruthy();
     });
 
     it("invokes commit callback", () => {

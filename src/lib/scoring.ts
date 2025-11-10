@@ -2,13 +2,15 @@ import { HintCount, ScoreResult } from "../types/range";
 
 export const SCORING_CONSTANTS = {
   S: 100,
-  W_MAX: 200,
-  HINT_MULTIPLIERS: [1.0, 0.85, 0.7, 0.5] as const,
+  W_MAX: 250,
+  // Extended multipliers for 6 historical events (0-6 hints revealed)
+  // 0 hints = 100%, 1 = 85%, 2 = 70%, 3 = 50%, 4 = 40%, 5 = 30%, 6 = 20%
+  HINT_MULTIPLIERS: [1.0, 0.85, 0.7, 0.5, 0.4, 0.3, 0.2] as const,
 } as const;
 
 const { HINT_MULTIPLIERS } = SCORING_CONSTANTS;
 
-const HINT_LEVELS = new Set<HintCount>([0, 1, 2, 3]);
+const HINT_LEVELS = new Set<HintCount>([0, 1, 2, 3, 4, 5, 6]);
 
 function assertFinite(value: number, label: string): void {
   if (!Number.isFinite(value)) {

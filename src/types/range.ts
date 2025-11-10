@@ -1,6 +1,6 @@
 export type RangeValue = [number, number];
 
-export type HintCount = 0 | 1 | 2 | 3;
+export type HintCount = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface RangeGuess {
   start: number;

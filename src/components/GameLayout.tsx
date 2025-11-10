@@ -1,15 +1,13 @@
 "use client";
 
-import React, { useMemo } from "react";
-import { AnimatePresence } from "motion/react";
+import React, { useState, useEffect } from "react";
 import { GameInstructions } from "@/components/GameInstructions";
-import { CurrentHintCard } from "@/components/CurrentHintCard";
-import { RangeTimeline, type RangeTimelineRange } from "@/components/game/RangeTimeline";
 import { RangeInput } from "@/components/game/RangeInput";
-import { HintsDisplay } from "@/components/HintsDisplay";
+import { HintRevealButtons } from "@/components/game/HintRevealButtons";
 import { Confetti, ConfettiRef } from "@/components/magicui/confetti";
 import { GameComplete } from "@/components/modals/GameComplete";
 import { validateGameLayoutProps } from "@/lib/propValidation";
+import { SCORING_CONSTANTS } from "@/lib/scoring";
 import type { RangeGuess } from "@/types/range";
 
 export interface GameLayoutProps {
@@ -75,36 +73,36 @@ export function GameLayout(props: GameLayoutProps) {
     isGameComplete,
     hasWon,
     isLoading,
-    error,
     onRangeCommit,
     headerContent,
     footerContent,
     confettiRef,
     countdown,
     isArchive = false,
-    remainingAttempts,
   } = props;
 
-  // Calculate currentHintIndex from gameState
-  const currentHintIndex = Math.min(gameState.guesses.length, 5);
+  // Local state for hints revealed in current session (0-6)
+  // Starts at 0 (first hint is free and always shown)
+  const [hintsRevealed, setHintsRevealed] = useState(0);
+
+  // Reset hints when game completes or puzzle changes
+  useEffect(() => {
+    setHintsRevealed(0);
+  }, [gameState.puzzle?.year, isGameComplete]);
+
   const targetYear = gameState.puzzle?.year ?? 0;
   const totalScore = gameState.totalScore ?? 0;
   const puzzleNumber = gameState.puzzle?.puzzleNumber;
 
-  const timelineRanges = useMemo<RangeTimelineRange[]>(() => {
-    if (!gameState.ranges || gameState.ranges.length === 0) {
-      return [];
-    }
+  // Current multiplier based on hints revealed
+  const currentMultiplier = SCORING_CONSTANTS.HINT_MULTIPLIERS[hintsRevealed];
 
-    return gameState.ranges.map((range, index) => ({
-      start: range.start,
-      end: range.end,
-      score: range.score,
-      contained: range.score > 0,
-      hintsUsed: range.hintsUsed,
-      timestamp: range.timestamp ?? index,
-    }));
-  }, [gameState.ranges]);
+  // Handler for revealing hints
+  const handleRevealHint = (hintIndex: number) => {
+    // hintIndex is 0-based (0-5 for hints 2-6)
+    // hintsRevealed should become hintIndex + 1
+    setHintsRevealed(hintIndex + 1);
+  };
 
   return (
     <div className="bg-background flex flex-1 flex-col">
@@ -113,7 +111,7 @@ export function GameLayout(props: GameLayoutProps) {
 
       {/* Main game content */}
       <main className="flex-1 overflow-auto px-4 py-6">
-        <div className="mx-auto w-full max-w-2xl space-y-6">
+        <div className="mx-auto w-full max-w-2xl space-y-8">
           {/* Game Instructions - Header and subheading always at top */}
           <GameInstructions
             isGameComplete={isGameComplete}
@@ -124,27 +122,29 @@ export function GameLayout(props: GameLayoutProps) {
             historicalContext={gameState.puzzle?.historicalContext}
           />
 
+          {/* Historical Events Hints - Manual reveal system (shown first for better flow) */}
+          {!isGameComplete && gameState.puzzle && (
+            <HintRevealButtons
+              events={gameState.puzzle.events}
+              hintsRevealed={hintsRevealed}
+              onRevealHint={handleRevealHint}
+              disabled={isGameComplete || isLoading}
+            />
+          )}
+
+          {/* Range Input - After hints so user can adjust based on information */}
           <RangeInput
-            targetYear={targetYear}
             minYear={-5000}
             maxYear={new Date().getFullYear()}
             onCommit={onRangeCommit}
             disabled={isGameComplete || isLoading}
-            className="mt-2"
-          />
-          <p className="text-muted-foreground text-center text-xs">
-            {remainingAttempts} attempt{remainingAttempts === 1 ? "" : "s"} remaining
-          </p>
-
-          {/* Timeline */}
-          <RangeTimeline
-            ranges={timelineRanges}
-            targetYear={gameState.puzzle?.year ?? null}
-            minYear={-5000}
-            maxYear={new Date().getFullYear()}
-            isComplete={isGameComplete}
+            className=""
+            hintsUsed={hintsRevealed}
+            currentMultiplier={currentMultiplier}
+            isOneGuessMode={true}
           />
 
+          {/* Game Complete Summary */}
           {isGameComplete && (
             <GameComplete
               ranges={gameState.ranges}
@@ -153,30 +153,6 @@ export function GameLayout(props: GameLayoutProps) {
               puzzleNumber={puzzleNumber}
             />
           )}
-
-          {/* Current Hint Card - Below timeline, can change height without affecting elements above */}
-          {!isGameComplete && gameState.puzzle && (
-            <AnimatePresence mode="wait">
-              <CurrentHintCard
-                key={`current-hint-${currentHintIndex}`}
-                event={gameState.puzzle.events[currentHintIndex] || null}
-                hintNumber={currentHintIndex + 1}
-                totalHints={gameState.puzzle.events.length}
-                isLoading={isLoading}
-                error={error}
-                isInitialHint={currentHintIndex === 0}
-              />
-            </AnimatePresence>
-          )}
-
-          {/* Hints Display - Always at bottom */}
-          <HintsDisplay
-            events={gameState.puzzle?.events || []}
-            guesses={gameState.guesses}
-            targetYear={targetYear}
-            isGameComplete={isGameComplete}
-            error={error}
-          />
         </div>
       </main>
 

@@ -47,6 +47,7 @@ export interface ReadyState {
   hasWon: boolean;
   remainingGuesses: number;
   remainingAttempts: number;
+  hintsRevealed: number; // 0-6: number of historical event hints revealed
 }
 
 /**

@@ -31,9 +31,9 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
   if (!isGameComplete) {
     return (
       <div className={`mb-6 text-left ${className}`}>
-        <h2 className="text-foreground mb-2 text-xl font-bold sm:text-2xl">Guess the Year</h2>
-        <p className="text-muted-foreground text-lg leading-7">
-          Each hint is an event from the same year.
+        <h2 className="text-foreground mb-2 text-xl font-bold sm:text-2xl">Date This Event</h2>
+        <p className="text-muted-foreground text-base leading-relaxed">
+          Narrow your range to score more.
         </p>
       </div>
     );

@@ -4,11 +4,11 @@ import { SCORING_CONSTANTS, scoreRange, scoreRangeDetailed } from "../scoring";
 
 describe("scoreRange", () => {
   it("awards the maximum score for a perfect one-year range", () => {
-    expect(scoreRange(1969, 1969, 1969)).toBe(665);
+    expect(scoreRange(1969, 1969, 1969)).toBe(697);
   });
 
   it("applies the correct hint multiplier (H2 → 0.7)", () => {
-    expect(scoreRange(1969, 1969, 1969, 0, 2)).toBe(465);
+    expect(scoreRange(1969, 1969, 1969, 0, 2)).toBe(488);
   });
 
   it("returns zero when the answer falls outside the range", () => {
@@ -60,7 +60,7 @@ describe("scoreRangeDetailed", () => {
     expect(result).toMatchObject({
       contained: true,
       width: 1,
-      score: 665,
+      score: 697,
     });
 
     const expectedBase =

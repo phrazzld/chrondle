@@ -155,6 +155,7 @@ describe("deriveGameState", () => {
         hasWon: false,
         remainingGuesses: GAME_CONFIG.MAX_GUESSES,
         remainingAttempts: GAME_CONFIG.MAX_GUESSES,
+        hintsRevealed: 0,
       });
     });
 
