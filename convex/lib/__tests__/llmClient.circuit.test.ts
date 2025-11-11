@@ -35,7 +35,7 @@ describe("LLM circuit breaker", () => {
       maxAttempts: 1,
       circuitBreaker: {
         failureThreshold: 2,
-        cooldownMs: 1,
+        cooldownMs: 50,
       },
     });
 
@@ -44,7 +44,7 @@ describe("LLM circuit breaker", () => {
 
     await expect(client.generate(PROMPT, schema)).rejects.toThrow(/circuit breaker/);
 
-    await new Promise((resolve) => setTimeout(resolve, 2));
+    await new Promise((resolve) => setTimeout(resolve, 60));
 
     const result = await client.generate(PROMPT, schema);
     expect(result.data.ok).toBe(true);
