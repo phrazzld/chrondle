@@ -12,6 +12,7 @@ import type { ApiFromModules, FilterApi, FunctionReference } from "convex/server
 import type * as actions_historicalContext from "../actions/historicalContext.js";
 import type * as crons from "../crons.js";
 import type * as events from "../events.js";
+import type * as lib_orderScoring from "../lib/orderScoring.js";
 import type * as lib_puzzleHelpers from "../lib/puzzleHelpers.js";
 import type * as lib_puzzleType from "../lib/puzzleType.js";
 import type * as lib_streakCalculation from "../lib/streakCalculation.js";
@@ -50,6 +51,7 @@ declare const fullApi: ApiFromModules<{
   "actions/historicalContext": typeof actions_historicalContext;
   crons: typeof crons;
   events: typeof events;
+  "lib/orderScoring": typeof lib_orderScoring;
   "lib/puzzleHelpers": typeof lib_puzzleHelpers;
   "lib/puzzleType": typeof lib_puzzleType;
   "lib/streakCalculation": typeof lib_streakCalculation;

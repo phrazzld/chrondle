@@ -22,9 +22,9 @@ describe("scoreOrderSubmission", () => {
     expect(result.totalScore).toBe(0);
   });
 
-  it("applies hint multiplier correctly", () => {
+  it("tracks hints used", () => {
     const partial = scoreOrderSubmission(["a", "c", "b", "d"], events, 2);
-    expect(partial.hintMultiplier).toBe(0.7);
-    expect(partial.totalScore).toBe(Math.round(partial.correctPairs * 2 * 0.7));
+    expect(partial.hintsUsed).toBe(2);
+    expect(partial.totalScore).toBe(partial.correctPairs * 2);
   });
 });

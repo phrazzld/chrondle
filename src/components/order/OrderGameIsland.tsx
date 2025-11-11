@@ -7,6 +7,10 @@ import { useOrderGame } from "@/hooks/useOrderGame";
 import type { OrderEvent, OrderHint, OrderPuzzle, OrderScore } from "@/types/orderGameState";
 import { HintDisplay } from "@/components/order/HintDisplay";
 import { OrderReveal } from "@/components/order/OrderReveal";
+import { OrderEventList } from "@/components/order/OrderEventList";
+import { TimelineContextBar } from "@/components/order/TimelineContextBar";
+import { OrderInstructions } from "@/components/order/OrderInstructions";
+import { AppHeader } from "@/components/AppHeader";
 import { generateAnchorHint, generateBracketHint, generateRelativeHint } from "@/lib/order/hints";
 import { copyOrderShareCardToClipboard, type OrderShareResult } from "@/lib/order/shareCard";
 import { logger } from "@/lib/logger";
@@ -16,8 +20,6 @@ interface OrderGameIslandProps {
 }
 
 type HintType = OrderHint["type"];
-
-const HINT_MULTIPLIERS = [1, 0.85, 0.7, 0.5];
 
 export function OrderGameIsland({ preloadedPuzzle }: OrderGameIslandProps) {
   const puzzle = usePreloadedQuery(preloadedPuzzle);
@@ -64,6 +66,7 @@ export function OrderGameIsland({ preloadedPuzzle }: OrderGameIslandProps) {
           finalOrder={gameState.finalOrder}
           correctOrder={gameState.correctOrder}
           score={gameState.score}
+          puzzleNumber={gameState.puzzle.puzzleNumber}
           onShare={handleShare}
         />
         {shareFeedback && (
@@ -80,7 +83,6 @@ export function OrderGameIsland({ preloadedPuzzle }: OrderGameIslandProps) {
       puzzle={gameState.puzzle}
       currentOrder={gameState.currentOrder}
       hints={gameState.hints}
-      moves={gameState.moves}
       reorderEvents={reorderEvents}
       takeHint={takeHint}
       onCommit={(score) =>
@@ -102,7 +104,6 @@ interface ReadyOrderGameProps {
   puzzle: OrderPuzzle;
   currentOrder: string[];
   hints: OrderHint[];
-  moves: number;
   reorderEvents: (fromIndex: number, toIndex: number) => void;
   takeHint: (hint: OrderHint) => void;
   onCommit: (score: OrderScore) => void;
@@ -112,7 +113,6 @@ function ReadyOrderGame({
   puzzle,
   currentOrder,
   hints,
-  moves,
   reorderEvents,
   takeHint,
   onCommit,
@@ -130,11 +130,6 @@ function ReadyOrderGame({
 
   const puzzleSeed = useMemo(() => hashHintContext([puzzle.seed]), [puzzle.seed]);
 
-  const multiplier = useMemo(
-    () => HINT_MULTIPLIERS[Math.min(hints.length, HINT_MULTIPLIERS.length - 1)],
-    [hints.length],
-  );
-
   const disabledHintTypes: Partial<Record<HintType, boolean>> = useMemo(
     () => ({
       anchor: hints.some((hint) => hint.type === "anchor"),
@@ -142,6 +137,44 @@ function ReadyOrderGame({
       bracket: hints.some((hint) => hint.type === "bracket"),
     }),
     [hints],
+  );
+
+  // Get locked event IDs from anchor hints
+  const lockedEventIds = useMemo(
+    () => hints.filter((hint) => hint.type === "anchor").map((hint) => hint.eventId),
+    [hints],
+  );
+
+  // Group hints by event ID for display on cards
+  const hintsByEvent = useMemo(() => {
+    const grouped: Record<string, OrderHint[]> = {};
+    for (const hint of hints) {
+      const eventId =
+        hint.type === "anchor" || hint.type === "bracket"
+          ? hint.eventId
+          : hint.type === "relative"
+            ? hint.earlierEventId
+            : null;
+      if (eventId) {
+        grouped[eventId] = grouped[eventId] || [];
+        grouped[eventId].push(hint);
+      }
+    }
+    return grouped;
+  }, [hints]);
+
+  // Adapter function to convert array-based reordering to index-based
+  const handleOrderingChange = useCallback(
+    (newOrdering: string[]) => {
+      // Find what changed between currentOrder and newOrdering
+      const oldIndex = currentOrder.findIndex((id, idx) => newOrdering[idx] !== id);
+      const newIndex = newOrdering.indexOf(currentOrder[oldIndex]);
+
+      if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+        reorderEvents(oldIndex, newIndex);
+      }
+    },
+    [currentOrder, reorderEvents],
   );
 
   const requestHint = useCallback(
@@ -187,82 +220,75 @@ function ReadyOrderGame({
   }, [currentOrder, puzzle.events, hints.length, onCommit]);
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-6 py-16">
-      <header className="text-center">
-        <p className="text-muted-foreground text-sm tracking-wide uppercase">Order Mode</p>
-        <h1 className="text-foreground text-3xl font-semibold">Puzzle #{puzzle.puzzleNumber}</h1>
-        <p className="text-muted-foreground">{puzzle.date}</p>
-      </header>
+    <div className="flex min-h-screen flex-col">
+      {/* App Header - Consistent with Classic Mode */}
+      <AppHeader puzzleNumber={puzzle.puzzleNumber} isArchive={false} />
 
-      <div className="flex flex-col gap-6 lg:flex-row-reverse">
-        <HintDisplay
-          className="w-full lg:w-[360px]"
-          events={puzzle.events}
-          hints={hints}
-          multiplier={multiplier}
-          onRequestHint={requestHint}
-          disabledTypes={disabledHintTypes}
-          pendingType={pendingHintType}
-          error={hintError ?? undefined}
-        />
+      {/* Main Content Area */}
+      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-6 py-6">
+        <div className="space-y-4">
+          {/* Instructions Banner */}
+          <OrderInstructions />
 
-        <section className="border-border bg-card rounded-2xl border p-6 shadow-sm lg:flex-1">
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-muted-foreground text-sm">Moves</p>
-              <p className="text-foreground text-2xl font-semibold">{moves}</p>
-            </div>
-            <button
-              type="button"
-              onClick={handleCommit}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6 py-2 text-sm font-semibold"
-            >
-              Commit Ordering
-            </button>
+          {/* Timeline Context Bar */}
+          <TimelineContextBar events={puzzle.events} />
+        </div>
+
+        {/* Desktop: Side-by-side layout */}
+        <div className="flex flex-col gap-6 lg:flex-row-reverse">
+          {/* Hints Panel - Desktop sidebar */}
+          <div className="hidden lg:block lg:w-[360px]">
+            <HintDisplay
+              events={puzzle.events}
+              hints={hints}
+              onRequestHint={requestHint}
+              disabledTypes={disabledHintTypes}
+              pendingType={pendingHintType}
+              error={hintError ?? undefined}
+            />
           </div>
-          <ol className="space-y-4">
-            {currentOrder.map((eventId, index) => {
-              const event = puzzle.events.find((evt) => evt.id === eventId);
-              if (!event) return null;
-              return (
-                <li
-                  key={eventId}
-                  className="border-border bg-background flex items-center justify-between rounded-2xl border px-4 py-3 text-left shadow-sm"
-                >
-                  <div>
-                    <p className="text-muted-foreground text-xs tracking-wide uppercase">
-                      #{index + 1}
-                    </p>
-                    <p className="text-foreground text-base font-semibold">{event.text}</p>
-                    <p className="text-muted-foreground text-sm">{event.year}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => reorderEvents(index, index - 1)}
-                      disabled={index === 0}
-                      className="border-border text-foreground hover:bg-muted rounded-full border px-3 py-1 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-40"
-                      aria-label={`Move ${event.text} up`}
-                    >
-                      ↑
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => reorderEvents(index, index + 1)}
-                      disabled={index === currentOrder.length - 1}
-                      className="border-border text-foreground hover:bg-muted rounded-full border px-3 py-1 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-40"
-                      aria-label={`Move ${event.text} down`}
-                    >
-                      ↓
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
-        </section>
-      </div>
-    </main>
+
+          {/* Event List Section */}
+          <div className="flex-1 space-y-4">
+            {/* Mobile Hints - below headings, above events */}
+            <div className="lg:hidden">
+              <HintDisplay
+                events={puzzle.events}
+                hints={hints}
+                onRequestHint={requestHint}
+                disabledTypes={disabledHintTypes}
+                pendingType={pendingHintType}
+                error={hintError ?? undefined}
+              />
+            </div>
+
+            {/* Event Cards */}
+            <section className="border-border bg-card rounded-2xl border p-4 shadow-sm md:p-6">
+              <OrderEventList
+                events={puzzle.events}
+                ordering={currentOrder}
+                onOrderingChange={handleOrderingChange}
+                lockedEventIds={lockedEventIds}
+                hintsByEvent={hintsByEvent}
+              />
+            </section>
+          </div>
+        </div>
+      </main>
+
+      {/* Sticky Submit Button - Bottom */}
+      <footer className="border-border bg-background/95 sticky bottom-0 z-30 border-t px-6 py-4 backdrop-blur-sm">
+        <div className="mx-auto max-w-4xl">
+          <button
+            type="button"
+            onClick={handleCommit}
+            className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-full px-6 py-3 text-base font-semibold shadow-lg transition focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+          >
+            Submit My Timeline
+          </button>
+        </div>
+      </footer>
+    </div>
   );
 }
 
@@ -272,7 +298,16 @@ function calculateScore(ordering: string[], events: OrderEvent[], hintCount: num
   const n = resolvedOrdering.length;
   const totalPairs = (n * (n - 1)) / 2;
   let correctPairs = 0;
+  let perfectPositions = 0;
 
+  // Count perfect positions (event at exact correct index)
+  for (let i = 0; i < n; i++) {
+    if (resolvedOrdering[i] === trueOrder[i]) {
+      perfectPositions += 1;
+    }
+  }
+
+  // Count correct pairwise orderings
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
       const first = resolvedOrdering[i];
@@ -283,12 +318,14 @@ function calculateScore(ordering: string[], events: OrderEvent[], hintCount: num
     }
   }
 
-  const hintMultiplier = HINT_MULTIPLIERS[Math.min(hintCount, HINT_MULTIPLIERS.length - 1)];
+  // Simple accuracy-based scoring: 2 points per correct pair
+  // Max score: 30 for 6 events (15 pairs * 2)
   return {
-    totalScore: Math.round(correctPairs * 2 * hintMultiplier),
+    totalScore: correctPairs * 2,
     correctPairs,
     totalPairs,
-    hintMultiplier,
+    perfectPositions,
+    hintsUsed: hintCount,
   };
 }
 

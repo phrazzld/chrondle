@@ -1,8 +1,24 @@
-import type { OrderEvent, OrderScore } from "../../types/orderGameState";
+/**
+ * Order puzzle scoring logic for server-side validation
+ */
+
+type StoredOrderEvent = {
+  id: string;
+  year: number;
+  text: string;
+};
+
+type OrderScore = {
+  totalScore: number;
+  correctPairs: number;
+  totalPairs: number;
+  perfectPositions: number;
+  hintsUsed: number;
+};
 
 export function scoreOrderSubmission(
   playerOrdering: string[],
-  events: OrderEvent[],
+  events: StoredOrderEvent[],
   hintsUsed: number,
 ): OrderScore {
   const chronological = [...events].sort((a, b) => a.year - b.year).map((event) => event.id);

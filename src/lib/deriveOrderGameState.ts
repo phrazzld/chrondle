@@ -28,7 +28,6 @@ export interface OrderDataSources {
 export interface OrderProgressData {
   ordering: string[];
   hints: OrderHint[];
-  moves: number;
   completedAt: number | null;
   score: OrderScore | null;
 }
@@ -39,7 +38,6 @@ export interface OrderProgressData {
 export interface OrderSessionState {
   ordering: string[];
   hints: OrderHint[];
-  moves: number;
   committedAt: number | null;
   score: OrderScore | null;
 }
@@ -86,9 +84,6 @@ export function deriveOrderGameState(sources: OrderDataSources): OrderGameState 
     const serverHints = auth.isAuthenticated && progress.progress ? progress.progress.hints : [];
     const hints = mergeHints(serverHints, session.hints);
 
-    const moves =
-      (auth.isAuthenticated && progress.progress ? progress.progress.moves : null) ?? session.moves;
-
     const isServerComplete =
       auth.isAuthenticated && Boolean(progress.progress?.completedAt ?? null);
     const isSessionComplete = !auth.isAuthenticated && Boolean(session.committedAt);
@@ -126,7 +121,6 @@ export function deriveOrderGameState(sources: OrderDataSources): OrderGameState 
       puzzle: orderPuzzle,
       currentOrder,
       hints,
-      moves,
     };
   } catch (error) {
     logger.error("Error deriving Order game state:", error);

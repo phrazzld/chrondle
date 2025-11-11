@@ -8,9 +8,13 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  closestCenter,
 } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { sortableKeyboardCoordinates } from "@dnd-kit/utilities";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  sortableKeyboardCoordinates,
+} from "@dnd-kit/sortable";
 import type { OrderEvent, OrderHint } from "@/types/orderGameState";
 import { DraggableEventCard } from "@/components/order/DraggableEventCard";
 
@@ -31,7 +35,7 @@ export function OrderEventList({
 }: OrderEventListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 6 },
+      activationConstraint: { distance: 10 },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
@@ -73,21 +77,9 @@ export function OrderEventList({
     );
   };
 
-  const handleMove = (currentIndex: number, direction: "up" | "down") => {
-    const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
-    if (targetIndex < 0 || targetIndex >= ordering.length) {
-      return;
-    }
-
-    const next = [...ordering];
-    const [moved] = next.splice(currentIndex, 1);
-    next.splice(targetIndex, 0, moved);
-    onOrderingChange(next);
-  };
-
   return (
-    <div className="space-y-4">
-      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+    <div>
+      <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
         <SortableContext items={ordering} strategy={verticalListSortingStrategy}>
           <ol className="space-y-3">
             {ordering.map((eventId, index) => {
@@ -100,8 +92,7 @@ export function OrderEventList({
                   index={index}
                   isLocked={lockedEventIds.includes(event.id)}
                   activeHints={hintsByEvent[event.id] ?? []}
-                  onMoveUp={() => handleMove(index, "up")}
-                  onMoveDown={() => handleMove(index, "down")}
+                  allEvents={events}
                 />
               );
             })}

@@ -25,10 +25,7 @@ export interface FormatOptions {
  * @param options - Formatting options
  * @returns Formatted year string
  */
-export function formatYearWithOptions(
-  year: number,
-  options: FormatOptions = {},
-): string {
+export function formatYearWithOptions(year: number, options: FormatOptions = {}): string {
   const { style = "standard", includeEra = true, lowercase = false } = options;
 
   const absYear = Math.abs(year);
@@ -72,11 +69,7 @@ export function formatYearWithOptions(
  * @param options - Formatting options
  * @returns Formatted year string
  */
-export function formatYearWithEra(
-  year: number,
-  era: Era,
-  options: FormatOptions = {},
-): string {
+export function formatYearWithEra(year: number, era: Era, options: FormatOptions = {}): string {
   const internalYear = era === "BC" ? -Math.abs(year) : Math.abs(year);
   return formatYearWithOptions(internalYear, options);
 }
@@ -115,9 +108,7 @@ export function formatYearRange(
       ...options,
       includeEra: true,
     });
-    const eraIndex =
-      formattedWithEra.indexOf(startNum.toString()) +
-      startNum.toString().length;
+    const eraIndex = formattedWithEra.indexOf(startNum.toString()) + startNum.toString().length;
     const era = formattedWithEra.substring(eraIndex);
 
     if (era) {
@@ -237,6 +228,23 @@ export function isSameEra(year1: number, year2: number): boolean {
  */
 export function getEraDescription(era: Era): string {
   return era === "BC" ? "Before Christ" : "Anno Domini";
+}
+
+/**
+ * Formats a date string into a readable format
+ * @param dateString - Date string (e.g., "2025-11-10" or ISO format)
+ * @returns Formatted date string (e.g., "Nov 10, 2025")
+ */
+export function formatDate(dateString: string): string {
+  try {
+    const date = new Date(dateString);
+    const month = date.toLocaleDateString("en-US", { month: "short" });
+    const day = date.getDate();
+    const year = date.getFullYear();
+    return `${month} ${day}, ${year}`;
+  } catch {
+    return dateString;
+  }
 }
 
 /**

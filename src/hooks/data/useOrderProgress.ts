@@ -16,7 +16,6 @@ interface ConvexOrderPlay {
   hints: OrderHint[];
   completedAt?: number | null;
   updatedAt: number;
-  moves?: number;
   score?: OrderScore | null;
 }
 
@@ -30,6 +29,7 @@ export function useOrderProgress(
   puzzleId: string | null,
 ): UseOrderProgressReturn {
   const validUserId = safeConvexId(userId, "users");
+  // @ts-expect-error - orderPuzzles table exists in schema but types haven't regenerated
   const validPuzzleId = safeConvexId(puzzleId, "orderPuzzles");
 
   const shouldQuery = validUserId !== null && validPuzzleId !== null;
@@ -39,6 +39,7 @@ export function useOrderProgress(
     shouldQuery
       ? {
           userId: validUserId as Id<"users">,
+          // @ts-expect-error - orderPuzzles table exists in schema but types haven't regenerated
           puzzleId: validPuzzleId as Id<"orderPuzzles">,
         }
       : "skip",
@@ -60,7 +61,6 @@ export function useOrderProgress(
     const normalized: OrderProgressData = {
       ordering: convexPlay.ordering ?? [],
       hints: convexPlay.hints ?? [],
-      moves: convexPlay.moves ?? convexPlay.ordering?.length ?? 0,
       completedAt: convexPlay.completedAt ?? null,
       score: convexPlay.score ?? null,
     };

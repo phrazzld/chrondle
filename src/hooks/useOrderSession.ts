@@ -25,7 +25,6 @@ interface UseOrderSessionReturn {
 const DEFAULT_STATE: OrderSessionState = {
   ordering: [],
   hints: [],
-  moves: 0,
   committedAt: null,
   score: null,
 };
@@ -104,7 +103,6 @@ export function useOrderSession(
       updateState((prev) => ({
         ...prev,
         ordering,
-        moves: prev.moves + 1,
       }));
     },
     [updateState],
@@ -133,7 +131,6 @@ export function useOrderSession(
       const resetState: OrderSessionState = {
         ordering,
         hints: [],
-        moves: 0,
         committedAt: null,
         score: null,
       };
@@ -192,7 +189,6 @@ function readSession(
     return {
       ordering: normalizeOrdering(parsed.ordering ?? [], baselineOrder),
       hints: Array.isArray(parsed.hints) ? (parsed.hints as OrderHint[]) : [],
-      moves: typeof parsed.moves === "number" ? parsed.moves : 0,
       committedAt: typeof parsed.committedAt === "number" ? parsed.committedAt : null,
       score: parsed.score ?? null,
     };

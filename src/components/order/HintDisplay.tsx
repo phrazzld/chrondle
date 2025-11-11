@@ -1,15 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import * as Accordion from "@radix-ui/react-accordion";
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
+import { Anchor, Scale, CalendarRange, Lightbulb } from "lucide-react";
 
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { ANIMATION_DURATIONS, useReducedMotion } from "@/lib/animationConstants";
 import { formatYear } from "@/lib/displayFormatting";
+import { formatRelativeHintText } from "@/lib/order/formatHints";
 import { cn } from "@/lib/utils";
 import type { OrderEvent, OrderHint } from "@/types/orderGameState";
 
@@ -17,32 +17,71 @@ type HintType = OrderHint["type"];
 
 const HINT_COPY: Record<
   HintType,
-  { label: string; icon: string; description: string; helper: string }
+  {
+    label: string;
+    availableDescription: string;
+    getUsedDescription: (hint: OrderHint, eventsById: Map<string, OrderEvent>) => React.ReactNode;
+  }
 > = {
   anchor: {
     label: "Anchor Hint",
-    icon: "🔒",
-    description: "Locks the correct event in the right slot.",
-    helper: "Best when you are unsure about a specific position.",
+    availableDescription: "Lock one event in the correct position",
+    getUsedDescription: (hint, eventsById) => {
+      if (hint.type !== "anchor") return null;
+      const event = eventsById.get(hint.eventId);
+      const eventName = event?.text ?? "Event";
+      return (
+        <>
+          <span className="text-primary font-semibold">{eventName}</span>
+          <span className="text-muted-foreground"> locked at position {hint.position + 1}</span>
+        </>
+      );
+    },
   },
   relative: {
     label: "Relative Hint",
-    icon: "📊",
-    description: "Tells you which of two events happens earlier.",
-    helper: "Use to break ties between closely related events.",
+    availableDescription: "Compare timing of two events",
+    getUsedDescription: (hint, eventsById) => {
+      if (hint.type !== "relative") return null;
+      return formatRelativeHintText(hint, eventsById);
+    },
   },
   bracket: {
     label: "Bracket Hint",
-    icon: "📅",
-    description: "Reveals a narrow year range for one event.",
-    helper: "Great when you know an event’s era but not the exact spot.",
+    availableDescription: "Narrow the year range for one event",
+    getUsedDescription: (hint, eventsById) => {
+      if (hint.type !== "bracket") return null;
+      const event = eventsById.get(hint.eventId);
+      const eventName = event?.text ?? "Event";
+      const startYear = formatYear(hint.yearRange[0]);
+      const endYear = formatYear(hint.yearRange[1]);
+      return (
+        <>
+          <span className="text-primary font-semibold">{eventName}</span>
+          <span className="text-muted-foreground">
+            : {startYear} – {endYear}
+          </span>
+        </>
+      );
+    },
   },
 };
+
+function getHintIcon(type: HintType, className?: string) {
+  const iconProps = { className: className || "h-4 w-4", "aria-hidden": true };
+  switch (type) {
+    case "anchor":
+      return <Anchor {...iconProps} />;
+    case "relative":
+      return <Scale {...iconProps} />;
+    case "bracket":
+      return <CalendarRange {...iconProps} />;
+  }
+}
 
 interface HintDisplayProps {
   events: OrderEvent[];
   hints: OrderHint[];
-  multiplier: number;
   onRequestHint: (type: HintType) => void;
   disabledTypes?: Partial<Record<HintType, boolean>>;
   pendingType?: HintType | null;
@@ -53,17 +92,15 @@ interface HintDisplayProps {
 export function HintDisplay({
   events,
   hints,
-  multiplier,
   onRequestHint,
   disabledTypes = {},
   pendingType = null,
   error = null,
   className,
 }: HintDisplayProps) {
-  const panelProps: HintPanelBodyProps = {
+  const panelProps: HintPanelProps = {
     events,
     hints,
-    multiplier,
     onRequestHint,
     disabledTypes,
     pendingType,
@@ -71,14 +108,32 @@ export function HintDisplay({
   };
 
   return (
-    <div className={cn("space-y-4", className)}>
-      <InlineHintPanel {...panelProps} />
-      <MobileHintSheet {...panelProps} />
+    <div className={cn(className)}>
+      {/* Mobile: Compact inline panel */}
+      <div className="md:hidden">
+        <CompactHintPanel {...panelProps} />
+      </div>
+
+      {/* Desktop: Full panel */}
+      <div className="hidden md:block">
+        <InlineHintPanel {...panelProps} />
+      </div>
     </div>
   );
 }
 
-function InlineHintPanel(props: HintPanelBodyProps) {
+interface HintPanelProps {
+  events: OrderEvent[];
+  hints: OrderHint[];
+  onRequestHint: (type: HintType) => void;
+  disabledTypes: Partial<Record<HintType, boolean>>;
+  pendingType: HintType | null;
+  error: string | null;
+}
+
+function InlineHintPanel(props: HintPanelProps) {
+  const hintsRemaining = 3 - props.hints.length;
+
   return (
     <section
       aria-labelledby="order-hints-heading"
@@ -91,16 +146,13 @@ function InlineHintPanel(props: HintPanelBodyProps) {
               <div className="flex flex-col">
                 <span id="order-hints-heading">Hints</span>
                 <span className="text-muted-foreground text-xs font-medium">
-                  Keep the multiplier high by limiting hints.
+                  {hintsRemaining} of 3 remaining
                 </span>
               </div>
-              <span className="text-muted-foreground text-sm">
-                {multiplierLabel(props.multiplier)}
-              </span>
             </Accordion.Trigger>
           </Accordion.Header>
           <Accordion.Content className="pt-4">
-            <HintPanelBody {...props} />
+            <UnifiedHintPanel {...props} />
           </Accordion.Content>
         </Accordion.Item>
       </Accordion.Root>
@@ -108,151 +160,181 @@ function InlineHintPanel(props: HintPanelBodyProps) {
   );
 }
 
-function MobileHintSheet(props: HintPanelBodyProps) {
-  const [open, setOpen] = useState(false);
-  const hintCountLabel = props.hints.length
-    ? `${props.hints.length}/3 hints used`
-    : "No hints used yet";
+function CompactHintPanel(props: HintPanelProps) {
+  const hintsRemaining = 3 - props.hints.length;
 
   return (
-    <div className="md:hidden">
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button
-            type="button"
-            variant="outline"
-            className="bg-card/80 flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left shadow-sm"
-            aria-label="Open hints panel"
-          >
-            <div>
-              <p className="text-base font-semibold">Hints</p>
-              <p className="text-muted-foreground text-xs">{hintCountLabel}</p>
-            </div>
-            <Badge variant="secondary">{multiplierLabel(props.multiplier)}</Badge>
-          </Button>
-        </DialogTrigger>
-        <DialogContent
-          showCloseButton
-          className="fixed inset-x-0 top-auto bottom-0 h-[80vh] max-w-none translate-x-0 translate-y-0 rounded-t-3xl border border-b-0 px-0 pt-4 pb-6 shadow-2xl md:hidden"
-        >
-          <div className="bg-muted mx-auto mb-4 h-1.5 w-16 rounded-full" />
-          <div className="px-6">
-            <HintPanelBody {...props} variant="mobile" />
+    <section
+      aria-labelledby="compact-hints-heading"
+      className="bg-card/90 rounded-2xl border p-3 shadow-sm"
+    >
+      {/* Hints Header */}
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Lightbulb className="text-primary h-4 w-4" aria-hidden="true" />
+          <div>
+            <h3 id="compact-hints-heading" className="text-sm font-semibold">
+              {hintsRemaining} Hints Left
+            </h3>
+            <p className="text-muted-foreground text-xs">{props.hints.length} of 3 used</p>
           </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+        </div>
+      </div>
+
+      {/* Hint Buttons - Compact grid */}
+      <div className="mb-3 grid grid-cols-3 gap-2">
+        {(Object.keys(HINT_COPY) as HintType[]).map((type) => {
+          const isUsed = props.disabledTypes?.[type];
+          return (
+            <button
+              key={type}
+              type="button"
+              className={cn(
+                "border-border bg-background flex flex-col items-center rounded-xl border p-2 text-center text-xs transition focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+                isUsed && "cursor-not-allowed opacity-40",
+              )}
+              onClick={() => props.onRequestHint(type)}
+              disabled={isUsed || props.pendingType === type}
+              aria-label={`Take ${HINT_COPY[type].label}`}
+            >
+              <div className="text-primary mb-1">{getHintIcon(type, "h-5 w-5")}</div>
+              <span className="text-foreground mb-1 font-medium">
+                {isUsed ? "✓ " : ""}
+                {HINT_COPY[type].label.split(" ")[0]}
+              </span>
+              <span className="text-muted-foreground text-[10px] leading-tight">
+                {isUsed ? "Used" : HINT_COPY[type].availableDescription}
+              </span>
+              {props.pendingType === type && <LoadingSpinner className="mt-1 size-3" />}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Hints History - Collapsed */}
+      {props.hints.length > 0 && (
+        <Accordion.Root type="single" collapsible>
+          <Accordion.Item value="hints-history">
+            <Accordion.Header>
+              <Accordion.Trigger className="flex w-full items-center justify-between text-xs font-medium">
+                <span>View hints used ({props.hints.length})</span>
+              </Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Content className="pt-2">
+              <UsedHintsList events={props.events} hints={props.hints} />
+            </Accordion.Content>
+          </Accordion.Item>
+        </Accordion.Root>
+      )}
+
+      {props.error && (
+        <p role="status" className="text-destructive mt-2 text-xs">
+          {props.error}
+        </p>
+      )}
+    </section>
   );
 }
 
-interface HintPanelBodyProps extends HintDisplayProps {
-  variant?: "inline" | "mobile";
-}
-
-function HintPanelBody({
+function UnifiedHintPanel({
   events,
   hints,
-  multiplier,
   onRequestHint,
-  disabledTypes = {},
+  disabledTypes,
   pendingType,
   error,
-  variant = "inline",
-}: HintPanelBodyProps) {
-  const hintCountLabel = hints.length ? `${hints.length} of 3 hints used` : "No hints used yet";
+}: HintPanelProps) {
+  const availableTypes = (Object.keys(HINT_COPY) as HintType[]).filter(
+    (type) => !disabledTypes[type],
+  );
+  const usedTypes = (Object.keys(HINT_COPY) as HintType[]).filter((type) => disabledTypes[type]);
 
   return (
-    <div
-      className={cn("space-y-4", {
-        "pb-2": variant === "mobile",
-      })}
-    >
-      <div className="bg-muted/30 flex items-center justify-between gap-3 rounded-2xl px-4 py-3">
-        <div>
-          <p className="text-muted-foreground text-xs font-medium uppercase">Current Multiplier</p>
-          <p className="text-foreground text-2xl font-semibold">{multiplierLabel(multiplier)}</p>
+    <div className="space-y-4">
+      {/* Available Hints Section */}
+      {availableTypes.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+            Available
+          </h4>
+          <div className="space-y-2">
+            {availableTypes.map((type) => (
+              <AvailableHintButton
+                key={type}
+                type={type}
+                pending={pendingType === type}
+                onSelect={onRequestHint}
+              />
+            ))}
+          </div>
         </div>
-        <Badge variant="outline" className="text-xs font-medium">
-          {hintCountLabel}
-        </Badge>
-      </div>
+      )}
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        {(Object.keys(HINT_COPY) as HintType[]).map((type) => (
-          <HintOptionButton
-            key={type}
-            type={type}
-            disabled={Boolean(disabledTypes[type])}
-            pending={pendingType === type}
-            onSelect={onRequestHint}
-          />
-        ))}
-      </div>
+      {/* Used Hints Section */}
+      {usedTypes.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+            Used
+          </h4>
+          <UsedHintsList events={events} hints={hints} />
+        </div>
+      )}
 
-      <div className="space-y-2">
-        <p className="text-foreground text-sm font-semibold">Hints Taken</p>
-        <HintHistoryList events={events} hints={hints} />
-        {error ? (
-          <p role="status" className="text-destructive text-sm">
-            {error}
-          </p>
-        ) : null}
-      </div>
+      {error && (
+        <p role="status" className="text-destructive text-sm">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
 
-interface HintOptionButtonProps {
+interface AvailableHintButtonProps {
   type: HintType;
-  disabled: boolean;
   pending: boolean;
   onSelect: (type: HintType) => void;
 }
 
-function HintOptionButton({ type, disabled, pending, onSelect }: HintOptionButtonProps) {
+function AvailableHintButton({ type, pending, onSelect }: AvailableHintButtonProps) {
   const copy = HINT_COPY[type];
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
       className={cn(
-        "border-border focus-visible:ring-ring bg-background flex h-full flex-col rounded-2xl border px-4 py-3 text-left shadow-sm transition focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
-        disabled && "cursor-not-allowed opacity-40",
+        "flex h-auto w-full items-start gap-3 rounded-2xl px-4 py-3 text-left",
+        !pending && "hover:border-primary/30 hover:bg-muted/50",
       )}
       onClick={() => onSelect(type)}
-      disabled={disabled || pending}
+      disabled={pending}
       aria-label={`Take ${copy.label}`}
     >
-      <span aria-hidden="true" className="text-2xl">
-        {copy.icon}
-      </span>
-      <span className="text-foreground mt-2 text-sm font-semibold">{copy.label}</span>
-      <span className="text-muted-foreground mt-1 text-xs">{copy.description}</span>
-      <span className="text-muted-foreground/80 mt-2 text-xs">{copy.helper}</span>
-      {pending ? (
-        <span className="text-primary mt-3 flex items-center gap-2 text-xs font-medium">
-          <LoadingSpinner className="size-3" />
-          Preparing hint…
-        </span>
-      ) : null}
-    </button>
+      <div className="text-primary flex-shrink-0">{getHintIcon(type, "h-5 w-5")}</div>
+      <div className="min-w-0 flex-1">
+        <p className="text-foreground text-sm font-semibold">{copy.label}</p>
+        <p className="text-muted-foreground text-xs">{copy.availableDescription}</p>
+        {pending && (
+          <span className="text-primary mt-2 flex items-center gap-2 text-xs font-medium">
+            <LoadingSpinner className="size-3" />
+            Preparing hint…
+          </span>
+        )}
+      </div>
+    </Button>
   );
 }
 
-interface HintHistoryListProps {
+interface UsedHintsListProps {
   events: OrderEvent[];
   hints: OrderHint[];
 }
 
-function HintHistoryList({ events, hints }: HintHistoryListProps) {
+function UsedHintsList({ events, hints }: UsedHintsListProps) {
   const shouldReduceMotion = useReducedMotion();
   const eventsById = useMemo(() => new Map(events.map((event) => [event.id, event])), [events]);
 
   if (!hints.length) {
-    return (
-      <p className="text-muted-foreground text-sm">
-        No hints used yet. Keep that multiplier at 100%!
-      </p>
-    );
+    return null;
   }
 
   return (
@@ -260,7 +342,7 @@ function HintHistoryList({ events, hints }: HintHistoryListProps) {
       <LayoutGroup>
         <AnimatePresence initial={false}>
           {hints.map((hint) => {
-            const description = describeHint(hint, eventsById);
+            const description = HINT_COPY[hint.type].getUsedDescription(hint, eventsById);
             return (
               <motion.li
                 key={serializeHint(hint)}
@@ -274,14 +356,13 @@ function HintHistoryList({ events, hints }: HintHistoryListProps) {
                     duration: shouldReduceMotion ? 0 : ANIMATION_DURATIONS.HINT_TRANSITION / 1000,
                   },
                 }}
-                className="border-border bg-muted/30 flex items-start gap-3 rounded-2xl border px-3 py-3"
+                className="border-border bg-muted/30 flex items-start gap-3 rounded-2xl border px-3 py-2.5"
               >
-                <span aria-hidden="true" className="text-lg">
-                  {HINT_COPY[hint.type].icon}
-                </span>
-                <div>
-                  <p className="text-foreground text-sm font-semibold">{description.title}</p>
-                  <p className="text-muted-foreground text-xs">{description.subtitle}</p>
+                <div className="text-primary flex-shrink-0 pt-0.5">
+                  {getHintIcon(hint.type, "h-4 w-4")}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-foreground text-sm leading-relaxed">{description}</p>
                 </div>
               </motion.li>
             );
@@ -290,41 +371,6 @@ function HintHistoryList({ events, hints }: HintHistoryListProps) {
       </LayoutGroup>
     </ul>
   );
-}
-
-function describeHint(
-  hint: OrderHint,
-  eventsById: Map<string, OrderEvent>,
-): { title: string; subtitle: string } {
-  switch (hint.type) {
-    case "anchor": {
-      const eventName = eventsById.get(hint.eventId)?.text ?? hint.eventId;
-      return {
-        title: eventName,
-        subtitle: `Locked into position ${hint.position + 1}`,
-      };
-    }
-    case "relative": {
-      const earlier = eventsById.get(hint.earlierEventId)?.text ?? hint.earlierEventId;
-      const later = eventsById.get(hint.laterEventId)?.text ?? hint.laterEventId;
-      return {
-        title: earlier,
-        subtitle: `Occurs before ${later}`,
-      };
-    }
-    case "bracket": {
-      const eventName = eventsById.get(hint.eventId)?.text ?? hint.eventId;
-      return {
-        title: eventName,
-        subtitle: `Between ${formatYearSafe(hint.yearRange[0])} – ${formatYearSafe(hint.yearRange[1])}`,
-      };
-    }
-    default:
-      return {
-        title: "Hint applied",
-        subtitle: "Details unavailable",
-      };
-  }
 }
 
 function serializeHint(hint: OrderHint): string {
@@ -337,17 +383,5 @@ function serializeHint(hint: OrderHint): string {
       return `bracket:${hint.eventId}:${hint.yearRange.join("-")}`;
     default:
       return JSON.stringify(hint);
-  }
-}
-
-function multiplierLabel(multiplier: number): string {
-  return `${multiplier.toFixed(2)}×`;
-}
-
-function formatYearSafe(year: number): string {
-  try {
-    return formatYear(year);
-  } catch {
-    return `${year}`;
   }
 }

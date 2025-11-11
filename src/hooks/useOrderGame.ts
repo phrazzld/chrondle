@@ -6,6 +6,7 @@ import { useOrderPuzzleData } from "@/hooks/data/useOrderPuzzleData";
 import { useOrderProgress } from "@/hooks/data/useOrderProgress";
 import { useOrderSession } from "@/hooks/useOrderSession";
 import { deriveOrderGameState, type OrderDataSources } from "@/lib/deriveOrderGameState";
+import { applyHintToOrdering } from "@/lib/order/applyHintToOrdering";
 import type { OrderGameState, OrderHint, OrderScore } from "@/types/orderGameState";
 
 interface UseOrderGameReturn {
@@ -23,6 +24,17 @@ export function useOrderGame(puzzleNumber?: number, initialPuzzle?: unknown): Us
   const baselineOrder = useMemo(
     () => puzzle.puzzle?.events.map((event) => event.id) ?? [],
     [puzzle.puzzle?.events],
+  );
+
+  // Compute correct chronological order for hint application
+  const correctOrder = useMemo(
+    () =>
+      puzzle.puzzle
+        ? [...puzzle.puzzle.events]
+            .sort((a, b) => a.year - b.year || a.id.localeCompare(b.id))
+            .map((event) => event.id)
+        : [],
+    [puzzle.puzzle],
   );
 
   const session = useOrderSession(puzzle.puzzle?.id ?? null, baselineOrder, auth.isAuthenticated);
@@ -56,9 +68,20 @@ export function useOrderGame(puzzleNumber?: number, initialPuzzle?: unknown): Us
 
   const takeHint = useCallback(
     (hint: OrderHint) => {
+      // Apply hint effect to ordering (anchor hints move events to correct position)
+      const currentOrdering = sessionOrderingRef.current;
+
+      const newOrdering = applyHintToOrdering(currentOrdering, hint, correctOrder);
+
+      // Update ordering if it changed
+      if (newOrdering !== currentOrdering) {
+        session.setOrdering(newOrdering);
+      }
+
+      // Add hint to history
       session.addHint(hint);
     },
-    [session],
+    [session, correctOrder],
   );
 
   const commitOrdering = useCallback(

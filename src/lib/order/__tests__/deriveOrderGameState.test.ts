@@ -25,7 +25,6 @@ const samplePuzzle = {
 const baseSession = (): OrderSessionState => ({
   ordering: sampleEvents.map((event) => event.id),
   hints: [],
-  moves: 0,
   committedAt: null,
   score: null,
 });
@@ -58,7 +57,8 @@ const sampleScore: OrderScore = {
   totalScore: 24,
   correctPairs: 12,
   totalPairs: 15,
-  hintMultiplier: 0.85,
+  perfectPositions: 2,
+  hintsUsed: 1,
 };
 
 describe("deriveOrderGameState (Order)", () => {
@@ -117,7 +117,6 @@ describe("deriveOrderGameState (Order)", () => {
       if (state.status === "ready") {
         expect(state.currentOrder).toEqual(sampleEvents.map((event) => event.id));
         expect(state.hints).toEqual([]);
-        expect(state.moves).toBe(0);
       }
     });
 
@@ -125,13 +124,12 @@ describe("deriveOrderGameState (Order)", () => {
       const customOrder = ["event-c", "event-a", "event-b"];
       const state = deriveOrderGameState(
         createSources({
-          session: { ordering: customOrder, hints: [], moves: 3, committedAt: null, score: null },
+          session: { ordering: customOrder, hints: [], committedAt: null, score: null },
         }),
       );
       expect(state.status).toBe("ready");
       if (state.status === "ready") {
         expect(state.currentOrder).toEqual(customOrder);
-        expect(state.moves).toBe(3);
       }
     });
 
@@ -140,7 +138,6 @@ describe("deriveOrderGameState (Order)", () => {
       const progressData: OrderProgressData = {
         ordering: ["event-b", "event-c", "event-a"],
         hints: serverHints,
-        moves: 5,
         completedAt: null,
         score: null,
       };
@@ -154,7 +151,6 @@ describe("deriveOrderGameState (Order)", () => {
       if (state.status === "ready") {
         expect(state.currentOrder).toEqual(progressData.ordering);
         expect(state.hints).toEqual(serverHints);
-        expect(state.moves).toBe(5);
       }
     });
 
@@ -168,7 +164,6 @@ describe("deriveOrderGameState (Order)", () => {
       const progressData: OrderProgressData = {
         ordering: sampleEvents.map((event) => event.id),
         hints: [sharedHint],
-        moves: 1,
         completedAt: null,
         score: null,
       };
@@ -195,7 +190,6 @@ describe("deriveOrderGameState (Order)", () => {
       const progressData: OrderProgressData = {
         ordering: ["event-b", "event-a", "event-c"],
         hints: [],
-        moves: 8,
         completedAt: Date.now(),
         score: sampleScore,
       };
@@ -222,7 +216,6 @@ describe("deriveOrderGameState (Order)", () => {
           session: {
             ordering: committedOrder,
             hints: [],
-            moves: 6,
             committedAt: Date.now(),
             score: sampleScore,
           },
@@ -240,7 +233,6 @@ describe("deriveOrderGameState (Order)", () => {
       const progressData: OrderProgressData = {
         ordering: ["event-b", "event-a", "event-c"],
         hints: [],
-        moves: 5,
         completedAt: Date.now(),
         score: null,
       };

@@ -2,9 +2,11 @@
 
 import React from "react";
 import { RippleButton } from "@/components/magicui/ripple-button";
+import { ModeHero } from "@/components/ui/ModeHero";
+import { HistoricalContextCard } from "@/components/HistoricalContextCard";
 import { useShareGame } from "@/hooks/useShareGame";
 import { formatYear } from "@/lib/displayFormatting";
-import { HistoricalContextCard } from "@/components/HistoricalContextCard";
+import { cn } from "@/lib/utils";
 import type { ClosestGuessData } from "@/types/game";
 
 interface GameInstructionsProps {
@@ -47,12 +49,11 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
   // Active game state - show normal instructions
   if (!isGameComplete) {
     return (
-      <div className={`mb-6 text-left ${className}`}>
-        <h2 className="text-foreground mb-2 text-xl font-bold sm:text-2xl">Guess the Year</h2>
-        <p className="text-muted-foreground text-lg leading-7">
-          Each hint is an event from the same year.
-        </p>
-      </div>
+      <ModeHero
+        className={cn("mb-6", className)}
+        title="Guess the Year"
+        subtitle="Each hint is an event from the same year."
+      />
     );
   }
 
@@ -120,7 +121,7 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
   };
 
   return (
-    <div className={`mb-1 ${className}`}>
+    <div className={cn("mb-1", className)}>
       {/* Answer Reveal Section - Compact for Loss State */}
       {!hasWon && targetYear && (
         <div className="mb-6 flex w-full items-center gap-4 rounded-xl border border-red-500/20 bg-gradient-to-br from-red-500/5 to-red-600/10 p-6">

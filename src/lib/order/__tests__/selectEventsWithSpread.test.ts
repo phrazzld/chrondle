@@ -27,7 +27,11 @@ const spanOf = (events: OrderEventCandidate[]) => {
 
 describe("selectEventsWithSpread", () => {
   it("returns deterministic selections for the same seed", () => {
-    const events = makeEvents([-800, -500, -100, 1500, 1700, 1900, 1950, 2000]);
+    // Create events that span 100-2000 years with enough candidates
+    const events = makeEvents([
+      1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400,
+      2500, 2600, 2700, 2800, 2900,
+    ]);
     const config = { ...baseConfig };
 
     const first = selectEventsWithSpread(events, 42, config);
@@ -37,13 +41,14 @@ describe("selectEventsWithSpread", () => {
   });
 
   it("excludes specified years from the selection pool", () => {
-    const events = makeEvents([1200, 1300, 1400, 1500, 1600, 1700, 1800]);
+    // Need enough events to select 6 after excluding 2 (total 8 minimum, using 10 for safety)
+    const events = makeEvents([1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900]);
     const config: SelectionConfig = {
       ...baseConfig,
       excludeYears: [1500, 1600],
     };
 
-    const selection = selectEventsWithSpread(events, 7, config);
+    const selection = selectEventsWithSpread(events, 123, config);
 
     expect(selection.some((event) => config.excludeYears.includes(event.year))).toBe(false);
     expect(selection).toHaveLength(config.count);

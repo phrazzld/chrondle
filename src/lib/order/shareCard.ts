@@ -90,14 +90,18 @@ function drawResults(ctx: CanvasRenderingContext2D, results: OrderShareResult[])
 }
 
 function drawScore(ctx: CanvasRenderingContext2D, score: OrderScore) {
-  ctx.fillStyle = "#f8fafc";
-  ctx.font = "600 28px 'Space Grotesk', system-ui";
-  ctx.fillText(`${score.totalScore} pts`, 60, 240);
+  const accuracy = Math.round((score.correctPairs / score.totalPairs) * 100);
 
+  // Accuracy percentage (prominent)
+  ctx.fillStyle = "#f8fafc";
+  ctx.font = "700 36px 'Space Grotesk', system-ui";
+  ctx.fillText(`${accuracy}% Accuracy`, 60, 240);
+
+  // Secondary stats
   ctx.font = "400 20px 'Space Grotesk', system-ui";
   ctx.fillStyle = "#cbd5f5";
   ctx.fillText(
-    `${score.correctPairs}/${score.totalPairs} pairs correct · ${score.hintMultiplier.toFixed(2)}× multiplier`,
+    `${score.correctPairs}/${score.totalPairs} pairs · ${score.hintsUsed}/3 hints used`,
     60,
     270,
   );

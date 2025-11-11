@@ -25,7 +25,6 @@ export interface ReadyState {
   puzzle: OrderPuzzle;
   currentOrder: string[];
   hints: OrderHint[];
-  moves: number;
 }
 
 export interface CompletedState {
@@ -65,5 +64,6 @@ export interface OrderScore {
   totalScore: number;
   correctPairs: number;
   totalPairs: number;
-  hintMultiplier: number;
+  perfectPositions: number;
+  hintsUsed: number;
 }

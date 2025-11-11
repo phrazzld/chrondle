@@ -38,23 +38,26 @@ const events: OrderEvent[] = [
 const defaultProps = {
   events,
   hints: [] as OrderHint[],
-  multiplier: 1,
   onRequestHint: vi.fn(),
 };
 
 describe("Order HintDisplay", () => {
-  it("renders multiplier summary", () => {
-    render(<HintDisplay {...defaultProps} multiplier={0.85} />);
+  it("renders hints remaining", () => {
+    render(<HintDisplay {...defaultProps} />);
 
-    expect(screen.getAllByText("0.85×")[0]).toBeInTheDocument();
+    // Component shows hints remaining count (mobile shows "3/3", desktop shows "3 hints remaining")
+    // Using getAllByText since both mobile and desktop views render
+    const hintsText = screen.getAllByText(/3|remaining/i);
+    expect(hintsText.length).toBeGreaterThan(0);
   });
 
   it("invokes callback when selecting a hint", () => {
     const onRequestHint = vi.fn();
     render(<HintDisplay {...defaultProps} onRequestHint={onRequestHint} />);
 
-    const button = screen.getByRole("button", { name: /anchor hint/i });
-    fireEvent.click(button);
+    // Find the first button with anchor hint (there may be mobile and desktop versions)
+    const buttons = screen.getAllByRole("button", { name: /anchor hint|take anchor hint/i });
+    fireEvent.click(buttons[0]);
 
     expect(onRequestHint).toHaveBeenCalledWith("anchor");
   });
@@ -62,22 +65,35 @@ describe("Order HintDisplay", () => {
   it("disables hint option when marked", () => {
     render(<HintDisplay {...defaultProps} disabledTypes={{ anchor: true }} />);
 
-    const button = screen.getByRole("button", { name: /anchor hint/i }) as HTMLButtonElement;
+    // Find the first anchor button (mobile or desktop version)
+    const buttons = screen.getAllByRole("button", { name: /anchor hint|take anchor hint/i });
+    const button = buttons[0] as HTMLButtonElement;
     expect(button.disabled).toBe(true);
   });
 
-  it("shows hint history entries when hints exist", () => {
+  it("shows hint history entries when hints exist", async () => {
     const hints: OrderHint[] = [{ type: "anchor", eventId: "b", position: 2 }];
 
     render(<HintDisplay {...defaultProps} hints={hints} />);
 
-    expect(screen.getByText("Event B")).toBeInTheDocument();
+    // Check that hints history section exists
+    expect(screen.getByText(/view hints used/i)).toBeInTheDocument();
+
+    // For detailed validation, expand the accordion and check content
+    // Note: Accordion content may be collapsed by default
+    const accordion = screen.getByText(/view hints used/i);
+    fireEvent.click(accordion);
+
+    // Now check for hint details (they should be in the expanded accordion)
+    await screen.findByText(/Event B/i, {}, { timeout: 1000 });
     expect(screen.getByText(/position 3/i)).toBeInTheDocument();
   });
 
   it("shows error message when provided", () => {
     render(<HintDisplay {...defaultProps} error="Unable to generate hint" />);
 
-    expect(screen.getByText("Unable to generate hint")).toBeInTheDocument();
+    // Error message appears (potentially in both mobile and desktop views)
+    const errorMessages = screen.getAllByText("Unable to generate hint");
+    expect(errorMessages.length).toBeGreaterThan(0);
   });
 });

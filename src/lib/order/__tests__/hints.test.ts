@@ -21,7 +21,9 @@ describe("Order hint generation", () => {
 
     [1, 7, 42, 88, 1337].forEach((seed) => {
       const hint = generateAnchorHint(current, correct, { seed });
-      seen.add(hint.position);
+      if (hint.type === "anchor") {
+        seen.add(hint.position);
+      }
     });
 
     expect([...seen].sort()).toEqual([0, 2]);

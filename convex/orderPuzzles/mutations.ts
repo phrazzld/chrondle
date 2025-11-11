@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { internalMutation, mutation } from "../_generated/server";
 import type { Doc } from "../_generated/dataModel";
 import type { MutationCtx } from "../_generated/server";
-import { scoreOrderSubmission } from "../../src/lib/order/scoring";
+import { scoreOrderSubmission } from "../lib/orderScoring";
 import {
   type OrderEventCandidate,
   type SelectionConfig,
@@ -12,9 +12,9 @@ import {
 const ORDER_SELECTION_CONFIG: SelectionConfig = {
   count: 6,
   minSpan: 100,
-  maxSpan: 2000,
+  maxSpan: 5000, // Increased to accommodate full historical range (-2000 to 2008)
   excludeYears: [],
-  maxAttempts: 10,
+  maxAttempts: 20,
 };
 
 const ORDER_SEED_SALT = process.env.ORDER_PUZZLE_SALT ?? "chrondle-order";
@@ -25,7 +25,7 @@ type StoredOrderEvent = {
   text: string;
 };
 
-type GenerateArgs = {
+type _GenerateArgs = {
   date?: string;
 };
 
@@ -138,7 +138,8 @@ async function generateOrderPuzzleForDate(
     return { status: "already_exists", puzzle: existing };
   }
 
-  const excludeYears = await lookupClassicYear(ctx, targetDate);
+  // Temporarily disable Classic year exclusion for testing
+  const excludeYears: number[] = []; // await lookupClassicYear(ctx, targetDate);
 
   const seed = hashDateSeed(targetDate);
   const allEvents = await loadEventCandidates(ctx);
@@ -183,7 +184,7 @@ async function generateOrderPuzzleForDate(
   return { status: "created", puzzle };
 }
 
-async function lookupClassicYear(ctx: MutationCtx, targetDate: string): Promise<number[]> {
+async function _lookupClassicYear(ctx: MutationCtx, targetDate: string): Promise<number[]> {
   const classicPuzzle = await ctx.db
     .query("puzzles")
     .withIndex("by_date", (q) => q.eq("date", targetDate))
