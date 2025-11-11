@@ -121,8 +121,8 @@ export function GameLayout(props: GameLayoutProps) {
       {headerContent && <div>{headerContent}</div>}
 
       {/* Main game content */}
-      <main className="flex-1 overflow-auto px-4 py-6">
-        <div className="mx-auto w-full max-w-2xl space-y-8">
+      <main className="flex-1 overflow-auto px-4 py-6 sm:px-6 sm:py-8">
+        <div className="mx-auto w-full max-w-2xl space-y-10 sm:space-y-12">
           {/* Active Game: Header with Score in Upper Right */}
           {!isGameComplete && (
             <div className="flex flex-row items-start justify-between gap-2 sm:gap-4">

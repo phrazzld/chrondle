@@ -31,8 +31,10 @@ export const GameInstructions: React.FC<GameInstructionsProps> = ({
   if (!isGameComplete) {
     return (
       <div className={`text-left ${className}`}>
-        <h2 className="text-foreground mb-1 text-lg font-bold sm:text-2xl">Date This Event</h2>
-        <p className="text-muted-foreground text-sm leading-snug sm:text-base sm:leading-relaxed">
+        <h2 className="text-foreground mb-2 text-2xl font-bold sm:text-3xl lg:text-4xl">
+          Date This Event
+        </h2>
+        <p className="text-muted-foreground text-base leading-relaxed font-medium sm:text-lg lg:text-xl">
           Narrow your range to score more.
         </p>
       </div>

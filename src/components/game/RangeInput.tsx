@@ -8,7 +8,7 @@ import { EraToggle } from "@/components/ui/EraToggle";
 import { SCORING_CONSTANTS } from "@/lib/scoring";
 import { GAME_CONFIG } from "@/lib/constants";
 import { convertToInternalYear, convertFromInternalYear, type Era } from "@/lib/eraUtils";
-import { formatYearWithOptions } from "@/lib/displayFormatting";
+import { formatYearWithOptions, pluralize } from "@/lib/displayFormatting";
 import { cn } from "@/lib/utils";
 
 interface RangeInputProps {
@@ -195,79 +195,135 @@ export function RangeInput({
   };
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn("space-y-5", className)}>
       {/* Section Header with Range Summary */}
-      <div className="flex items-baseline justify-between border-b pb-1.5">
-        <h3 className="text-foreground text-sm font-semibold">Your Guess</h3>
+      <div className="flex items-baseline justify-between border-b pb-2">
+        <h3 className="text-foreground text-sm font-semibold tracking-wider uppercase">
+          Your Guess
+        </h3>
         <span className="text-muted-foreground text-xs">
           {formatYearWithOptions(range[0])} – {formatYearWithOptions(range[1])}
         </span>
       </div>
 
-      {/* Range Inputs - Responsive: stacked on mobile, inline on desktop */}
-      <div className="space-y-2">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          {/* "Between" label */}
-          <span className="text-muted-foreground text-sm font-medium">Between</span>
-
-          {/* Start Year Input with Era Toggle */}
-          <div className="flex items-center gap-2">
-            <Input
-              id="start-year"
-              type="text"
-              inputMode="numeric"
-              value={startInput}
-              onChange={handleStartInputChange}
-              onBlur={applyStartYear}
-              onKeyDown={(e) => handleInputKeyDown(e, applyStartYear)}
-              disabled={disabled}
-              className="text-center"
-              aria-label="Start year"
-            />
-            <EraToggle
-              value={startEra}
-              onChange={handleStartEraChange}
-              disabled={disabled}
-              size="default"
-            />
+      {/* Form Card Container */}
+      <div
+        className={cn(
+          "from-background to-muted/20 rounded-xl bg-gradient-to-br p-6 shadow-lg transition-all sm:p-8",
+          rangeTooWide
+            ? "border-destructive/30 border-3"
+            : hasBeenModified
+              ? "border-primary/40 border-3"
+              : "border-primary/10 border-3",
+        )}
+      >
+        {/* Range Inputs - Grid layout with labels */}
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-center sm:gap-6">
+          {/* Start Year Input Group */}
+          <div className="flex flex-1 flex-col gap-2">
+            <label
+              htmlFor="start-year"
+              className="text-muted-foreground text-xs font-semibold tracking-wider uppercase"
+            >
+              Start Year
+            </label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="start-year"
+                type="text"
+                inputMode="numeric"
+                value={startInput}
+                onChange={handleStartInputChange}
+                onBlur={applyStartYear}
+                onKeyDown={(e) => handleInputKeyDown(e, applyStartYear)}
+                disabled={disabled}
+                className="h-12 flex-1 border-2 text-center text-xl font-semibold focus-visible:shadow-lg"
+                aria-label="Start year"
+              />
+              <EraToggle
+                value={startEra}
+                onChange={handleStartEraChange}
+                disabled={disabled}
+                size="lg"
+              />
+            </div>
           </div>
 
-          {/* "and" separator */}
-          <span className="text-muted-foreground text-sm font-medium">and</span>
-
-          {/* End Year Input with Era Toggle */}
-          <div className="flex items-center gap-2">
-            <Input
-              id="end-year"
-              type="text"
-              inputMode="numeric"
-              value={endInput}
-              onChange={handleEndInputChange}
-              onBlur={applyEndYear}
-              onKeyDown={(e) => handleInputKeyDown(e, applyEndYear)}
-              disabled={disabled}
-              className="text-center"
-              aria-label="End year"
-            />
-            <EraToggle
-              value={endEra}
-              onChange={handleEndEraChange}
-              disabled={disabled}
-              size="default"
-            />
+          {/* End Year Input Group */}
+          <div className="flex flex-1 flex-col gap-2">
+            <label
+              htmlFor="end-year"
+              className="text-muted-foreground text-xs font-semibold tracking-wider uppercase"
+            >
+              End Year
+            </label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="end-year"
+                type="text"
+                inputMode="numeric"
+                value={endInput}
+                onChange={handleEndInputChange}
+                onBlur={applyEndYear}
+                onKeyDown={(e) => handleInputKeyDown(e, applyEndYear)}
+                disabled={disabled}
+                className="h-12 flex-1 border-2 text-center text-xl font-semibold focus-visible:shadow-lg"
+                aria-label="End year"
+              />
+              <EraToggle
+                value={endEra}
+                onChange={handleEndEraChange}
+                disabled={disabled}
+                size="lg"
+              />
+            </div>
           </div>
         </div>
+
+        {/* Range Width Display - Visual feedback for range size */}
+        <div
+          className={cn(
+            "mt-5 rounded-lg border-2 p-3 text-center transition-all",
+            rangeTooWide
+              ? "border-destructive/30 bg-destructive/5"
+              : hasBeenModified
+                ? "border-primary/30 bg-primary/5"
+                : "border-muted/30 bg-muted/10",
+          )}
+        >
+          <div className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+            Range Width
+          </div>
+          <div
+            className={cn(
+              "mt-1 text-2xl font-bold tabular-nums",
+              rangeTooWide
+                ? "text-destructive"
+                : hasBeenModified
+                  ? "text-primary"
+                  : "text-muted-foreground",
+            )}
+          >
+            {pluralize(width, "year")}
+          </div>
+          {rangeTooWide && (
+            <div className="text-destructive mt-1 text-xs font-medium">
+              Max: {SCORING_CONSTANTS.W_MAX.toLocaleString()} years
+            </div>
+          )}
+        </div>
+
+        {/* Submit Button with gradient and arrow */}
+        <Button
+          onClick={handleRangeCommit}
+          disabled={commitDisabled}
+          size="lg"
+          className="from-primary to-primary/80 shadow-primary/25 mt-6 h-14 w-full bg-gradient-to-r text-lg font-semibold shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl disabled:scale-100"
+        >
+          Submit Range
+          <span className="ml-2 text-xl">→</span>
+        </Button>
       </div>
-
-      {/* Validation Messages */}
-      {!hasBeenModified && !disabled && (
-        <p className="text-muted-foreground text-xs">Adjust the range to enable submission</p>
-      )}
-
-      {/* Submit Button */}
-      <Button onClick={handleRangeCommit} disabled={commitDisabled} className="w-full">
-        Submit Range
-      </Button>
     </div>
   );
 }
