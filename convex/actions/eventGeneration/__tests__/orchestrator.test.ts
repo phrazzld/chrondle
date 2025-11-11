@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import type { CandidateEvent, CandidateDomain, CritiqueResult } from "../schemas";
+import type { CandidateEvent, CritiqueResult } from "../schemas";
 import type { GeneratorActionResult } from "../generator";
 import type { CriticActionResult } from "../critic";
 import type { ReviserActionResult } from "../reviser";
@@ -19,20 +19,9 @@ function mockUsage(partial: Partial<TokenUsage> = {}): TokenUsage {
 }
 
 function mockCandidate(index: number, overrides: Partial<CandidateEvent> = {}): CandidateEvent {
-  const domains = [
-    "politics",
-    "science",
-    "culture",
-    "tech",
-    "sports",
-    "economy",
-    "war",
-    "religion",
-  ] as const;
   return {
     canonical_title: `Event ${index}`,
     event_text: `Clue ${index}`,
-    domain: domains[index % domains.length] as CandidateDomain,
     geo: "World",
     difficulty_guess: 3,
     confidence: 0.8,

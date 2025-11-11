@@ -17,7 +17,6 @@ const MAX_TOTAL_ATTEMPTS = 4;
 const MAX_CRITIC_CYCLES = 2;
 const MIN_REQUIRED_EVENTS = 6;
 const MAX_SELECTED_EVENTS = 10;
-const MAX_DOMAIN_DUPLICATES = 3;
 
 export const generateYearEvents = internalAction({
   args: {
@@ -238,31 +237,10 @@ function selectTopEvents(results: CritiqueResult[]): CandidateEvent[] {
     return leakDiff;
   });
 
-  const selected: CandidateEvent[] = [];
-  const domainCounts = new Map<string, number>();
-  const overflow: CandidateEvent[] = [];
+  // Select top events by score, up to MAX_SELECTED_EVENTS
+  const selected = sorted.slice(0, MAX_SELECTED_EVENTS).map((result) => result.event);
 
-  for (const result of sorted) {
-    const domain = result.event.domain;
-    const count = domainCounts.get(domain) ?? 0;
-    if (count < MAX_DOMAIN_DUPLICATES || selected.length < MIN_REQUIRED_EVENTS) {
-      selected.push(result.event);
-      domainCounts.set(domain, count + 1);
-    } else if (overflow.length < MAX_SELECTED_EVENTS) {
-      overflow.push(result.event);
-    }
-    if (selected.length === MAX_SELECTED_EVENTS) {
-      break;
-    }
-  }
-
-  let fillIndex = 0;
-  while (selected.length < MIN_REQUIRED_EVENTS && fillIndex < overflow.length) {
-    selected.push(overflow[fillIndex]);
-    fillIndex += 1;
-  }
-
-  return selected.slice(0, Math.min(MAX_SELECTED_EVENTS, selected.length));
+  return selected;
 }
 
 function createUsageSummary(): UsageSummary {

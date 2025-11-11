@@ -7,7 +7,6 @@ function mockCandidate(overrides: Partial<CandidateEvent> = {}): CandidateEvent 
   return {
     canonical_title: "Apollo 11",
     event_text: "Neil Armstrong walks on Moon",
-    domain: "science",
     geo: "Moon",
     difficulty_guess: 5,
     confidence: 0.95,

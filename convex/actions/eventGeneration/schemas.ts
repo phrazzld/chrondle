@@ -5,23 +5,9 @@ import { z } from "zod";
 export const EraSchema = z.enum(["BCE", "CE"]);
 export type Era = z.infer<typeof EraSchema>;
 
-export const CandidateDomainSchema = z.enum([
-  "politics",
-  "science",
-  "culture",
-  "tech",
-  "sports",
-  "economy",
-  "war",
-  "religion",
-]);
-
-export type CandidateDomain = z.infer<typeof CandidateDomainSchema>;
-
 export const CandidateEventSchema = z.object({
   canonical_title: z.string().min(3),
   event_text: z.string().min(3).max(200), // ≤20 words ~= ≤200 chars
-  domain: CandidateDomainSchema,
   geo: z.string().min(2),
   difficulty_guess: z.number().min(1).max(5),
   confidence: z.number().min(0).max(1),

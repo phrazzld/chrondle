@@ -30,7 +30,6 @@ describe("generateCandidatesForYear", () => {
         {
           canonical_title: "  Apollo 11 Moon Landing  ",
           event_text: "Neil Armstrong steps onto lunar surface",
-          domain: "science",
           geo: "  Moon ",
           difficulty_guess: 5,
           confidence: 0.98,
@@ -66,7 +65,6 @@ describe("generateCandidatesForYear", () => {
       candidates: new Array(12).fill(null).map((_, index) => ({
         canonical_title: `Event ${index}`,
         event_text: "Julius Caesar faces conspirators",
-        domain: "politics",
         geo: "Rome",
         difficulty_guess: 3,
         confidence: 0.9,

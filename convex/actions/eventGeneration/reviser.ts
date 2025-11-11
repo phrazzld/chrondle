@@ -163,22 +163,16 @@ ${payload}
 CRITICAL: Your response MUST be a valid JSON array starting with [ and ending with ].
 Return EXACTLY ${failing.length} rewritten events in this EXACT format.
 
-IMPORTANT: domain MUST be EXACTLY one of these lowercase values:
-"politics", "science", "culture", "tech", "sports", "economy", "war", "religion"
-
 [
   {
     "canonical_title": "Brief title",
     "event_text": "Improved clue text",
-    "domain": "politics",
     "geo": "Geographic location",
     "difficulty_guess": 3,
     "confidence": 0.8,
     "leak_flags": { "has_digits": false, "has_century_terms": false, "has_spelled_year": false }
   }
-]
-
-Copy the domain from the original event unless changing it improves diversity.`;
+]`;
 }
 
 function sanitizeEventRewrite(event: CandidateEvent): CandidateEvent {
@@ -186,7 +180,6 @@ function sanitizeEventRewrite(event: CandidateEvent): CandidateEvent {
     ...event,
     canonical_title: event.canonical_title.trim(),
     event_text: event.event_text.replace(/\s+/g, " ").trim(),
-    domain: event.domain.toLowerCase() as CandidateEvent["domain"], // Ensure lowercase
     geo: event.geo.trim(),
   };
 }

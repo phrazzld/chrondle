@@ -20,15 +20,19 @@ CRITICAL RULES:
 4. NO BCE/CE/AD/BC terminology
 5. Present tense, ≤20 words per event
 6. Include proper nouns (people, places, institutions)
-7. Vary domains: politics, science, culture, tech, sports, economy, war, religion
-8. Vary geography: multiple regions/countries
+7. Vary topics: mix politics, science, culture, technology, sports, economy, war, religion, exploration
+8. Vary geography: include multiple regions and countries - not all Western events
 
-OUTPUT: Valid JSON matching the schema. 12-18 candidates.
+OUTPUT: Valid JSON matching the schema. 12-18 diverse candidates.
 
 SPECIAL HANDLING FOR ANCIENT YEARS (1-3 digits):
 - Prefer figure-centric clues: "Caesar falls at Theatre of Pompey"
 - Avoid era terms: "late Republic" acceptable, "1st century BCE" forbidden
-- Use dynasties, rulers, cultural movements without date indicators`;
+- Use dynasties, rulers, cultural movements without date indicators
+
+DIVERSITY GUIDANCE:
+Balance your event selection across different spheres of human activity and different parts of the world.
+If the year has limited documented events, focus on what IS known rather than forcing artificial diversity.`;
 
 let cachedGeneratorClient: ResponsesClient | null = null;
 
@@ -153,8 +157,8 @@ Requirements:
 - All events from ${yearLabel} exactly
 - Present tense, ≤20 words
 - No year leakage (no numbers ≥10, no century terms)
-- Domain diversity (mix across all categories)
-- Geographic diversity (multiple regions)
+- Topical diversity (mix politics, science, culture, technology, sports, economy, war, religion, exploration)
+- Geographic diversity (multiple regions - not all Western)
 - Difficulty range: mix of obscure (1-2) and recognizable (4-5)
 
 Return JSON in this EXACT format:
@@ -168,7 +172,6 @@ Return JSON in this EXACT format:
     {
       "canonical_title": "Brief title",
       "event_text": "Present tense description under 20 words",
-      "domain": "politics", // MUST be EXACTLY one of: "politics", "science", "culture", "tech", "sports", "economy", "war", "religion"
       "geo": "Geographic region or country",
       "difficulty_guess": 3, // Integer from 1 to 5
       "confidence": 0.8, // Float from 0.0 to 1.0

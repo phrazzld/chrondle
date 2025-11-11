@@ -21,7 +21,6 @@ function mockCandidate(index: number, overrides: Partial<CandidateEvent> = {}): 
   return {
     canonical_title: `Event ${index}`,
     event_text: `Clue ${index}`,
-    domain: "politics",
     geo: "World",
     difficulty_guess: 3,
     confidence: 0.8,

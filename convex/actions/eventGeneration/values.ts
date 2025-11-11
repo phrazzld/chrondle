@@ -5,7 +5,6 @@ import { v } from "convex/values";
 export const CandidateEventValue = v.object({
   canonical_title: v.string(),
   event_text: v.string(),
-  domain: v.string(),
   geo: v.string(),
   difficulty_guess: v.number(),
   confidence: v.number(),

@@ -20,7 +20,7 @@ SCORING CRITERIA (0-1 scale):
 - leak_risk: Could this clue reveal the year? (0=no risk, 1=obvious giveaway)
 - ambiguity: Could this event be confused with adjacent years?
 - guessability: Does this help players infer the year? (0=useless, 1=perfect hint)
-- diversity: Does this add domain/geo variety to the set?
+- diversity: Does this add topical/geographic variety to the set?
 
 PASS THRESHOLDS:
 - factual ≥0.75
@@ -40,8 +40,6 @@ const SCORE_THRESHOLDS = {
   ambiguity: 0.25,
   guessability: 0.4,
 } as const;
-
-const MAX_DOMAIN_OCCURRENCE = 3;
 
 let cachedCriticClient: ResponsesClient | null = null;
 
@@ -178,7 +176,6 @@ Return EXACTLY ${candidates.length} critique objects in this EXACT format:
     "event": {
       "canonical_title": "...",
       "event_text": "...",
-      "domain": "...",
       "geo": "...",
       "difficulty_guess": 3,
       "confidence": 0.8,
@@ -200,17 +197,6 @@ interface DeterministicCheckResult {
 }
 
 function runDeterministicChecks(candidates: CandidateEvent[]): DeterministicCheckResult[] {
-  const domainCounts = candidates.reduce<Record<string, number>>((acc, candidate) => {
-    acc[candidate.domain] = (acc[candidate.domain] || 0) + 1;
-    return acc;
-  }, {});
-
-  const highDomainUsage = new Set(
-    Object.entries(domainCounts)
-      .filter(([, count]) => count > MAX_DOMAIN_OCCURRENCE)
-      .map(([domain]) => domain),
-  );
-
   return candidates.map((candidate) => {
     const issues: string[] = [];
     const rewriteHints: string[] = [];
@@ -233,11 +219,6 @@ function runDeterministicChecks(candidates: CandidateEvent[]): DeterministicChec
     if (!hasProperNoun(candidate.event_text)) {
       issues.push("Missing proper noun to anchor the clue");
       rewriteHints.push("Add a specific person, place, or institution");
-    }
-
-    if (highDomainUsage.has(candidate.domain)) {
-      issues.push("Too many events from this domain in the set");
-      rewriteHints.push("Switch to a different domain to improve diversity");
     }
 
     return { issues, rewriteHints };
