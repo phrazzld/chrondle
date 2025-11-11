@@ -280,38 +280,17 @@ export function RangeInput({
           </div>
         </div>
 
-        {/* Range Width Display - Visual feedback for range size */}
-        <div
-          className={cn(
-            "mt-5 rounded-lg border-2 p-3 text-center transition-all",
-            rangeTooWide
-              ? "border-destructive/30 bg-destructive/5"
-              : hasBeenModified
-                ? "border-primary/30 bg-primary/5"
-                : "border-muted/30 bg-muted/10",
-          )}
-        >
-          <div className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-            Range Width
-          </div>
-          <div
-            className={cn(
-              "mt-1 text-2xl font-bold tabular-nums",
-              rangeTooWide
-                ? "text-destructive"
-                : hasBeenModified
-                  ? "text-primary"
-                  : "text-muted-foreground",
-            )}
-          >
-            {pluralize(width, "year")}
-          </div>
-          {rangeTooWide && (
+        {/* Range Width Display - Only show when invalid */}
+        {rangeTooWide && (
+          <div className="border-destructive/30 bg-destructive/5 mt-5 rounded-lg border-2 p-3 text-center transition-all">
+            <div className="text-destructive text-2xl font-bold tabular-nums">
+              {pluralize(width, "year")}
+            </div>
             <div className="text-destructive mt-1 text-xs font-medium">
               Max: {SCORING_CONSTANTS.W_MAX.toLocaleString()} years
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Submit Button with gradient and arrow */}
         <Button

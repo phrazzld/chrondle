@@ -61,8 +61,8 @@ vi.mock("@/components/game/RangeInput", () => ({
   ),
 }));
 
-vi.mock("@/components/game/HintRevealButtons", () => ({
-  HintRevealButtons: () => <div data-testid="hint-reveal-buttons">Hint Reveal Buttons</div>,
+vi.mock("@/components/game/HintIndicator", () => ({
+  HintIndicator: () => <div data-testid="hint-indicator">Hint Indicator</div>,
 }));
 
 vi.mock("@/components/modals/GameComplete", () => ({
@@ -111,7 +111,7 @@ describe("GameLayout", () => {
 
       expect(screen.getByTestId("game-instructions")).toBeTruthy();
       expect(screen.getByTestId("range-input")).toBeTruthy();
-      expect(screen.getByTestId("hint-reveal-buttons")).toBeTruthy();
+      expect(screen.getByTestId("hint-indicator")).toBeTruthy();
     });
 
     it("validates props", () => {

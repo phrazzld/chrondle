@@ -103,6 +103,47 @@ export function GameComplete({
         </div>
       </div>
 
+      {/* Scoring Breakdown - How we scored you */}
+      <div className="border-border/40 bg-background/50 mb-4 rounded-xl border p-4">
+        <h4 className="text-muted-foreground mb-3 text-sm font-semibold tracking-wide uppercase">
+          How We Scored You
+        </h4>
+
+        <div className="space-y-2">
+          {ranges.map((range, i) => {
+            const widthYears = range.end - range.start + 1;
+            return (
+              <div key={i} className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">
+                  Range {i + 1}: {formatYear(range.start)}–{formatYear(range.end)} ({widthYears}{" "}
+                  {widthYears === 1 ? "yr" : "yrs"})
+                </span>
+                <span
+                  className={cn(
+                    "font-semibold tabular-nums",
+                    range.score > 0 ? "text-green-600" : "text-muted-foreground",
+                  )}
+                >
+                  {range.score} pts
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        {ranges.some((r) => r.hintsUsed > 0) && (
+          <div className="border-border/40 mt-3 border-t pt-3 text-xs">
+            <div className="text-muted-foreground flex justify-between">
+              <span>Hints used</span>
+              <span>{Math.max(...ranges.map((r) => r.hintsUsed))} hints</span>
+            </div>
+            <div className="text-muted-foreground/80 mt-1 text-xs italic">
+              (Narrower ranges score higher; hints reduce score)
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="mb-6 space-y-3">
         {ranges.length === 0 ? (
           <p className="text-muted-foreground text-sm">No ranges submitted yet.</p>

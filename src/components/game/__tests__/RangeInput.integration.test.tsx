@@ -59,9 +59,11 @@ describe("RangeInput", () => {
       expect(commitButton).toBeDisabled();
     });
 
-    it("shows helper text when not modified", () => {
+    it("shows width error when range exceeds maximum", () => {
       renderRangeInput();
-      expect(screen.getByText(/adjust the range to enable submission/i)).toBeInTheDocument();
+      // Default range (5026 years) exceeds max, so error should be visible
+      expect(screen.getByText(/max:/i)).toBeInTheDocument();
+      expect(screen.getByText(/5026 years/i)).toBeInTheDocument();
     });
   });
 

@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { GameInstructions } from "@/components/GameInstructions";
 import { RangeInput } from "@/components/game/RangeInput";
-import { HintRevealButtons } from "@/components/game/HintRevealButtons";
-import { ScoreDisplay } from "@/components/game/ScoreDisplay";
+import { HintIndicator } from "@/components/game/HintIndicator";
 import { Confetti, ConfettiRef } from "@/components/magicui/confetti";
 import { GameComplete } from "@/components/modals/GameComplete";
 import { validateGameLayoutProps } from "@/lib/propValidation";
@@ -85,19 +84,10 @@ export function GameLayout(props: GameLayoutProps) {
   // Starts at 0 (first hint is free and always shown)
   const [hintsRevealed, setHintsRevealed] = useState(0);
 
-  // Local state for range input (lifted from RangeInput for header score display)
-  const minYear = -5000;
-  const maxYear = new Date().getFullYear();
-  const [range, setRange] = useState<[number, number]>([minYear, maxYear]);
-
-  // Calculate width from range for score display
-  const width = range[1] - range[0] + 1;
-
-  // Reset hints and range when game completes or puzzle changes
+  // Reset hints when game completes or puzzle changes
   useEffect(() => {
     setHintsRevealed(0);
-    setRange([minYear, maxYear]); // Reset to full timeline
-  }, [gameState.puzzle?.year, isGameComplete, minYear, maxYear]);
+  }, [gameState.puzzle?.year, isGameComplete]);
 
   const targetYear = gameState.puzzle?.year ?? 0;
   const totalScore = gameState.totalScore ?? 0;
@@ -110,11 +100,6 @@ export function GameLayout(props: GameLayoutProps) {
     setHintsRevealed(hintIndex + 1);
   };
 
-  // Handler for range changes from RangeInput
-  const handleRangeChange = (newRange: [number, number]) => {
-    setRange(newRange);
-  };
-
   return (
     <div className="bg-background flex flex-1 flex-col">
       {/* Optional header content */}
@@ -123,20 +108,9 @@ export function GameLayout(props: GameLayoutProps) {
       {/* Main game content */}
       <main className="flex-1 overflow-auto px-4 py-6 sm:px-6 sm:py-8">
         <div className="mx-auto w-full max-w-2xl space-y-10 sm:space-y-12">
-          {/* Active Game: Header with Score in Upper Right */}
+          {/* Active Game: Header */}
           {!isGameComplete && (
-            <div className="flex flex-row items-start justify-between gap-2 sm:gap-4">
-              {/* Left: Game Instructions */}
-              <GameInstructions isGameComplete={false} hasWon={false} isArchive={isArchive} />
-
-              {/* Right: Compact Score Display */}
-              <ScoreDisplay
-                variant="compact"
-                width={width}
-                hintsUsed={hintsRevealed}
-                className="flex-shrink-0"
-              />
-            </div>
+            <GameInstructions isGameComplete={false} hasWon={false} isArchive={isArchive} />
           )}
 
           {/* Completed Game: Full-width Instructions */}
@@ -151,28 +125,54 @@ export function GameLayout(props: GameLayoutProps) {
             />
           )}
 
-          {/* Historical Events Hints - Manual reveal system (shown first for better flow) */}
+          {/* Historical Events Hints - Minimal reveal system */}
           {!isGameComplete && gameState.puzzle && (
-            <HintRevealButtons
-              events={gameState.puzzle.events}
-              hintsRevealed={hintsRevealed}
-              onRevealHint={handleRevealHint}
-              disabled={isGameComplete || isLoading}
-            />
+            <div className="space-y-5">
+              {/* The Puzzle Event - Hero Display */}
+              <div className="border-primary bg-primary/10 rounded-xl border-2 p-5 shadow-md sm:p-6">
+                <div className="text-primary mb-2 text-xs font-bold tracking-wider uppercase">
+                  The Event
+                </div>
+                <div className="text-foreground text-base leading-relaxed sm:text-lg">
+                  {gameState.puzzle.events[0]}
+                </div>
+              </div>
+
+              {/* Additional Revealed Hints */}
+              {hintsRevealed > 0 && (
+                <div className="space-y-3">
+                  {gameState.puzzle.events.slice(1, hintsRevealed + 1).map((hint, index) => (
+                    <div
+                      key={index}
+                      className="border-primary/40 bg-primary/5 rounded-lg border p-4 shadow-sm"
+                    >
+                      <div className="text-muted-foreground mb-1.5 text-xs font-semibold tracking-wider uppercase">
+                        Clue {index + 2}
+                      </div>
+                      <div className="text-sm">{hint}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Minimal Hint Indicator */}
+              <HintIndicator
+                hintsRevealed={hintsRevealed}
+                totalHints={gameState.puzzle.events.length}
+                onRevealHint={() => handleRevealHint(hintsRevealed)}
+                disabled={isGameComplete || isLoading}
+              />
+            </div>
           )}
 
           {/* Range Input - After hints so user can adjust based on information */}
           {!isGameComplete && (
             <RangeInput
-              minYear={minYear}
-              maxYear={maxYear}
               onCommit={onRangeCommit}
               disabled={isLoading}
               className=""
               hintsUsed={hintsRevealed}
               isOneGuessMode={true}
-              value={range}
-              onChange={handleRangeChange}
             />
           )}
 
