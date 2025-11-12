@@ -1,27 +1,33 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   DndContext,
   PointerSensor,
   KeyboardSensor,
+  DragStartEvent,
+  DragOverEvent,
+  DragEndEvent,
+  DragCancelEvent,
+  DragOverlay,
+  closestCenter,
   useSensor,
   useSensors,
-  DragEndEvent,
-  closestCenter,
 } from "@dnd-kit/core";
+import { restrictToParentElement, restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
   SortableContext,
   verticalListSortingStrategy,
   sortableKeyboardCoordinates,
+  arrayMove,
 } from "@dnd-kit/sortable";
 import type { OrderEvent, OrderHint } from "@/types/orderGameState";
-import { DraggableEventCard } from "@/components/order/DraggableEventCard";
+import { DraggableEventCard, OrderEventCardOverlay } from "@/components/order/DraggableEventCard";
 
 interface OrderEventListProps {
   events: OrderEvent[];
   ordering: string[];
-  onOrderingChange: (ordering: string[]) => void;
+  onOrderingChange: (ordering: string[], movedId?: string) => void;
   lockedEventIds?: string[];
   hintsByEvent?: Record<string, OrderHint[]>;
 }
@@ -35,7 +41,7 @@ export function OrderEventList({
 }: OrderEventListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 10 },
+      activationConstraint: { distance: 4 },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
@@ -43,6 +49,20 @@ export function OrderEventList({
   );
 
   const [announcement, setAnnouncement] = useState<string>("");
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [localOrder, setLocalOrder] = useState<string[]>(ordering);
+  const latestOrderRef = useRef(localOrder);
+
+  useEffect(() => {
+    latestOrderRef.current = localOrder;
+  }, [localOrder]);
+
+  useEffect(() => {
+    if (activeId) {
+      return;
+    }
+    setLocalOrder((prev) => (ordersMatch(prev, ordering) ? prev : ordering));
+  }, [ordering, activeId]);
 
   const eventMap = useMemo(() => {
     const map = new Map<string, OrderEvent>();
@@ -52,37 +72,68 @@ export function OrderEventList({
     return map;
   }, [events]);
 
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(String(event.active.id));
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    if (!over) {
+      return;
+    }
+
+    setLocalOrder((prev) => reorder(prev, String(active.id), String(over.id)));
+  };
+
+  const handleDragCancel = (_event: DragCancelEvent) => {
+    setActiveId(null);
+    setLocalOrder(ordering);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over || active.id === over.id) {
+    setActiveId(null);
+
+    if (!over) {
+      setLocalOrder(ordering);
       return;
     }
 
-    const oldIndex = ordering.indexOf(String(active.id));
-    const newIndex = ordering.indexOf(String(over.id));
-    if (oldIndex === -1 || newIndex === -1) {
-      return;
+    const movedId = String(active.id);
+    const finalOrder = latestOrderRef.current;
+
+    onOrderingChange(finalOrder, movedId);
+
+    const movedEvent = eventMap.get(movedId);
+    const newIndex = finalOrder.indexOf(movedId);
+    if (movedEvent && newIndex !== -1) {
+      setAnnouncement(`${movedEvent.text} moved to position ${newIndex + 1}`);
+    } else if (newIndex !== -1) {
+      setAnnouncement(`Item moved to position ${newIndex + 1}`);
     }
 
-    const next = [...ordering];
-    const [moved] = next.splice(oldIndex, 1);
-    next.splice(newIndex, 0, moved);
-    onOrderingChange(next);
-
-    const movedEvent = eventMap.get(String(active.id));
-    setAnnouncement(
-      movedEvent
-        ? `${movedEvent.text} moved to position ${newIndex + 1}`
-        : `Item moved to position ${newIndex + 1}`,
-    );
+    setLocalOrder(finalOrder);
   };
+
+  const activeEvent = activeId ? eventMap.get(activeId) : null;
+  const activeIndex = activeId ? localOrder.indexOf(activeId) : -1;
+  const activeHints = activeEvent ? (hintsByEvent[activeEvent.id] ?? []) : [];
+  const activeLocked = activeEvent ? lockedEventIds.includes(activeEvent.id) : false;
 
   return (
     <div>
-      <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
-        <SortableContext items={ordering} strategy={verticalListSortingStrategy}>
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
+        collisionDetection={closestCenter}
+        modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+      >
+        <SortableContext items={localOrder} strategy={verticalListSortingStrategy}>
           <ol className="space-y-3">
-            {ordering.map((eventId, index) => {
+            {localOrder.map((eventId, index) => {
               const event = eventMap.get(eventId);
               if (!event) return null;
               return (
@@ -98,10 +149,42 @@ export function OrderEventList({
             })}
           </ol>
         </SortableContext>
+        <DragOverlay dropAnimation={null}>
+          {activeEvent ? (
+            <OrderEventCardOverlay
+              event={activeEvent}
+              index={activeIndex === -1 ? 0 : activeIndex}
+              activeHints={activeHints}
+              allEvents={events}
+              isLocked={activeLocked}
+            />
+          ) : null}
+        </DragOverlay>
       </DndContext>
       <p aria-live="polite" className="sr-only">
         {announcement}
       </p>
     </div>
   );
+}
+
+function reorder(items: string[], activeId: string, overId: string): string[] {
+  const oldIndex = items.indexOf(activeId);
+  const newIndex = items.indexOf(overId);
+  if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) {
+    return items;
+  }
+
+  return arrayMove(items, oldIndex, newIndex);
+}
+
+function ordersMatch(a: string[], b: string[]): boolean {
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      return false;
+    }
+  }
+  return true;
 }

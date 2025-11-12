@@ -163,16 +163,22 @@ function ReadyOrderGame({
     return grouped;
   }, [hints]);
 
-  // Adapter function to convert array-based reordering to index-based
+  // Adapter function to convert optimistic ordering array into index-based updates
   const handleOrderingChange = useCallback(
-    (newOrdering: string[]) => {
-      // Find what changed between currentOrder and newOrdering
-      const oldIndex = currentOrder.findIndex((id, idx) => newOrdering[idx] !== id);
-      const newIndex = newOrdering.indexOf(currentOrder[oldIndex]);
-
-      if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-        reorderEvents(oldIndex, newIndex);
+    (nextOrdering: string[], movedId?: string) => {
+      const resolvedId = movedId ?? findMovedEventId(currentOrder, nextOrdering);
+      if (!resolvedId) {
+        return;
       }
+
+      const fromIndex = currentOrder.indexOf(resolvedId);
+      const toIndex = nextOrdering.indexOf(resolvedId);
+
+      if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) {
+        return;
+      }
+
+      reorderEvents(fromIndex, toIndex);
     },
     [currentOrder, reorderEvents],
   );
@@ -290,6 +296,26 @@ function ReadyOrderGame({
       </footer>
     </div>
   );
+}
+
+function findMovedEventId(previous: string[], next: string[]): string | null {
+  if (previous.length !== next.length) {
+    return null;
+  }
+
+  const previousPositions = new Map<string, number>();
+  const nextPositions = new Map<string, number>();
+
+  previous.forEach((id, idx) => previousPositions.set(id, idx));
+  next.forEach((id, idx) => nextPositions.set(id, idx));
+
+  for (const id of previous) {
+    if ((nextPositions.get(id) ?? -1) !== (previousPositions.get(id) ?? -1)) {
+      return id;
+    }
+  }
+
+  return null;
 }
 
 function calculateScore(ordering: string[], events: OrderEvent[], hintCount: number): OrderScore {
