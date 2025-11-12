@@ -10,6 +10,7 @@ export type ShareStatus = "idle" | "success" | "error";
 interface UseShareGameOptions {
   onSuccess?: () => void;
   onError?: () => void;
+  targetYear?: number;
 }
 
 export function useShareGame(
@@ -19,11 +20,13 @@ export function useShareGame(
   puzzleNumber?: number,
   options?: UseShareGameOptions,
 ) {
-  const { onSuccess, onError } = options || {};
+  const { onSuccess, onError, targetYear } = options || {};
   const { share, canShare, shareMethod, isSharing } = useWebShare();
   const [shareStatus, setShareStatus] = useState<ShareStatus>("idle");
 
-  const shareText = generateShareText(ranges, totalScore, hasWon, puzzleNumber);
+  const shareText = generateShareText(ranges, totalScore, hasWon, puzzleNumber, {
+    targetYear,
+  });
 
   // Reset status after delay
   useEffect(() => {

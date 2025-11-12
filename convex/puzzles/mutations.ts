@@ -26,8 +26,8 @@ import type { HintCount } from "../../src/types/range";
 const MAX_ATTEMPTS = 6;
 
 function ensureHintLevel(level: number): HintCount {
-  if (level === 0 || level === 1 || level === 2 || level === 3) {
-    return level;
+  if (Number.isFinite(level) && level >= 0 && level <= 6) {
+    return level as HintCount;
   }
   throw new Error(`Invalid hint level: ${level}`);
 }

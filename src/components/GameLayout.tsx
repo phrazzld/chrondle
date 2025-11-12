@@ -183,6 +183,8 @@ export function GameLayout(props: GameLayoutProps) {
               totalScore={totalScore}
               hasWon={hasWon}
               puzzleNumber={puzzleNumber}
+              targetYear={targetYear}
+              totalHints={gameState.puzzle?.events.length}
             />
           )}
         </div>

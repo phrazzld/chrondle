@@ -1,13 +1,16 @@
 "use client";
 
 import React from "react";
-import { GAME_CONFIG } from "@/lib/constants";
-import { formatYear } from "@/lib/displayFormatting";
+
+import { formatYear, pluralize } from "@/lib/displayFormatting";
 import { SCORING_CONSTANTS } from "@/lib/scoring";
 import { useShareGame } from "@/hooks/useShareGame";
-import { ShareCard } from "@/components/ui/ShareCard";
 import type { RangeGuess } from "@/types/range";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/Separator";
+import { Target, Ruler, Lightbulb, Award } from "lucide-react";
+import { RangeProximity } from "@/components/game/RangeProximity";
 
 interface GameCompleteProps {
   ranges: RangeGuess[];
@@ -15,48 +18,116 @@ interface GameCompleteProps {
   hasWon: boolean;
   puzzleNumber?: number;
   className?: string;
+  targetYear?: number;
+  totalHints?: number;
+}
+
+const BASE_POTENTIAL = SCORING_CONSTANTS.MAX_SCORES_BY_HINTS[0];
+const MAX_HINT_INDEX = SCORING_CONSTANTS.MAX_SCORES_BY_HINTS.length - 1;
+
+function calculateHintPenalty(hintsUsed: number): { totalPenalty: number; cappedScore: number } {
+  const safeLevel = Math.min(Math.max(hintsUsed, 0), MAX_HINT_INDEX);
+  const cappedScore = SCORING_CONSTANTS.MAX_SCORES_BY_HINTS[safeLevel];
+  return {
+    totalPenalty: BASE_POTENTIAL - cappedScore,
+    cappedScore,
+  };
+}
+
+function getWidthStats(range: RangeGuess | undefined, cappedScore: number) {
+  if (!range) {
+    return {
+      width: null,
+      retentionPercent: null,
+      widthPenalty: 0,
+    };
+  }
+
+  const width = range.end - range.start + 1;
+  const widthFactor = Math.max(
+    0,
+    Math.min(1, (SCORING_CONSTANTS.W_MAX - width + 1) / SCORING_CONSTANTS.W_MAX),
+  );
+  const widthPenalty = Math.max(0, cappedScore - Math.floor(cappedScore * widthFactor));
+
+  return {
+    width,
+    retentionPercent: Math.round(widthFactor * 100),
+    widthPenalty,
+  };
+}
+
+function describeMiss(range: RangeGuess, targetYear?: number): string | null {
+  if (typeof targetYear !== "number" || Number.isNaN(targetYear)) {
+    return null;
+  }
+
+  if (targetYear < range.start) {
+    const diff = range.start - targetYear;
+    return `${formatYear(targetYear)} was ${pluralize(diff, "year")} earlier than your start.`;
+  }
+
+  if (targetYear > range.end) {
+    const diff = targetYear - range.end;
+    return `${formatYear(targetYear)} was ${pluralize(diff, "year")} later than your end.`;
+  }
+
+  return null;
+}
+
+function buildOutcomeCopy(
+  hasWon: boolean,
+  range: RangeGuess | undefined,
+  targetYear?: number,
+): { title: string; detail: string | null } {
+  if (!range) {
+    return {
+      title: "No range submitted",
+      detail: "Lock in a range to see how close you were.",
+    };
+  }
+
+  if (hasWon) {
+    const detail =
+      typeof targetYear === "number" && !Number.isNaN(targetYear)
+        ? `${formatYear(targetYear)} landed inside your ${pluralize(
+            range.end - range.start + 1,
+            "year",
+          )} window.`
+        : "Your range captured the target year.";
+
+    return {
+      title: "Range contained the answer",
+      detail,
+    };
+  }
+
+  return {
+    title: "Answer escaped your range",
+    detail: describeMiss(range, targetYear) || "The target year fell outside your window.",
+  };
 }
 
 function RangeSummary({ range, index }: { range: RangeGuess; index: number }) {
   const widthYears = range.end - range.start + 1;
-  const widthPercent = Math.min(1, widthYears / SCORING_CONSTANTS.W_MAX) * 100;
   const contained = range.score > 0;
 
   return (
-    <div
-      className={cn(
-        "border-border/40 bg-background/80 rounded-xl border p-3",
-        contained ? "shadow-sm ring-1 ring-green-500/30" : "",
-      )}
-    >
-      <div className="text-muted-foreground mb-2 flex items-center justify-between text-xs font-medium tracking-wide uppercase">
-        <span>
-          Attempt {index + 1} • {formatYear(range.start)} – {formatYear(range.end)}
-        </span>
-        <span className={contained ? "text-green-600" : "text-muted-foreground"}>
+    <div className="border-border/40 bg-background/80 rounded-xl border p-3">
+      <div className="text-muted-foreground mb-1 flex items-center justify-between text-xs font-medium tracking-wide uppercase">
+        <span>Range {index + 1}</span>
+        <span className={contained ? "text-green-600" : "text-rose-500"}>
           {contained ? "Contained" : "Missed"}
         </span>
       </div>
 
-      <div className="mb-2 flex items-center gap-3">
-        <div className="bg-muted relative h-2 flex-1 rounded-full">
-          <div
-            className={cn(
-              "absolute top-0 left-0 h-full rounded-full",
-              contained ? "bg-green-500" : "bg-muted-foreground/50",
-            )}
-            style={{ width: `${Math.max(8, widthPercent)}%` }}
-          />
-        </div>
-        <span className="text-muted-foreground font-mono text-xs">H{range.hintsUsed}</span>
-      </div>
-
-      <div className="flex items-center justify-between text-sm">
-        <span className="text-foreground font-semibold">{range.score} pts</span>
-        <span className="text-muted-foreground">
-          Width: {widthYears} yr{widthYears === 1 ? "" : "s"}
-        </span>
-      </div>
+      <p className="text-sm font-semibold">
+        {formatYear(range.start)} – {formatYear(range.end)}
+      </p>
+      <p className="text-muted-foreground text-xs">
+        {pluralize(widthYears, "year")} wide · {pluralize(range.hintsUsed, "hint")} used ·{" "}
+        {range.score} pts
+      </p>
     </div>
   );
 }
@@ -66,17 +137,93 @@ export function GameComplete({
   totalScore,
   hasWon,
   puzzleNumber,
+  targetYear,
+  totalHints,
   className,
 }: GameCompleteProps) {
-  const maxAttempts = GAME_CONFIG.MAX_GUESSES;
-  const containedCount = ranges.filter((range) => range.score > 0).length;
+  const primaryRange = ranges[ranges.length - 1];
+  const earlierRanges = ranges.length > 1 ? ranges.slice(0, -1) : [];
+  const hintsUsed = primaryRange?.hintsUsed ?? 0;
+
+  const optionalHintSlots =
+    typeof totalHints === "number" && totalHints > 0 ? Math.max(totalHints - 1, 0) : null;
+  const ladderSlots = optionalHintSlots ?? Math.max(hintsUsed, 1);
+  const ladderFilled = Math.min(hintsUsed, ladderSlots);
+
+  const { totalPenalty: hintPenalty, cappedScore } = calculateHintPenalty(hintsUsed);
+  const widthStats = getWidthStats(primaryRange, cappedScore);
+  const widthFactor = widthStats.width
+    ? Math.max(
+        0,
+        Math.min(1, (SCORING_CONSTANTS.W_MAX - widthStats.width + 1) / SCORING_CONSTANTS.W_MAX),
+      )
+    : 0;
+  const widthScore = Math.floor(cappedScore * widthFactor);
+  const finalRangeScore = primaryRange?.score ?? 0;
+  const displayedFinalScore = hasWon ? finalRangeScore : 0;
+  const outcomeCopy = buildOutcomeCopy(hasWon, primaryRange, targetYear);
 
   const { shareGame, shareStatus, isSharing } = useShareGame(
     ranges,
     totalScore,
     hasWon,
     puzzleNumber,
+    {
+      targetYear,
+    },
   );
+
+  const shareButtonLabel = (() => {
+    if (isSharing) return "Sharing…";
+    if (shareStatus === "success") return "Copied!";
+    if (shareStatus === "error") return "Try again";
+    return "Share challenge";
+  })();
+
+  const shareButtonTone = (() => {
+    if (shareStatus === "success") return "bg-emerald-500 hover:bg-emerald-600";
+    if (shareStatus === "error") return "bg-rose-500 hover:bg-rose-600";
+    return "bg-primary hover:bg-primary/90";
+  })();
+
+  const hintsCopy =
+    hintsUsed === 0
+      ? "You kept every hint hidden."
+      : ladderFilled === ladderSlots
+        ? "All hints revealed."
+        : `${pluralize(hintsUsed, "hint")} revealed.`;
+
+  const showTargetMarker = Boolean(
+    primaryRange && typeof targetYear === "number" && Number.isFinite(targetYear),
+  );
+  const missDistance =
+    showTargetMarker && primaryRange && typeof targetYear === "number"
+      ? targetYear < primaryRange.start
+        ? primaryRange.start - targetYear
+        : targetYear > primaryRange.end
+          ? targetYear - primaryRange.end
+          : 0
+      : null;
+
+  const missDirection =
+    showTargetMarker && primaryRange && typeof targetYear === "number"
+      ? targetYear < primaryRange.start
+        ? "earlier"
+        : targetYear > primaryRange.end
+          ? "later"
+          : "inside"
+      : null;
+
+  const proximityCopy = (() => {
+    if (!primaryRange) return "";
+    if (missDistance === null || missDirection === null) {
+      return `Range ${formatYear(primaryRange.start)} – ${formatYear(primaryRange.end)}`;
+    }
+    if (missDistance === 0) {
+      return `Answer sat inside your ${pluralize(primaryRange.end - primaryRange.start + 1, "year")} window.`;
+    }
+    return `Missed by ${pluralize(missDistance, "year")} (${missDirection}).`;
+  })();
 
   return (
     <section
@@ -85,85 +232,163 @@ export function GameComplete({
         className,
       )}
     >
-      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-muted-foreground text-sm font-semibold tracking-wide uppercase">
-            Game Summary
-          </p>
-          <h3 className="text-foreground text-2xl font-bold">
-            {hasWon ? "Range contained!" : "Study the timeline"}
-          </h3>
+      <div className="mb-5 flex flex-col gap-4">
+        <div className="grid gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] sm:items-stretch">
+          <div className="border-border/40 bg-background/70 rounded-xl border p-4 shadow-inner">
+            <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+              Game Summary
+            </p>
+            <h3 className="text-foreground text-2xl font-bold">{outcomeCopy.title}</h3>
+            {outcomeCopy.detail && (
+              <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
+                {outcomeCopy.detail}
+              </p>
+            )}
+          </div>
+
+          <div className="border-border/40 bg-primary/5 rounded-xl border p-4 text-right shadow-sm">
+            <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+              Total Score
+            </p>
+            <p className="text-primary text-3xl leading-tight font-black">
+              {totalScore.toLocaleString()} pts
+            </p>
+            <p className="text-muted-foreground text-xs">
+              {hasWon ? "Contained range" : "Answer outside range"}
+            </p>
+          </div>
         </div>
-        <div className="text-right">
-          <p className="text-muted-foreground text-sm">Total Score</p>
-          <p className="text-primary text-3xl font-black">{totalScore.toLocaleString()} pts</p>
-          <p className="text-muted-foreground text-xs">
-            {containedCount}/{maxAttempts} ranges contained
-          </p>
-        </div>
+
+        <Button
+          onClick={() => shareGame()}
+          disabled={isSharing}
+          className={cn(
+            "w-full justify-center gap-2 text-sm font-semibold text-white",
+            shareButtonTone,
+          )}
+        >
+          {shareButtonLabel}
+        </Button>
       </div>
 
-      {/* Scoring Breakdown - How we scored you */}
-      <div className="border-border/40 bg-background/50 mb-4 rounded-xl border p-4">
-        <h4 className="text-muted-foreground mb-3 text-sm font-semibold tracking-wide uppercase">
-          How We Scored You
-        </h4>
-
-        <div className="space-y-2">
-          {ranges.map((range, i) => {
-            const widthYears = range.end - range.start + 1;
-            return (
-              <div key={i} className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">
-                  Range {i + 1}: {formatYear(range.start)}–{formatYear(range.end)} ({widthYears}{" "}
-                  {widthYears === 1 ? "yr" : "yrs"})
-                </span>
-                <span
-                  className={cn(
-                    "font-semibold tabular-nums",
-                    range.score > 0 ? "text-green-600" : "text-muted-foreground",
-                  )}
-                >
-                  {range.score} pts
-                </span>
+      {primaryRange && (
+        <RangeProximity
+          rangeStart={primaryRange.start}
+          rangeEnd={primaryRange.end}
+          targetYear={typeof targetYear === "number" ? targetYear : undefined}
+          summary={proximityCopy}
+          subtext={widthStats.width ? `${pluralize(widthStats.width, "year")} window` : undefined}
+        >
+          {ladderSlots > 0 && (
+            <div>
+              <div className="text-muted-foreground mb-1 flex items-center justify-between text-xs">
+                <span>{hintsCopy}</span>
+                <span>{hintPenalty ? `-${hintPenalty} pts` : "0 pt penalty"}</span>
               </div>
-            );
-          })}
-        </div>
-
-        {ranges.some((r) => r.hintsUsed > 0) && (
-          <div className="border-border/40 mt-3 border-t pt-3 text-xs">
-            <div className="text-muted-foreground flex justify-between">
-              <span>Hints used</span>
-              <span>{Math.max(...ranges.map((r) => r.hintsUsed))} hints</span>
+              <div className="flex gap-1.5">
+                {Array.from({ length: ladderSlots }).map((_, index) => (
+                  <span
+                    key={index}
+                    className={cn(
+                      "h-1.5 flex-1 rounded-full",
+                      index < ladderFilled ? "bg-primary" : "bg-muted-foreground/20",
+                    )}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="text-muted-foreground/80 mt-1 text-xs italic">
-              (Narrower ranges score higher; hints reduce score)
+          )}
+        </RangeProximity>
+      )}
+
+      <div className="border-border/40 bg-background/70 mt-4 rounded-xl border p-4">
+        <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
+          Score breakdown
+        </p>
+
+        <div className="space-y-3 text-sm">
+          {/* Base potential */}
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Base potential</span>
+            <span className="font-mono">{BASE_POTENTIAL} pts</span>
+          </div>
+
+          <Separator />
+
+          {/* Hints with subtotal */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Lightbulb className="text-muted-foreground size-4" aria-hidden="true" />
+                <span className="text-muted-foreground">Hints revealed ({hintsUsed})</span>
+              </div>
+              <span className="font-mono">-{hintPenalty} pts</span>
+            </div>
+            <div className="flex items-center justify-end pl-6">
+              <span className="text-muted-foreground text-xs">Subtotal: </span>
+              <span className="ml-2 font-mono text-xs">{cappedScore} pts</span>
             </div>
           </div>
-        )}
+
+          <Separator />
+
+          {/* Width calculation */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Ruler className="text-muted-foreground size-4" aria-hidden="true" />
+              <span className="text-muted-foreground">
+                Range width ({widthStats.width ? pluralize(widthStats.width, "year") : "—"})
+              </span>
+            </div>
+            <span className="font-mono">
+              {cappedScore} × {widthFactor.toFixed(2)} = {widthScore}
+            </span>
+          </div>
+
+          <Separator />
+
+          {/* Containment */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Target className="text-muted-foreground size-4" aria-hidden="true" />
+              <span className="text-muted-foreground">Containment</span>
+            </div>
+            <span className={cn("font-medium", hasWon ? "text-emerald-600" : "text-rose-500")}>
+              {hasWon ? "Contained" : "Missed ×0"}
+            </span>
+          </div>
+
+          <Separator className="border-t-2" />
+
+          {/* Final score */}
+          <div className="flex items-center justify-between pt-1">
+            <div className="flex items-center gap-2">
+              <Award className="size-5" aria-hidden="true" />
+              <span className="font-semibold tracking-wide uppercase">Final Score</span>
+            </div>
+            <span className="text-primary font-mono text-lg font-bold">
+              {displayedFinalScore} pts
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div className="mb-6 space-y-3">
-        {ranges.length === 0 ? (
-          <p className="text-muted-foreground text-sm">No ranges submitted yet.</p>
-        ) : (
-          ranges.map((range, index) => (
-            <RangeSummary key={`${range.start}-${index}`} range={range} index={index} />
-          ))
-        )}
-      </div>
-
-      <ShareCard
-        ranges={ranges}
-        totalScore={totalScore}
-        hasWon={hasWon}
-        shareStatus={shareStatus}
-        onShare={() => shareGame()}
-        isSharing={isSharing}
-        containedCount={containedCount}
-        maxAttempts={maxAttempts}
-      />
+      {earlierRanges.length > 0 && (
+        <div className="border-border/40 bg-background/60 mt-4 rounded-xl border p-4">
+          <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+            Previous windows
+          </p>
+          <div className="mt-3 space-y-2">
+            {earlierRanges.map((range, index) => (
+              <RangeSummary
+                key={`${range.start}-${range.timestamp ?? index}`}
+                range={range}
+                index={index}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

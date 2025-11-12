@@ -252,7 +252,8 @@ export function useGameActions(sources: DataSources): UseGameActionsReturn {
         return false;
       }
 
-      const hintLevel = Math.max(0, Math.min(3, hintsUsed)) as HintCount;
+      const maxHintLevel = SCORING_CONSTANTS.MAX_SCORES_BY_HINTS.length - 1;
+      const hintLevel = Math.max(0, Math.min(maxHintLevel, hintsUsed)) as HintCount;
       const optimisticRange: RangeGuess = {
         start,
         end,
