@@ -1,4 +1,6 @@
 import { logger } from "@/lib/logger";
+import { initializeOrderState, selectOrdering } from "@/lib/order/engine";
+import { mergeHints } from "@/lib/order/hintMerging";
 import type { OrderGameState, OrderHint, OrderPuzzle, OrderScore } from "@/types/orderGameState";
 
 /**
@@ -77,12 +79,17 @@ export function deriveOrderGameState(sources: OrderDataSources): OrderGameState 
     const orderPuzzle = puzzle.puzzle;
     const baselineOrder = orderPuzzle.events.map((event) => event.id);
 
-    const serverOrdering =
-      auth.isAuthenticated && progress.progress ? progress.progress.ordering : null;
-    const currentOrder = normalizeOrdering(serverOrdering, session.ordering, baselineOrder);
-
     const serverHints = auth.isAuthenticated && progress.progress ? progress.progress.hints : [];
     const hints = mergeHints(serverHints, session.hints);
+
+    const serverOrdering =
+      auth.isAuthenticated && progress.progress ? progress.progress.ordering : null;
+    const currentOrder = resolveOrderingWithHints(
+      serverOrdering,
+      session.ordering,
+      baselineOrder,
+      hints,
+    );
 
     const isServerComplete =
       auth.isAuthenticated && Boolean(progress.progress?.completedAt ?? null);
@@ -96,10 +103,11 @@ export function deriveOrderGameState(sources: OrderDataSources): OrderGameState 
         throw new Error("Completed Order puzzle is missing score data");
       }
 
-      const finalOrder = normalizeOrdering(
+      const finalOrder = resolveOrderingWithHints(
         isServerComplete ? serverOrdering : null,
         isSessionComplete ? session.ordering : [],
         baselineOrder,
+        hints,
       );
 
       const correctOrder = [...orderPuzzle.events]
@@ -134,72 +142,14 @@ export function deriveOrderGameState(sources: OrderDataSources): OrderGameState 
   }
 }
 
-/**
- * Ensures ordering arrays contain every puzzle event exactly once.
- * Prefers server ordering, falls back to session ordering, then puzzle baseline.
- */
-function normalizeOrdering(
+function resolveOrderingWithHints(
   preferred: string[] | null,
   fallback: string[],
   baseline: string[],
+  hints: OrderHint[],
 ): string[] {
-  const validIds = new Set(baseline);
-
-  const build = (candidate?: string[] | null): string[] | null => {
-    if (!candidate || candidate.length === 0) {
-      return null;
-    }
-
-    const seen = new Set<string>();
-    const normalized: string[] = [];
-
-    for (const id of candidate) {
-      if (validIds.has(id) && !seen.has(id)) {
-        normalized.push(id);
-        seen.add(id);
-      }
-    }
-
-    for (const id of baseline) {
-      if (!seen.has(id)) {
-        normalized.push(id);
-        seen.add(id);
-      }
-    }
-
-    return normalized;
-  };
-
-  return build(preferred) ?? build(fallback) ?? [...baseline];
-}
-
-/**
- * Deduplicates hints while preserving server-provided entries first.
- */
-function mergeHints(serverHints: OrderHint[], sessionHints: OrderHint[]): OrderHint[] {
-  const serialized = new Set(serverHints.map(serializeHint));
-  const merged = [...serverHints];
-
-  for (const hint of sessionHints) {
-    const key = serializeHint(hint);
-    if (!serialized.has(key)) {
-      serialized.add(key);
-      merged.push(hint);
-    }
-  }
-
-  return merged;
-}
-
-function serializeHint(hint: OrderHint): string {
-  switch (hint.type) {
-    case "anchor":
-      return `anchor:${hint.eventId}:${hint.position}`;
-    case "relative":
-      return `relative:${hint.earlierEventId}:${hint.laterEventId}`;
-    case "bracket":
-      return `bracket:${hint.eventId}:${hint.yearRange[0]}-${hint.yearRange[1]}`;
-    default:
-      return JSON.stringify(hint);
-  }
+  const context = { baseline };
+  const baseOrdering = preferred && preferred.length ? preferred : fallback;
+  const state = initializeOrderState(context, baseOrdering ?? baseline, hints);
+  return selectOrdering(state);
 }

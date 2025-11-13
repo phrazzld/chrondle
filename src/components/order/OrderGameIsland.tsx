@@ -12,6 +12,7 @@ import { TimelineContextBar } from "@/components/order/TimelineContextBar";
 import { OrderInstructions } from "@/components/order/OrderInstructions";
 import { AppHeader } from "@/components/AppHeader";
 import { generateAnchorHint, generateBracketHint, generateRelativeHint } from "@/lib/order/hints";
+import { deriveLockedPositions } from "@/lib/order/engine";
 import { copyOrderShareCardToClipboard, type OrderShareResult } from "@/lib/order/shareCard";
 import { logger } from "@/lib/logger";
 
@@ -139,11 +140,8 @@ function ReadyOrderGame({
     [hints],
   );
 
-  // Get locked event IDs from anchor hints
-  const lockedEventIds = useMemo(
-    () => hints.filter((hint) => hint.type === "anchor").map((hint) => hint.eventId),
-    [hints],
-  );
+  // Get locked positions from anchor hints (Map: eventId → locked position)
+  const lockedPositions = useMemo(() => deriveLockedPositions(hints), [hints]);
 
   // Group hints by event ID for display on cards
   const hintsByEvent = useMemo(() => {
@@ -274,7 +272,7 @@ function ReadyOrderGame({
                 events={puzzle.events}
                 ordering={currentOrder}
                 onOrderingChange={handleOrderingChange}
-                lockedEventIds={lockedEventIds}
+                lockedPositions={lockedPositions}
                 hintsByEvent={hintsByEvent}
               />
             </section>

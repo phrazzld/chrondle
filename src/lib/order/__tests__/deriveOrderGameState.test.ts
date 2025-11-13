@@ -149,7 +149,8 @@ describe("deriveOrderGameState (Order)", () => {
       );
       expect(state.status).toBe("ready");
       if (state.status === "ready") {
-        expect(state.currentOrder).toEqual(progressData.ordering);
+        // Locked positions are enforced, so event-a (locked at 0) should be first
+        expect(state.currentOrder).toEqual(["event-a", "event-b", "event-c"]);
         expect(state.hints).toEqual(serverHints);
       }
     });

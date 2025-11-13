@@ -6,7 +6,14 @@ import { useOrderPuzzleData } from "@/hooks/data/useOrderPuzzleData";
 import { useOrderProgress } from "@/hooks/data/useOrderProgress";
 import { useOrderSession } from "@/hooks/useOrderSession";
 import { deriveOrderGameState, type OrderDataSources } from "@/lib/deriveOrderGameState";
-import { applyHintToOrdering } from "@/lib/order/applyHintToOrdering";
+import {
+  initializeOrderState,
+  reduceOrderState,
+  selectOrdering,
+  type OrderEngineAction,
+  type OrderEngineState,
+} from "@/lib/order/engine";
+import { mergeHints } from "@/lib/order/hintMerging";
 import type { OrderGameState, OrderHint, OrderScore } from "@/types/orderGameState";
 
 interface UseOrderGameReturn {
@@ -51,8 +58,27 @@ export function useOrderGame(puzzleNumber?: number, initialPuzzle?: unknown): Us
 
   const gameState = useMemo(() => deriveOrderGameState(dataSources), [dataSources]);
 
+  const serverHints = useMemo(
+    () => (auth.isAuthenticated && progress.progress ? progress.progress.hints : []),
+    [auth.isAuthenticated, progress.progress],
+  );
+  const mergedHints = useMemo(
+    () => mergeHints(serverHints, session.state.hints),
+    [serverHints, session.state.hints],
+  );
+
+  const engineContext = useMemo(() => ({ baseline: baselineOrder }), [baselineOrder]);
+
   const sessionOrderingRef = useRef(session.state.ordering);
   sessionOrderingRef.current = session.state.ordering;
+
+  const runOrderReducer = useCallback(
+    (ordering: string[], action: OrderEngineAction): OrderEngineState => {
+      const baseState = initializeOrderState(engineContext, ordering, mergedHints);
+      return reduceOrderState(engineContext, baseState, action);
+    },
+    [engineContext, mergedHints],
+  );
 
   const reorderEvents = useCallback(
     (fromIndex: number, toIndex: number) => {
@@ -60,10 +86,33 @@ export function useOrderGame(puzzleNumber?: number, initialPuzzle?: unknown): Us
         return;
       }
 
-      const ordering = moveItem(sessionOrderingRef.current, fromIndex, toIndex);
-      session.setOrdering(ordering);
+      const ordering = sessionOrderingRef.current;
+      if (
+        fromIndex < 0 ||
+        fromIndex >= ordering.length ||
+        toIndex < 0 ||
+        toIndex >= ordering.length
+      ) {
+        return;
+      }
+
+      const eventId = ordering[fromIndex];
+      if (!eventId) {
+        return;
+      }
+
+      const nextState = runOrderReducer(ordering, {
+        type: "move",
+        eventId,
+        targetIndex: toIndex,
+      });
+      const nextOrdering = selectOrdering(nextState);
+
+      if (!ordersMatch(ordering, nextOrdering)) {
+        session.setOrdering(nextOrdering);
+      }
     },
-    [session],
+    [runOrderReducer, session],
   );
 
   const takeHint = useCallback(
@@ -71,17 +120,22 @@ export function useOrderGame(puzzleNumber?: number, initialPuzzle?: unknown): Us
       // Apply hint effect to ordering (anchor hints move events to correct position)
       const currentOrdering = sessionOrderingRef.current;
 
-      const newOrdering = applyHintToOrdering(currentOrdering, hint, correctOrder);
+      const nextState = runOrderReducer(currentOrdering, {
+        type: "apply-hint",
+        hint,
+        correctOrder,
+      });
+      const newOrdering = selectOrdering(nextState);
 
       // Update ordering if it changed
-      if (newOrdering !== currentOrdering) {
+      if (!ordersMatch(currentOrdering, newOrdering)) {
         session.setOrdering(newOrdering);
       }
 
       // Add hint to history
       session.addHint(hint);
     },
-    [session, correctOrder],
+    [session, correctOrder, runOrderReducer],
   );
 
   const commitOrdering = useCallback(
@@ -102,13 +156,13 @@ export function useOrderGame(puzzleNumber?: number, initialPuzzle?: unknown): Us
   );
 }
 
-function moveItem<T>(items: T[], from: number, to: number): T[] {
-  if (from < 0 || to < 0 || from >= items.length || to >= items.length) {
-    return items;
+function ordersMatch(a: string[], b: string[]): boolean {
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      return false;
+    }
   }
-
-  const copy = [...items];
-  const [removed] = copy.splice(from, 1);
-  copy.splice(to, 0, removed);
-  return copy;
+  return true;
 }

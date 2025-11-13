@@ -5,6 +5,7 @@ import type { Id } from "convex/_generated/dataModel";
 import type { OrderHint, OrderScore } from "@/types/orderGameState";
 import type { OrderSessionState } from "@/lib/deriveOrderGameState";
 import { logger } from "@/lib/logger";
+import { serializeHint } from "@/lib/order/hintMerging";
 
 const ORDER_SESSION_PREFIX = "chrondle_order_session_";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
@@ -268,17 +269,4 @@ function normalizeOrdering(ordering: string[], baseline: string[]): string[] {
   }
 
   return normalized;
-}
-
-function serializeHint(hint: OrderHint): string {
-  switch (hint.type) {
-    case "anchor":
-      return `anchor:${hint.eventId}:${hint.position}`;
-    case "relative":
-      return `relative:${hint.earlierEventId}:${hint.laterEventId}`;
-    case "bracket":
-      return `bracket:${hint.eventId}:${hint.yearRange[0]}-${hint.yearRange[1]}`;
-    default:
-      return JSON.stringify(hint);
-  }
 }

@@ -10,6 +10,7 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { ANIMATION_DURATIONS, useReducedMotion } from "@/lib/animationConstants";
 import { formatYear } from "@/lib/displayFormatting";
 import { formatRelativeHintText } from "@/lib/order/formatHints";
+import { serializeHint } from "@/lib/order/hintMerging";
 import { cn } from "@/lib/utils";
 import type { OrderEvent, OrderHint } from "@/types/orderGameState";
 
@@ -371,17 +372,4 @@ function UsedHintsList({ events, hints }: UsedHintsListProps) {
       </LayoutGroup>
     </ul>
   );
-}
-
-function serializeHint(hint: OrderHint): string {
-  switch (hint.type) {
-    case "anchor":
-      return `anchor:${hint.eventId}:${hint.position}`;
-    case "relative":
-      return `relative:${hint.earlierEventId}:${hint.laterEventId}`;
-    case "bracket":
-      return `bracket:${hint.eventId}:${hint.yearRange.join("-")}`;
-    default:
-      return JSON.stringify(hint);
-  }
 }
