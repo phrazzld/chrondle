@@ -55,10 +55,10 @@ describe("GuessInput Component Interface", () => {
       render(<GuessInput {...defaultProps} />);
 
       const input = screen.getByRole("textbox");
-      const button = screen.getByRole("button");
+      const submitButton = screen.getByRole("button", { name: /submit guess/i });
 
       expect(input).toBeTruthy();
-      expect(button).toBeTruthy();
+      expect(submitButton).toBeTruthy();
     });
 
     it("validates props on render", () => {
@@ -77,7 +77,7 @@ describe("GuessInput Component Interface", () => {
       fireEvent.submit(form);
 
       await waitFor(() => {
-        expect(mockOnGuess).toHaveBeenCalledWith(1969);
+        expect(mockOnGuess).toHaveBeenCalledWith(1969, "confident");
       });
     });
 
@@ -85,32 +85,34 @@ describe("GuessInput Component Interface", () => {
       render(<GuessInput {...defaultProps} disabled={true} />);
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
-      const button = screen.getByRole("button") as HTMLButtonElement;
+      const submitButton = screen.getByRole("button", {
+        name: /submit guess/i,
+      }) as HTMLButtonElement;
 
       expect(input.disabled).toBe(true);
-      expect(button.disabled).toBe(true);
+      expect(submitButton.disabled).toBe(true);
     });
 
     it("shows 'Guess' as button text", () => {
       render(<GuessInput {...defaultProps} remainingGuesses={3} />);
 
-      const button = screen.getByRole("button");
-      expect(button.textContent).toBe("Guess");
+      const submitButton = screen.getByRole("button", { name: /submit guess/i });
+      expect(submitButton.textContent).toBe("Guess");
     });
 
     it("handles single guess remaining", () => {
       render(<GuessInput {...defaultProps} remainingGuesses={1} />);
 
-      const button = screen.getByRole("button");
-      expect(button.textContent).toBe("Guess");
+      const submitButton = screen.getByRole("button", { name: /submit guess/i });
+      expect(submitButton.textContent).toBe("Guess");
     });
 
     it("handles no guesses remaining", () => {
       render(<GuessInput {...defaultProps} remainingGuesses={0} />);
 
-      const button = screen.getByRole("button");
-      expect(button.textContent?.toLowerCase()).toContain("no");
-      expect(button.textContent).toMatch(/guess/i);
+      const submitButton = screen.getByRole("button", { name: /submit guess/i });
+      expect(submitButton.textContent?.toLowerCase()).toContain("no");
+      expect(submitButton.textContent).toMatch(/guess/i);
     });
   });
 
@@ -172,7 +174,7 @@ describe("GuessInput Component Interface", () => {
       fireEvent.submit(form);
 
       await waitFor(() => {
-        expect(mockOnGuess).toHaveBeenCalledWith(-776);
+        expect(mockOnGuess).toHaveBeenCalledWith(-776, "confident");
       });
     });
 
@@ -187,7 +189,7 @@ describe("GuessInput Component Interface", () => {
       fireEvent.submit(form);
 
       await waitFor(() => {
-        expect(mockOnGuess).toHaveBeenCalledWith(1969);
+        expect(mockOnGuess).toHaveBeenCalledWith(1969, "confident");
       });
     });
 
@@ -204,7 +206,7 @@ describe("GuessInput Component Interface", () => {
       fireEvent.submit(form);
 
       await waitFor(() => {
-        expect(mockOnGuess).toHaveBeenCalledWith(1969);
+        expect(mockOnGuess).toHaveBeenCalledWith(1969, "confident");
       });
     });
   });
@@ -230,15 +232,17 @@ describe("GuessInput Component Interface", () => {
     it("handles negative remaining guesses", () => {
       render(<GuessInput {...defaultProps} remainingGuesses={-1} />);
 
-      const button = screen.getByRole("button") as HTMLButtonElement;
-      expect(button.disabled).toBe(true);
+      const submitButton = screen.getByRole("button", {
+        name: /submit guess/i,
+      }) as HTMLButtonElement;
+      expect(submitButton.disabled).toBe(true);
     });
 
     it("handles very large remaining guesses", () => {
       render(<GuessInput {...defaultProps} remainingGuesses={100} />);
 
-      const button = screen.getByRole("button");
-      expect(button.textContent).toBe("Guess");
+      const submitButton = screen.getByRole("button", { name: /submit guess/i });
+      expect(submitButton.textContent).toBe("Guess");
     });
 
     it("clears input after successful submission", async () => {
@@ -256,7 +260,7 @@ describe("GuessInput Component Interface", () => {
       // Note: This behavior depends on the actual component implementation
       // In tests, we verify the onGuess was called
       await waitFor(() => {
-        expect(mockOnGuess).toHaveBeenCalledWith(1969);
+        expect(mockOnGuess).toHaveBeenCalledWith(1969, "confident");
       });
     });
   });
@@ -313,7 +317,7 @@ describe("GuessInput Component Interface", () => {
       fireEvent.submit(form);
 
       await waitFor(() => {
-        expect(mockOnGuess).toHaveBeenCalledWith(-500);
+        expect(mockOnGuess).toHaveBeenCalledWith(-500, "confident");
       });
 
       // Era should still be BC after submission

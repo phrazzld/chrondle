@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, use } from "react";
+import { useState, useEffect, useCallback, use, useMemo } from "react";
 import Link from "next/link";
 import { fetchTotalPuzzles } from "@/lib/puzzleData";
 import { useChrondle } from "@/hooks/useChrondle";
@@ -19,6 +19,8 @@ import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { ArchiveErrorBoundary } from "@/components/ArchiveErrorBoundary";
 import { logger } from "@/lib/logger";
+import type { ConfidenceLevel } from "@/types/confidence";
+import { getPotentialScore } from "@/lib/confidenceScoring";
 
 // Type for validation result
 type PuzzleIdValidation =
@@ -60,6 +62,9 @@ function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps): React.ReactEle
   const [totalPuzzles, setTotalPuzzles] = useState(0);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
+  // Confidence tracking for scoring
+  const [wrongGuessConfidences, setWrongGuessConfidences] = useState<ConfidenceLevel[]>([]);
+
   // The puzzle ID is the puzzle number (1-based)
   const puzzleNumber = validation.valid && validation.id ? validation.id : 0;
 
@@ -91,6 +96,15 @@ function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps): React.ReactEle
 
   // Get target year from game state puzzle
   const targetYear = gameState.puzzle?.year || 2000;
+
+  // Calculate current potential score
+  const currentScore = useMemo(() => {
+    const currentHintIndex = Math.min(gameState.guesses.length, 5);
+    return getPotentialScore(currentHintIndex, wrongGuessConfidences, "confident");
+  }, [gameState.guesses.length, wrongGuessConfidences]);
+
+  // Check if game is perfect (no wrong guesses)
+  const isPerfect = wrongGuessConfidences.length === 0 && hasWon;
 
   // Fetch total puzzles count for navigation
   useEffect(() => {
@@ -125,6 +139,12 @@ function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps): React.ReactEle
     fetchData();
   }, [validation]);
 
+  // Reset confidence tracking when navigating to a different puzzle
+  useEffect(() => {
+    setWrongGuessConfidences([]);
+    setShowSuccess(false);
+  }, [validation.id]);
+
   // Use victory confetti hook for celebration
   useVictoryConfetti(confettiRef, {
     hasWon,
@@ -148,10 +168,19 @@ function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps): React.ReactEle
 
   // Handle guess submission
   const handleGuess = useCallback(
-    (guess: number): void => {
+    (guess: number, confidence: ConfidenceLevel): void => {
       if (!gameState.puzzle || isGameComplete) return;
 
-      makeGuess(guess);
+      // Check if this will be a wrong guess
+      const isWrong = guess !== targetYear;
+
+      // Track wrong guess confidence for scoring
+      if (isWrong) {
+        setWrongGuessConfidences((prev) => [...prev, confidence]);
+      }
+
+      // Submit guess with confidence
+      makeGuess(guess, confidence);
 
       // Update announcement with feedback
       const directionInfo = getGuessDirectionInfo(guess, targetYear);
@@ -231,6 +260,8 @@ function ArchivePuzzleContent({ id }: ArchivePuzzleContentProps): React.ReactEle
         onValidationError={(msg: string): void => setAnnouncement(msg)}
         confettiRef={confettiRef}
         isArchive={true}
+        currentScore={currentScore}
+        isPerfect={isPerfect}
         headerContent={
           <>
             <AppHeader currentStreak={0} />

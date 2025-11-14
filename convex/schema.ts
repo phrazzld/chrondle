@@ -33,6 +33,10 @@ export default defineSchema({
     userId: v.id("users"),
     puzzleId: v.id("puzzles"),
     guesses: v.array(v.number()), // [1945, 1939, 1941] - just years
+    confidenceLevels: v.optional(v.array(v.string())), // ["confident", "bold", "cautious"] - confidence per guess
+    wrongGuessConfidences: v.optional(v.array(v.string())), // ["bold", "cautious"] - confidence for wrong guesses only
+    finalScore: v.optional(v.number()), // Final puzzle score (0-600 range)
+    isPerfect: v.optional(v.boolean()), // True if solved with no wrong guesses
     completedAt: v.optional(v.number()), // null = in progress, timestamp = done
     updatedAt: v.number(), // Last guess timestamp
   })
@@ -49,7 +53,11 @@ export default defineSchema({
     longestStreak: v.number(),
     lastCompletedDate: v.optional(v.string()), // ISO date (YYYY-MM-DD) of last puzzle completion
     totalPlays: v.number(),
-    perfectGames: v.number(), // Guessed in 1 try
+    perfectGames: v.number(), // Solved with no wrong guesses
+    // Confidence scoring fields
+    totalScore: v.optional(v.number()), // Lifetime score accumulation
+    highestPuzzleScore: v.optional(v.number()), // Best single puzzle score (max 600)
+    averageScore: v.optional(v.number()), // Average score across all completed puzzles
     updatedAt: v.number(), // For streak updates
   }).index("by_clerk", ["clerkId"]),
 
